@@ -26,7 +26,7 @@ const workspace: NavItem[] = [
 
 const system: NavItem[] = [{ label: "Settings", to: "/app/settings", icon: Settings }];
 
-function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
+function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: (() => void) | undefined }) {
   return (
     <Link
       to={item.to}
@@ -48,7 +48,7 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
-export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+export function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   return (
     <nav className="flex h-full flex-col px-3 pb-4">
       <SectionLabel>Workspace</SectionLabel>
