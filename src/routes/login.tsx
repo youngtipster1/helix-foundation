@@ -42,7 +42,7 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (ready && isAuthenticated) navigate({ to: "/app/dashboard", replace: true });
+    if (ready && isAuthenticated) navigate({ to: "/app/settings/dashboard", replace: true });
   }, [ready, isAuthenticated, navigate]);
 
   if (!ready || isAuthenticated) {
@@ -71,7 +71,7 @@ function LoginPage() {
       return;
     }
 
-    navigate({ to: "/app/dashboard", replace: true });
+    navigate({ to: "/app/settings/dashboard", replace: true });
   }
 
   return (
