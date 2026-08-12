@@ -7,7 +7,7 @@ let counter = store.length;
 
 export type UserAccountInput = Pick<
   UserAccount,
-  "personnelId" | "personnelName" | "email" | "isSuperAdmin" | "permissions" | "active"
+  "personnelId" | "personnelName" | "email" | "module" | "role" | "active"
 >;
 
 export const userAccountService = {

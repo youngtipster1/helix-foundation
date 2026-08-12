@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Edit2, ShieldAlert, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { DataTable } from "@/components/data-table/data-table";
@@ -9,9 +10,8 @@ import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { userAccountService, type UserAccountInput } from "@/modules/settings/services/user-account-service";
-import type { UserAccount, ModulePermissions } from "@/modules/settings/types";
+import type { UserAccount } from "@/modules/settings/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/settings/user-accounts")({
   head: () => ({
@@ -23,15 +23,6 @@ export const Route = createFileRoute("/app/settings/user-accounts")({
   component: UserAccountsPage,
 });
 
-const MODULE_KEYS = [
-  { key: "quality", label: "Quality" },
-  { key: "tools", label: "Tools" },
-  { key: "training", label: "Training" },
-  { key: "parts-inventory", label: "Parts" },
-  { key: "debrief", label: "Debrief" },
-  { key: "management", label: "Management" },
-] as const;
-
 interface AccountEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -40,27 +31,13 @@ interface AccountEditModalProps {
 }
 
 function AccountEditModal({ open, onOpenChange, account, onSubmit }: AccountEditModalProps) {
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [permissions, setPermissions] = useState<ModulePermissions>({
-    quality: null,
-    tools: null,
-    training: null,
-    "parts-inventory": null,
-    debrief: null,
-    management: null,
-  });
+  const [role, setRole] = useState<UserAccount["role"]>("user");
+  const [moduleAccess, setModuleAccess] = useState<UserAccount["module"]>("quality");
 
   useEffect(() => {
     if (account) {
-      setIsSuperAdmin(account.isSuperAdmin);
-      setPermissions(account.permissions || {
-        quality: null,
-        tools: null,
-        training: null,
-        "parts-inventory": null,
-        debrief: null,
-        management: null,
-      });
+      setRole(account.role);
+      setModuleAccess(account.module);
     }
   }, [account, open]);
 
@@ -71,131 +48,67 @@ function AccountEditModal({ open, onOpenChange, account, onSubmit }: AccountEdit
       personnelId: account.personnelId,
       personnelName: account.personnelName,
       email: account.email,
-      isSuperAdmin,
-      permissions,
+      role,
+      module: moduleAccess,
       active: account.active,
     });
     onOpenChange(false);
   };
 
-  const handleCheck = (moduleKey: keyof ModulePermissions, level: "admin" | "user") => {
-    setPermissions((prev) => {
-      const current = prev[moduleKey];
-      let next: typeof current = null;
-
-      if (current === level) {
-        next = null; // Toggle off if already active
-      } else {
-        next = level;
-      }
-
-      return {
-        ...prev,
-        [moduleKey]: next,
-      };
-    });
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[680px]">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Edit Account Access</DialogTitle>
         </DialogHeader>
         {account && (
-          <form onSubmit={handleSubmit} className="space-y-6 py-2">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pb-4 border-b border-border">
-              <div className="space-y-1">
-                <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">User Account</Label>
-                <p className="text-base font-bold text-foreground">{account.personnelName}</p>
-                <p className="text-xs text-muted-foreground font-mono">{account.email}</p>
-              </div>
-
-              {/* Super Admin Toggle Switch */}
-              <div className="flex items-center gap-3 bg-accent/40 rounded-lg p-3 border border-border/80">
-                <div className="space-y-0.5">
-                  <Label htmlFor="super-admin-toggle" className="text-xs font-bold text-foreground cursor-pointer">
-                    Super Admin Access
-                  </Label>
-                  <p className="text-[10px] text-muted-foreground">Overrides granular module selections</p>
-                </div>
-                <input
-                  id="super-admin-toggle"
-                  type="checkbox"
-                  checked={isSuperAdmin}
-                  onChange={(e) => setIsSuperAdmin(e.target.checked)}
-                  className="size-5 rounded border-input text-primary bg-background focus:ring-primary cursor-pointer"
-                />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label className="text-muted-foreground text-xs">User Account</Label>
+              <p className="font-semibold text-foreground">{account.personnelName}</p>
+              <p className="text-xs text-muted-foreground font-mono">{account.email}</p>
             </div>
 
-            {/* Matrix Permission Table Grid */}
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Module Access Matrix
-              </Label>
-              <div className="overflow-x-auto rounded-lg border border-border bg-card">
-                <table className="w-full border-collapse text-left text-xs min-w-[500px]">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/40">
-                      <th className="py-3 px-4 font-semibold text-muted-foreground uppercase tracking-wider w-1/4">
-                        Role / Privilege
-                      </th>
-                      {MODULE_KEYS.map((mod) => (
-                        <th
-                          key={mod.key}
-                          className="py-3 px-3 text-center font-semibold text-muted-foreground uppercase tracking-wider"
-                        >
-                          {mod.label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/60">
-                    <tr className="hover:bg-accent/10 transition-colors">
-                      <td className="py-3 px-4 font-bold text-foreground">Admin Privilege</td>
-                      {MODULE_KEYS.map((mod) => {
-                        const isChecked = isSuperAdmin || permissions[mod.key] === "admin";
-                        return (
-                          <td key={mod.key} className="py-3 px-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              disabled={isSuperAdmin}
-                              onChange={() => handleCheck(mod.key, "admin")}
-                              className="size-4.5 rounded border-input text-primary bg-background focus:ring-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            />
-                          </td>
-                        );
-                      })}
-                    </tr>
-                    <tr className="hover:bg-accent/10 transition-colors">
-                      <td className="py-3 px-4 font-bold text-foreground">User Privilege</td>
-                      {MODULE_KEYS.map((mod) => {
-                        const isChecked = !isSuperAdmin && permissions[mod.key] === "user";
-                        return (
-                          <td key={mod.key} className="py-3 px-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              disabled={isSuperAdmin}
-                              onChange={() => handleCheck(mod.key, "user")}
-                              className="size-4.5 rounded border-input text-primary bg-background focus:ring-primary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            />
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Access Role</Label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserAccount["role"])}
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+              >
+                <option value="user">Module User</option>
+                <option value="admin">Module Admin</option>
+                <option value="super-admin">Super Admin</option>
+              </select>
             </div>
 
-            <DialogFooter className="pt-4 border-t border-border">
+            <div className="space-y-2">
+              <Label htmlFor="module">Assigned Module</Label>
+              <select
+                id="module"
+                value={moduleAccess}
+                onChange={(e) => setModuleAccess(e.target.value as UserAccount["module"])}
+                disabled={role === "super-admin"}
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="all">All Modules (Super Admin only)</option>
+                <option value="quality">Quality</option>
+                <option value="tools">Tools</option>
+                <option value="training">Training</option>
+                <option value="parts-inventory">Parts Inventory</option>
+                <option value="debrief">Debrief</option>
+                <option value="management">Management</option>
+              </select>
+            </div>
+
+            <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">
+                Save Changes
+              </Button>
             </DialogFooter>
           </form>
         )}
@@ -277,45 +190,6 @@ function UserAccountsPage() {
     }
   };
 
-  const getPermissionBadges = (row: UserAccount) => {
-    if (row.isSuperAdmin) {
-      return (
-        <span className="inline-flex items-center rounded-md bg-primary/8 px-2 py-0.5 text-xs font-medium text-primary border border-primary/10">
-          All Modules (Full Access)
-        </span>
-      );
-    }
-
-    const active = Object.entries(row.permissions)
-      .filter(([_, level]) => level !== null)
-      .map(([key, level]) => {
-        const label = MODULE_KEYS.find((m) => m.key === key)?.label || key;
-        return { label, level };
-      });
-
-    if (active.length === 0) {
-      return <span className="text-xs text-muted-foreground font-mono italic">No Active Module Access</span>;
-    }
-
-    return (
-      <div className="flex flex-wrap gap-1.5 max-w-md">
-        {active.map(({ label, level }) => (
-          <span
-            key={label}
-            className={cn(
-              "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border uppercase tracking-wider",
-              level === "admin"
-                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 dark:bg-emerald-500/5"
-                : "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 dark:bg-blue-500/5"
-            )}
-          >
-            {label}: {level}
-          </span>
-        ))}
-      </div>
-    );
-  };
-
   const columns: DataTableColumn<UserAccount>[] = [
     {
       key: "personnelName",
@@ -323,7 +197,7 @@ function UserAccountsPage() {
       value: (row) => row.personnelName,
       cell: (row) => (
         <div>
-          <p className="font-semibold text-foreground">{row.personnelName}</p>
+          <p className="font-medium text-foreground">{row.personnelName}</p>
           <p className="text-[11px] text-muted-foreground font-mono">{row.email}</p>
         </div>
       ),
@@ -332,25 +206,24 @@ function UserAccountsPage() {
     {
       key: "role",
       header: "Access Role",
-      value: (row) => (row.isSuperAdmin ? "Super Admin" : "Standard User"),
+      value: (row) => row.role,
       cell: (row) => (
-        <span
-          className={cn(
-            "capitalize font-bold text-xs tracking-wide",
-            row.isSuperAdmin ? "text-primary" : "text-muted-foreground"
-          )}
-        >
-          {row.isSuperAdmin ? "Super Admin" : "Standard User"}
+        <span className="capitalize font-semibold text-xs tracking-wide">
+          {row.role.replace("-", " ")}
         </span>
       ),
       filterable: true,
     },
     {
-      key: "permissions",
-      header: "Module Permissions Map",
-      value: (row) => (row.isSuperAdmin ? "all" : Object.keys(row.permissions).filter(k => row.permissions[k as keyof ModulePermissions] !== null).join(", ")),
-      cell: (row) => getPermissionBadges(row),
-      filterable: false,
+      key: "module",
+      header: "Module",
+      value: (row) => row.module,
+      cell: (row) => (
+        <span className="capitalize font-mono text-xs text-muted-foreground">
+          {row.module === "all" ? "All Modules" : row.module.replace("-", " ")}
+        </span>
+      ),
+      filterable: true,
     },
     {
       key: "active",
