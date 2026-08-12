@@ -30,8 +30,7 @@ export function Topbar({
 
   useEffect(() => {
     const saved = localStorage.getItem("hemp.theme");
-    const isDarkSystem = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initialTheme = saved === "dark" || (saved === null && isDarkSystem) ? "dark" : "light";
+    const initialTheme = saved === "dark" ? "dark" : "light";
     setTheme(initialTheme);
     if (initialTheme === "dark") {
       document.documentElement.classList.add("dark");
