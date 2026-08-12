@@ -1,19 +1,12 @@
 import type { AuthResult, AuthService, Credentials, User } from "./types";
+import { userAccountService } from "@/modules/settings/services/user-account-service";
 
 const STORAGE_KEY = "hemp.session";
 
-/** Development-only credentials for the mocked authentication layer. */
+/** Development-only fallback credentials. */
 export const DEMO_CREDENTIALS = {
   username: "johndoe",
   password: "hemp1234",
-};
-
-const MOCK_USER: User = {
-  id: "usr_001",
-  firstName: "John",
-  lastName: "Doe",
-  username: "johndoe",
-  role: "Super Admin",
 };
 
 function read(storage: Storage | undefined): User | null {
@@ -34,22 +27,34 @@ export const mockAuthService: AuthService = {
   async signIn({ username, password, remember }: Credentials): Promise<AuthResult> {
     await new Promise((resolve) => setTimeout(resolve, 450));
 
-    const identifier = username.trim().toLowerCase();
-    const matches =
-      (identifier === DEMO_CREDENTIALS.username ||
-        identifier === `${DEMO_CREDENTIALS.username}@hemp.local`) &&
-      password === DEMO_CREDENTIALS.password;
+    // Lookup user from mock accounts store
+    const account = userAccountService.findByUsername(username);
 
-    if (!matches) {
-      return { ok: false, error: "Invalid credentials. Check your username and password." };
+    // Verify account exists, password matches, and account is active
+    const matches = account && account.password === password && account.active;
+
+    if (!matches || !account) {
+      return { ok: false, error: "Invalid credentials or inactive account." };
     }
+
+    const nameParts = account.personnelName.split(" ");
+    const firstName = nameParts[0] || "User";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    const loggedInUser: User = {
+      id: account.id,
+      firstName,
+      lastName,
+      username: account.username,
+      role: account.isSuperAdmin ? "Super Admin" : "Standard User",
+    };
 
     if (typeof window !== "undefined") {
       const storage = remember ? window.localStorage : window.sessionStorage;
-      storage.setItem(STORAGE_KEY, JSON.stringify(MOCK_USER));
+      storage.setItem(STORAGE_KEY, JSON.stringify(loggedInUser));
     }
 
-    return { ok: true, user: MOCK_USER };
+    return { ok: true, user: loggedInUser };
   },
 
   async signOut() {

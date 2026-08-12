@@ -54,6 +54,8 @@ export type UserAccount = {
   personnelId: string;
   personnelName: string;
   email: string;
+  username: string;
+  password?: string;
   isSuperAdmin: boolean;
   permissions: ModulePermissions;
   active: boolean;

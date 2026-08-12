@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Edit2, ShieldAlert, CheckCircle2, XCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
@@ -45,6 +46,8 @@ interface AccountEditModalProps {
 function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, onSubmit }: AccountEditModalProps) {
   const [personnelList, setPersonnelList] = useState<Personnel[]>([]);
   const [selectedPersonnelId, setSelectedPersonnelId] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [permissions, setPermissions] = useState<ModulePermissions>({
     quality: null,
@@ -72,6 +75,8 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
   useEffect(() => {
     if (account) {
       setSelectedPersonnelId(account.personnelId);
+      setUsername(account.username);
+      setPassword("");
       setIsSuperAdmin(account.isSuperAdmin);
       setPermissions(account.permissions || {
         quality: null,
@@ -83,6 +88,8 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
       });
     } else {
       setSelectedPersonnelId("");
+      setUsername("");
+      setPassword("");
       setIsSuperAdmin(false);
       setPermissions({
         quality: null,
@@ -94,6 +101,19 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
       });
     }
   }, [account, open]);
+
+  // Auto-fill username recommendation when personnel is chosen (e.g. John Doe -> johndoe)
+  useEffect(() => {
+    if (!account && selectedPersonnelId) {
+      const selected = personnelList.find((p) => p.id === selectedPersonnelId);
+      if (selected) {
+        const cleanUsername = `${selected.firstName}${selected.lastName}`
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+        setUsername(cleanUsername);
+      }
+    }
+  }, [selectedPersonnelId, account, personnelList]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,10 +134,15 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
       pEmail = selected.email;
     }
 
+    if (!username.trim()) return;
+    if (!account && !password) return; // Password required for create
+
     onSubmit({
       personnelId: pId,
       personnelName: pName,
       email: pEmail,
+      username: username.trim(),
+      password: password || undefined,
       isSuperAdmin,
       permissions,
       active: account ? account.active : true,
@@ -142,7 +167,9 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
         <DialogHeader>
           <DialogTitle>{account ? "Edit Account Access" : "Create User Account"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-5 py-2">
+        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+          
+          {/* Associated Personnel Selector */}
           {account ? (
             <div className="space-y-1">
               <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">User Account</Label>
@@ -169,8 +196,36 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
             </div>
           )}
 
+          {/* Credentials Inputs (Username & Password) */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="accountUsername">Username</Label>
+              <Input
+                id="accountUsername"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="e.g. johndoe"
+                disabled={!!account} // Read-only on edit
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="accountPassword">
+                {account ? "New Password" : "Password"}
+              </Label>
+              <Input
+                id="accountPassword"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={account ? "Leave blank to keep" : "••••••••"}
+                required={!account} // Required on create
+              />
+            </div>
+          </div>
+
           {/* Super Admin Toggle Switch */}
-          <div className="flex items-center justify-between bg-accent/40 rounded-lg p-3 border border-border/80">
+          <div className="flex items-center justify-between bg-accent/45 rounded-lg p-2.5 border border-border/80">
             <div className="space-y-0.5">
               <Label htmlFor="super-admin-toggle" className="text-xs font-bold text-foreground cursor-pointer">
                 Super Admin Access
@@ -187,22 +242,21 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
           </div>
 
           {/* Module Privileges Picker */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Module Privileges
             </Label>
-            <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
               {MODULE_KEYS.map((mod) => {
                 const currentValue = isSuperAdmin ? "admin" : permissions[mod.key];
 
                 return (
                   <div
                     key={mod.key}
-                    className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card hover:bg-accent/5 transition-colors"
+                    className="flex items-center justify-between p-2 rounded-lg border border-border bg-card hover:bg-accent/5 transition-colors"
                   >
                     <div className="space-y-0.5">
                       <span className="text-xs font-bold text-foreground">{mod.label}</span>
-                      <p className="text-[10px] text-muted-foreground">{mod.label} Access</p>
                     </div>
 
                     {/* Segmented Option Switcher */}
@@ -223,7 +277,7 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
                             disabled={isSuperAdmin}
                             onClick={() => handleCheck(mod.key, option.val)}
                             className={cn(
-                              "px-2.5 py-1 text-[11px] font-medium rounded transition-all cursor-pointer",
+                              "px-2.5 py-0.5 text-[11px] font-medium rounded transition-all cursor-pointer",
                               isActive
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "text-muted-foreground hover:text-foreground",
@@ -241,11 +295,11 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
             </div>
           </div>
 
-          <DialogFooter className="pt-4 border-t border-border">
+          <DialogFooter className="pt-3 border-t border-border">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!account && !selectedPersonnelId}>
+            <Button type="submit" disabled={(!account && !selectedPersonnelId) || !username.trim()}>
               {account ? "Save Changes" : "Create Account"}
             </Button>
           </DialogFooter>
@@ -383,7 +437,9 @@ function UserAccountsPage() {
       cell: (row) => (
         <div>
           <p className="font-semibold text-foreground">{row.personnelName}</p>
-          <p className="text-[11px] text-muted-foreground font-mono">{row.email}</p>
+          <p className="text-[11px] text-muted-foreground font-mono">
+            {row.email} &bull; <span className="font-bold text-foreground">@{row.username}</span>
+          </p>
         </div>
       ),
       filterable: false,

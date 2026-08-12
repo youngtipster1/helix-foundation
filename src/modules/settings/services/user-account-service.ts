@@ -7,12 +7,19 @@ let counter = store.length;
 
 export type UserAccountInput = Pick<
   UserAccount,
-  "personnelId" | "personnelName" | "email" | "isSuperAdmin" | "permissions" | "active"
+  "personnelId" | "personnelName" | "email" | "username" | "password" | "isSuperAdmin" | "permissions" | "active"
 >;
 
 export const userAccountService = {
   list() {
     return respond(store);
+  },
+
+  // Added for mockup auth resolver
+  findByUsername(username: string) {
+    return store.find(
+      (account) => account.username.toLowerCase() === username.trim().toLowerCase()
+    );
   },
 
   create(input: UserAccountInput) {
@@ -22,7 +29,11 @@ export const userAccountService = {
   },
 
   update(id: string, input: UserAccountInput) {
-    store = store.map((account) => (account.id === id ? { ...account, ...input } : account));
+    store = store.map((account) => {
+      if (account.id !== id) return account;
+      const password = input.password ? input.password : account.password;
+      return { ...account, ...input, password };
+    });
     return respond(store.find((account) => account.id === id));
   },
 

@@ -6,6 +6,8 @@ export const MOCK_USER_ACCOUNTS: UserAccount[] = [
     personnelId: "per_001",
     personnelName: "John Doe",
     email: "john.doe@hemp.local",
+    username: "johndoe",
+    password: "hemp1234",
     isSuperAdmin: true,
     permissions: {
       quality: "admin",
@@ -23,6 +25,8 @@ export const MOCK_USER_ACCOUNTS: UserAccount[] = [
     personnelId: "per_003",
     personnelName: "Liam Fischer",
     email: "liam.fischer@hemp.local",
+    username: "liamf",
+    password: "hemp1234",
     isSuperAdmin: false,
     permissions: {
       quality: "admin",
@@ -40,6 +44,8 @@ export const MOCK_USER_ACCOUNTS: UserAccount[] = [
     personnelId: "per_002",
     personnelName: "Amara Okoye",
     email: "amara.okoye@hemp.local",
+    username: "amarao",
+    password: "hemp1234",
     isSuperAdmin: false,
     permissions: {
       quality: "user",
@@ -57,6 +63,8 @@ export const MOCK_USER_ACCOUNTS: UserAccount[] = [
     personnelId: "per_004",
     personnelName: "Sara Haddad",
     email: "sara.haddad@hemp.local",
+    username: "sarah",
+    password: "hemp1234",
     isSuperAdmin: false,
     permissions: {
       quality: null,
