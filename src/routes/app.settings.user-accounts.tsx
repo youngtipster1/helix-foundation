@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Edit2, ShieldAlert, CheckCircle2, XCircle, Plus } from "lucide-react";
+import { Edit2, ShieldAlert, CheckCircle2, XCircle, Plus, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,11 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
     management: null,
   });
 
+  // Toggles for auto generation and password visibility
+  const [autoGenUsername, setAutoGenUsername] = useState(false);
+  const [autoGenPassword, setAutoGenPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     async function loadPersonnel() {
       try {
@@ -86,6 +91,8 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
         debrief: null,
         management: null,
       });
+      setAutoGenUsername(false);
+      setAutoGenPassword(false);
     } else {
       setSelectedPersonnelId("");
       setUsername("");
@@ -99,12 +106,19 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
         debrief: null,
         management: null,
       });
+      setAutoGenUsername(false);
+      setAutoGenPassword(false);
     }
+    setShowPassword(false);
   }, [account, open]);
 
-  // Auto-fill username recommendation when personnel is chosen (e.g. John Doe -> johndoe)
+  // Generate random password helper
+  const generateRandomPassword = () => {
+    return `hemp-${Math.floor(1000 + Math.random() * 9000)}`;
+  };
+
   useEffect(() => {
-    if (!account && selectedPersonnelId) {
+    if (!account && autoGenUsername && selectedPersonnelId) {
       const selected = personnelList.find((p) => p.id === selectedPersonnelId);
       if (selected) {
         const cleanUsername = `${selected.firstName}${selected.lastName}`
@@ -112,8 +126,19 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
           .replace(/[^a-z0-9]/g, "");
         setUsername(cleanUsername);
       }
+    } else if (!autoGenUsername && !account && selectedPersonnelId) {
+      // Clear username if they toggled auto-generate OFF, so they can specify it manually
+      setUsername("");
     }
-  }, [selectedPersonnelId, account, personnelList]);
+  }, [selectedPersonnelId, autoGenUsername, account, personnelList]);
+
+  useEffect(() => {
+    if (!account && autoGenPassword) {
+      setPassword(generateRandomPassword());
+    } else if (!autoGenPassword && !account) {
+      setPassword("");
+    }
+  }, [autoGenPassword, account]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,29 +223,69 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
 
           {/* Credentials Inputs (Username & Password) */}
           <div className="grid grid-cols-2 gap-4">
+            {/* Username Field */}
             <div className="space-y-1.5">
-              <Label htmlFor="accountUsername">Username</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="accountUsername">Username</Label>
+                {!account && (
+                  <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={autoGenUsername}
+                      onChange={(e) => setAutoGenUsername(e.target.checked)}
+                      className="rounded border-input text-primary bg-background focus:ring-primary size-3"
+                    />
+                    Auto-gen
+                  </label>
+                )}
+              </div>
               <Input
                 id="accountUsername"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="e.g. johndoe"
-                disabled={!!account} // Read-only on edit
+                disabled={!!account || autoGenUsername} // Disabled if auto-gen is enabled or editing
                 required
               />
             </div>
+
+            {/* Password Field */}
             <div className="space-y-1.5">
-              <Label htmlFor="accountPassword">
-                {account ? "New Password" : "Password"}
-              </Label>
-              <Input
-                id="accountPassword"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={account ? "Leave blank to keep" : "••••••••"}
-                required={!account} // Required on create
-              />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="accountPassword">
+                  {account ? "New Password" : "Password"}
+                </Label>
+                {!account && (
+                  <label className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={autoGenPassword}
+                      onChange={(e) => setAutoGenPassword(e.target.checked)}
+                      className="rounded border-input text-primary bg-background focus:ring-primary size-3"
+                    />
+                    Auto-gen
+                  </label>
+                )}
+              </div>
+              <div className="relative">
+                <Input
+                  id="accountPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={account ? "Leave blank to keep" : "••••••••"}
+                  disabled={autoGenPassword} // Disabled if auto-gen is enabled
+                  className="pr-8"
+                  required={!account && !autoGenPassword}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer size-5 flex items-center justify-center"
+                >
+                  {showPassword ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+                </button>
+              </div>
             </div>
           </div>
 

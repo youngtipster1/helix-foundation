@@ -3,11 +3,11 @@ import { useEffect } from "react";
 import { useAuth } from "@/features/auth/auth-context";
 import { Loading } from "@/components/ui/loading";
 
-export const Route = createFileRoute("/app/")({
-  component: AppIndexRedirect,
+export const Route = createFileRoute("/app/quality/")({
+  component: QualityIndexRedirect,
 });
 
-function AppIndexRedirect() {
+function QualityIndexRedirect() {
   const { ready, user } = useAuth();
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ function AppIndexRedirect() {
   }, [ready, user, navigate]);
 
   return (
-    <div className="grid min-h-screen place-items-center bg-background">
+    <div className="flex h-48 items-center justify-center">
       <Loading />
     </div>
   );

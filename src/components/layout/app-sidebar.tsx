@@ -4,7 +4,7 @@ import { BrandLockup } from "@/components/hemp/brand";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
-import { SETTINGS_WORKSPACE_NAV, SETTINGS_SYSTEM_NAV } from "@/app/config/navigation";
+import { SETTINGS_WORKSPACE_NAV, SETTINGS_SYSTEM_NAV, QUALITY_ADMIN_NAV, QUALITY_USER_NAV } from "@/app/config/navigation";
 import type { NavItem } from "@/app/config/navigation";
 
 function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: (() => void) | undefined }) {
@@ -30,6 +30,34 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 export function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+  const { user } = useAuth();
+
+  if (user?.role === "Quality Admin") {
+    return (
+      <nav className="flex h-full flex-col px-3 pb-4">
+        <SectionLabel>Quality Workspace</SectionLabel>
+        <div className="space-y-0.5">
+          {QUALITY_ADMIN_NAV.map((item) => (
+            <NavLink key={item.to} item={item} onNavigate={onNavigate} />
+          ))}
+        </div>
+      </nav>
+    );
+  }
+
+  if (user?.role === "Quality User") {
+    return (
+      <nav className="flex h-full flex-col px-3 pb-4">
+        <SectionLabel>Quality Workspace</SectionLabel>
+        <div className="space-y-0.5">
+          {QUALITY_USER_NAV.map((item) => (
+            <NavLink key={item.to} item={item} onNavigate={onNavigate} />
+          ))}
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="flex h-full flex-col px-3 pb-4">
       <SectionLabel>Workspace</SectionLabel>

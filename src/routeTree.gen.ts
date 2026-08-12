@@ -13,7 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppQualityRouteImport } from './routes/app.quality'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppQualityIndexRouteImport } from './routes/app.quality.index'
+import { Route as AppQualityApprovalsRouteImport } from './routes/app.quality.approvals'
+import { Route as AppQualityArchiveRouteImport } from './routes/app.quality.archive'
+import { Route as AppQualityChecklistsRouteImport } from './routes/app.quality.checklists'
+import { Route as AppQualityDashboardRouteImport } from './routes/app.quality.dashboard'
+import { Route as AppQualityMyTasksRouteImport } from './routes/app.quality.my-tasks'
+import { Route as AppQualityPolicyDocumentsRouteImport } from './routes/app.quality.policy-documents'
+import { Route as AppQualityReviewsRouteImport } from './routes/app.quality.reviews'
 import { Route as AppSettingsIndexRouteImport } from './routes/app.settings.index'
 import { Route as AppSettingsAuditLogRouteImport } from './routes/app.settings.audit-log'
 import { Route as AppSettingsDashboardRouteImport } from './routes/app.settings.dashboard'
@@ -45,10 +54,56 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppQualityRoute = AppQualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AppRoute,
+} as any)
+const AppQualityIndexRoute = AppQualityIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppQualityRoute,
+} as any)
+const AppQualityApprovalsRoute = AppQualityApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => AppQualityRoute,
+} as any)
+const AppQualityArchiveRoute = AppQualityArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => AppQualityRoute,
+} as any)
+const AppQualityChecklistsRoute = AppQualityChecklistsRouteImport.update({
+  id: '/checklists',
+  path: '/checklists',
+  getParentRoute: () => AppQualityRoute,
+} as any)
+const AppQualityDashboardRoute = AppQualityDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppQualityRoute,
+} as any)
+const AppQualityMyTasksRoute = AppQualityMyTasksRouteImport.update({
+  id: '/my-tasks',
+  path: '/my-tasks',
+  getParentRoute: () => AppQualityRoute,
+} as any)
+const AppQualityPolicyDocumentsRoute =
+  AppQualityPolicyDocumentsRouteImport.update({
+    id: '/policy-documents',
+    path: '/policy-documents',
+    getParentRoute: () => AppQualityRoute,
+  } as any)
+const AppQualityReviewsRoute = AppQualityReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AppQualityRoute,
 } as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   id: '/',
@@ -106,8 +161,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/app/quality': typeof AppQualityRouteWithChildren
   '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/quality/approvals': typeof AppQualityApprovalsRoute
+  '/app/quality/archive': typeof AppQualityArchiveRoute
+  '/app/quality/checklists': typeof AppQualityChecklistsRoute
+  '/app/quality/dashboard': typeof AppQualityDashboardRoute
+  '/app/quality/my-tasks': typeof AppQualityMyTasksRoute
+  '/app/quality/policy-documents': typeof AppQualityPolicyDocumentsRoute
+  '/app/quality/reviews': typeof AppQualityReviewsRoute
   '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
   '/app/settings/dashboard': typeof AppSettingsDashboardRoute
   '/app/settings/debrief': typeof AppSettingsDebriefRoute
@@ -117,12 +180,20 @@ export interface FileRoutesByFullPath {
   '/app/settings/tools': typeof AppSettingsToolsRoute
   '/app/settings/training': typeof AppSettingsTrainingRoute
   '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app': typeof AppIndexRoute
+  '/app/quality/approvals': typeof AppQualityApprovalsRoute
+  '/app/quality/archive': typeof AppQualityArchiveRoute
+  '/app/quality/checklists': typeof AppQualityChecklistsRoute
+  '/app/quality/dashboard': typeof AppQualityDashboardRoute
+  '/app/quality/my-tasks': typeof AppQualityMyTasksRoute
+  '/app/quality/policy-documents': typeof AppQualityPolicyDocumentsRoute
+  '/app/quality/reviews': typeof AppQualityReviewsRoute
   '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
   '/app/settings/dashboard': typeof AppSettingsDashboardRoute
   '/app/settings/debrief': typeof AppSettingsDebriefRoute
@@ -132,6 +203,7 @@ export interface FileRoutesByTo {
   '/app/settings/tools': typeof AppSettingsToolsRoute
   '/app/settings/training': typeof AppSettingsTrainingRoute
   '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/quality': typeof AppQualityIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesById {
@@ -139,8 +211,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/app/quality': typeof AppQualityRouteWithChildren
   '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/quality/approvals': typeof AppQualityApprovalsRoute
+  '/app/quality/archive': typeof AppQualityArchiveRoute
+  '/app/quality/checklists': typeof AppQualityChecklistsRoute
+  '/app/quality/dashboard': typeof AppQualityDashboardRoute
+  '/app/quality/my-tasks': typeof AppQualityMyTasksRoute
+  '/app/quality/policy-documents': typeof AppQualityPolicyDocumentsRoute
+  '/app/quality/reviews': typeof AppQualityReviewsRoute
   '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
   '/app/settings/dashboard': typeof AppSettingsDashboardRoute
   '/app/settings/debrief': typeof AppSettingsDebriefRoute
@@ -150,6 +230,7 @@ export interface FileRoutesById {
   '/app/settings/tools': typeof AppSettingsToolsRoute
   '/app/settings/training': typeof AppSettingsTrainingRoute
   '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRouteTypes {
@@ -158,8 +239,16 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/app/quality'
     | '/app/settings'
     | '/app/'
+    | '/app/quality/approvals'
+    | '/app/quality/archive'
+    | '/app/quality/checklists'
+    | '/app/quality/dashboard'
+    | '/app/quality/my-tasks'
+    | '/app/quality/policy-documents'
+    | '/app/quality/reviews'
     | '/app/settings/audit-log'
     | '/app/settings/dashboard'
     | '/app/settings/debrief'
@@ -169,12 +258,20 @@ export interface FileRouteTypes {
     | '/app/settings/tools'
     | '/app/settings/training'
     | '/app/settings/user-accounts'
+    | '/app/quality/'
     | '/app/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/app'
+    | '/app/quality/approvals'
+    | '/app/quality/archive'
+    | '/app/quality/checklists'
+    | '/app/quality/dashboard'
+    | '/app/quality/my-tasks'
+    | '/app/quality/policy-documents'
+    | '/app/quality/reviews'
     | '/app/settings/audit-log'
     | '/app/settings/dashboard'
     | '/app/settings/debrief'
@@ -184,14 +281,23 @@ export interface FileRouteTypes {
     | '/app/settings/tools'
     | '/app/settings/training'
     | '/app/settings/user-accounts'
+    | '/app/quality'
     | '/app/settings'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/login'
+    | '/app/quality'
     | '/app/settings'
     | '/app/'
+    | '/app/quality/approvals'
+    | '/app/quality/archive'
+    | '/app/quality/checklists'
+    | '/app/quality/dashboard'
+    | '/app/quality/my-tasks'
+    | '/app/quality/policy-documents'
+    | '/app/quality/reviews'
     | '/app/settings/audit-log'
     | '/app/settings/dashboard'
     | '/app/settings/debrief'
@@ -201,6 +307,7 @@ export interface FileRouteTypes {
     | '/app/settings/tools'
     | '/app/settings/training'
     | '/app/settings/user-accounts'
+    | '/app/quality/'
     | '/app/settings/'
   fileRoutesById: FileRoutesById
 }
@@ -240,12 +347,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/quality': {
+      id: '/app/quality'
+      path: '/quality'
+      fullPath: '/app/quality'
+      preLoaderRoute: typeof AppQualityRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/settings': {
       id: '/app/settings'
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/app/quality/': {
+      id: '/app/quality/'
+      path: '/'
+      fullPath: '/app/quality/'
+      preLoaderRoute: typeof AppQualityIndexRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/approvals': {
+      id: '/app/quality/approvals'
+      path: '/approvals'
+      fullPath: '/app/quality/approvals'
+      preLoaderRoute: typeof AppQualityApprovalsRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/archive': {
+      id: '/app/quality/archive'
+      path: '/archive'
+      fullPath: '/app/quality/archive'
+      preLoaderRoute: typeof AppQualityArchiveRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/checklists': {
+      id: '/app/quality/checklists'
+      path: '/checklists'
+      fullPath: '/app/quality/checklists'
+      preLoaderRoute: typeof AppQualityChecklistsRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/dashboard': {
+      id: '/app/quality/dashboard'
+      path: '/dashboard'
+      fullPath: '/app/quality/dashboard'
+      preLoaderRoute: typeof AppQualityDashboardRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/my-tasks': {
+      id: '/app/quality/my-tasks'
+      path: '/my-tasks'
+      fullPath: '/app/quality/my-tasks'
+      preLoaderRoute: typeof AppQualityMyTasksRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/policy-documents': {
+      id: '/app/quality/policy-documents'
+      path: '/policy-documents'
+      fullPath: '/app/quality/policy-documents'
+      preLoaderRoute: typeof AppQualityPolicyDocumentsRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/reviews': {
+      id: '/app/quality/reviews'
+      path: '/reviews'
+      fullPath: '/app/quality/reviews'
+      preLoaderRoute: typeof AppQualityReviewsRouteImport
+      parentRoute: typeof AppQualityRoute
     }
     '/app/settings/': {
       id: '/app/settings/'
@@ -320,6 +490,32 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppQualityRouteChildren {
+  AppQualityApprovalsRoute: typeof AppQualityApprovalsRoute
+  AppQualityArchiveRoute: typeof AppQualityArchiveRoute
+  AppQualityChecklistsRoute: typeof AppQualityChecklistsRoute
+  AppQualityDashboardRoute: typeof AppQualityDashboardRoute
+  AppQualityMyTasksRoute: typeof AppQualityMyTasksRoute
+  AppQualityPolicyDocumentsRoute: typeof AppQualityPolicyDocumentsRoute
+  AppQualityReviewsRoute: typeof AppQualityReviewsRoute
+  AppQualityIndexRoute: typeof AppQualityIndexRoute
+}
+
+const AppQualityRouteChildren: AppQualityRouteChildren = {
+  AppQualityApprovalsRoute: AppQualityApprovalsRoute,
+  AppQualityArchiveRoute: AppQualityArchiveRoute,
+  AppQualityChecklistsRoute: AppQualityChecklistsRoute,
+  AppQualityDashboardRoute: AppQualityDashboardRoute,
+  AppQualityMyTasksRoute: AppQualityMyTasksRoute,
+  AppQualityPolicyDocumentsRoute: AppQualityPolicyDocumentsRoute,
+  AppQualityReviewsRoute: AppQualityReviewsRoute,
+  AppQualityIndexRoute: AppQualityIndexRoute,
+}
+
+const AppQualityRouteWithChildren = AppQualityRoute._addFileChildren(
+  AppQualityRouteChildren,
+)
+
 interface AppSettingsRouteChildren {
   AppSettingsAuditLogRoute: typeof AppSettingsAuditLogRoute
   AppSettingsDashboardRoute: typeof AppSettingsDashboardRoute
@@ -351,11 +547,13 @@ const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppQualityRoute: typeof AppQualityRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppQualityRoute: AppQualityRouteWithChildren,
   AppSettingsRoute: AppSettingsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
 }
