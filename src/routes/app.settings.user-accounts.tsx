@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Edit2, ShieldAlert, CheckCircle2, XCircle } from "lucide-react";
+import { Edit2, ShieldAlert, CheckCircle2, XCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { DataTable } from "@/components/data-table/data-table";
@@ -10,8 +9,11 @@ import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { userAccountService, type UserAccountInput } from "@/modules/settings/services/user-account-service";
-import type { UserAccount } from "@/modules/settings/types";
+import type { UserAccount, ModulePermissions } from "@/modules/settings/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { personnelService } from "@/modules/settings/services/personnel-service";
+import type { Personnel } from "@/modules/settings/types";
 
 export const Route = createFileRoute("/app/settings/user-accounts")({
   head: () => ({
@@ -23,95 +25,231 @@ export const Route = createFileRoute("/app/settings/user-accounts")({
   component: UserAccountsPage,
 });
 
+const MODULE_KEYS = [
+  { key: "quality", label: "Quality" },
+  { key: "tools", label: "Tools" },
+  { key: "training", label: "Training" },
+  { key: "parts-inventory", label: "Parts" },
+  { key: "debrief", label: "Debrief" },
+  { key: "management", label: "Management" },
+] as const;
+
 interface AccountEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   account: UserAccount | null;
+  existingPersonnelIds: string[];
   onSubmit: (input: UserAccountInput) => void;
 }
 
-function AccountEditModal({ open, onOpenChange, account, onSubmit }: AccountEditModalProps) {
-  const [role, setRole] = useState<UserAccount["role"]>("user");
-  const [moduleAccess, setModuleAccess] = useState<UserAccount["module"]>("quality");
+function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, onSubmit }: AccountEditModalProps) {
+  const [personnelList, setPersonnelList] = useState<Personnel[]>([]);
+  const [selectedPersonnelId, setSelectedPersonnelId] = useState("");
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [permissions, setPermissions] = useState<ModulePermissions>({
+    quality: null,
+    tools: null,
+    training: null,
+    "parts-inventory": null,
+    debrief: null,
+    management: null,
+  });
+
+  useEffect(() => {
+    async function loadPersonnel() {
+      try {
+        const data = await personnelService.list();
+        setPersonnelList(data);
+      } catch (err) {
+        console.error("Error loading personnel in user-accounts modal", err);
+      }
+    }
+    if (open) {
+      loadPersonnel();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (account) {
-      setRole(account.role);
-      setModuleAccess(account.module);
+      setSelectedPersonnelId(account.personnelId);
+      setIsSuperAdmin(account.isSuperAdmin);
+      setPermissions(account.permissions || {
+        quality: null,
+        tools: null,
+        training: null,
+        "parts-inventory": null,
+        debrief: null,
+        management: null,
+      });
+    } else {
+      setSelectedPersonnelId("");
+      setIsSuperAdmin(false);
+      setPermissions({
+        quality: null,
+        tools: null,
+        training: null,
+        "parts-inventory": null,
+        debrief: null,
+        management: null,
+      });
     }
   }, [account, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!account) return;
+    
+    let pId = "";
+    let pName = "";
+    let pEmail = "";
+
+    if (account) {
+      pId = account.personnelId;
+      pName = account.personnelName;
+      pEmail = account.email;
+    } else {
+      const selected = personnelList.find((p) => p.id === selectedPersonnelId);
+      if (!selected) return;
+      pId = selected.id;
+      pName = `${selected.firstName} ${selected.lastName}`;
+      pEmail = selected.email;
+    }
+
     onSubmit({
-      personnelId: account.personnelId,
-      personnelName: account.personnelName,
-      email: account.email,
-      role,
-      module: moduleAccess,
-      active: account.active,
+      personnelId: pId,
+      personnelName: pName,
+      email: pEmail,
+      isSuperAdmin,
+      permissions,
+      active: account ? account.active : true,
     });
     onOpenChange(false);
   };
 
+  const handleCheck = (moduleKey: keyof ModulePermissions, level: "admin" | "user" | null) => {
+    setPermissions((prev) => ({
+      ...prev,
+      [moduleKey]: level,
+    }));
+  };
+
+  const availablePersonnel = personnelList.filter(
+    (p) => p.status === "active" && !existingPersonnelIds.includes(p.id)
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Account Access</DialogTitle>
+          <DialogTitle>{account ? "Edit Account Access" : "Create User Account"}</DialogTitle>
         </DialogHeader>
-        {account && (
-          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="space-y-5 py-2">
+          {account ? (
             <div className="space-y-1">
-              <Label className="text-muted-foreground text-xs">User Account</Label>
-              <p className="font-semibold text-foreground">{account.personnelName}</p>
+              <Label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">User Account</Label>
+              <p className="text-base font-bold text-foreground">{account.personnelName}</p>
               <p className="text-xs text-muted-foreground font-mono">{account.email}</p>
             </div>
-
+          ) : (
             <div className="space-y-2">
-              <Label htmlFor="role">Access Role</Label>
+              <Label htmlFor="personnelSelect">Select Personnel Member</Label>
               <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserAccount["role"])}
+                id="personnelSelect"
+                value={selectedPersonnelId}
+                onChange={(e) => setSelectedPersonnelId(e.target.value)}
                 className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                required
               >
-                <option value="user">Module User</option>
-                <option value="admin">Module Admin</option>
-                <option value="super-admin">Super Admin</option>
+                <option value="">-- Choose Personnel Member --</option>
+                {availablePersonnel.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.firstName} {p.lastName} ({p.jobTitle || "No Title"})
+                  </option>
+                ))}
               </select>
             </div>
+          )}
 
-            <div className="space-y-2">
-              <Label htmlFor="module">Assigned Module</Label>
-              <select
-                id="module"
-                value={moduleAccess}
-                onChange={(e) => setModuleAccess(e.target.value as UserAccount["module"])}
-                disabled={role === "super-admin"}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <option value="all">All Modules (Super Admin only)</option>
-                <option value="quality">Quality</option>
-                <option value="tools">Tools</option>
-                <option value="training">Training</option>
-                <option value="parts-inventory">Parts Inventory</option>
-                <option value="debrief">Debrief</option>
-                <option value="management">Management</option>
-              </select>
+          {/* Super Admin Toggle Switch */}
+          <div className="flex items-center justify-between bg-accent/40 rounded-lg p-3 border border-border/80">
+            <div className="space-y-0.5">
+              <Label htmlFor="super-admin-toggle" className="text-xs font-bold text-foreground cursor-pointer">
+                Super Admin Access
+              </Label>
+              <p className="text-[10px] text-muted-foreground">Overrides granular module selections</p>
             </div>
+            <input
+              id="super-admin-toggle"
+              type="checkbox"
+              checked={isSuperAdmin}
+              onChange={(e) => setIsSuperAdmin(e.target.checked)}
+              className="size-5 rounded border-input text-primary bg-background focus:ring-primary cursor-pointer"
+            />
+          </div>
 
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </form>
-        )}
+          {/* Module Privileges Picker */}
+          <div className="space-y-3">
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Module Privileges
+            </Label>
+            <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
+              {MODULE_KEYS.map((mod) => {
+                const currentValue = isSuperAdmin ? "admin" : permissions[mod.key];
+
+                return (
+                  <div
+                    key={mod.key}
+                    className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card hover:bg-accent/5 transition-colors"
+                  >
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-foreground">{mod.label}</span>
+                      <p className="text-[10px] text-muted-foreground">{mod.label} Access</p>
+                    </div>
+
+                    {/* Segmented Option Switcher */}
+                    <div className="flex rounded-md border border-border p-0.5 bg-muted/30">
+                      {(
+                        [
+                          { val: null, label: "None" },
+                          { val: "user", label: "User" },
+                          { val: "admin", label: "Admin" },
+                        ] as const
+                      ).map((option) => {
+                        const isActive = currentValue === option.val;
+
+                        return (
+                          <button
+                            key={option.label}
+                            type="button"
+                            disabled={isSuperAdmin}
+                            onClick={() => handleCheck(mod.key, option.val)}
+                            className={cn(
+                              "px-2.5 py-1 text-[11px] font-medium rounded transition-all cursor-pointer",
+                              isActive
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground",
+                              isSuperAdmin && "opacity-50 cursor-not-allowed"
+                            )}
+                          >
+                            {option.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <DialogFooter className="pt-4 border-t border-border">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!account && !selectedPersonnelId}>
+              {account ? "Save Changes" : "Create Account"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
@@ -152,18 +290,26 @@ function UserAccountsPage() {
     fetchAccounts();
   }, []);
 
+  const handleCreateClick = () => {
+    setEditingAccount(null);
+    setIsEditOpen(true);
+  };
+
   const handleEditClick = (account: UserAccount) => {
     setEditingAccount(account);
     setIsEditOpen(true);
   };
 
   const handleFormSubmit = async (input: UserAccountInput) => {
-    if (!editingAccount) return;
     try {
-      await userAccountService.update(editingAccount.id, input);
+      if (editingAccount) {
+        await userAccountService.update(editingAccount.id, input);
+      } else {
+        await userAccountService.create(input);
+      }
       fetchAccounts();
     } catch (err) {
-      console.error("Error updating account details", err);
+      console.error("Error saving user account", err);
     }
   };
 
@@ -190,6 +336,45 @@ function UserAccountsPage() {
     }
   };
 
+  const getPermissionBadges = (row: UserAccount) => {
+    if (row.isSuperAdmin) {
+      return (
+        <span className="inline-flex items-center rounded-md bg-primary/8 px-2 py-0.5 text-xs font-semibold text-primary border border-primary/10 tracking-wide">
+          All Modules (Full Access)
+        </span>
+      );
+    }
+
+    const active = Object.entries(row.permissions)
+      .filter(([_, level]) => level !== null)
+      .map(([key, level]) => {
+        const label = MODULE_KEYS.find((m) => m.key === key)?.label || key;
+        return { label, level };
+      });
+
+    if (active.length === 0) {
+      return <span className="text-xs text-muted-foreground font-mono italic">No Active Module Access</span>;
+    }
+
+    return (
+      <div className="flex flex-wrap gap-1.5 max-w-md">
+        {active.map(({ label, level }) => (
+          <span
+            key={label}
+            className={cn(
+              "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border uppercase tracking-wider",
+              level === "admin"
+                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 dark:bg-emerald-500/5"
+                : "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 dark:bg-blue-500/5"
+            )}
+          >
+            {label}: {level}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   const columns: DataTableColumn<UserAccount>[] = [
     {
       key: "personnelName",
@@ -197,7 +382,7 @@ function UserAccountsPage() {
       value: (row) => row.personnelName,
       cell: (row) => (
         <div>
-          <p className="font-medium text-foreground">{row.personnelName}</p>
+          <p className="font-semibold text-foreground">{row.personnelName}</p>
           <p className="text-[11px] text-muted-foreground font-mono">{row.email}</p>
         </div>
       ),
@@ -206,24 +391,30 @@ function UserAccountsPage() {
     {
       key: "role",
       header: "Access Role",
-      value: (row) => row.role,
+      value: (row) => (row.isSuperAdmin ? "Super Admin" : "Standard User"),
       cell: (row) => (
-        <span className="capitalize font-semibold text-xs tracking-wide">
-          {row.role.replace("-", " ")}
+        <span
+          className={cn(
+            "capitalize font-bold text-xs tracking-wide",
+            row.isSuperAdmin ? "text-primary" : "text-muted-foreground"
+          )}
+        >
+          {row.isSuperAdmin ? "Super Admin" : "Standard User"}
         </span>
       ),
       filterable: true,
     },
     {
-      key: "module",
-      header: "Module",
-      value: (row) => row.module,
-      cell: (row) => (
-        <span className="capitalize font-mono text-xs text-muted-foreground">
-          {row.module === "all" ? "All Modules" : row.module.replace("-", " ")}
-        </span>
-      ),
-      filterable: true,
+      key: "permissions",
+      header: "Module Permissions Map",
+      value: (row) =>
+        row.isSuperAdmin
+          ? "all"
+          : Object.keys(row.permissions)
+              .filter((k) => row.permissions[k as keyof ModulePermissions] !== null)
+              .join(", "),
+      cell: (row) => getPermissionBadges(row),
+      filterable: false,
     },
     {
       key: "active",
@@ -299,6 +490,8 @@ function UserAccountsPage() {
     );
   };
 
+  const existingPersonnelIds = accounts.map((a) => a.personnelId);
+
   return (
     <div className="space-y-6">
       <DataTable
@@ -308,6 +501,12 @@ function UserAccountsPage() {
         searchPlaceholder="Search user accounts..."
         emptyTitle="No user accounts found"
         emptyDescription="System user registry is currently empty."
+        toolbarActions={
+          <Button size="sm" className="h-9 text-xs" onClick={handleCreateClick}>
+            <Plus className="size-3.5 mr-1" />
+            Create User Account
+          </Button>
+        }
         rowActions={renderRowActions}
       />
 
@@ -315,6 +514,7 @@ function UserAccountsPage() {
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
         account={editingAccount}
+        existingPersonnelIds={existingPersonnelIds}
         onSubmit={handleFormSubmit}
       />
 
