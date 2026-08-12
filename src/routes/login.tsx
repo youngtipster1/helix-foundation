@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loading } from "@/components/ui/loading";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useAuth } from "@/lib/auth/auth-context";
-import { DEMO_CREDENTIALS } from "@/lib/auth/mock-auth";
+import { useAuth } from "@/features/auth/auth-context";
+import { DEMO_CREDENTIALS } from "@/features/auth/mock-auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({

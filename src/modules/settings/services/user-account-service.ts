@@ -1,7 +1,6 @@
-import { MOCK_USER_ACCOUNTS } from "@/mocks/user-accounts";
-import type { UserAccount } from "@/types";
-
-import { respond, today } from "./client";
+import { MOCK_USER_ACCOUNTS } from "../mocks/user-accounts";
+import type { UserAccount } from "../types";
+import { respond, today } from "@/services/api/client";
 
 let store: UserAccount[] = [...MOCK_USER_ACCOUNTS];
 let counter = store.length;

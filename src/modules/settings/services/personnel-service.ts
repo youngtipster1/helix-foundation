@@ -1,7 +1,6 @@
-import { MOCK_PERSONNEL } from "@/mocks/personnel";
-import type { Personnel } from "@/types";
-
-import { respond } from "./client";
+import { MOCK_PERSONNEL } from "../mocks/personnel";
+import type { Personnel } from "../types";
+import { respond } from "@/services/api/client";
 
 let store: Personnel[] = [...MOCK_PERSONNEL];
 let counter = store.length;

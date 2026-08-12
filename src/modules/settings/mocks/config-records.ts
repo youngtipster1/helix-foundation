@@ -1,9 +1,5 @@
-import type { ConfigRecord } from "@/types";
+import type { ConfigRecord } from "../types";
 
-/**
- * Minimal mock configuration data. Replace with Laravel API responses later —
- * nothing outside src/services/api reads this file.
- */
 let seq = 0;
 const record = (
   configKey: string,
@@ -21,10 +17,6 @@ const record = (
 });
 
 export const MOCK_CONFIG_RECORDS: ConfigRecord[] = [
-  record("quality.names", "Preventive Maintenance Checklist", "2026-07-28"),
-  record("quality.names", "Calibration Record", "2026-07-24"),
-  record("quality.names", "Incident Report", "2026-06-30", "archived"),
-
   record("quality.document-status", "Draft", "2026-07-30"),
   record("quality.document-status", "Under Review", "2026-07-30"),
   record("quality.document-status", "Approved", "2026-07-30"),

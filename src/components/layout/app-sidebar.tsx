@@ -1,30 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import {
-  Boxes,
-  ClipboardCheck,
-  LayoutDashboard,
-  Settings,
-  ShieldCheck,
-  Wrench,
-  X,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
+import { X } from "lucide-react";
 import { BrandLockup } from "@/components/hemp/brand";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-type NavItem = { label: string; to: string; icon: LucideIcon };
-
-const workspace: NavItem[] = [
-  { label: "Dashboard", to: "/app/dashboard", icon: LayoutDashboard },
-  { label: "Engineering", to: "/app/engineering", icon: Wrench },
-  { label: "Quality", to: "/app/quality", icon: ClipboardCheck },
-  { label: "Operations", to: "/app/operations", icon: Boxes },
-  { label: "Management", to: "/app/management", icon: ShieldCheck },
-];
-
-const system: NavItem[] = [{ label: "Settings", to: "/app/settings", icon: Settings }];
+import { useAuth } from "@/features/auth/auth-context";
+import { SETTINGS_WORKSPACE_NAV, SETTINGS_SYSTEM_NAV } from "@/app/config/navigation";
+import type { NavItem } from "@/app/config/navigation";
 
 function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: (() => void) | undefined }) {
   return (
@@ -53,13 +34,13 @@ export function SidebarNav({ onNavigate }: { onNavigate?: (() => void) | undefin
     <nav className="flex h-full flex-col px-3 pb-4">
       <SectionLabel>Workspace</SectionLabel>
       <div className="space-y-0.5">
-        {workspace.map((item) => (
+        {SETTINGS_WORKSPACE_NAV.map((item) => (
           <NavLink key={item.to} item={item} onNavigate={onNavigate} />
         ))}
       </div>
       <SectionLabel>System</SectionLabel>
       <div className="space-y-0.5">
-        {system.map((item) => (
+        {SETTINGS_SYSTEM_NAV.map((item) => (
           <NavLink key={item.to} item={item} onNavigate={onNavigate} />
         ))}
       </div>

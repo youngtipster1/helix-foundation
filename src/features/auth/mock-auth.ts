@@ -13,7 +13,7 @@ const MOCK_USER: User = {
   firstName: "John",
   lastName: "Doe",
   username: "johndoe",
-  role: "Engineering Manager",
+  role: "Super Admin",
 };
 
 function read(storage: Storage | undefined): User | null {

@@ -11,8 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { initials, useAuth } from "@/lib/auth/auth-context";
-import type { User } from "@/lib/auth/types";
+import { initials, useAuth } from "@/features/auth/auth-context";
+import type { User } from "@/features/auth/types";
 
 export function Topbar({
   user,

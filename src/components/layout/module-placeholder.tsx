@@ -1,6 +1,6 @@
 import { Construction } from "lucide-react";
 
-import { PageHeader } from "@/components/app/page-header";
+import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 
 export function ModulePlaceholder({ title }: { title: string }) {

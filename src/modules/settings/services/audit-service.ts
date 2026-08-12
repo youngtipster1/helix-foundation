@@ -1,6 +1,5 @@
-import { MOCK_AUDIT_EVENTS } from "@/mocks/audit";
-
-import { respond } from "./client";
+import { MOCK_AUDIT_EVENTS } from "../mocks/audit";
+import { respond } from "@/services/api/client";
 
 export const auditService = {
   list() {

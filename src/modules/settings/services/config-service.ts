@@ -1,7 +1,6 @@
-import { MOCK_CONFIG_RECORDS } from "@/mocks/config-records";
-import type { ConfigInput, ConfigRecord } from "@/types";
-
-import { respond, today } from "./client";
+import { MOCK_CONFIG_RECORDS } from "../mocks/config-records";
+import type { ConfigInput, ConfigRecord } from "../types";
+import { respond, today } from "@/services/api/client";
 
 let store: ConfigRecord[] = [...MOCK_CONFIG_RECORDS];
 let counter = store.length;

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { Loading } from "@/components/ui/loading";
-import { useAuth } from "@/lib/auth/auth-context";
+import { useAuth } from "@/features/auth/auth-context";
 
 export const Route = createFileRoute("/")({
   head: () => ({

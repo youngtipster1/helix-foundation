@@ -13,9 +13,17 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
-import { Route as AppManagementRouteImport } from './routes/app.management'
-import { Route as AppQualityRouteImport } from './routes/app.quality'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppSettingsIndexRouteImport } from './routes/app.settings.index'
+import { Route as AppSettingsAuditLogRouteImport } from './routes/app.settings.audit-log'
+import { Route as AppSettingsDashboardRouteImport } from './routes/app.settings.dashboard'
+import { Route as AppSettingsDebriefRouteImport } from './routes/app.settings.debrief'
+import { Route as AppSettingsPartsInventoryRouteImport } from './routes/app.settings.parts-inventory'
+import { Route as AppSettingsPersonnelRouteImport } from './routes/app.settings.personnel'
+import { Route as AppSettingsQualityRouteImport } from './routes/app.settings.quality'
+import { Route as AppSettingsToolsRouteImport } from './routes/app.settings.tools'
+import { Route as AppSettingsTrainingRouteImport } from './routes/app.settings.training'
+import { Route as AppSettingsUserAccountsRouteImport } from './routes/app.settings.user-accounts'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -37,48 +45,112 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsAuditLogRoute = AppSettingsAuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsDashboardRoute = AppSettingsDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AppSettingsRoute,
 } as any)
-const AppManagementRoute = AppManagementRouteImport.update({
-  id: '/management',
-  path: '/management',
-  getParentRoute: () => AppRoute,
+const AppSettingsDebriefRoute = AppSettingsDebriefRouteImport.update({
+  id: '/debrief',
+  path: '/debrief',
+  getParentRoute: () => AppSettingsRoute,
 } as any)
-const AppQualityRoute = AppQualityRouteImport.update({
+const AppSettingsPartsInventoryRoute =
+  AppSettingsPartsInventoryRouteImport.update({
+    id: '/parts-inventory',
+    path: '/parts-inventory',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppSettingsPersonnelRoute = AppSettingsPersonnelRouteImport.update({
+  id: '/personnel',
+  path: '/personnel',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsQualityRoute = AppSettingsQualityRouteImport.update({
   id: '/quality',
   path: '/quality',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsToolsRoute = AppSettingsToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsTrainingRoute = AppSettingsTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsUserAccountsRoute = AppSettingsUserAccountsRouteImport.update({
+  id: '/user-accounts',
+  path: '/user-accounts',
+  getParentRoute: () => AppSettingsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/app/dashboard': typeof AppDashboardRoute
-  '/app/management': typeof AppManagementRoute
-  '/app/quality': typeof AppQualityRoute
+  '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
+  '/app/settings/dashboard': typeof AppSettingsDashboardRoute
+  '/app/settings/debrief': typeof AppSettingsDebriefRoute
+  '/app/settings/parts-inventory': typeof AppSettingsPartsInventoryRoute
+  '/app/settings/personnel': typeof AppSettingsPersonnelRoute
+  '/app/settings/quality': typeof AppSettingsQualityRoute
+  '/app/settings/tools': typeof AppSettingsToolsRoute
+  '/app/settings/training': typeof AppSettingsTrainingRoute
+  '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/app/dashboard': typeof AppDashboardRoute
-  '/app/management': typeof AppManagementRoute
-  '/app/quality': typeof AppQualityRoute
   '/app': typeof AppIndexRoute
+  '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
+  '/app/settings/dashboard': typeof AppSettingsDashboardRoute
+  '/app/settings/debrief': typeof AppSettingsDebriefRoute
+  '/app/settings/parts-inventory': typeof AppSettingsPartsInventoryRoute
+  '/app/settings/personnel': typeof AppSettingsPersonnelRoute
+  '/app/settings/quality': typeof AppSettingsQualityRoute
+  '/app/settings/tools': typeof AppSettingsToolsRoute
+  '/app/settings/training': typeof AppSettingsTrainingRoute
+  '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/settings': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
-  '/app/dashboard': typeof AppDashboardRoute
-  '/app/management': typeof AppManagementRoute
-  '/app/quality': typeof AppQualityRoute
+  '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
+  '/app/settings/dashboard': typeof AppSettingsDashboardRoute
+  '/app/settings/debrief': typeof AppSettingsDebriefRoute
+  '/app/settings/parts-inventory': typeof AppSettingsPartsInventoryRoute
+  '/app/settings/personnel': typeof AppSettingsPersonnelRoute
+  '/app/settings/quality': typeof AppSettingsQualityRoute
+  '/app/settings/tools': typeof AppSettingsToolsRoute
+  '/app/settings/training': typeof AppSettingsTrainingRoute
+  '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -86,27 +158,50 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
-    | '/app/dashboard'
-    | '/app/management'
-    | '/app/quality'
+    | '/app/settings'
     | '/app/'
+    | '/app/settings/audit-log'
+    | '/app/settings/dashboard'
+    | '/app/settings/debrief'
+    | '/app/settings/parts-inventory'
+    | '/app/settings/personnel'
+    | '/app/settings/quality'
+    | '/app/settings/tools'
+    | '/app/settings/training'
+    | '/app/settings/user-accounts'
+    | '/app/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
-    | '/app/dashboard'
-    | '/app/management'
-    | '/app/quality'
     | '/app'
+    | '/app/settings/audit-log'
+    | '/app/settings/dashboard'
+    | '/app/settings/debrief'
+    | '/app/settings/parts-inventory'
+    | '/app/settings/personnel'
+    | '/app/settings/quality'
+    | '/app/settings/tools'
+    | '/app/settings/training'
+    | '/app/settings/user-accounts'
+    | '/app/settings'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/login'
-    | '/app/dashboard'
-    | '/app/management'
-    | '/app/quality'
+    | '/app/settings'
     | '/app/'
+    | '/app/settings/audit-log'
+    | '/app/settings/dashboard'
+    | '/app/settings/debrief'
+    | '/app/settings/parts-inventory'
+    | '/app/settings/personnel'
+    | '/app/settings/quality'
+    | '/app/settings/tools'
+    | '/app/settings/training'
+    | '/app/settings/user-accounts'
+    | '/app/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,41 +240,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/dashboard': {
-      id: '/app/dashboard'
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings/': {
+      id: '/app/settings/'
+      path: '/'
+      fullPath: '/app/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/audit-log': {
+      id: '/app/settings/audit-log'
+      path: '/audit-log'
+      fullPath: '/app/settings/audit-log'
+      preLoaderRoute: typeof AppSettingsAuditLogRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/dashboard': {
+      id: '/app/settings/dashboard'
       path: '/dashboard'
-      fullPath: '/app/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof AppRoute
+      fullPath: '/app/settings/dashboard'
+      preLoaderRoute: typeof AppSettingsDashboardRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
-    '/app/management': {
-      id: '/app/management'
-      path: '/management'
-      fullPath: '/app/management'
-      preLoaderRoute: typeof AppManagementRouteImport
-      parentRoute: typeof AppRoute
+    '/app/settings/debrief': {
+      id: '/app/settings/debrief'
+      path: '/debrief'
+      fullPath: '/app/settings/debrief'
+      preLoaderRoute: typeof AppSettingsDebriefRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
-    '/app/quality': {
-      id: '/app/quality'
+    '/app/settings/parts-inventory': {
+      id: '/app/settings/parts-inventory'
+      path: '/parts-inventory'
+      fullPath: '/app/settings/parts-inventory'
+      preLoaderRoute: typeof AppSettingsPartsInventoryRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/personnel': {
+      id: '/app/settings/personnel'
+      path: '/personnel'
+      fullPath: '/app/settings/personnel'
+      preLoaderRoute: typeof AppSettingsPersonnelRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/quality': {
+      id: '/app/settings/quality'
       path: '/quality'
-      fullPath: '/app/quality'
-      preLoaderRoute: typeof AppQualityRouteImport
-      parentRoute: typeof AppRoute
+      fullPath: '/app/settings/quality'
+      preLoaderRoute: typeof AppSettingsQualityRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/tools': {
+      id: '/app/settings/tools'
+      path: '/tools'
+      fullPath: '/app/settings/tools'
+      preLoaderRoute: typeof AppSettingsToolsRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/training': {
+      id: '/app/settings/training'
+      path: '/training'
+      fullPath: '/app/settings/training'
+      preLoaderRoute: typeof AppSettingsTrainingRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/user-accounts': {
+      id: '/app/settings/user-accounts'
+      path: '/user-accounts'
+      fullPath: '/app/settings/user-accounts'
+      preLoaderRoute: typeof AppSettingsUserAccountsRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
   }
 }
 
+interface AppSettingsRouteChildren {
+  AppSettingsAuditLogRoute: typeof AppSettingsAuditLogRoute
+  AppSettingsDashboardRoute: typeof AppSettingsDashboardRoute
+  AppSettingsDebriefRoute: typeof AppSettingsDebriefRoute
+  AppSettingsPartsInventoryRoute: typeof AppSettingsPartsInventoryRoute
+  AppSettingsPersonnelRoute: typeof AppSettingsPersonnelRoute
+  AppSettingsQualityRoute: typeof AppSettingsQualityRoute
+  AppSettingsToolsRoute: typeof AppSettingsToolsRoute
+  AppSettingsTrainingRoute: typeof AppSettingsTrainingRoute
+  AppSettingsUserAccountsRoute: typeof AppSettingsUserAccountsRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+}
+
+const AppSettingsRouteChildren: AppSettingsRouteChildren = {
+  AppSettingsAuditLogRoute: AppSettingsAuditLogRoute,
+  AppSettingsDashboardRoute: AppSettingsDashboardRoute,
+  AppSettingsDebriefRoute: AppSettingsDebriefRoute,
+  AppSettingsPartsInventoryRoute: AppSettingsPartsInventoryRoute,
+  AppSettingsPersonnelRoute: AppSettingsPersonnelRoute,
+  AppSettingsQualityRoute: AppSettingsQualityRoute,
+  AppSettingsToolsRoute: AppSettingsToolsRoute,
+  AppSettingsTrainingRoute: AppSettingsTrainingRoute,
+  AppSettingsUserAccountsRoute: AppSettingsUserAccountsRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
+}
+
+const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
+  AppSettingsRouteChildren,
+)
+
 interface AppRouteChildren {
-  AppDashboardRoute: typeof AppDashboardRoute
-  AppManagementRoute: typeof AppManagementRoute
-  AppQualityRoute: typeof AppQualityRoute
+  AppSettingsRoute: typeof AppSettingsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppDashboardRoute: AppDashboardRoute,
-  AppManagementRoute: AppManagementRoute,
-  AppQualityRoute: AppQualityRoute,
+  AppSettingsRoute: AppSettingsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -193,3 +370,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

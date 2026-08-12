@@ -1,4 +1,4 @@
-import type { Personnel } from "@/types";
+import type { Personnel } from "../types";
 
 export const MOCK_PERSONNEL: Personnel[] = [
   {
