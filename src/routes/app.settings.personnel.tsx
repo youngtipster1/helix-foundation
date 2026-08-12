@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { personnelService, type PersonnelInput } from "@/modules/settings/services/personnel-service";
 import type { Personnel } from "@/modules/settings/types";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/app/settings/personnel")({
   head: () => ({
@@ -281,47 +282,63 @@ function PersonnelSettingsPage() {
     const isArchived = row.status === "archived";
     return (
       <div className="flex justify-end gap-1.5">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={() => handleEditClick(row)}
-          aria-label={`Edit ${row.firstName} ${row.lastName}`}
-        >
-          <Edit2 className="size-3.5" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => handleEditClick(row)}
+              aria-label={`Edit ${row.firstName} ${row.lastName}`}
+            >
+              <Edit2 className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Edit Personnel</TooltipContent>
+        </Tooltip>
+
         {isArchived ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 text-emerald-600 dark:text-emerald-400"
-            onClick={() =>
-              setConfirmState({
-                open: true,
-                personnelId: row.id,
-                action: "restore",
-              })
-            }
-            aria-label={`Restore ${row.firstName} ${row.lastName}`}
-          >
-            <RotateCcw className="size-3.5" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-emerald-600 dark:text-emerald-400"
+                onClick={() =>
+                  setConfirmState({
+                    open: true,
+                    personnelId: row.id,
+                    action: "restore",
+                  })
+                }
+                aria-label={`Restore ${row.firstName} ${row.lastName}`}
+              >
+                <RotateCcw className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Restore Personnel</TooltipContent>
+          </Tooltip>
         ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 text-destructive"
-            onClick={() =>
-              setConfirmState({
-                open: true,
-                personnelId: row.id,
-                action: "archive",
-              })
-            }
-            aria-label={`Archive ${row.firstName} ${row.lastName}`}
-          >
-            <Archive className="size-3.5" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-destructive"
+                onClick={() =>
+                  setConfirmState({
+                    open: true,
+                    personnelId: row.id,
+                    action: "archive",
+                  })
+                }
+                aria-label={`Archive ${row.firstName} ${row.lastName}`}
+              >
+                <Archive className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Archive Personnel</TooltipContent>
+          </Tooltip>
         )}
       </div>
     );

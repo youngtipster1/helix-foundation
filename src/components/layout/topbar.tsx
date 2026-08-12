@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, ChevronDown, LogOut, PanelLeft, User as UserIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, ChevronDown, LogOut, PanelLeft, User as UserIcon, Sun, Moon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,30 @@ export function Topbar({
 }) {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("hemp.theme");
+    const isDarkSystem = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialTheme = saved === "dark" || (saved === null && isDarkSystem) ? "dark" : "light";
+    setTheme(initialTheme);
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    localStorage.setItem("hemp.theme", nextTheme);
+    if (nextTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   async function handleSignOut() {
     await signOut();
@@ -53,6 +78,15 @@ export function Topbar({
       </Button>
 
       <div className="min-w-0 flex-1" />
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+            {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Toggle Theme</TooltipContent>
+      </Tooltip>
 
       <Tooltip>
         <TooltipTrigger asChild>

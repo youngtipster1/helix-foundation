@@ -9,6 +9,8 @@ import type { ConfigRecord } from "../types";
 import { ConfigFormModal } from "./config-form-modal";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 interface ConfigCategory {
   key: string;
   label: string;
@@ -136,47 +138,63 @@ export function ConfigWorkspace({ title, categories }: ConfigWorkspaceProps) {
     const isArchived = row.status === "archived";
     return (
       <div className="flex justify-end gap-1.5">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={() => handleEditClick(row)}
-          aria-label={`Edit ${row.label}`}
-        >
-          <Edit2 className="size-3.5" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => handleEditClick(row)}
+              aria-label={`Edit ${row.label}`}
+            >
+              <Edit2 className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Edit Record</TooltipContent>
+        </Tooltip>
+
         {isArchived ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 text-emerald-600 dark:text-emerald-400"
-            onClick={() =>
-              setConfirmState({
-                open: true,
-                recordId: row.id,
-                action: "restore",
-              })
-            }
-            aria-label={`Restore ${row.label}`}
-          >
-            <RotateCcw className="size-3.5" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-emerald-600 dark:text-emerald-400"
+                onClick={() =>
+                  setConfirmState({
+                    open: true,
+                    recordId: row.id,
+                    action: "restore",
+                  })
+                }
+                aria-label={`Restore ${row.label}`}
+              >
+                <RotateCcw className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Restore Record</TooltipContent>
+          </Tooltip>
         ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 text-destructive"
-            onClick={() =>
-              setConfirmState({
-                open: true,
-                recordId: row.id,
-                action: "archive",
-              })
-            }
-            aria-label={`Archive ${row.label}`}
-          >
-            <Archive className="size-3.5" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-destructive"
+                onClick={() =>
+                  setConfirmState({
+                    open: true,
+                    recordId: row.id,
+                    action: "archive",
+                  })
+                }
+                aria-label={`Archive ${row.label}`}
+              >
+                <Archive className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Archive Record</TooltipContent>
+          </Tooltip>
         )}
       </div>
     );

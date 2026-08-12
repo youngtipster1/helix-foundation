@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { userAccountService, type UserAccountInput } from "@/modules/settings/services/user-account-service";
 import type { UserAccount } from "@/modules/settings/types";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/app/settings/user-accounts")({
   head: () => ({
@@ -248,35 +249,51 @@ function UserAccountsPage() {
   const renderRowActions = (row: UserAccount) => {
     return (
       <div className="flex justify-end gap-1.5">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={() => handleEditClick(row)}
-          aria-label={`Edit ${row.personnelName} settings`}
-        >
-          <Edit2 className="size-3.5" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => handleEditClick(row)}
+              aria-label={`Edit ${row.personnelName} settings`}
+            >
+              <Edit2 className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Edit Account</TooltipContent>
+        </Tooltip>
+
         {row.active ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 text-destructive"
-            onClick={() => handleToggleActiveClick(row)}
-            aria-label={`Deactivate ${row.personnelName} account`}
-          >
-            <XCircle className="size-3.5" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-destructive"
+                onClick={() => handleToggleActiveClick(row)}
+                aria-label={`Deactivate ${row.personnelName} account`}
+              >
+                <XCircle className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Deactivate Account</TooltipContent>
+          </Tooltip>
         ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 text-emerald-600 dark:text-emerald-400"
-            onClick={() => handleToggleActiveClick(row)}
-            aria-label={`Activate ${row.personnelName} account`}
-          >
-            <CheckCircle2 className="size-3.5" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-emerald-600 dark:text-emerald-400"
+                onClick={() => handleToggleActiveClick(row)}
+                aria-label={`Activate ${row.personnelName} account`}
+              >
+                <CheckCircle2 className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Activate Account</TooltipContent>
+          </Tooltip>
         )}
       </div>
     );
