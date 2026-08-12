@@ -38,15 +38,24 @@ export type Personnel = {
   status: RecordStatus;
 };
 
-export type AccountRole = "admin" | "user";
+export type PermissionLevel = "admin" | "user" | null;
+
+export type ModulePermissions = {
+  quality: PermissionLevel;
+  tools: PermissionLevel;
+  training: PermissionLevel;
+  "parts-inventory": PermissionLevel;
+  debrief: PermissionLevel;
+  management: PermissionLevel;
+};
 
 export type UserAccount = {
   id: string;
   personnelId: string;
   personnelName: string;
-  module: ModuleKey | "all";
-  role: AccountRole | "super-admin";
   email: string;
+  isSuperAdmin: boolean;
+  permissions: ModulePermissions;
   active: boolean;
   createdAt: string;
 };
