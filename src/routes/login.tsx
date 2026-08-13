@@ -141,15 +141,34 @@ function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs leading-relaxed text-muted-foreground">
-          Development build — mock authentication.
-          <br />
-          Username <span className="font-medium text-foreground">
-            {DEMO_CREDENTIALS.username}
-          </span>{" "}
-          · Password{" "}
-          <span className="font-medium text-foreground">{DEMO_CREDENTIALS.password}</span>
-        </p>
+        <div className="mt-6 border border-border bg-card/40 rounded-lg p-4 text-xs">
+          <p className="font-semibold text-center text-muted-foreground mb-3">Quick Demo Logins</p>
+          <div className="space-y-2">
+            {[
+              { role: "Super Admin", user: "John Doe", username: "johndoe", pass: "hemp1234" },
+              { role: "Quality Admin", user: "Liam Fischer", username: "liamf", pass: "hemp1234" },
+              { role: "Quality User", user: "Amara Okoye", username: "amarao", pass: "hemp1234" }
+            ].map((demo) => (
+              <button
+                key={demo.role}
+                type="button"
+                onClick={() => {
+                  setUsername(demo.username);
+                  setPassword(demo.pass);
+                }}
+                className="w-full text-left flex items-center justify-between p-2.5 rounded border border-border/80 hover:bg-accent/40 hover:border-border transition-colors cursor-pointer select-none"
+              >
+                <div>
+                  <span className="font-bold text-foreground block text-[11px]">{demo.role}</span>
+                  <span className="text-[10px] text-muted-foreground">{demo.user} (@{demo.username})</span>
+                </div>
+                <span className="font-mono text-[10px] text-muted-foreground font-semibold bg-muted/65 px-1.5 py-0.5 rounded">
+                  {demo.pass}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </main>
   );
