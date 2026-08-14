@@ -10,6 +10,8 @@ export type DataTableColumn<T> = {
   cell?: (row: T) => ReactNode;
   /** Enables Excel-style multi-select column filtering. */
   filterable?: boolean;
+  /** Whether the column should remain visible on mobile when using the priority mobile strategy. */
+  priority?: boolean;
   className?: string;
   headerClassName?: string;
 };

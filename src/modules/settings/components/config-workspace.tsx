@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Edit2, Archive, RotateCcw } from "lucide-react";
+import { Plus, Edit2, Archive, RotateCcw, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
@@ -8,7 +8,7 @@ import { configService } from "../services/config-service";
 import type { ConfigRecord } from "../types";
 import { ConfigFormModal } from "./config-form-modal";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-
+import { PageHeader } from "@/components/layout/page-header";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ConfigCategory {
@@ -202,6 +202,11 @@ export function ConfigWorkspace({ title, categories }: ConfigWorkspaceProps) {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title={title}
+        description={`Manage categories and configuration values for ${title.toLowerCase()}.`}
+        icon={Settings}
+      />
       {/* Category selector / Tabs */}
       <div className="border-b border-border">
         <div className="flex flex-wrap -mb-px gap-2">

@@ -45,36 +45,36 @@ export function ConfigFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
+          <div className="space-y-1.5">
             <Label htmlFor="label">Name / Value</Label>
             <Input
               id="label"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="e.g. Active, GE Healthcare, Radiography"
+              placeholder="e.g. Active, GE Healthcare"
               required
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="status">Status</Label>
             <select
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as "active" | "archived")}
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+              className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
             >
               <option value="active">Active</option>
               <option value="archived">Archived</option>
             </select>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 md:col-span-2">
             <Label htmlFor="description">Description (Optional)</Label>
             <Input
               id="description"
@@ -84,7 +84,7 @@ export function ConfigFormModal({
             />
           </div>
 
-          <DialogFooter className="pt-4">
+          <DialogFooter className="pt-4 md:col-span-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

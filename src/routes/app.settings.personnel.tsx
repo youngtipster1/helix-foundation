@@ -12,6 +12,8 @@ import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { personnelService, type PersonnelInput } from "@/modules/settings/services/personnel-service";
 import type { Personnel } from "@/modules/settings/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { PageHeader } from "@/components/layout/page-header";
+import { Users } from "lucide-react";
 
 export const Route = createFileRoute("/app/settings/personnel")({
   head: () => ({
@@ -77,8 +79,8 @@ function PersonnelFormModal({ open, onOpenChange, personnel, onSubmit }: Personn
           <DialogTitle>{personnel ? "Edit Personnel" : "Add Personnel"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
               <Label htmlFor="firstName">First Name</Label>
               <Input
                 id="firstName"
@@ -88,7 +90,7 @@ function PersonnelFormModal({ open, onOpenChange, personnel, onSubmit }: Personn
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="lastName">Last Name</Label>
               <Input
                 id="lastName"
@@ -100,7 +102,7 @@ function PersonnelFormModal({ open, onOpenChange, personnel, onSubmit }: Personn
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 md:col-span-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -112,33 +114,35 @@ function PersonnelFormModal({ open, onOpenChange, personnel, onSubmit }: Personn
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="jobTitle">Job Title</Label>
-            <Input
-              id="jobTitle"
-              value={jobTitle}
-              onChange={(e) => setJobTitle(e.target.value)}
-              placeholder="Biomedical Engineer"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="jobTitle">Job Title</Label>
+              <Input
+                id="jobTitle"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder="Biomedical Engineer"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="department">Department</Label>
+              <Input
+                id="department"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                placeholder="Clinical Engineering"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="department">Department</Label>
-            <Input
-              id="department"
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              placeholder="Clinical Engineering"
-            />
-          </div>
-
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="status">Status</Label>
             <select
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as "active" | "archived")}
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+              className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
             >
               <option value="active">Active</option>
               <option value="archived">Archived</option>
@@ -346,6 +350,11 @@ function PersonnelSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Personnel Directory"
+        description="Manage system personnel registry and user roles."
+        icon={Users}
+      />
       <DataTable
         columns={columns}
         rows={personnelList}

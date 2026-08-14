@@ -163,7 +163,7 @@ function ChecklistFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{checklist ? "Edit Equipment Checklist" : "Add Equipment Checklist"}</DialogTitle>
         </DialogHeader>
@@ -196,8 +196,8 @@ function ChecklistFormModal({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-1">
-          <div className="space-y-1.5">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-1">
+          <div className="space-y-1.5 md:col-span-2">
             <Label htmlFor="chkDesc">Checklist Description</Label>
             <Textarea
               id="chkDesc"
@@ -209,42 +209,40 @@ function ChecklistFormModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="formNumber">Form Number</Label>
-              <Input
-                id="formNumber"
-                value={formNumber}
-                onChange={(e) => setFormNumber(e.target.value)}
-                placeholder="FORM-PM-CT001"
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="chkVersion">Version</Label>
-              <Input
-                id="chkVersion"
-                value={version}
-                onChange={(e) => setVersion(e.target.value)}
-                placeholder="v1.0"
-                required
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="formNumber">Form Number</Label>
+            <Input
+              id="formNumber"
+              value={formNumber}
+              onChange={(e) => setFormNumber(e.target.value)}
+              placeholder="FORM-PM-CT001"
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="chkVersion">Version</Label>
+            <Input
+              id="chkVersion"
+              value={version}
+              onChange={(e) => setVersion(e.target.value)}
+              placeholder="v1.0"
+              required
+            />
           </div>
 
           {/* Scope Assignment settings */}
-          <div className="border border-border/80 bg-accent/15 p-3 rounded-lg space-y-2">
+          <div className="border border-border/80 bg-accent/15 p-3 rounded-lg space-y-2 md:col-span-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               Equipment Scope Assignment
             </span>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="space-y-1">
-                <Label htmlFor="oemSelect" className="text-[10px]">OEM</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="oemSelect" className="text-xs">OEM</Label>
                 <select
                   id="oemSelect"
                   value={equipmentOem}
                   onChange={(e) => setEquipmentOem(e.target.value)}
-                  className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
                   required
                 >
                   <option value="">-- Select --</option>
@@ -254,13 +252,13 @@ function ChecklistFormModal({
                 </select>
               </div>
 
-              <div className="space-y-1">
-                <Label htmlFor="modSelect" className="text-[10px]">Modality</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="modSelect" className="text-xs">Modality</Label>
                 <select
                   id="modSelect"
                   value={modality}
                   onChange={(e) => setModality(e.target.value)}
-                  className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
                   required
                 >
                   <option value="">-- Select --</option>
@@ -270,13 +268,13 @@ function ChecklistFormModal({
                 </select>
               </div>
 
-              <div className="space-y-1">
-                <Label htmlFor="modelSelect" className="text-[10px]">Model Scope</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="modelSelect" className="text-xs">Model Scope</Label>
                 <select
                   id="modelSelect"
                   value={equipmentModel}
                   onChange={(e) => setEquipmentModel(e.target.value)}
-                  className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
                   required
                 >
                   <option value="">-- Select --</option>
@@ -289,101 +287,100 @@ function ChecklistFormModal({
           </div>
 
           {/* Personnel relationships */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="space-y-1">
-              <Label htmlFor="preparedBySelect" className="text-[11px]">Prepared By</Label>
-              <select
-                id="preparedBySelect"
-                value={preparedById}
-                onChange={(e) => setPreparedById(e.target.value)}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
-                required
-              >
-                <option value="">-- Choose --</option>
-                {personnelList.map((p) => (
-                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="reviewedBySelect" className="text-[11px]">Reviewed By</Label>
-              <select
-                id="reviewedBySelect"
-                value={reviewedById}
-                onChange={(e) => setReviewedById(e.target.value)}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
-                required
-              >
-                <option value="">-- Choose --</option>
-                {personnelList.map((p) => (
-                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="approvedBySelect" className="text-[11px]">Approved By</Label>
-              <select
-                id="approvedBySelect"
-                value={approvedById}
-                onChange={(e) => setApprovedById(e.target.value)}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
-                required
-              >
-                <option value="">-- Choose --</option>
-                {personnelList.map((p) => (
-                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="chkStatus">Status</Label>
-              <select
-                id="chkStatus"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
-                required
-              >
-                {statuses.map((s) => (
-                  <option key={s.id} value={s.label}>{s.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Option A file upload UI */}
-            {creationMethod === "upload" && (
+          <div className="md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="chkFile">{checklist ? "Update File" : "Upload File"}</Label>
-                <div className="flex gap-2">
-                  <input
-                    key={fileInputKey}
-                    id="chkFile"
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".pdf,.doc,.docx"
-                    className="hidden"
-                    required={!checklist}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs font-semibold cursor-pointer truncate"
-                    onClick={() => document.getElementById("chkFile")?.click()}
-                  >
-                    {fileName ? fileName : "Choose Document"}
-                  </Button>
-                </div>
+                <Label htmlFor="preparedBySelect" className="text-sm font-medium">Prepared By</Label>
+                <select
+                  id="preparedBySelect"
+                  value={preparedById}
+                  onChange={(e) => setPreparedById(e.target.value)}
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+                  required
+                >
+                  <option value="">-- Choose --</option>
+                  {personnelList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                  ))}
+                </select>
               </div>
-            )}
+              <div className="space-y-1.5">
+                <Label htmlFor="reviewedBySelect" className="text-sm font-medium">Reviewed By</Label>
+                <select
+                  id="reviewedBySelect"
+                  value={reviewedById}
+                  onChange={(e) => setReviewedById(e.target.value)}
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+                  required
+                >
+                  <option value="">-- Choose --</option>
+                  {personnelList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="approvedBySelect" className="text-sm font-medium">Approved By</Label>
+                <select
+                  id="approvedBySelect"
+                  value={approvedById}
+                  onChange={(e) => setApprovedById(e.target.value)}
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+                  required
+                >
+                  <option value="">-- Choose --</option>
+                  {personnelList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="chkStatus">Status</Label>
+            <select
+              id="chkStatus"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+              required
+            >
+              {statuses.map((s) => (
+                <option key={s.id} value={s.label}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Option A file upload UI */}
+          {creationMethod === "upload" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="chkFile">{checklist ? "Update File" : "Upload File"}</Label>
+              <div className="flex gap-2">
+                <input
+                  key={fileInputKey}
+                  id="chkFile"
+                  type="file"
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx"
+                  className="hidden"
+                  required={!checklist}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start font-normal truncate"
+                  onClick={() => document.getElementById("chkFile")?.click()}
+                >
+                  {fileName ? fileName : "Choose Document"}
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Option B structured items list builder UI */}
           {creationMethod === "structured" && (
-            <div className="space-y-3.5 border-t border-border pt-4">
+            <div className="space-y-3.5 border-t border-border pt-4 md:col-span-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground uppercase tracking-wide">
                   Structured Checklist Items
@@ -392,52 +389,52 @@ function ChecklistFormModal({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-7 text-[10px] uppercase font-bold cursor-pointer"
+                  className="h-9 md:h-8 text-xs font-semibold cursor-pointer"
                   onClick={handleAddItem}
                 >
-                  <Plus className="size-3 mr-1" />
+                  <Plus className="size-3.5 mr-1" />
                   Add Checklist Item
                 </Button>
               </div>
 
               {items.length === 0 ? (
-                <p className="text-[11px] text-muted-foreground text-center py-2 italic border border-dashed rounded">
+                <p className="text-sm text-muted-foreground text-center py-4 italic border border-dashed rounded">
                   No items added yet. Click button above to build.
                 </p>
               ) : (
-                <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
                   {items.map((item, idx) => (
-                    <div key={item.id} className="flex gap-2 items-start bg-muted/40 p-2.5 rounded-lg border border-border">
-                      <div className="flex-1 space-y-2">
-                        <div>
-                          <Label className="text-[9px] uppercase font-semibold text-muted-foreground">Item {idx + 1} Description</Label>
+                    <div key={item.id} className="flex gap-3 items-start bg-muted/40 p-3 rounded-lg border border-border">
+                      <div className="flex-1 space-y-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] uppercase font-semibold text-muted-foreground">Item {idx + 1} Description</Label>
                           <Input
                             value={item.description}
                             onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
                             placeholder="Visual checks, functional tests, calibration value, etc."
-                            className="h-8 text-xs bg-background"
+                            className="bg-background"
                             required
                           />
                         </div>
-                        <div>
-                          <Label className="text-[9px] uppercase font-semibold text-muted-foreground">Requirement / Passing Criteria</Label>
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] uppercase font-semibold text-muted-foreground">Requirement / Passing Criteria</Label>
                           <Input
                             value={item.requirement}
                             onChange={(e) => handleItemChange(item.id, "requirement", e.target.value)}
                             placeholder="Must be clean, reading within 2% margin, self test pass, etc."
-                            className="h-8 text-xs bg-background"
+                            className="bg-background"
                             required
                           />
                         </div>
                       </div>
                       <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-destructive self-center cursor-pointer shrink-0"
-                        onClick={() => handleRemoveItem(item.id)}
+                         type="button"
+                         variant="ghost"
+                         size="icon"
+                         className="text-destructive self-center shrink-0"
+                         onClick={() => handleRemoveItem(item.id)}
                       >
-                        <Trash2 className="size-4" />
+                         <Trash2 className="size-4" />
                       </Button>
                     </div>
                   ))}
@@ -446,7 +443,7 @@ function ChecklistFormModal({
             </div>
           )}
 
-          <DialogFooter className="pt-3 border-t border-border">
+          <DialogFooter className="pt-3 border-t border-border md:col-span-2 mt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

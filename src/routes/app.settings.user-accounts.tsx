@@ -9,6 +9,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { PageHeader } from "@/components/layout/page-header";
 import { userAccountService, type UserAccountInput } from "@/modules/settings/services/user-account-service";
 import type { UserAccount, ModulePermissions } from "@/modules/settings/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -188,7 +189,7 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{account ? "Edit Account Access" : "Create User Account"}</DialogTitle>
         </DialogHeader>
@@ -208,7 +209,7 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
                 id="personnelSelect"
                 value={selectedPersonnelId}
                 onChange={(e) => setSelectedPersonnelId(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
                 required
               >
                 <option value="">-- Choose Personnel Member --</option>
@@ -222,7 +223,7 @@ function AccountEditModal({ open, onOpenChange, account, existingPersonnelIds, o
           )}
 
           {/* Credentials Inputs (Username & Password) */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Username Field */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -615,6 +616,11 @@ function UserAccountsPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="User Accounts"
+        description="Manage system user accounts, modules, and access roles."
+        icon={ShieldAlert}
+      />
       <DataTable
         columns={columns}
         rows={accounts}

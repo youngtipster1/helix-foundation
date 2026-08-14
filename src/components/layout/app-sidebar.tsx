@@ -12,7 +12,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: (() => void
     <Link
       to={item.to}
       onClick={onNavigate}
-      className="group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent/60 hover:text-foreground data-[status=active]:bg-primary/8 data-[status=active]:text-foreground"
+      className="group relative flex min-h-11 md:min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-accent/60 hover:text-foreground data-[status=active]:bg-primary/8 data-[status=active]:text-foreground"
     >
       <span className="absolute top-1.5 bottom-1.5 left-0 w-[2px] rounded-full bg-primary opacity-0 transition-opacity duration-150 group-data-[status=active]:opacity-100" />
       <item.icon className="size-4 shrink-0 transition-colors group-data-[status=active]:text-primary" />

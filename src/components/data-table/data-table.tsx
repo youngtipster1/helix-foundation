@@ -29,6 +29,7 @@ export function DataTable<T extends { id: string }>({
   pageSize = 8,
   emptyTitle = "No records yet",
   emptyDescription,
+  mobileStrategy = "scroll",
   onFiltersChange,
 }: {
   columns: DataTableColumn<T>[];
@@ -40,6 +41,7 @@ export function DataTable<T extends { id: string }>({
   pageSize?: number;
   emptyTitle?: string;
   emptyDescription?: string;
+  mobileStrategy?: "scroll" | "priority";
   onFiltersChange?: (filters: ColumnFilterState, search: string) => void;
 }) {
   const [search, setSearch] = useState("");
@@ -129,7 +131,7 @@ export function DataTable<T extends { id: string }>({
         </div>
       ) : (
         <div className="w-full overflow-x-auto">
-          <table className="w-full min-w-[36rem] border-collapse text-sm">
+          <table className={cn("w-full border-collapse text-sm", mobileStrategy === "scroll" && "min-w-[36rem]")}>
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 {columns.map((column) => (
@@ -138,6 +140,7 @@ export function DataTable<T extends { id: string }>({
                     scope="col"
                     className={cn(
                       "px-4 py-2.5 text-left text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase",
+                      mobileStrategy === "priority" && !column.priority && "hidden md:table-cell",
                       column.headerClassName,
                     )}
                   >
@@ -179,7 +182,11 @@ export function DataTable<T extends { id: string }>({
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className={cn("px-4 py-3 align-middle text-foreground", column.className)}
+                      className={cn(
+                        "px-4 py-3 align-middle text-foreground",
+                        mobileStrategy === "priority" && !column.priority && "hidden md:table-cell",
+                        column.className
+                      )}
                     >
                       {column.cell ? column.cell(row) : column.value(row)}
                     </td>

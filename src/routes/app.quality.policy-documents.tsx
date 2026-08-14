@@ -105,13 +105,13 @@ function DocumentFormModal({ open, onOpenChange, documentItem, personnelList, st
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{documentItem ? "Edit Policy Document" : "Add Policy Document"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
           
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 md:col-span-2">
             <Label htmlFor="docDesc">Document Description</Label>
             <Textarea
               id="docDesc"
@@ -123,121 +123,117 @@ function DocumentFormModal({ open, onOpenChange, documentItem, personnelList, st
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="docNumber">Policy Number</Label>
-              <Input
-                id="docNumber"
-                value={policyNumber}
-                onChange={(e) => setPolicyNumber(e.target.value)}
-                placeholder="POL-MRI-001"
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="docVersion">Version</Label>
-              <Input
-                id="docVersion"
-                value={version}
-                onChange={(e) => setVersion(e.target.value)}
-                placeholder="v1.0"
-                required
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="docNumber">Policy Number</Label>
+            <Input
+              id="docNumber"
+              value={policyNumber}
+              onChange={(e) => setPolicyNumber(e.target.value)}
+              placeholder="POL-MRI-001"
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="docVersion">Version</Label>
+            <Input
+              id="docVersion"
+              value={version}
+              onChange={(e) => setVersion(e.target.value)}
+              placeholder="v1.0"
+              required
+            />
           </div>
 
           {/* Personnel relationships */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="space-y-1">
-              <Label htmlFor="preparedBySelect" className="text-[11px]">Prepared By</Label>
-              <select
-                id="preparedBySelect"
-                value={preparedById}
-                onChange={(e) => setPreparedById(e.target.value)}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
-                required
-              >
-                <option value="">-- Choose --</option>
-                {personnelList.map((p) => (
-                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="reviewedBySelect" className="text-[11px]">Reviewed By</Label>
-              <select
-                id="reviewedBySelect"
-                value={reviewedById}
-                onChange={(e) => setReviewedById(e.target.value)}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
-                required
-              >
-                <option value="">-- Choose --</option>
-                {personnelList.map((p) => (
-                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="approvedBySelect" className="text-[11px]">Approved By</Label>
-              <select
-                id="approvedBySelect"
-                value={approvedById}
-                onChange={(e) => setApprovedById(e.target.value)}
-                className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs cursor-pointer focus-visible:outline-none"
-                required
-              >
-                <option value="">-- Choose --</option>
-                {personnelList.map((p) => (
-                  <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="docStatus">Status</Label>
-              <select
-                id="docStatus"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
-                required
-              >
-                {statuses.map((s) => (
-                  <option key={s.id} value={s.label}>{s.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Mock File Upload */}
-            <div className="space-y-1.5">
-              <Label htmlFor="docFile">{documentItem ? "Update File" : "Upload File"}</Label>
-              <div className="flex gap-2">
-                <input
-                  key={fileInputKey}
-                  id="docFile"
-                  type="file"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
-                  className="hidden"
-                  required={!documentItem}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-xs font-semibold cursor-pointer truncate"
-                  onClick={() => document.getElementById("docFile")?.click()}
+          <div className="space-y-1.5 md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="preparedBySelect" className="text-sm font-medium">Prepared By</Label>
+                <select
+                  id="preparedBySelect"
+                  value={preparedById}
+                  onChange={(e) => setPreparedById(e.target.value)}
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+                  required
                 >
-                  {fileName ? fileName : "Choose Document"}
-                </Button>
+                  <option value="">-- Choose --</option>
+                  {personnelList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="reviewedBySelect" className="text-sm font-medium">Reviewed By</Label>
+                <select
+                  id="reviewedBySelect"
+                  value={reviewedById}
+                  onChange={(e) => setReviewedById(e.target.value)}
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+                  required
+                >
+                  <option value="">-- Choose --</option>
+                  {personnelList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="approvedBySelect" className="text-sm font-medium">Approved By</Label>
+                <select
+                  id="approvedBySelect"
+                  value={approvedById}
+                  onChange={(e) => setApprovedById(e.target.value)}
+                  className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+                  required
+                >
+                  <option value="">-- Choose --</option>
+                  {personnelList.map((p) => (
+                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
 
-          <DialogFooter className="pt-3 border-t border-border">
+          <div className="space-y-1.5">
+            <Label htmlFor="docStatus">Status</Label>
+            <select
+              id="docStatus"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm cursor-pointer focus-visible:outline-none"
+              required
+            >
+              {statuses.map((s) => (
+                <option key={s.id} value={s.label}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="docFile">{documentItem ? "Update File" : "Upload File"}</Label>
+            <div className="flex gap-2">
+              <input
+                key={fileInputKey}
+                id="docFile"
+                type="file"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx"
+                className="hidden"
+                required={!documentItem}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-start font-normal truncate"
+                onClick={() => document.getElementById("docFile")?.click()}
+              >
+                {fileName ? fileName : "Choose Document"}
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter className="pt-3 border-t border-border md:col-span-2 mt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
