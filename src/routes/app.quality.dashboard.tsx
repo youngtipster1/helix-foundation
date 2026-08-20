@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { qualityService } from "@/modules/quality/services/quality-service";
+import { isModuleAdmin } from "@/features/auth/permissions";
 import { Loading } from "@/components/ui/loading";
 import { cn } from "@/lib/utils";
 
@@ -43,8 +44,8 @@ function QualityDashboardPage() {
 
   useEffect(() => {
     // Only Quality Admin should access the dashboard
-    if (user && user.role !== "Quality Admin") {
-      navigate({ to: "/app/quality/policy-documents", replace: true });
+    if (user && !isModuleAdmin(user, "quality")) {
+      navigate({ to: "/app/quality/training", replace: true });
     }
   }, [user, navigate]);
 

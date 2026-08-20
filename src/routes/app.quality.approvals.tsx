@@ -1,14 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/auth-context";
-import { ShieldCheck, Eye, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Eye, CheckCircle2, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/data-table/data-table";
+import { DataTable, RowActionsMenu } from "@/components/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { qualityService } from "@/modules/quality/services/quality-service";
-import { Loading } from "@/components/ui/loading";
+import { isModuleAdmin } from "@/features/auth/permissions";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
 
 export const Route = createFileRoute("/app/quality/approvals")({
   head: () => ({
@@ -27,9 +28,15 @@ function QualityApprovalsPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Detailed inspection modal state
+  const [viewItem, setViewItem] = useState<any | null>(null);
+
+  // Sign-off confirm state
+  const [approveItem, setApproveItem] = useState<any | null>(null);
+
   useEffect(() => {
-    if (user && user.role !== "Quality Admin") {
-      navigate({ to: "/app/quality/policy-documents", replace: true });
+    if (user && !isModuleAdmin(user, "quality")) {
+      navigate({ to: "/app/quality/training", replace: true });
     }
   }, [user, navigate]);
 
@@ -50,32 +57,24 @@ function QualityApprovalsPage() {
     loadData();
   }, []);
 
-  const handleMockView = (item: any) => {
-    alert(`Mock View: Opening ${item.description} (${item.identifier}) to perform approval audit.`);
-  };
-
-  const handleSignOffApproval = async (item: any) => {
+  const handleSignOffApproval = async () => {
+    if (!approveItem || !user) return;
+    const adminName = `${user.firstName} ${user.lastName}`;
     try {
-      if (item.type === "document") {
+      if (approveItem.type === "checklist") {
+        await qualityService.approveChecklistDirect(approveItem.id, adminName);
+      } else {
         const docs = await qualityService.listDocuments(true);
-        const doc = docs.find((d) => d.id === item.id);
+        const doc = docs.find((d) => d.id === approveItem.id);
         if (doc) {
           await qualityService.updateDocument(doc.id, {
             ...doc,
             status: "Approved",
-          });
-        }
-      } else {
-        const chks = await qualityService.listChecklists(true);
-        const chk = chks.find((c) => c.id === item.id);
-        if (chk) {
-          await qualityService.updateChecklist(chk.id, {
-            ...chk,
-            status: "Approved",
+            approvedByName: adminName,
           });
         }
       }
-      alert(`Approval complete! "${item.description}" has been officially signed off and is now active.`);
+      setApproveItem(null);
       loadData();
     } catch (err) {
       console.error("Error signing off approval", err);
@@ -88,17 +87,22 @@ function QualityApprovalsPage() {
       header: "Document / Checklist",
       value: (row) => row.description,
       cell: (row) => (
-        <div>
-          <p className="font-semibold text-foreground leading-snug">{row.description}</p>
-          <span className="text-[10px] text-muted-foreground font-mono">{row.identifier} ({row.type})</span>
+        <div className="flex items-start gap-2.5 max-w-sm">
+          <FileText className="size-4.5 text-primary mt-0.5 shrink-0" />
+          <div>
+            <p className="font-semibold text-foreground leading-snug">{row.description}</p>
+            <span className="text-[10px] text-muted-foreground font-mono">
+              {row.identifier} • {row.type === "checklist" ? (row.checklistType === "structured" ? "Custom Form" : "Upload File") : "Policy Document"}
+            </span>
+          </div>
         </div>
       ),
       filterable: false,
     },
     {
       key: "preparedBy",
-      header: "Reviewed By",
-      value: (row) => row.preparedBy, // In getAttentionRequired, preparedBy is mapped
+      header: "Submitted / Prepared By",
+      value: (row) => row.preparedBy,
       filterable: true,
       className: "text-xs font-semibold text-foreground",
     },
@@ -106,7 +110,7 @@ function QualityApprovalsPage() {
       key: "status",
       header: "Approval Status",
       value: (row) => row.status,
-      cell: (row) => <StatusBadge status="pending" label={row.status} />,
+      cell: (row) => <StatusBadge status={row.status} label={row.status} />,
       filterable: true,
     },
     {
@@ -120,37 +124,28 @@ function QualityApprovalsPage() {
 
   const renderRowActions = (row: any) => {
     return (
-      <div className="flex justify-end gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => handleMockView(row)}
-              aria-label={`View ${row.description}`}
-            >
-              <Eye className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>View</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8 text-emerald-600 dark:text-emerald-400"
-              onClick={() => handleSignOffApproval(row)}
-              aria-label={`Sign off approval for ${row.description}`}
-            >
-              <CheckCircle2 className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Sign Off & Approve</TooltipContent>
-        </Tooltip>
-      </div>
+      <RowActionsMenu
+        actions={[
+          {
+            label: "View & Audit Details",
+            icon: Eye,
+            onClick: () => setViewItem(row),
+          },
+          row.fileName
+            ? {
+                label: "Download File",
+                icon: Download,
+                onClick: () => alert(`Downloading "${row.fileName}"...`),
+              }
+            : null,
+          {
+            label: "Sign Off & Approve",
+            icon: CheckCircle2,
+            variant: "success",
+            onClick: () => setApproveItem(row),
+          },
+        ]}
+      />
     );
   };
 
@@ -172,8 +167,31 @@ function QualityApprovalsPage() {
         loading={loading}
         searchPlaceholder="Search items awaiting approval..."
         emptyTitle="No approvals pending"
-        emptyDescription="All peer-reviewed quality templates have been signed off."
+        emptyDescription="All peer-reviewed quality templates have been signed off and approved."
         rowActions={renderRowActions}
+      />
+
+      {/* Comprehensive Checklist Inspection Modal */}
+      <ChecklistDetailModal
+        open={!!viewItem}
+        onOpenChange={(open) => !open && setViewItem(null)}
+        data={viewItem}
+        approveLabel="Sign Off & Approve"
+        onDirectApprove={() => {
+          const target = viewItem;
+          setViewItem(null);
+          setApproveItem(target);
+        }}
+      />
+
+      {/* Confirm Sign Off Dialog */}
+      <ConfirmDialog
+        open={!!approveItem}
+        onOpenChange={(open) => !open && setApproveItem(null)}
+        title="Sign Off & Approve Quality Standard"
+        description={`Are you sure you want to officially approve and publish "${approveItem?.description}"? It will become active in the repository.`}
+        confirmLabel="Sign Off & Approve"
+        onConfirm={handleSignOffApproval}
       />
     </div>
   );

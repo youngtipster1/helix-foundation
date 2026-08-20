@@ -43,6 +43,8 @@ export function ColumnFilter({
       <PopoverTrigger asChild>
         <button
           type="button"
+          draggable={false}
+          onMouseDown={(e) => e.stopPropagation()}
           aria-label={`Filter by ${label}`}
           className={cn(
             "-mx-1.5 inline-flex items-center gap-1.5 rounded px-1.5 py-1 text-left transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",

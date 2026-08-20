@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/features/auth/auth-context";
 import { Archive, Eye, Download, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/data-table/data-table";
+import { DataTable, RowActionsMenu } from "@/components/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -163,54 +163,28 @@ function QualityArchivePage() {
 
   const renderRowActions = (row: any) => {
     return (
-      <div className="flex justify-end gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => handleMockView(row)}
-              aria-label={`View ${row.description}`}
-            >
-              <Eye className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>View</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => handleMockDownload(row)}
-              aria-label={`Download ${row.description}`}
-            >
-              <Download className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Download</TooltipContent>
-        </Tooltip>
-
-        {isAdmin && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 text-emerald-600 dark:text-emerald-400"
-                onClick={() => handleRestore(row)}
-                aria-label={`Restore ${row.description}`}
-              >
-                <RefreshCw className="size-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Restore Item</TooltipContent>
-          </Tooltip>
-        )}
-      </div>
+      <RowActionsMenu
+        actions={[
+          {
+            label: "View",
+            icon: Eye,
+            onClick: () => handleMockView(row),
+          },
+          {
+            label: "Download",
+            icon: Download,
+            onClick: () => handleMockDownload(row),
+          },
+          isAdmin
+            ? {
+                label: "Restore",
+                icon: RefreshCw,
+                variant: "success",
+                onClick: () => handleRestore(row),
+              }
+            : null,
+        ]}
+      />
     );
   };
 

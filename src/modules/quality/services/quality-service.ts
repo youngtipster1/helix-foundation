@@ -138,6 +138,90 @@ export const qualityService = {
     return respond(checklistsStore.find((c) => c.id === id));
   },
 
+  // --- Rejection & Review Workflows ---
+  rejectChecklist(
+    id: string,
+    notes: string,
+    recommendations?: string,
+    additionalRecommendedItems?: ChecklistItem[],
+    reviewerName: string = "Admin"
+  ) {
+    checklistsStore = checklistsStore.map((chk) => {
+      if (chk.id !== id) return chk;
+      return {
+        ...chk,
+        status: "Needs Revision",
+        rejectionNotes: notes,
+        rejectionRecommendations: recommendations || undefined,
+        additionalRecommendedItems:
+          additionalRecommendedItems && additionalRecommendedItems.length > 0
+            ? additionalRecommendedItems
+            : undefined,
+        lastModified: today() + " 12:00",
+      };
+    });
+
+    const chk = checklistsStore.find((c) => c.id === id);
+    if (chk) {
+      this.logActivity({
+        description: `${reviewerName} requested revision for ${chk.description}: "${notes}"`,
+        type: "review",
+        user: reviewerName,
+        targetName: chk.formNumber,
+      });
+    }
+
+    return respond(chk);
+  },
+
+  approveChecklistDirect(id: string, approverName: string = "Admin") {
+    checklistsStore = checklistsStore.map((chk) => {
+      if (chk.id !== id) return chk;
+      return {
+        ...chk,
+        status: "Approved",
+        approvedByName: approverName,
+        lastModified: today() + " 12:00",
+      };
+    });
+
+    const chk = checklistsStore.find((c) => c.id === id);
+    if (chk) {
+      this.logActivity({
+        description: `${approverName} approved checklist ${chk.description}`,
+        type: "approval",
+        user: approverName,
+        targetName: chk.formNumber,
+      });
+    }
+
+    return respond(chk);
+  },
+
+  resubmitChecklist(id: string, input: Partial<EquipmentChecklistInput>, userName: string) {
+    checklistsStore = checklistsStore.map((chk) => {
+      if (chk.id !== id) return chk;
+      return {
+        ...chk,
+        ...input,
+        status: "Pending Approval",
+        lastModified: today() + " 12:00",
+      };
+    });
+
+    const chk = checklistsStore.find((c) => c.id === id);
+    if (chk) {
+      this.logActivity({
+        description: `${userName} resubmitted checklist ${chk.description} for approval`,
+        type: "update",
+        user: userName,
+        targetName: chk.formNumber,
+      });
+    }
+
+    return respond(chk);
+  },
+
   // --- Activities ---
   listActivities() {
     return respond(activitiesStore);
@@ -185,6 +269,8 @@ export const qualityService = {
         status: d.status,
         preparedBy: d.preparedByName,
         lastUpdated: d.lastModified,
+        fileName: d.fileName,
+        rawDocument: d,
       })),
       ...activeChecklists.map((c) => ({
         id: c.id,
@@ -194,7 +280,14 @@ export const qualityService = {
         actionRequired: c.status === "Under Review" ? "Review Checklist" : "Approve Checklist",
         status: c.status,
         preparedBy: c.preparedByName,
+        assignedToName: c.assignedToName,
         lastUpdated: c.lastModified,
+        fileName: c.fileName,
+        checklistType: c.type,
+        items: c.items,
+        rejectionNotes: c.rejectionNotes,
+        rejectionRecommendations: c.rejectionRecommendations,
+        rawChecklist: c,
       })),
     ];
 
@@ -205,36 +298,116 @@ export const qualityService = {
     const activeDocs = documentsStore.filter((d) => !d.isArchived);
     const activeChecklists = checklistsStore.filter((c) => !c.isArchived);
 
-    // List reviews or approvals where this person is assigned
-    const items = [
-      ...activeDocs
-        .filter((d) => (d.reviewedByName === userName && d.status === "Under Review") || (d.approvedByName === userName && d.status === "Pending Approval"))
-        .map((d) => ({
-          id: d.id,
-          type: "document" as const,
-          description: d.description,
-          identifier: d.policyNumber,
-          role: d.reviewedByName === userName ? "Reviewer" : "Approver",
-          actionRequired: d.status === "Under Review" ? "Document Review" : "Document Approval",
-          status: d.status,
-          preparedBy: d.preparedByName,
-          lastUpdated: d.lastModified,
-        })),
-      ...activeChecklists
-        .filter((c) => (c.reviewedByName === userName && c.status === "Under Review") || (c.approvedByName === userName && c.status === "Pending Approval"))
-        .map((c) => ({
-          id: c.id,
-          type: "checklist" as const,
-          description: c.description,
-          identifier: c.formNumber,
-          role: c.reviewedByName === userName ? "Reviewer" : "Approver",
-          actionRequired: c.status === "Under Review" ? "Checklist Review" : "Checklist Approval",
-          status: c.status,
-          preparedBy: c.preparedByName,
-          lastUpdated: c.lastModified,
-        })),
-    ];
+    // Unapproved documents assigned for review/approval or created by user
+    const docTasks = activeDocs
+      .filter((d) => {
+        if (d.status === "Approved") return false;
+        return (
+          d.reviewedByName === userName ||
+          d.approvedByName === userName ||
+          d.preparedByName === userName
+        );
+      })
+      .map((d) => ({
+        id: d.id,
+        type: "document" as const,
+        description: d.description,
+        identifier: d.policyNumber,
+        role:
+          d.preparedByName === userName
+            ? "Creator"
+            : d.reviewedByName === userName
+              ? "Reviewer"
+              : "Approver",
+        actionRequired:
+          d.status === "Under Review"
+            ? "Document Review"
+            : d.status === "Pending Approval"
+              ? "Document Approval"
+              : "Document Status",
+        status: d.status,
+        preparedBy: d.preparedByName,
+        lastUpdated: d.lastModified,
+        fileName: d.fileName,
+        rawDocument: d,
+      }));
 
-    return respond(items);
+    // Unapproved checklists created by, assigned to, or under review/revision for this user
+    const chkTasks = activeChecklists
+      .filter((c) => {
+        if (c.status === "Approved") return false;
+        return (
+          c.preparedByName === userName ||
+          c.assignedToName === userName ||
+          c.reviewedByName === userName ||
+          c.approvedByName === userName
+        );
+      })
+      .map((c) => ({
+        id: c.id,
+        type: "checklist" as const,
+        description: c.description,
+        identifier: c.formNumber,
+        role:
+          c.status === "Needs Revision"
+            ? "Author (Revision Needed)"
+            : c.preparedByName === userName
+              ? "Author"
+              : c.assignedToName === userName
+                ? "Assignee"
+                : c.reviewedByName === userName
+                  ? "Reviewer"
+                  : "Approver",
+        actionRequired:
+          c.status === "Needs Revision"
+            ? "Revise Checklist & Resubmit"
+            : c.status === "Under Review"
+              ? "Awaiting Admin Review"
+              : c.status === "Pending Approval"
+                ? "Awaiting Admin Sign-Off"
+                : "Checklist Action",
+        status: c.status,
+        preparedBy: c.preparedByName,
+        assignedToName: c.assignedToName,
+        lastUpdated: c.lastModified,
+        rejectionNotes: c.rejectionNotes,
+        rejectionRecommendations: c.rejectionRecommendations,
+        checklistType: c.type,
+        fileName: c.fileName,
+        items: c.items,
+        rawChecklist: c,
+      }));
+
+    return respond([...chkTasks, ...docTasks]);
+  },
+
+  getNavBadgeCounts(userName?: string, role?: string) {
+    const activeDocs = documentsStore.filter((d) => !d.isArchived);
+    const activeChecklists = checklistsStore.filter((c) => !c.isArchived);
+
+    if (role === "Quality Admin") {
+      const reviewsCount =
+        activeDocs.filter((d) => d.status === "Under Review").length +
+        activeChecklists.filter((c) => c.status === "Under Review").length;
+
+      const approvalsCount =
+        activeDocs.filter((d) => d.status === "Pending Approval").length +
+        activeChecklists.filter((c) => c.status === "Pending Approval").length;
+
+      return respond({ reviews: reviewsCount, approvals: approvalsCount, myTasks: 0 });
+    }
+
+    // Quality User
+    const userTasks = [...activeChecklists, ...activeDocs].filter((item) => {
+      if (item.status === "Approved") return false;
+      const isAuthorOrAssignee =
+        item.preparedByName === userName ||
+        ("assignedToName" in item && item.assignedToName === userName) ||
+        item.reviewedByName === userName ||
+        item.approvedByName === userName;
+      return isAuthorOrAssignee;
+    }).length;
+
+    return respond({ reviews: 0, approvals: 0, myTasks: userTasks });
   },
 };

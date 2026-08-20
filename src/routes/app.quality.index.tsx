@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { useAuth } from "@/features/auth/auth-context";
 import { Loading } from "@/components/ui/loading";
 
+import { isModuleAdmin } from "@/features/auth/permissions";
+
 export const Route = createFileRoute("/app/quality/")({
   component: QualityIndexRedirect,
 });
@@ -13,12 +15,10 @@ function QualityIndexRedirect() {
 
   useEffect(() => {
     if (ready && user) {
-      if (user.role === "Quality Admin") {
+      if (isModuleAdmin(user, "quality")) {
         navigate({ to: "/app/quality/dashboard", replace: true });
-      } else if (user.role === "Quality User") {
-        navigate({ to: "/app/quality/policy-documents", replace: true });
       } else {
-        navigate({ to: "/app/settings/dashboard", replace: true });
+        navigate({ to: "/app/quality/training", replace: true });
       }
     }
   }, [ready, user, navigate]);

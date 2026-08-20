@@ -31,12 +31,21 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+const DEMO_USERS = [
+  { role: "Super Admin", user: "John Doe", username: "johndoe", pass: "hemp1234" },
+  { role: "Tools Admin", user: "Sara Haddad", username: "sarah", pass: "hemp1234" },
+  { role: "Tools User", user: "Marcus Vance", username: "marcusv", pass: "hemp1234" },
+  { role: "Quality Admin", user: "Liam Fischer", username: "liamf", pass: "hemp1234" },
+  { role: "Quality User", user: "Amara Okoye", username: "amarao", pass: "hemp1234" },
+];
+
 function LoginPage() {
   const { ready, isAuthenticated, signIn } = useAuth();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [selectedDemoUser, setSelectedDemoUser] = useState("johndoe");
+  const [username, setUsername] = useState("johndoe");
+  const [password, setPassword] = useState("hemp1234");
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -44,6 +53,20 @@ function LoginPage() {
   useEffect(() => {
     if (ready && isAuthenticated) navigate({ to: "/app", replace: true });
   }, [ready, isAuthenticated, navigate]);
+
+  const handleSelectDemoUser = (val: string) => {
+    setSelectedDemoUser(val);
+    if (val === "custom") {
+      setUsername("");
+      setPassword("");
+      return;
+    }
+    const match = DEMO_USERS.find((u) => u.username === val);
+    if (match) {
+      setUsername(match.username);
+      setPassword(match.pass);
+    }
+  };
 
   if (!ready || isAuthenticated) {
     return (
@@ -74,6 +97,8 @@ function LoginPage() {
     navigate({ to: "/app", replace: true });
   }
 
+  const currentDemo = DEMO_USERS.find((u) => u.username === username);
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted px-4 py-12">
       <div className="page-enter w-full max-w-[25rem]">
@@ -89,85 +114,97 @@ function LoginPage() {
 
         <div className="surface-panel mt-8 p-6 sm:p-7">
           <h2 className="text-base font-semibold text-foreground">Sign in to HEMP</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Use your workspace credentials to continue.
+          <p className="mt-1 text-xs text-muted-foreground">
+            Select a mock persona or use workspace credentials.
           </p>
 
-          <form className="mt-6 space-y-5" onSubmit={handleSubmit} noValidate>
-            <div className="space-y-2">
-              <Label htmlFor="username">Username / Email</Label>
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+            {/* Quick Demo User Dropdown */}
+            <div className="space-y-1.5">
+              <Label htmlFor="demoUserSelect" className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Select Account / Persona</span>
+                <span className="text-[10px] text-primary font-mono uppercase tracking-wider">Demo Quick Select</span>
+              </Label>
+              <select
+                id="demoUserSelect"
+                value={selectedDemoUser}
+                onChange={(e) => handleSelectDemoUser(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-medium text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+              >
+                {DEMO_USERS.map((demo) => (
+                  <option key={demo.username} value={demo.username}>
+                    {demo.role}: {demo.user} (@{demo.username})
+                  </option>
+                ))}
+                <option value="custom">— Enter Custom Credentials —</option>
+              </select>
+            </div>
+
+            {currentDemo && (
+              <div className="p-2.5 rounded-md bg-muted/40 border border-border/80 flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-bold text-foreground block text-[11px]">{currentDemo.role}</span>
+                  <span className="text-[10px] text-muted-foreground">{currentDemo.user}</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-background border border-border font-semibold text-muted-foreground">
+                  Ready to Sign In
+                </span>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor="username" className="text-xs">Username / Email</Label>
               <Input
                 id="username"
                 autoComplete="username"
                 value={username}
-                onChange={(event) => setUsername(event.target.value)}
+                onChange={(event) => {
+                  setUsername(event.target.value);
+                  setSelectedDemoUser("custom");
+                }}
                 aria-invalid={Boolean(error)}
                 placeholder="johndoe"
+                className="h-9 text-xs"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs">Password</Label>
               <PasswordInput
                 id="password"
                 autoComplete="current-password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setSelectedDemoUser("custom");
+                }}
                 aria-invalid={Boolean(error)}
                 placeholder="••••••••"
+                className="h-9 text-xs"
               />
             </div>
 
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer pt-1">
               <Checkbox
                 checked={remember}
                 onCheckedChange={(checked) => setRemember(checked === true)}
               />
-              Remember me
+              Remember me on this browser
             </label>
 
             {error && (
               <p
                 role="alert"
-                className="rounded-md border border-destructive/30 bg-destructive/8 px-3 py-2 text-sm text-destructive"
+                className="rounded-md border border-destructive/30 bg-destructive/8 px-3 py-2 text-xs text-destructive"
               >
                 {error}
               </p>
             )}
 
-            <Button type="submit" className="w-full" disabled={submitting}>
+            <Button type="submit" className="w-full h-9 text-xs font-semibold" disabled={submitting}>
               {submitting ? "Signing in…" : "Sign In"}
             </Button>
           </form>
-        </div>
-
-        <div className="mt-6 border border-border bg-card/40 rounded-lg p-4 text-xs">
-          <p className="font-semibold text-center text-muted-foreground mb-3">Quick Demo Logins</p>
-          <div className="space-y-2">
-            {[
-              { role: "Super Admin", user: "John Doe", username: "johndoe", pass: "hemp1234" },
-              { role: "Quality Admin", user: "Liam Fischer", username: "liamf", pass: "hemp1234" },
-              { role: "Quality User", user: "Amara Okoye", username: "amarao", pass: "hemp1234" }
-            ].map((demo) => (
-              <button
-                key={demo.role}
-                type="button"
-                onClick={() => {
-                  setUsername(demo.username);
-                  setPassword(demo.pass);
-                }}
-                className="w-full text-left flex items-center justify-between p-2.5 rounded border border-border/80 hover:bg-accent/40 hover:border-border transition-colors cursor-pointer select-none"
-              >
-                <div>
-                  <span className="font-bold text-foreground block text-[11px]">{demo.role}</span>
-                  <span className="text-[10px] text-muted-foreground">{demo.user} (@{demo.username})</span>
-                </div>
-                <span className="font-mono text-[10px] text-muted-foreground font-semibold bg-muted/65 px-1.5 py-0.5 rounded">
-                  {demo.pass}
-                </span>
-              </button>
-            ))}
-          </div>
         </div>
       </div>
     </main>

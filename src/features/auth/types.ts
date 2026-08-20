@@ -1,9 +1,14 @@
+import type { ModulePermissions } from "@/modules/settings/types";
+
 export type User = {
   id: string;
   firstName: string;
   lastName: string;
   username: string;
   role: string;
+  jobTitle?: string;
+  isSuperAdmin?: boolean;
+  permissions?: ModulePermissions;
 };
 
 export type Credentials = {

@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { useAuth } from "@/features/auth/auth-context";
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/app")({
 function AppShell() {
   const { ready, user } = useAuth();
   const navigate = useNavigate();
+  const routerState = useRouterState();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
@@ -25,6 +26,17 @@ function AppShell() {
     return (
       <main className="grid min-h-screen place-items-center bg-background">
         <Loading />
+      </main>
+    );
+  }
+
+  const pathname = routerState.location.pathname.replace(/\/$/, "");
+  const isPortal = pathname === "/app";
+
+  if (isPortal) {
+    return (
+      <main className="min-h-screen w-full bg-background text-foreground">
+        <Outlet />
       </main>
     );
   }

@@ -12,6 +12,10 @@ import {
   CheckSquare,
   ShieldCheck,
   Archive,
+  Zap,
+  DollarSign,
+  Receipt,
+  FileCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -40,14 +44,43 @@ export const QUALITY_ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", to: "/app/quality/dashboard", icon: LayoutDashboard },
   { label: "Policy Documents", to: "/app/quality/policy-documents", icon: FileText },
   { label: "Equipment Checklists", to: "/app/quality/checklists", icon: ClipboardCheck },
+  { label: "Training & Compliance", to: "/app/quality/training", icon: GraduationCap },
   { label: "Reviews", to: "/app/quality/reviews", icon: CheckSquare },
   { label: "Approvals", to: "/app/quality/approvals", icon: ShieldCheck },
   { label: "Archive", to: "/app/quality/archive", icon: Archive },
 ];
 
 export const QUALITY_USER_NAV: NavItem[] = [
-  { label: "Policy Documents", to: "/app/quality/policy-documents", icon: FileText },
-  { label: "Equipment Checklists", to: "/app/quality/checklists", icon: ClipboardCheck },
+  { label: "Training & Compliance", to: "/app/quality/training", icon: GraduationCap },
   { label: "My Tasks", to: "/app/quality/my-tasks", icon: CheckSquare },
+  { label: "Equipment Checklists", to: "/app/quality/checklists", icon: ClipboardCheck },
+  { label: "Policy Documents", to: "/app/quality/policy-documents", icon: FileText },
   { label: "Archive", to: "/app/quality/archive", icon: Archive },
+];
+
+/* =========================================================================
+   TOOLS MODULE — FLAT MAIN MENU (ADMIN)
+========================================================================= */
+export const TOOLS_ADMIN_MAIN_NAV: NavItem[] = [
+  { label: "Dashboard", to: "/app/tools/dashboard", icon: LayoutDashboard },
+  { label: "Tools Registry", to: "/app/tools", icon: Wrench },
+  { label: "All Jobs", to: "/app/tools/jobs", icon: ClipboardCheck },
+  { label: "Open Jobs", to: "/app/tools/jobs/open", icon: Zap },
+  { label: "Expense Approvals", to: "/app/tools/expense-approvals", icon: DollarSign },
+  { label: "Documents", to: "/app/tools/documents", icon: FileCheck },
+];
+
+export const TOOLS_ADMIN_ARCHIVE_NAV: NavItem[] = [
+  { label: "Archived Tools", to: "/app/tools/archived-tools", icon: Archive },
+  { label: "Archived Jobs", to: "/app/tools/archived-jobs", icon: History },
+];
+
+/* =========================================================================
+   TOOLS MODULE — FLAT MAIN MENU (USER)
+========================================================================= */
+export const TOOLS_USER_MAIN_NAV: NavItem[] = [
+  { label: "My Jobs", to: "/app/tools/my-jobs", icon: ClipboardCheck },
+  { label: "Tools Registry", to: "/app/tools", icon: Wrench },
+  { label: "My Expenses", to: "/app/tools/my-expenses", icon: Receipt },
+  { label: "Documents", to: "/app/tools/documents", icon: FileCheck },
 ];

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { DataTable } from "@/components/data-table/data-table";
+import { DataTable, RowActionsMenu } from "@/components/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -18,6 +18,7 @@ import { configService } from "@/modules/settings/services/config-service";
 import { qualityService, type PolicyDocumentInput } from "@/modules/quality/services/quality-service";
 import type { Personnel, ConfigRecord } from "@/modules/settings/types";
 import type { PolicyDocument } from "@/modules/quality/types";
+import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
 
 export const Route = createFileRoute("/app/quality/policy-documents")({
   head: () => ({
@@ -105,9 +106,9 @@ function DocumentFormModal({ open, onOpenChange, documentItem, personnelList, st
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle>{documentItem ? "Edit Policy Document" : "Add Policy Document"}</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg font-bold">{documentItem ? "Edit Policy Document" : "Add Policy Document"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
           
@@ -233,11 +234,11 @@ function DocumentFormModal({ open, onOpenChange, documentItem, personnelList, st
             </div>
           </div>
 
-          <DialogFooter className="pt-3 border-t border-border md:col-span-2 mt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="gap-2 pt-3 border-t border-border md:col-span-2 mt-2">
+            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">{documentItem ? "Save Changes" : "Upload SOP"}</Button>
+            <Button type="submit" className="w-full sm:w-auto">{documentItem ? "Save Changes" : "Upload SOP"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -256,6 +257,7 @@ function PolicyDocumentsPage() {
 
   // Form states
   const [editingDoc, setEditingDoc] = useState<PolicyDocument | null>(null);
+  const [viewingDoc, setViewingDoc] = useState<PolicyDocument | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [confirmState, setConfirmState] = useState<{
     open: boolean;
@@ -334,12 +336,10 @@ function PolicyDocumentsPage() {
   };
 
   const handleMockView = (doc: PolicyDocument) => {
-    // Open in a new tab as requested
-    alert(`Mock View: Opening ${doc.description} (${doc.fileName}) in a new browser tab.`);
+    setViewingDoc(doc);
   };
 
   const handleMockDownload = (doc: PolicyDocument) => {
-    // Mock download trigger
     alert(`Mock Download: Downloading ${doc.fileName} to your local device.`);
   };
 
@@ -377,17 +377,7 @@ function PolicyDocumentsPage() {
       key: "status",
       header: "Status",
       value: (row) => row.status,
-      cell: (row) => {
-        let theme: "active" | "inactive" | "pending" = "pending";
-        if (row.status === "Approved" || row.status === "Published") theme = "active";
-        if (row.status === "Draft") theme = "inactive";
-        return (
-          <StatusBadge
-            status={row.status === "Approved" ? "active" : row.status === "Draft" ? "inactive" : "pending"}
-            label={row.status}
-          />
-        );
-      },
+      cell: (row) => <StatusBadge status={row.status} label={row.status} />,
       filterable: true,
     },
     {
@@ -422,71 +412,35 @@ function PolicyDocumentsPage() {
 
   const renderRowActions = (row: PolicyDocument) => {
     return (
-      <div className="flex justify-end gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => handleMockView(row)}
-              aria-label={`View ${row.description}`}
-            >
-              <Eye className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>View Document</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={() => handleMockDownload(row)}
-              aria-label={`Download ${row.description}`}
-            >
-              <Download className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Download Document</TooltipContent>
-        </Tooltip>
-
-        {isAdmin && (
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  onClick={() => handleEditClick(row)}
-                  aria-label={`Edit ${row.description}`}
-                >
-                  <Edit2 className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Edit Document</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 text-destructive"
-                  onClick={() => handleArchiveClick(row)}
-                  aria-label={`Archive ${row.description}`}
-                >
-                  <Archive className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Archive Document</TooltipContent>
-            </Tooltip>
-          </>
-        )}
-      </div>
+      <RowActionsMenu
+        actions={[
+          {
+            label: "View Document",
+            icon: Eye,
+            onClick: () => handleMockView(row),
+          },
+          {
+            label: "Download",
+            icon: Download,
+            onClick: () => handleMockDownload(row),
+          },
+          isAdmin
+            ? {
+                label: "Edit",
+                icon: Edit2,
+                onClick: () => handleEditClick(row),
+              }
+            : null,
+          isAdmin
+            ? {
+                label: "Archive",
+                icon: Archive,
+                variant: "destructive",
+                onClick: () => handleArchiveClick(row),
+              }
+            : null,
+        ]}
+      />
     );
   };
 
@@ -527,6 +481,12 @@ function PolicyDocumentsPage() {
         personnelList={personnel}
         statuses={statuses}
         onSubmit={handleFormSubmit}
+      />
+
+      <ChecklistDetailModal
+        open={!!viewingDoc}
+        onOpenChange={(open) => !open && setViewingDoc(null)}
+        data={viewingDoc}
       />
 
       <ConfirmDialog

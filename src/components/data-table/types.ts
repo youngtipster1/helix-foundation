@@ -10,6 +10,8 @@ export type DataTableColumn<T> = {
   cell?: (row: T) => ReactNode;
   /** Enables Excel-style multi-select column filtering. */
   filterable?: boolean;
+  /** Whether this column can be dragged/reordered. Defaults to true. */
+  reorderable?: boolean;
   /** Whether the column should remain visible on mobile when using the priority mobile strategy. */
   priority?: boolean;
   className?: string;
@@ -18,3 +20,5 @@ export type DataTableColumn<T> = {
 
 /** Filter state shape: column key -> selected values. Empty/absent = no filter. */
 export type ColumnFilterState = Record<string, string[]>;
+
+export type { RowActionItem, RowActionsMenuProps } from "./row-actions-menu";

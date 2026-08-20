@@ -1,6 +1,7 @@
 import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/features/auth/auth-context";
+import { hasModuleAccess } from "@/features/auth/permissions";
 
 export const Route = createFileRoute("/app/settings")({
   component: SettingsShell,
@@ -10,13 +11,15 @@ function SettingsShell() {
   const { ready, user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (ready && user && user.role !== "Super Admin") {
-      navigate({ to: "/login", replace: true });
-    }
-  }, [ready, user, navigate]);
+  const canAccess = hasModuleAccess(user, "settings");
 
-  if (!ready || !user || user.role !== "Super Admin") {
+  useEffect(() => {
+    if (ready && user && !canAccess) {
+      navigate({ to: "/app", replace: true });
+    }
+  }, [ready, user, canAccess, navigate]);
+
+  if (!ready || !user || !canAccess) {
     return null;
   }
 

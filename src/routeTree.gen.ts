@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppQualityRouteImport } from './routes/app.quality'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppToolsRouteImport } from './routes/app.tools'
 import { Route as AppQualityIndexRouteImport } from './routes/app.quality.index'
 import { Route as AppQualityApprovalsRouteImport } from './routes/app.quality.approvals'
 import { Route as AppQualityArchiveRouteImport } from './routes/app.quality.archive'
@@ -23,6 +24,7 @@ import { Route as AppQualityDashboardRouteImport } from './routes/app.quality.da
 import { Route as AppQualityMyTasksRouteImport } from './routes/app.quality.my-tasks'
 import { Route as AppQualityPolicyDocumentsRouteImport } from './routes/app.quality.policy-documents'
 import { Route as AppQualityReviewsRouteImport } from './routes/app.quality.reviews'
+import { Route as AppQualityTrainingRouteImport } from './routes/app.quality.training'
 import { Route as AppSettingsIndexRouteImport } from './routes/app.settings.index'
 import { Route as AppSettingsAuditLogRouteImport } from './routes/app.settings.audit-log'
 import { Route as AppSettingsDashboardRouteImport } from './routes/app.settings.dashboard'
@@ -33,6 +35,20 @@ import { Route as AppSettingsQualityRouteImport } from './routes/app.settings.qu
 import { Route as AppSettingsToolsRouteImport } from './routes/app.settings.tools'
 import { Route as AppSettingsTrainingRouteImport } from './routes/app.settings.training'
 import { Route as AppSettingsUserAccountsRouteImport } from './routes/app.settings.user-accounts'
+import { Route as AppToolsIndexRouteImport } from './routes/app.tools.index'
+import { Route as AppToolsToolIdRouteImport } from './routes/app.tools.$toolId'
+import { Route as AppToolsArchivedJobsRouteImport } from './routes/app.tools.archived-jobs'
+import { Route as AppToolsArchivedToolsRouteImport } from './routes/app.tools.archived-tools'
+import { Route as AppToolsCalibrationRouteImport } from './routes/app.tools.calibration'
+import { Route as AppToolsDashboardRouteImport } from './routes/app.tools.dashboard'
+import { Route as AppToolsDocumentsRouteImport } from './routes/app.tools.documents'
+import { Route as AppToolsExpenseApprovalsRouteImport } from './routes/app.tools.expense-approvals'
+import { Route as AppToolsMyExpensesRouteImport } from './routes/app.tools.my-expenses'
+import { Route as AppToolsMyJobsRouteImport } from './routes/app.tools.my-jobs'
+import { Route as AppToolsJobsIndexRouteImport } from './routes/app.tools.jobs.index'
+import { Route as AppToolsJobsJobIdRouteImport } from './routes/app.tools.jobs.$jobId'
+import { Route as AppToolsJobsCreateRouteImport } from './routes/app.tools.jobs.create'
+import { Route as AppToolsJobsOpenRouteImport } from './routes/app.tools.jobs.open'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -62,6 +78,11 @@ const AppQualityRoute = AppQualityRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppToolsRoute = AppToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
   getParentRoute: () => AppRoute,
 } as any)
 const AppQualityIndexRoute = AppQualityIndexRouteImport.update({
@@ -103,6 +124,11 @@ const AppQualityPolicyDocumentsRoute =
 const AppQualityReviewsRoute = AppQualityReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
+  getParentRoute: () => AppQualityRoute,
+} as any)
+const AppQualityTrainingRoute = AppQualityTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
   getParentRoute: () => AppQualityRoute,
 } as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
@@ -156,6 +182,77 @@ const AppSettingsUserAccountsRoute = AppSettingsUserAccountsRouteImport.update({
   path: '/user-accounts',
   getParentRoute: () => AppSettingsRoute,
 } as any)
+const AppToolsIndexRoute = AppToolsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsToolIdRoute = AppToolsToolIdRouteImport.update({
+  id: '/$toolId',
+  path: '/$toolId',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsArchivedJobsRoute = AppToolsArchivedJobsRouteImport.update({
+  id: '/archived-jobs',
+  path: '/archived-jobs',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsArchivedToolsRoute = AppToolsArchivedToolsRouteImport.update({
+  id: '/archived-tools',
+  path: '/archived-tools',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsCalibrationRoute = AppToolsCalibrationRouteImport.update({
+  id: '/calibration',
+  path: '/calibration',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsDashboardRoute = AppToolsDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsDocumentsRoute = AppToolsDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsExpenseApprovalsRoute =
+  AppToolsExpenseApprovalsRouteImport.update({
+    id: '/expense-approvals',
+    path: '/expense-approvals',
+    getParentRoute: () => AppToolsRoute,
+  } as any)
+const AppToolsMyExpensesRoute = AppToolsMyExpensesRouteImport.update({
+  id: '/my-expenses',
+  path: '/my-expenses',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsMyJobsRoute = AppToolsMyJobsRouteImport.update({
+  id: '/my-jobs',
+  path: '/my-jobs',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsJobsIndexRoute = AppToolsJobsIndexRouteImport.update({
+  id: '/jobs/',
+  path: '/jobs/',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsJobsJobIdRoute = AppToolsJobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsJobsCreateRoute = AppToolsJobsCreateRouteImport.update({
+  id: '/jobs/create',
+  path: '/jobs/create',
+  getParentRoute: () => AppToolsRoute,
+} as any)
+const AppToolsJobsOpenRoute = AppToolsJobsOpenRouteImport.update({
+  id: '/jobs/open',
+  path: '/jobs/open',
+  getParentRoute: () => AppToolsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -163,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/quality': typeof AppQualityRouteWithChildren
   '/app/settings': typeof AppSettingsRouteWithChildren
+  '/app/tools': typeof AppToolsRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/app/quality/approvals': typeof AppQualityApprovalsRoute
   '/app/quality/archive': typeof AppQualityArchiveRoute
@@ -171,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/app/quality/my-tasks': typeof AppQualityMyTasksRoute
   '/app/quality/policy-documents': typeof AppQualityPolicyDocumentsRoute
   '/app/quality/reviews': typeof AppQualityReviewsRoute
+  '/app/quality/training': typeof AppQualityTrainingRoute
   '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
   '/app/settings/dashboard': typeof AppSettingsDashboardRoute
   '/app/settings/debrief': typeof AppSettingsDebriefRoute
@@ -180,8 +279,22 @@ export interface FileRoutesByFullPath {
   '/app/settings/tools': typeof AppSettingsToolsRoute
   '/app/settings/training': typeof AppSettingsTrainingRoute
   '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/tools/$toolId': typeof AppToolsToolIdRoute
+  '/app/tools/archived-jobs': typeof AppToolsArchivedJobsRoute
+  '/app/tools/archived-tools': typeof AppToolsArchivedToolsRoute
+  '/app/tools/calibration': typeof AppToolsCalibrationRoute
+  '/app/tools/dashboard': typeof AppToolsDashboardRoute
+  '/app/tools/documents': typeof AppToolsDocumentsRoute
+  '/app/tools/expense-approvals': typeof AppToolsExpenseApprovalsRoute
+  '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
+  '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
   '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
+  '/app/tools/': typeof AppToolsIndexRoute
+  '/app/tools/jobs/$jobId': typeof AppToolsJobsJobIdRoute
+  '/app/tools/jobs/create': typeof AppToolsJobsCreateRoute
+  '/app/tools/jobs/open': typeof AppToolsJobsOpenRoute
+  '/app/tools/jobs/': typeof AppToolsJobsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -194,6 +307,7 @@ export interface FileRoutesByTo {
   '/app/quality/my-tasks': typeof AppQualityMyTasksRoute
   '/app/quality/policy-documents': typeof AppQualityPolicyDocumentsRoute
   '/app/quality/reviews': typeof AppQualityReviewsRoute
+  '/app/quality/training': typeof AppQualityTrainingRoute
   '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
   '/app/settings/dashboard': typeof AppSettingsDashboardRoute
   '/app/settings/debrief': typeof AppSettingsDebriefRoute
@@ -203,8 +317,22 @@ export interface FileRoutesByTo {
   '/app/settings/tools': typeof AppSettingsToolsRoute
   '/app/settings/training': typeof AppSettingsTrainingRoute
   '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/tools/$toolId': typeof AppToolsToolIdRoute
+  '/app/tools/archived-jobs': typeof AppToolsArchivedJobsRoute
+  '/app/tools/archived-tools': typeof AppToolsArchivedToolsRoute
+  '/app/tools/calibration': typeof AppToolsCalibrationRoute
+  '/app/tools/dashboard': typeof AppToolsDashboardRoute
+  '/app/tools/documents': typeof AppToolsDocumentsRoute
+  '/app/tools/expense-approvals': typeof AppToolsExpenseApprovalsRoute
+  '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
+  '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
   '/app/quality': typeof AppQualityIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
+  '/app/tools': typeof AppToolsIndexRoute
+  '/app/tools/jobs/$jobId': typeof AppToolsJobsJobIdRoute
+  '/app/tools/jobs/create': typeof AppToolsJobsCreateRoute
+  '/app/tools/jobs/open': typeof AppToolsJobsOpenRoute
+  '/app/tools/jobs': typeof AppToolsJobsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -213,6 +341,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/quality': typeof AppQualityRouteWithChildren
   '/app/settings': typeof AppSettingsRouteWithChildren
+  '/app/tools': typeof AppToolsRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/app/quality/approvals': typeof AppQualityApprovalsRoute
   '/app/quality/archive': typeof AppQualityArchiveRoute
@@ -221,6 +350,7 @@ export interface FileRoutesById {
   '/app/quality/my-tasks': typeof AppQualityMyTasksRoute
   '/app/quality/policy-documents': typeof AppQualityPolicyDocumentsRoute
   '/app/quality/reviews': typeof AppQualityReviewsRoute
+  '/app/quality/training': typeof AppQualityTrainingRoute
   '/app/settings/audit-log': typeof AppSettingsAuditLogRoute
   '/app/settings/dashboard': typeof AppSettingsDashboardRoute
   '/app/settings/debrief': typeof AppSettingsDebriefRoute
@@ -230,8 +360,22 @@ export interface FileRoutesById {
   '/app/settings/tools': typeof AppSettingsToolsRoute
   '/app/settings/training': typeof AppSettingsTrainingRoute
   '/app/settings/user-accounts': typeof AppSettingsUserAccountsRoute
+  '/app/tools/$toolId': typeof AppToolsToolIdRoute
+  '/app/tools/archived-jobs': typeof AppToolsArchivedJobsRoute
+  '/app/tools/archived-tools': typeof AppToolsArchivedToolsRoute
+  '/app/tools/calibration': typeof AppToolsCalibrationRoute
+  '/app/tools/dashboard': typeof AppToolsDashboardRoute
+  '/app/tools/documents': typeof AppToolsDocumentsRoute
+  '/app/tools/expense-approvals': typeof AppToolsExpenseApprovalsRoute
+  '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
+  '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
   '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
+  '/app/tools/': typeof AppToolsIndexRoute
+  '/app/tools/jobs/$jobId': typeof AppToolsJobsJobIdRoute
+  '/app/tools/jobs/create': typeof AppToolsJobsCreateRoute
+  '/app/tools/jobs/open': typeof AppToolsJobsOpenRoute
+  '/app/tools/jobs/': typeof AppToolsJobsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,6 +385,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/quality'
     | '/app/settings'
+    | '/app/tools'
     | '/app/'
     | '/app/quality/approvals'
     | '/app/quality/archive'
@@ -249,6 +394,7 @@ export interface FileRouteTypes {
     | '/app/quality/my-tasks'
     | '/app/quality/policy-documents'
     | '/app/quality/reviews'
+    | '/app/quality/training'
     | '/app/settings/audit-log'
     | '/app/settings/dashboard'
     | '/app/settings/debrief'
@@ -258,8 +404,22 @@ export interface FileRouteTypes {
     | '/app/settings/tools'
     | '/app/settings/training'
     | '/app/settings/user-accounts'
+    | '/app/tools/$toolId'
+    | '/app/tools/archived-jobs'
+    | '/app/tools/archived-tools'
+    | '/app/tools/calibration'
+    | '/app/tools/dashboard'
+    | '/app/tools/documents'
+    | '/app/tools/expense-approvals'
+    | '/app/tools/my-expenses'
+    | '/app/tools/my-jobs'
     | '/app/quality/'
     | '/app/settings/'
+    | '/app/tools/'
+    | '/app/tools/jobs/$jobId'
+    | '/app/tools/jobs/create'
+    | '/app/tools/jobs/open'
+    | '/app/tools/jobs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -272,6 +432,7 @@ export interface FileRouteTypes {
     | '/app/quality/my-tasks'
     | '/app/quality/policy-documents'
     | '/app/quality/reviews'
+    | '/app/quality/training'
     | '/app/settings/audit-log'
     | '/app/settings/dashboard'
     | '/app/settings/debrief'
@@ -281,8 +442,22 @@ export interface FileRouteTypes {
     | '/app/settings/tools'
     | '/app/settings/training'
     | '/app/settings/user-accounts'
+    | '/app/tools/$toolId'
+    | '/app/tools/archived-jobs'
+    | '/app/tools/archived-tools'
+    | '/app/tools/calibration'
+    | '/app/tools/dashboard'
+    | '/app/tools/documents'
+    | '/app/tools/expense-approvals'
+    | '/app/tools/my-expenses'
+    | '/app/tools/my-jobs'
     | '/app/quality'
     | '/app/settings'
+    | '/app/tools'
+    | '/app/tools/jobs/$jobId'
+    | '/app/tools/jobs/create'
+    | '/app/tools/jobs/open'
+    | '/app/tools/jobs'
   id:
     | '__root__'
     | '/'
@@ -290,6 +465,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/quality'
     | '/app/settings'
+    | '/app/tools'
     | '/app/'
     | '/app/quality/approvals'
     | '/app/quality/archive'
@@ -298,6 +474,7 @@ export interface FileRouteTypes {
     | '/app/quality/my-tasks'
     | '/app/quality/policy-documents'
     | '/app/quality/reviews'
+    | '/app/quality/training'
     | '/app/settings/audit-log'
     | '/app/settings/dashboard'
     | '/app/settings/debrief'
@@ -307,8 +484,22 @@ export interface FileRouteTypes {
     | '/app/settings/tools'
     | '/app/settings/training'
     | '/app/settings/user-accounts'
+    | '/app/tools/$toolId'
+    | '/app/tools/archived-jobs'
+    | '/app/tools/archived-tools'
+    | '/app/tools/calibration'
+    | '/app/tools/dashboard'
+    | '/app/tools/documents'
+    | '/app/tools/expense-approvals'
+    | '/app/tools/my-expenses'
+    | '/app/tools/my-jobs'
     | '/app/quality/'
     | '/app/settings/'
+    | '/app/tools/'
+    | '/app/tools/jobs/$jobId'
+    | '/app/tools/jobs/create'
+    | '/app/tools/jobs/open'
+    | '/app/tools/jobs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -359,6 +550,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/app/settings'
       preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/tools': {
+      id: '/app/tools'
+      path: '/tools'
+      fullPath: '/app/tools'
+      preLoaderRoute: typeof AppToolsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/quality/': {
@@ -415,6 +613,13 @@ declare module '@tanstack/react-router' {
       path: '/reviews'
       fullPath: '/app/quality/reviews'
       preLoaderRoute: typeof AppQualityReviewsRouteImport
+      parentRoute: typeof AppQualityRoute
+    }
+    '/app/quality/training': {
+      id: '/app/quality/training'
+      path: '/training'
+      fullPath: '/app/quality/training'
+      preLoaderRoute: typeof AppQualityTrainingRouteImport
       parentRoute: typeof AppQualityRoute
     }
     '/app/settings/': {
@@ -487,6 +692,104 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsUserAccountsRouteImport
       parentRoute: typeof AppSettingsRoute
     }
+    '/app/tools/': {
+      id: '/app/tools/'
+      path: '/'
+      fullPath: '/app/tools/'
+      preLoaderRoute: typeof AppToolsIndexRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/$toolId': {
+      id: '/app/tools/$toolId'
+      path: '/$toolId'
+      fullPath: '/app/tools/$toolId'
+      preLoaderRoute: typeof AppToolsToolIdRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/archived-jobs': {
+      id: '/app/tools/archived-jobs'
+      path: '/archived-jobs'
+      fullPath: '/app/tools/archived-jobs'
+      preLoaderRoute: typeof AppToolsArchivedJobsRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/archived-tools': {
+      id: '/app/tools/archived-tools'
+      path: '/archived-tools'
+      fullPath: '/app/tools/archived-tools'
+      preLoaderRoute: typeof AppToolsArchivedToolsRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/calibration': {
+      id: '/app/tools/calibration'
+      path: '/calibration'
+      fullPath: '/app/tools/calibration'
+      preLoaderRoute: typeof AppToolsCalibrationRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/dashboard': {
+      id: '/app/tools/dashboard'
+      path: '/dashboard'
+      fullPath: '/app/tools/dashboard'
+      preLoaderRoute: typeof AppToolsDashboardRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/documents': {
+      id: '/app/tools/documents'
+      path: '/documents'
+      fullPath: '/app/tools/documents'
+      preLoaderRoute: typeof AppToolsDocumentsRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/expense-approvals': {
+      id: '/app/tools/expense-approvals'
+      path: '/expense-approvals'
+      fullPath: '/app/tools/expense-approvals'
+      preLoaderRoute: typeof AppToolsExpenseApprovalsRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/my-expenses': {
+      id: '/app/tools/my-expenses'
+      path: '/my-expenses'
+      fullPath: '/app/tools/my-expenses'
+      preLoaderRoute: typeof AppToolsMyExpensesRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/my-jobs': {
+      id: '/app/tools/my-jobs'
+      path: '/my-jobs'
+      fullPath: '/app/tools/my-jobs'
+      preLoaderRoute: typeof AppToolsMyJobsRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/jobs/': {
+      id: '/app/tools/jobs/'
+      path: '/jobs'
+      fullPath: '/app/tools/jobs/'
+      preLoaderRoute: typeof AppToolsJobsIndexRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/jobs/$jobId': {
+      id: '/app/tools/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/app/tools/jobs/$jobId'
+      preLoaderRoute: typeof AppToolsJobsJobIdRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/jobs/create': {
+      id: '/app/tools/jobs/create'
+      path: '/jobs/create'
+      fullPath: '/app/tools/jobs/create'
+      preLoaderRoute: typeof AppToolsJobsCreateRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
+    '/app/tools/jobs/open': {
+      id: '/app/tools/jobs/open'
+      path: '/jobs/open'
+      fullPath: '/app/tools/jobs/open'
+      preLoaderRoute: typeof AppToolsJobsOpenRouteImport
+      parentRoute: typeof AppToolsRoute
+    }
   }
 }
 
@@ -498,6 +801,7 @@ interface AppQualityRouteChildren {
   AppQualityMyTasksRoute: typeof AppQualityMyTasksRoute
   AppQualityPolicyDocumentsRoute: typeof AppQualityPolicyDocumentsRoute
   AppQualityReviewsRoute: typeof AppQualityReviewsRoute
+  AppQualityTrainingRoute: typeof AppQualityTrainingRoute
   AppQualityIndexRoute: typeof AppQualityIndexRoute
 }
 
@@ -509,6 +813,7 @@ const AppQualityRouteChildren: AppQualityRouteChildren = {
   AppQualityMyTasksRoute: AppQualityMyTasksRoute,
   AppQualityPolicyDocumentsRoute: AppQualityPolicyDocumentsRoute,
   AppQualityReviewsRoute: AppQualityReviewsRoute,
+  AppQualityTrainingRoute: AppQualityTrainingRoute,
   AppQualityIndexRoute: AppQualityIndexRoute,
 }
 
@@ -546,15 +851,55 @@ const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
   AppSettingsRouteChildren,
 )
 
+interface AppToolsRouteChildren {
+  AppToolsToolIdRoute: typeof AppToolsToolIdRoute
+  AppToolsArchivedJobsRoute: typeof AppToolsArchivedJobsRoute
+  AppToolsArchivedToolsRoute: typeof AppToolsArchivedToolsRoute
+  AppToolsCalibrationRoute: typeof AppToolsCalibrationRoute
+  AppToolsDashboardRoute: typeof AppToolsDashboardRoute
+  AppToolsDocumentsRoute: typeof AppToolsDocumentsRoute
+  AppToolsExpenseApprovalsRoute: typeof AppToolsExpenseApprovalsRoute
+  AppToolsMyExpensesRoute: typeof AppToolsMyExpensesRoute
+  AppToolsMyJobsRoute: typeof AppToolsMyJobsRoute
+  AppToolsIndexRoute: typeof AppToolsIndexRoute
+  AppToolsJobsJobIdRoute: typeof AppToolsJobsJobIdRoute
+  AppToolsJobsCreateRoute: typeof AppToolsJobsCreateRoute
+  AppToolsJobsOpenRoute: typeof AppToolsJobsOpenRoute
+  AppToolsJobsIndexRoute: typeof AppToolsJobsIndexRoute
+}
+
+const AppToolsRouteChildren: AppToolsRouteChildren = {
+  AppToolsToolIdRoute: AppToolsToolIdRoute,
+  AppToolsArchivedJobsRoute: AppToolsArchivedJobsRoute,
+  AppToolsArchivedToolsRoute: AppToolsArchivedToolsRoute,
+  AppToolsCalibrationRoute: AppToolsCalibrationRoute,
+  AppToolsDashboardRoute: AppToolsDashboardRoute,
+  AppToolsDocumentsRoute: AppToolsDocumentsRoute,
+  AppToolsExpenseApprovalsRoute: AppToolsExpenseApprovalsRoute,
+  AppToolsMyExpensesRoute: AppToolsMyExpensesRoute,
+  AppToolsMyJobsRoute: AppToolsMyJobsRoute,
+  AppToolsIndexRoute: AppToolsIndexRoute,
+  AppToolsJobsJobIdRoute: AppToolsJobsJobIdRoute,
+  AppToolsJobsCreateRoute: AppToolsJobsCreateRoute,
+  AppToolsJobsOpenRoute: AppToolsJobsOpenRoute,
+  AppToolsJobsIndexRoute: AppToolsJobsIndexRoute,
+}
+
+const AppToolsRouteWithChildren = AppToolsRoute._addFileChildren(
+  AppToolsRouteChildren,
+)
+
 interface AppRouteChildren {
   AppQualityRoute: typeof AppQualityRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
+  AppToolsRoute: typeof AppToolsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppQualityRoute: AppQualityRouteWithChildren,
   AppSettingsRoute: AppSettingsRouteWithChildren,
+  AppToolsRoute: AppToolsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
 }
 

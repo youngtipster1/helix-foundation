@@ -39,11 +39,11 @@ export const MOCK_PERSONNEL: Personnel[] = [
   },
   {
     id: "per_005",
-    firstName: "Tom",
-    lastName: "Nguyen",
-    jobTitle: "Technician",
+    firstName: "Marcus",
+    lastName: "Vance",
+    jobTitle: "Biomedical Equipment Specialist",
     department: "Workshop",
-    email: "tom.nguyen@hemp.local",
-    status: "archived",
+    email: "marcus.vance@hemp.local",
+    status: "active",
   },
 ];

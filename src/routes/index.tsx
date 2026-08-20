@@ -31,7 +31,7 @@ function Index() {
 
   useEffect(() => {
     if (!ready) return;
-    navigate({ to: isAuthenticated ? "/app/dashboard" : "/login", replace: true });
+    navigate({ to: isAuthenticated ? "/app" : "/login", replace: true });
   }, [ready, isAuthenticated, navigate]);
 
   return (

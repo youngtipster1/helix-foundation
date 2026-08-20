@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, LogOut, PanelLeft, User as UserIcon, Sun, Moon } from "lucide-react";
+import { Bell, ChevronDown, LogOut, PanelLeft, User as UserIcon, Sun, Moon, LayoutGrid } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -76,6 +76,17 @@ export function Topbar({
         <PanelLeft className="size-4" />
       </Button>
 
+      {/* Quick return to main Workspace Hub */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => navigate({ to: "/app" })}
+        className="h-8 text-xs font-semibold gap-1.5 hidden sm:inline-flex border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary cursor-pointer"
+      >
+        <LayoutGrid className="size-3.5" />
+        <span>Workspace Hub</span>
+      </Button>
+
       <div className="min-w-0 flex-1" />
 
       <Tooltip>
@@ -98,7 +109,7 @@ export function Topbar({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md py-1.5 pr-2 pl-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+          <button className="flex items-center gap-2 rounded-md py-1.5 pr-2 pl-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer">
             <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-muted text-[11px] font-semibold tracking-wide text-foreground">
               {initials(user)}
             </span>
@@ -114,9 +125,9 @@ export function Topbar({
             <span className="block text-xs text-muted-foreground">{user.role}</span>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem disabled>
-            <UserIcon className="size-4" />
-            Profile
+          <DropdownMenuItem onSelect={() => navigate({ to: "/app" })}>
+            <LayoutGrid className="size-4" />
+            Workspace Hub
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => void handleSignOut()}>
             <LogOut className="size-4" />

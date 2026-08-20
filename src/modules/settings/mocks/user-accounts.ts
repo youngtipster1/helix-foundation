@@ -49,7 +49,7 @@ export const MOCK_USER_ACCOUNTS: UserAccount[] = [
     isSuperAdmin: false,
     permissions: {
       quality: "user",
-      tools: null,
+      tools: "user",
       training: null,
       "parts-inventory": null,
       debrief: null,
@@ -74,7 +74,27 @@ export const MOCK_USER_ACCOUNTS: UserAccount[] = [
       debrief: null,
       management: null,
     },
-    active: false,
+    active: true,
     createdAt: "2026-07-18",
   },
+  {
+    id: "acc_005",
+    personnelId: "per_005",
+    personnelName: "Marcus Vance",
+    email: "marcus.vance@hemp.local",
+    username: "marcusv",
+    password: "hemp1234",
+    isSuperAdmin: false,
+    permissions: {
+      quality: null,
+      tools: "user",
+      training: null,
+      "parts-inventory": null,
+      debrief: null,
+      management: null,
+    },
+    active: true,
+    createdAt: "2026-08-01",
+  },
 ];
+

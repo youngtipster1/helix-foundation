@@ -1,6 +1,7 @@
 import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/features/auth/auth-context";
+import { hasModuleAccess } from "@/features/auth/permissions";
 
 export const Route = createFileRoute("/app/quality")({
   component: QualityShell,
@@ -10,13 +11,15 @@ function QualityShell() {
   const { ready, user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (ready && user && user.role !== "Quality Admin" && user.role !== "Quality User") {
-      navigate({ to: "/login", replace: true });
-    }
-  }, [ready, user, navigate]);
+  const canAccess = hasModuleAccess(user, "quality");
 
-  if (!ready || !user || (user.role !== "Quality Admin" && user.role !== "Quality User")) {
+  useEffect(() => {
+    if (ready && user && !canAccess) {
+      navigate({ to: "/app", replace: true });
+    }
+  }, [ready, user, canAccess, navigate]);
+
+  if (!ready || !user || !canAccess) {
     return null;
   }
 
