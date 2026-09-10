@@ -25,8 +25,6 @@ export const mockAuthService: AuthService = {
   },
 
   async signIn({ username, password, remember }: Credentials): Promise<AuthResult> {
-    await new Promise((resolve) => setTimeout(resolve, 450));
-
     // Lookup user from mock accounts store
     const account = userAccountService.findByUsername(username);
 
@@ -50,6 +48,10 @@ export const mockAuthService: AuthService = {
       permissions: account.permissions,
       role: account.isSuperAdmin
         ? "Super Admin"
+        : account.permissions["parts-inventory"] === "admin"
+        ? "Parts Admin"
+        : account.permissions["parts-inventory"] === "user"
+        ? "Parts User"
         : account.permissions.tools === "admin"
         ? "Tools Admin"
         : account.permissions.tools === "user"

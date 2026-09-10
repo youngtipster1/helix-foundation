@@ -1,17 +1,16 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ClipboardCheck, Eye, Clock, CheckCircle2, AlertCircle, Wrench } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ClipboardCheck, Eye } from "lucide-react";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
-import { CalibrationStatusBadge } from "@/modules/tools/components/calibration-status-badge";
 import { toolsJobService } from "@/modules/tools/services/tools-job-service";
 import { useAuth } from "@/features/auth/auth-context";
 import type { ToolJob } from "@/modules/tools/types";
+import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/tools/my-jobs")({
@@ -33,11 +32,11 @@ function calculateJobAge(openDate: string, closeDate?: string): string {
 
 function MyJobsPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const [allMyJobs, setAllMyJobs] = useState<ToolJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<"all" | "open" | "completed">("open");
+  const [selectedJobNumber, setSelectedJobNumber] = useState<string | null>(null);
 
   const fetchMyJobs = async () => {
     setLoading(true);
@@ -83,13 +82,13 @@ function MyJobsPage() {
       header: "Job Number",
       value: (row) => row.jobNumber,
       cell: (row) => (
-        <Link
-          to="/app/tools/jobs/$jobId"
-          params={{ jobId: row.jobNumber }}
-          className="font-mono font-bold text-xs text-primary hover:underline"
+        <button
+          type="button"
+          onClick={() => setSelectedJobNumber(row.jobNumber)}
+          className="font-mono font-bold text-xs text-primary hover:underline cursor-pointer"
         >
           {row.jobNumber}
-        </Link>
+        </button>
       ),
       className: "font-mono font-semibold",
       filterable: true,
@@ -164,8 +163,7 @@ function MyJobsPage() {
           {
             label: "Open Job Workspace",
             icon: Eye,
-            onClick: () =>
-              navigate({ to: "/app/tools/jobs/$jobId", params: { jobId: row.jobNumber } }),
+            onClick: () => setSelectedJobNumber(row.jobNumber),
           },
         ]}
       />
@@ -204,6 +202,13 @@ function MyJobsPage() {
         emptyTitle="No jobs assigned."
         emptyDescription="You currently have no maintenance or calibration jobs in this queue."
         rowActions={renderRowActions}
+      />
+
+      <JobDetailModal
+        open={Boolean(selectedJobNumber)}
+        onOpenChange={(open) => !open && setSelectedJobNumber(null)}
+        jobNumber={selectedJobNumber}
+        onJobUpdated={fetchMyJobs}
       />
     </div>
   );

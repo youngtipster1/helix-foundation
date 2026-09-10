@@ -8,12 +8,13 @@ import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
 import { toolsJobService } from "@/modules/tools/services/tools-job-service";
 import type { ToolJob } from "@/modules/tools/types";
 import { CalibrationStatusBadge } from "@/modules/tools/components/calibration-status-badge";
+import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
+import { CreateJobModal } from "@/modules/tools/components/create-job-modal";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/tools/jobs/")({
@@ -40,6 +41,8 @@ function ToolsJobsPage() {
   const [jobsList, setJobsList] = useState<ToolJob[]>([]);
   const [activeFilter, setActiveFilter] = useState<"all" | "closed">("all");
   const [loading, setLoading] = useState(true);
+  const [selectedJobNumber, setSelectedJobNumber] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const isToolsAdmin = isModuleAdmin(user, "tools");
 
@@ -72,7 +75,8 @@ function ToolsJobsPage() {
       value: (row) => row.jobNumber,
       cell: (row) => (
         <button
-          onClick={() => navigate({ to: "/app/tools/jobs/$jobId", params: { jobId: row.jobNumber } })}
+          type="button"
+          onClick={() => setSelectedJobNumber(row.jobNumber)}
           className="font-mono font-bold text-xs text-primary hover:underline flex items-center gap-1 cursor-pointer"
         >
           <span>{row.jobNumber}</span>
@@ -219,8 +223,7 @@ function ToolsJobsPage() {
           {
             label: "View Job Details",
             icon: Eye,
-            onClick: () =>
-              navigate({ to: "/app/tools/jobs/$jobId", params: { jobId: row.jobNumber } }),
+            onClick: () => setSelectedJobNumber(row.jobNumber),
           },
           {
             label: "Archive Job",
@@ -265,8 +268,8 @@ function ToolsJobsPage() {
         {isToolsAdmin && (
           <Button
             size="sm"
-            onClick={() => navigate({ to: "/app/tools/jobs/create" })}
-            className="h-9 text-xs gap-1.5 self-start sm:self-auto"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="h-9 text-xs gap-1.5 self-start sm:self-auto cursor-pointer"
           >
             <Plus className="size-3.5" />
             <span>Create Tools Job</span>
@@ -282,6 +285,20 @@ function ToolsJobsPage() {
         emptyTitle="No tool jobs found."
         emptyDescription="No equipment jobs match your selected filter."
         rowActions={renderRowActions}
+      />
+
+      <JobDetailModal
+        open={Boolean(selectedJobNumber)}
+        onOpenChange={(open) => !open && setSelectedJobNumber(null)}
+        jobNumber={selectedJobNumber}
+        onJobUpdated={fetchJobs}
+        onJobArchived={fetchJobs}
+      />
+
+      <CreateJobModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onJobCreated={fetchJobs}
       />
     </div>
   );

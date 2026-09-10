@@ -7,7 +7,7 @@ import type { ModuleKey, PermissionLevel } from "@/modules/settings/types";
  */
 export function getModulePermission(
   user: User | null | undefined,
-  moduleKey: ModuleKey | "settings" | "quality" | "tools",
+  moduleKey: ModuleKey | "settings" | "quality" | "tools" | "parts" | "parts-inventory" | string,
 ): PermissionLevel {
   if (!user) return null;
 
@@ -18,6 +18,11 @@ export function getModulePermission(
 
   // Check explicit permission map if present
   if (user.permissions) {
+    if (moduleKey === "parts" || moduleKey === "parts-inventory") {
+      const partsPerm =
+        user.permissions["parts-inventory"] || (user.permissions as any).parts;
+      if (partsPerm) return partsPerm;
+    }
     const perm = user.permissions[moduleKey as keyof typeof user.permissions];
     if (perm) return perm;
   }
@@ -39,6 +44,12 @@ export function getModulePermission(
     if (roleLower.includes("admin")) return "admin";
   }
 
+  if (moduleKey === "parts" || moduleKey === "parts-inventory") {
+    if (roleLower.includes("parts admin")) return "admin";
+    if (roleLower.includes("parts user")) return "user";
+    if (roleLower.includes("admin") || roleLower.includes("manager") || roleLower.includes("lead")) return "admin";
+  }
+
   return null;
 }
 
@@ -47,20 +58,13 @@ export function getModulePermission(
  */
 export function hasModuleAccess(
   user: User | null | undefined,
-  moduleKey: ModuleKey | "settings" | "quality" | "tools" | string,
+  moduleKey: ModuleKey | "settings" | "quality" | "tools" | "parts" | string,
 ): boolean {
   if (!user) return false;
   if (user.isSuperAdmin || user.role === "Super Admin") return true;
 
   const level = getModulePermission(user, moduleKey as any);
-  if (level !== null) return true;
-
-  // By default, standard users can access available public workspace tools
-  if (moduleKey === "tools" || moduleKey === "quality") {
-    return true;
-  }
-
-  return false;
+  return level !== null;
 }
 
 /**
@@ -68,7 +72,7 @@ export function hasModuleAccess(
  */
 export function isModuleAdmin(
   user: User | null | undefined,
-  moduleKey: ModuleKey | "settings" | "quality" | "tools",
+  moduleKey: ModuleKey | "settings" | "quality" | "tools" | "parts" | "parts-inventory" | string,
 ): boolean {
   return getModulePermission(user, moduleKey) === "admin";
 }

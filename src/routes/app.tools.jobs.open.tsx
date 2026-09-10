@@ -1,17 +1,18 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Zap, Plus, Eye, Archive, Clock, Wrench, UserCheck, CheckCircle2 } from "lucide-react";
+import { Zap, Plus, Eye, Archive, UserCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
-import { CalibrationStatusBadge } from "@/modules/tools/components/calibration-status-badge";
 import { toolsJobService } from "@/modules/tools/services/tools-job-service";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
 import type { ToolJob } from "@/modules/tools/types";
+import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
+import { CreateJobModal } from "@/modules/tools/components/create-job-modal";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/tools/jobs/open")({
@@ -38,6 +39,8 @@ function OpenJobsPage() {
 
   const [openJobs, setOpenJobs] = useState<ToolJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedJobNumber, setSelectedJobNumber] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const fetchOpenJobs = async () => {
     setLoading(true);
@@ -62,13 +65,13 @@ function OpenJobsPage() {
       header: "Job Number",
       value: (row) => row.jobNumber,
       cell: (row) => (
-        <Link
-          to="/app/tools/jobs/$jobId"
-          params={{ jobId: row.jobNumber }}
-          className="font-mono font-bold text-xs text-primary hover:underline"
+        <button
+          type="button"
+          onClick={() => setSelectedJobNumber(row.jobNumber)}
+          className="font-mono font-bold text-xs text-primary hover:underline cursor-pointer"
         >
           {row.jobNumber}
-        </Link>
+        </button>
       ),
       className: "font-mono font-semibold",
       filterable: true,
@@ -159,8 +162,7 @@ function OpenJobsPage() {
           {
             label: "Open Job Workspace",
             icon: Eye,
-            onClick: () =>
-              navigate({ to: "/app/tools/jobs/$jobId", params: { jobId: row.jobNumber } }),
+            onClick: () => setSelectedJobNumber(row.jobNumber),
           },
           {
             label: "Close Job (Complete)",
@@ -214,8 +216,8 @@ function OpenJobsPage() {
         {isAdmin && (
           <Button
             size="sm"
-            onClick={() => navigate({ to: "/app/tools/jobs/create" })}
-            className="text-xs gap-1.5 h-9"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="text-xs gap-1.5 h-9 cursor-pointer"
           >
             <Plus className="size-3.5" />
             <span>Create Tools Job</span>
@@ -231,6 +233,20 @@ function OpenJobsPage() {
         emptyTitle="No open jobs."
         emptyDescription="All maintenance and calibration jobs are currently completed."
         rowActions={renderRowActions}
+      />
+
+      <JobDetailModal
+        open={Boolean(selectedJobNumber)}
+        onOpenChange={(open) => !open && setSelectedJobNumber(null)}
+        jobNumber={selectedJobNumber}
+        onJobUpdated={fetchOpenJobs}
+        onJobArchived={fetchOpenJobs}
+      />
+
+      <CreateJobModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onJobCreated={fetchOpenJobs}
       />
     </div>
   );

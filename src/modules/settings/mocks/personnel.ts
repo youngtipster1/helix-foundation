@@ -46,4 +46,22 @@ export const MOCK_PERSONNEL: Personnel[] = [
     email: "marcus.vance@hemp.local",
     status: "active",
   },
+  {
+    id: "per_006",
+    firstName: "Emeka",
+    lastName: "Nwosu",
+    jobTitle: "Parts Inventory Administrator",
+    department: "Supply Chain & Depot",
+    email: "emeka.nwosu@hemp.local",
+    status: "active",
+  },
+  {
+    id: "per_007",
+    firstName: "Khadija",
+    lastName: "Umar",
+    jobTitle: "Biomedical Parts Technician",
+    department: "Depot & Logistics",
+    email: "khadija.umar@hemp.local",
+    status: "active",
+  },
 ];

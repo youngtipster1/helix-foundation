@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Stepper, type StepItem } from "@/components/ui/stepper";
 import { toolsSettingsService } from "../services/tools-settings-service";
 import type { Tool, ToolInput, WarrantyStatus } from "../types";
-import { FileUp, Wrench, Shield, DollarSign } from "lucide-react";
+import { FileUp, Wrench, Shield, DollarSign, ChevronLeft, ChevronRight, Check } from "lucide-react";
 
 interface ToolFormModalProps {
   open: boolean;
@@ -16,9 +17,22 @@ interface ToolFormModalProps {
   onSubmit: (input: ToolInput) => Promise<void>;
 }
 
+const TOOL_STEPS: StepItem[] = [
+  { id: "general", title: "Specifications", description: "Model & Serial", icon: Wrench },
+  { id: "calibration", title: "Calibration & Warranty", description: "Dates & Schedule", icon: Shield },
+  { id: "financials", title: "Vendor & Financials", description: "PO, Cost & Receipt", icon: DollarSign },
+];
+
 export function ToolFormModal({ open, onOpenChange, tool, onSubmit }: ToolFormModalProps) {
   const [activeTab, setActiveTab] = useState("general");
   const [saving, setSaving] = useState(false);
+
+  const stepIndex = activeTab === "general" ? 0 : activeTab === "calibration" ? 1 : 2;
+  const setStepIndex = (idx: number) => {
+    if (idx === 0) setActiveTab("general");
+    if (idx === 1) setActiveTab("calibration");
+    if (idx === 2) setActiveTab("financials");
+  };
 
   // Settings options
   const [categories, setCategories] = useState<string[]>([]);
@@ -181,32 +195,30 @@ export function ToolFormModal({ open, onOpenChange, tool, onSubmit }: ToolFormMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-foreground">
-            {tool ? `Edit Tool — ${tool.id}` : "Add New Tool"}
-          </DialogTitle>
-          <p className="text-xs text-muted-foreground">
-            Register and manage physical test equipment, calibration validity, and procurement records.
-          </p>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden"
+      >
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 space-y-3">
+          <div>
+            <DialogTitle className="text-base font-bold text-foreground sm:text-lg">
+              {tool ? `Edit Tool — ${tool.id}` : "Add New Tool"}
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground">
+              Register and manage physical test equipment, calibration validity, and procurement records.
+            </p>
+          </div>
+
+          <Stepper
+            steps={TOOL_STEPS}
+            currentStep={stepIndex}
+            onStepClick={setStepIndex}
+          />
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-3 w-full mb-4">
-              <TabsTrigger value="general" className="text-xs flex items-center gap-1.5">
-                <Wrench className="size-3.5" />
-                <span>General</span>
-              </TabsTrigger>
-              <TabsTrigger value="calibration" className="text-xs flex items-center gap-1.5">
-                <Shield className="size-3.5" />
-                <span>Calibration & Warranty</span>
-              </TabsTrigger>
-              <TabsTrigger value="financials" className="text-xs flex items-center gap-1.5">
-                <DollarSign className="size-3.5" />
-                <span>Financials</span>
-              </TabsTrigger>
-            </TabsList>
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
             {/* TAB 1: GENERAL */}
             <TabsContent value="general" className="space-y-4">
@@ -545,17 +557,58 @@ export function ToolFormModal({ open, onOpenChange, tool, onSubmit }: ToolFormMo
               </div>
             </TabsContent>
           </Tabs>
+        </div>
 
-          <DialogFooter className="pt-3 border-t border-border flex items-center justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" disabled={saving || !serialNumber.trim()} className="text-xs">
-              {saving ? "Saving..." : tool ? "Save Changes" : "Register Tool"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 flex items-center justify-between sm:justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+            className="text-xs"
+          >
+            Cancel
+          </Button>
+
+          <div className="flex items-center gap-2">
+            {stepIndex > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setStepIndex(stepIndex - 1)}
+                className="text-xs gap-1"
+              >
+                <ChevronLeft className="size-3.5" />
+                <span>Back</span>
+              </Button>
+            )}
+
+            {stepIndex < 2 ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setStepIndex(stepIndex + 1)}
+                className="text-xs gap-1"
+              >
+                <span>Continue</span>
+                <ChevronRight className="size-3.5" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                size="sm"
+                disabled={saving || !serialNumber.trim()}
+                className="text-xs gap-1.5"
+              >
+                <Check className="size-3.5" />
+                <span>{saving ? "Saving..." : tool ? "Save Changes" : "Register Tool"}</span>
+              </Button>
+            )}
+          </div>
+        </DialogFooter>
+      </form>
+    </DialogContent>
     </Dialog>
   );
 }

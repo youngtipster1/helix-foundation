@@ -39,6 +39,7 @@ import { toolsService } from "@/modules/tools/services/tools-service";
 import { toolsJobService } from "@/modules/tools/services/tools-job-service";
 import { toolsExpenseService } from "@/modules/tools/services/tools-expense-service";
 import type { Tool, ToolJob } from "@/modules/tools/types";
+import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
 
 export const Route = createFileRoute("/app/tools/dashboard")({
   head: () => ({
@@ -63,6 +64,7 @@ function ToolsDashboardPage() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [jobs, setJobs] = useState<ToolJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedJobNumber, setSelectedJobNumber] = useState<string | null>(null);
 
   const isAdmin = isModuleAdmin(user, "tools");
 
@@ -302,10 +304,44 @@ function ToolsDashboardPage() {
                   data={calibrationPieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={65}
-                  outerRadius={95}
+                  innerRadius={60}
+                  outerRadius={96}
                   paddingAngle={3}
                   dataKey="value"
+                  labelLine={false}
+                  label={({
+                    cx,
+                    cy,
+                    midAngle,
+                    innerRadius,
+                    outerRadius,
+                    percent,
+                  }: any) => {
+                    const p = Math.round((percent || 0) * 100);
+                    if (p < 4) return null;
+                    const RADIAN = Math.PI / 180;
+                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill="#FFFFFF"
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        className="select-none pointer-events-none"
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 800,
+                          fill: "#FFFFFF",
+                          textShadow: "0 1px 2px rgba(0,0,0,0.6)",
+                        }}
+                      >
+                        {`${p}%`}
+                      </text>
+                    );
+                  }}
                 >
                   {calibrationPieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} stroke="transparent" />
@@ -348,21 +384,27 @@ function ToolsDashboardPage() {
                 <span className="size-3 rounded-sm bg-emerald-600 shrink-0" />
                 <span className="font-semibold text-foreground">CALIBRATED</span>
               </div>
-              <span className="font-mono font-bold text-foreground">{calibratedCount}</span>
+              <span className="font-mono font-bold text-foreground">
+                {calibratedCount} ({totalTools > 0 ? Math.round((calibratedCount / totalTools) * 100) : 0}%)
+              </span>
             </div>
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <span className="size-3 rounded-sm bg-yellow-500 shrink-0" />
                 <span className="font-semibold text-foreground">DUE FOR CALIBRATION</span>
               </div>
-              <span className="font-mono font-bold text-foreground">{dueSoonCount}</span>
+              <span className="font-mono font-bold text-foreground">
+                {dueSoonCount} ({totalTools > 0 ? Math.round((dueSoonCount / totalTools) * 100) : 0}%)
+              </span>
             </div>
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <span className="size-3 rounded-sm bg-rose-600 shrink-0" />
                 <span className="font-semibold text-foreground">OUT OF CALIBRATION</span>
               </div>
-              <span className="font-mono font-bold text-foreground">{expiredCount}</span>
+              <span className="font-mono font-bold text-foreground">
+                {expiredCount} ({totalTools > 0 ? Math.round((expiredCount / totalTools) * 100) : 0}%)
+              </span>
             </div>
           </div>
         </div>
@@ -529,13 +571,13 @@ function ToolsDashboardPage() {
                 <div key={job.id} className="p-3 hover:bg-accent/40 flex items-center justify-between gap-3 text-xs">
                   <div className="space-y-0.5 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Link
-                        to="/app/tools/jobs/$jobId"
-                        params={{ jobId: job.jobNumber }}
-                        className="font-mono font-bold text-primary hover:underline"
+                      <button
+                        type="button"
+                        onClick={() => setSelectedJobNumber(job.jobNumber)}
+                        className="font-mono font-bold text-primary hover:underline cursor-pointer"
                       >
                         {job.jobNumber}
-                      </Link>
+                      </button>
                       <span className="font-medium text-foreground">&bull; {job.jobType}</span>
                     </div>
                     <p className="text-[11px] text-muted-foreground truncate">
@@ -547,7 +589,7 @@ function ToolsDashboardPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => navigate({ to: "/app/tools/jobs/$jobId", params: { jobId: job.jobNumber } })}
+                      onClick={() => setSelectedJobNumber(job.jobNumber)}
                       className="h-7 text-xs text-primary hover:underline"
                     >
                       Details
@@ -559,6 +601,15 @@ function ToolsDashboardPage() {
           )}
         </div>
       </div>
+
+      <JobDetailModal
+        open={Boolean(selectedJobNumber)}
+        onOpenChange={(open) => !open && setSelectedJobNumber(null)}
+        jobNumber={selectedJobNumber}
+        onJobUpdated={() => {
+          toolsJobService.list().then(setJobs);
+        }}
+      />
     </div>
   );
 }

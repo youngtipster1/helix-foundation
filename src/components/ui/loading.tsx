@@ -6,6 +6,7 @@ export function Loading({ label, className }: { label?: string; className?: stri
   return (
     <div
       role="status"
+      suppressHydrationWarning
       className={cn("flex items-center justify-center gap-2 py-10 text-muted-foreground", className)}
     >
       <Loader2 className="size-4 animate-spin" />

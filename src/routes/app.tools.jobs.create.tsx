@@ -172,7 +172,7 @@ function CreateToolsJobPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
       {/* Top Breadcrumb */}
       <div>
         <Link
@@ -193,12 +193,12 @@ function CreateToolsJobPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         {/* STEP 1: SELECT TOOL */}
-        <div className="surface-panel p-5 space-y-4">
+        <div className="surface-panel p-3.5 sm:p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <div className="flex items-center gap-2">
-              <span className="grid size-6 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+              <span className="grid size-6 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">
                 1
               </span>
               <h2 className="text-xs font-bold uppercase tracking-wider text-foreground">
@@ -230,7 +230,7 @@ function CreateToolsJobPage() {
                 />
               </div>
 
-              <div className="max-h-60 overflow-y-auto divide-y divide-border border border-border rounded-lg bg-card">
+              <div className="max-h-72 overflow-y-auto divide-y divide-border border border-border rounded-lg bg-card">
                 {filteredTools.length === 0 ? (
                   <p className="p-4 text-center text-xs text-muted-foreground">
                     No matching equipment found.
@@ -240,19 +240,21 @@ function CreateToolsJobPage() {
                     <div
                       key={t.id}
                       onClick={() => setSelectedTool(t)}
-                      className="p-3 hover:bg-accent/40 cursor-pointer flex items-center justify-between gap-3 transition-colors text-xs"
+                      className="p-3 hover:bg-accent/40 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors text-xs"
                     >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-foreground">{t.id}</span>
-                          <span className="text-foreground font-medium">&bull; {t.model}</span>
-                          <span className="text-muted-foreground">({t.oem})</span>
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono font-bold text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
+                            {t.id}
+                          </span>
+                          <span className="text-foreground font-semibold text-xs">{t.model}</span>
+                          <span className="text-muted-foreground text-xs">({t.oem})</span>
                         </div>
-                        <p className="text-[11px] text-muted-foreground">
-                          {t.category} &bull; S/N: <span className="font-mono">{t.serialNumber}</span> &bull; {t.vendor}
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {t.category} &bull; S/N: <span className="font-mono font-medium">{t.serialNumber}</span> &bull; {t.vendor}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-border/40">
                         <CalibrationStatusBadge status={t.calibrationStatus} />
                         <Button type="button" size="sm" variant="outline" className="h-7 text-xs">
                           Select
@@ -266,17 +268,19 @@ function CreateToolsJobPage() {
           ) : (
             /* STEP 2: AUTOMATIC READ-ONLY TOOL POPULATION */
             <div className="space-y-3">
-              <div className="p-3.5 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-between">
+              <div className="p-3 sm:p-3.5 rounded-lg bg-primary/5 border border-primary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="size-4 text-primary shrink-0" />
                   <span className="text-xs font-bold text-primary uppercase tracking-wide">
                     Selected Tool: {selectedTool.id} — {selectedTool.model}
                   </span>
                 </div>
-                <CalibrationStatusBadge status={selectedTool.calibrationStatus} />
+                <div className="self-start sm:self-auto">
+                  <CalibrationStatusBadge status={selectedTool.calibrationStatus} />
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-lg bg-muted/20 border border-border text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 sm:p-4 rounded-lg bg-muted/20 border border-border text-xs">
                 <div className="space-y-0.5">
                   <span className="text-muted-foreground block text-[11px]">Tools ID</span>
                   <span className="font-mono font-bold text-foreground">{selectedTool.id}</span>
@@ -307,18 +311,18 @@ function CreateToolsJobPage() {
                 </div>
                 <div className="space-y-0.5">
                   <span className="text-muted-foreground block text-[11px]">Vendor</span>
-                  <span className="text-muted-foreground truncate">{selectedTool.vendor}</span>
+                  <span className="text-muted-foreground truncate block">{selectedTool.vendor}</span>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* STEP 3 & 4: JOB DETAILS & CALIBRATION RESTRICTION CHECK */}
+        {/* STEP 2: JOB DETAILS & CALIBRATION RESTRICTION CHECK */}
         {selectedTool && (
-          <div className="surface-panel p-5 space-y-4 animate-fade-in">
+          <div className="surface-panel p-3.5 sm:p-5 space-y-4 animate-fade-in">
             <div className="flex items-center gap-2 border-b border-border pb-3">
-              <span className="grid size-6 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+              <span className="grid size-6 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">
                 2
               </span>
               <h2 className="text-xs font-bold uppercase tracking-wider text-foreground">
@@ -328,7 +332,7 @@ function CreateToolsJobPage() {
 
             {/* Rule 23: Calibration Job Restriction Banner */}
             {isCalibrationRestricted && (
-              <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 space-y-2 text-rose-700 dark:text-rose-400 animate-fade-in">
+              <div className="p-3.5 sm:p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 space-y-2 text-rose-700 dark:text-rose-400 animate-fade-in">
                 <div className="flex items-center gap-2 font-bold text-xs">
                   <AlertTriangle className="size-4 shrink-0" />
                   <span>Tool unavailable for this job type</span>
@@ -336,7 +340,7 @@ function CreateToolsJobPage() {
                 <p className="text-xs leading-relaxed">
                   This tool ({selectedTool.id}) is currently out of calibration (Next Calibration Due: {selectedTool.nextCalibrationDate}) and cannot be used for this job type ({jobType}).
                 </p>
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex flex-wrap items-center gap-2 pt-1">
                   <span className="text-[11px] text-muted-foreground">Options:</span>
                   <Button
                     type="button"
@@ -360,7 +364,7 @@ function CreateToolsJobPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="jobType" className="text-xs">Job Type *</Label>
                 <select
@@ -455,13 +459,13 @@ function CreateToolsJobPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-border flex items-center justify-between">
+            <div className="pt-4 border-t border-border flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2.5">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => navigate({ to: "/app/tools/jobs" })}
-                className="text-xs"
+                className="text-xs w-full sm:w-auto"
               >
                 Cancel
               </Button>
@@ -469,7 +473,7 @@ function CreateToolsJobPage() {
                 type="submit"
                 size="sm"
                 disabled={creating || isCalibrationRestricted || !issue.trim()}
-                className="text-xs gap-1.5"
+                className="text-xs gap-1.5 w-full sm:w-auto"
               >
                 <ClipboardCheck className="size-3.5" />
                 <span>{creating ? "Creating Job..." : "Create Job"}</span>

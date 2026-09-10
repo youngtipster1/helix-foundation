@@ -27,6 +27,7 @@ import { toolsJobService } from "@/modules/tools/services/tools-job-service";
 import type { Tool, ToolJob, ToolInput } from "@/modules/tools/types";
 import { CalibrationStatusBadge } from "@/modules/tools/components/calibration-status-badge";
 import { ToolFormModal } from "@/modules/tools/components/tool-form-modal";
+import { CreateJobModal } from "@/modules/tools/components/create-job-modal";
 import { ToolJobsTable } from "@/modules/tools/components/tool-jobs-table";
 import { DocumentViewerModal } from "@/modules/tools/components/document-viewer-modal";
 import { toast } from "sonner";
@@ -53,6 +54,7 @@ function ToolDetailsPage() {
 
   // Form modal state
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isCreateJobOpen, setIsCreateJobOpen] = useState(false);
 
   // Document viewer modal state
   const [viewingDoc, setViewingDoc] = useState<{
@@ -478,15 +480,15 @@ function ToolDetailsPage() {
             {isToolsAdmin && (
               <Button
                 size="sm"
-                onClick={() => navigate({ to: "/app/tools/jobs/create" })}
-                className="text-xs gap-1.5"
+                onClick={() => setIsCreateJobOpen(true)}
+                className="text-xs gap-1.5 cursor-pointer"
               >
                 <span>Create New Job</span>
               </Button>
             )}
           </div>
 
-          <ToolJobsTable jobs={jobs} />
+          <ToolJobsTable jobs={jobs} onJobUpdated={loadToolData} />
         </TabsContent>
       </Tabs>
 
@@ -496,6 +498,14 @@ function ToolDetailsPage() {
         onOpenChange={setIsFormOpen}
         tool={tool}
         onSubmit={handleFormSubmit}
+      />
+
+      {/* Create Job Modal with Stepper */}
+      <CreateJobModal
+        open={isCreateJobOpen}
+        onOpenChange={setIsCreateJobOpen}
+        preselectedTool={tool}
+        onJobCreated={loadToolData}
       />
 
       {/* Document Viewer Modal */}

@@ -3,6 +3,12 @@ import { useEffect, useMemo, useState } from "react";
 import type { DragEvent, ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Loading } from "@/components/ui/loading";
@@ -19,10 +25,8 @@ type RenderableColumn<T> =
   | { type: "actions"; key: typeof ACTIONS_COLUMN_KEY };
 
 /**
- * Reusable table with search, Excel-style column filters, draggable/reorderable columns, and pagination.
- *
- * The Actions column is placed adjacent to the primary column by default and is fully draggable
- * across the entire table header.
+ * Reusable table with search, Excel-style column filters, draggable/reorderable columns,
+ * pagination, and a native mobile vertical card layout with action buttons.
  */
 export function DataTable<T extends { id: string }>({
   columns,
@@ -34,7 +38,7 @@ export function DataTable<T extends { id: string }>({
   pageSize = 8,
   emptyTitle = "No records yet",
   emptyDescription,
-  mobileStrategy = "scroll",
+  mobileStrategy = "card",
   enableColumnReordering = true,
   onFiltersChange,
   onColumnOrderChange,
@@ -48,7 +52,7 @@ export function DataTable<T extends { id: string }>({
   pageSize?: number;
   emptyTitle?: string;
   emptyDescription?: string;
-  mobileStrategy?: "scroll" | "priority";
+  mobileStrategy?: "card" | "scroll" | "priority";
   enableColumnReordering?: boolean;
   onFiltersChange?: (filters: ColumnFilterState, search: string) => void;
   onColumnOrderChange?: (newOrder: string[]) => void;
@@ -57,12 +61,25 @@ export function DataTable<T extends { id: string }>({
   const [filters, setFilters] = useState<ColumnFilterState>({});
   const [page, setPage] = useState(1);
 
-  // Column reordering state - default positions Actions column right next to the 1st column
+  // Column reordering state - default positions Actions column at 6th column for larger tables (>= 5 columns),
+  // or second-to-last for smaller tables.
   const defaultKeys = useMemo(() => {
     const colKeys = columns.map((c) => c.key);
     if (rowActions) {
-      if (colKeys.length > 0) {
-        return [colKeys[0], ACTIONS_COLUMN_KEY, ...colKeys.slice(1)];
+      if (colKeys.length >= 5) {
+        return [
+          ...colKeys.slice(0, 5),
+          ACTIONS_COLUMN_KEY,
+          ...colKeys.slice(5),
+        ];
+      } else if (colKeys.length > 1) {
+        return [
+          ...colKeys.slice(0, colKeys.length - 1),
+          ACTIONS_COLUMN_KEY,
+          colKeys[colKeys.length - 1],
+        ];
+      } else if (colKeys.length === 1) {
+        return [colKeys[0], ACTIONS_COLUMN_KEY];
       }
       return [ACTIONS_COLUMN_KEY];
     }
@@ -111,8 +128,10 @@ export function DataTable<T extends { id: string }>({
     }
 
     if (rowActions && !result.some((r) => r.type === "actions")) {
-      if (result.length > 0) {
-        result.splice(1, 0, { type: "actions", key: ACTIONS_COLUMN_KEY });
+      if (result.length >= 5) {
+        result.splice(5, 0, { type: "actions", key: ACTIONS_COLUMN_KEY });
+      } else if (result.length > 1) {
+        result.splice(result.length - 1, 0, { type: "actions", key: ACTIONS_COLUMN_KEY });
       } else {
         result.push({ type: "actions", key: ACTIONS_COLUMN_KEY });
       }
@@ -135,6 +154,8 @@ export function DataTable<T extends { id: string }>({
     }
     return map;
   }, [columns, rows]);
+
+  const filterableColumns = useMemo(() => columns.filter((c) => c.filterable), [columns]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -235,6 +256,50 @@ export function DataTable<T extends { id: string }>({
             className="h-9 pl-8"
           />
         </div>
+
+        {/* Mobile Filters Dropdown */}
+        {filterableColumns.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1.5 text-xs md:hidden"
+              >
+                <SlidersHorizontal className="size-3.5" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground leading-none">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 p-2 space-y-2">
+              <DropdownMenuLabel className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-1">
+                Filter by Column
+              </DropdownMenuLabel>
+              {filterableColumns.map((col) => (
+                <div key={col.key} className="px-1 py-0.5">
+                  <ColumnFilter
+                    label={col.header}
+                    values={uniqueValues[col.key] ?? []}
+                    selected={filters[col.key]}
+                    onChange={(next) =>
+                      setFilters((prev) => {
+                        const draft = { ...prev };
+                        if (next === undefined) delete draft[col.key];
+                        else draft[col.key] = next;
+                        return draft;
+                      })
+                    }
+                  />
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
         {activeFilterCount > 0 && (
           <Button
             variant="ghost"
@@ -250,7 +315,7 @@ export function DataTable<T extends { id: string }>({
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 text-xs text-muted-foreground hover:text-foreground"
+            className="h-9 text-xs text-muted-foreground hover:text-foreground hidden sm:inline-flex"
             onClick={resetColumnOrder}
             title="Reset column order"
           >
@@ -278,98 +343,31 @@ export function DataTable<T extends { id: string }>({
             className="border-0 bg-transparent"
           />
         </div>
-      ) : (
+      ) : mobileStrategy === "scroll" ? (
+        /* Legacy horizontal scroll container if explicitly requested */
         <div className="w-full overflow-x-auto">
-          <table className={cn("w-full border-collapse text-sm", mobileStrategy === "scroll" && "min-w-[36rem]")}>
+          <table className="w-full border-collapse text-sm min-w-[36rem]">
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 {orderedRenderColumns.map((item) => {
                   if (item.type === "actions") {
-                    const isBeingDragged = draggedKey === ACTIONS_COLUMN_KEY;
-                    const isDropLeft = dropTarget?.key === ACTIONS_COLUMN_KEY && dropTarget.position === "left";
-                    const isDropRight = dropTarget?.key === ACTIONS_COLUMN_KEY && dropTarget.position === "right";
-                    const canReorder = enableColumnReordering;
-
                     return (
                       <th
                         key={ACTIONS_COLUMN_KEY}
                         scope="col"
-                        draggable={canReorder}
-                        onDragStart={(e) => handleDragStart(e, ACTIONS_COLUMN_KEY)}
-                        onDragOver={(e) => handleDragOver(e, ACTIONS_COLUMN_KEY)}
-                        onDragLeave={(e) => handleDragLeave(e, ACTIONS_COLUMN_KEY)}
-                        onDrop={(e) => handleDrop(e, ACTIONS_COLUMN_KEY)}
-                        onDragEnd={handleDragEnd}
-                        title={canReorder ? "Drag Actions column to reorder" : undefined}
-                        className={cn(
-                          "group/th relative px-3 py-2.5 text-center text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap transition-colors",
-                          canReorder && "cursor-grab active:cursor-grabbing",
-                          isBeingDragged && "opacity-40 bg-accent/30",
-                          isDropLeft && "border-l-2 border-primary bg-primary/5",
-                          isDropRight && "border-r-2 border-primary bg-primary/5",
-                        )}
+                        className="px-3 py-2.5 text-center text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap"
                       >
-                        <div className="flex items-center justify-center gap-1.5">
-                          {canReorder && (
-                            <GripVertical className="size-3 text-muted-foreground/30 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
-                          )}
-                          <span>Actions</span>
-                        </div>
+                        Actions
                       </th>
                     );
                   }
-
-                  const { column } = item;
-                  const isBeingDragged = draggedKey === column.key;
-                  const isDropLeft = dropTarget?.key === column.key && dropTarget.position === "left";
-                  const isDropRight = dropTarget?.key === column.key && dropTarget.position === "right";
-                  const canReorder = enableColumnReordering && column.reorderable !== false;
-
                   return (
                     <th
-                      key={column.key}
+                      key={item.column.key}
                       scope="col"
-                      draggable={canReorder}
-                      onDragStart={(e) => handleDragStart(e, column.key)}
-                      onDragOver={(e) => handleDragOver(e, column.key)}
-                      onDragLeave={(e) => handleDragLeave(e, column.key)}
-                      onDrop={(e) => handleDrop(e, column.key)}
-                      onDragEnd={handleDragEnd}
-                      title={canReorder ? "Drag column header to reorder" : undefined}
-                      className={cn(
-                        "group/th relative px-4 py-2.5 text-left text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none transition-colors",
-                        canReorder && "cursor-grab active:cursor-grabbing",
-                        isBeingDragged && "opacity-40 bg-accent/30",
-                        isDropLeft && "border-l-2 border-primary bg-primary/5",
-                        isDropRight && "border-r-2 border-primary bg-primary/5",
-                        mobileStrategy === "priority" && !column.priority && "hidden md:table-cell",
-                        column.headerClassName,
-                      )}
+                      className="px-4 py-2.5 text-left text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none"
                     >
-                      <div className="flex items-center gap-1.5">
-                        {canReorder && (
-                          <GripVertical className="size-3 text-muted-foreground/30 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
-                        )}
-                        <div className="flex-1 truncate">
-                          {column.filterable ? (
-                            <ColumnFilter
-                              label={column.header}
-                              values={uniqueValues[column.key] ?? []}
-                              selected={filters[column.key]}
-                              onChange={(next) =>
-                                setFilters((prev) => {
-                                  const draft = { ...prev };
-                                  if (next === undefined) delete draft[column.key];
-                                  else draft[column.key] = next;
-                                  return draft;
-                                })
-                              }
-                            />
-                          ) : (
-                            column.header
-                          )}
-                        </div>
-                      </div>
+                      {item.column.header}
                     </th>
                   );
                 })}
@@ -389,18 +387,9 @@ export function DataTable<T extends { id: string }>({
                         </td>
                       );
                     }
-
-                    const { column } = item;
                     return (
-                      <td
-                        key={column.key}
-                        className={cn(
-                          "px-4 py-3 align-middle text-foreground",
-                          mobileStrategy === "priority" && !column.priority && "hidden md:table-cell",
-                          column.className,
-                        )}
-                      >
-                        {column.cell ? column.cell(row) : column.value(row)}
+                      <td key={item.column.key} className="px-4 py-3 align-middle text-foreground">
+                        {item.column.cell ? item.column.cell(row) : item.column.value(row)}
                       </td>
                     );
                   })}
@@ -409,6 +398,209 @@ export function DataTable<T extends { id: string }>({
             </tbody>
           </table>
         </div>
+      ) : (
+        <>
+          {/* Mobile Vertical Card View (visible on <md screens) */}
+          <div className="p-3 space-y-3 md:hidden bg-muted/5">
+            {pageRows.map((row) => {
+              const primaryCol = columns[0];
+              const secondaryCols = columns.slice(1);
+
+              return (
+                <div
+                  key={row.id}
+                  className="rounded-xl border border-border/80 bg-card p-3.5 shadow-2xs space-y-3 transition-colors hover:border-primary/40"
+                >
+                  {/* Card Header: Primary Column Value + Action Button */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      {primaryCol && (
+                        <>
+                          <span className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase block">
+                            {primaryCol.header}
+                          </span>
+                          <div className="mt-0.5 text-sm font-bold text-foreground">
+                            {primaryCol.cell ? primaryCol.cell(row) : primaryCol.value(row)}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {rowActions && (
+                      <div className="shrink-0 pt-0.5">
+                        {rowActions(row)}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Body: All remaining fields in a 2-column or full-width grid */}
+                  {secondaryCols.length > 0 && (
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 pt-2.5 border-t border-border/60 text-xs">
+                      {secondaryCols.map((col) => {
+                        const rendered = col.cell ? col.cell(row) : col.value(row);
+                        if (rendered === null || rendered === undefined || rendered === "") return null;
+
+                        const valStr = String(col.value(row) ?? "");
+                        const isWide =
+                          valStr.length > 25 ||
+                          col.header.toLowerCase().includes("description") ||
+                          col.header.toLowerCase().includes("title") ||
+                          col.header.toLowerCase().includes("notes") ||
+                          col.header.toLowerCase().includes("summary") ||
+                          col.header.toLowerCase().includes("activity") ||
+                          col.header.toLowerCase().includes("reason");
+
+                        return (
+                          <div
+                            key={col.key}
+                            className={cn("flex flex-col gap-0.5", isWide && "col-span-2")}
+                          >
+                            <span className="text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+                              {col.header}
+                            </span>
+                            <div className="text-xs font-medium text-foreground break-words">
+                              {rendered}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View (hidden on mobile, visible on md+ screens) */}
+          <div className="hidden md:block w-full overflow-x-auto">
+            <table className={cn("w-full border-collapse text-sm")}>
+              <thead>
+                <tr className="border-b border-border bg-muted/50">
+                  {orderedRenderColumns.map((item) => {
+                    if (item.type === "actions") {
+                      const isBeingDragged = draggedKey === ACTIONS_COLUMN_KEY;
+                      const isDropLeft = dropTarget?.key === ACTIONS_COLUMN_KEY && dropTarget.position === "left";
+                      const isDropRight = dropTarget?.key === ACTIONS_COLUMN_KEY && dropTarget.position === "right";
+                      const canReorder = enableColumnReordering;
+
+                      return (
+                        <th
+                          key={ACTIONS_COLUMN_KEY}
+                          scope="col"
+                          draggable={canReorder}
+                          onDragStart={(e) => handleDragStart(e, ACTIONS_COLUMN_KEY)}
+                          onDragOver={(e) => handleDragOver(e, ACTIONS_COLUMN_KEY)}
+                          onDragLeave={(e) => handleDragLeave(e, ACTIONS_COLUMN_KEY)}
+                          onDrop={(e) => handleDrop(e, ACTIONS_COLUMN_KEY)}
+                          onDragEnd={handleDragEnd}
+                          title={canReorder ? "Drag Actions column to reorder" : undefined}
+                          className={cn(
+                            "group/th relative px-3 py-2.5 text-center text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap transition-colors",
+                            canReorder && "cursor-grab active:cursor-grabbing",
+                            isBeingDragged && "opacity-40 bg-accent/30",
+                            isDropLeft && "border-l-2 border-primary bg-primary/5",
+                            isDropRight && "border-r-2 border-primary bg-primary/5",
+                          )}
+                        >
+                          <div className="flex items-center justify-center gap-1.5">
+                            {canReorder && (
+                              <GripVertical className="size-3 text-muted-foreground/30 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
+                            )}
+                            <span>Actions</span>
+                          </div>
+                        </th>
+                      );
+                    }
+
+                    const { column } = item;
+                    const isBeingDragged = draggedKey === column.key;
+                    const isDropLeft = dropTarget?.key === column.key && dropTarget.position === "left";
+                    const isDropRight = dropTarget?.key === column.key && dropTarget.position === "right";
+                    const canReorder = enableColumnReordering && column.reorderable !== false;
+
+                    return (
+                      <th
+                        key={column.key}
+                        scope="col"
+                        draggable={canReorder}
+                        onDragStart={(e) => handleDragStart(e, column.key)}
+                        onDragOver={(e) => handleDragOver(e, column.key)}
+                        onDragLeave={(e) => handleDragLeave(e, column.key)}
+                        onDrop={(e) => handleDrop(e, column.key)}
+                        onDragEnd={handleDragEnd}
+                        title={canReorder ? "Drag column header to reorder" : undefined}
+                        className={cn(
+                          "group/th relative px-4 py-2.5 text-left text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none transition-colors",
+                          canReorder && "cursor-grab active:cursor-grabbing",
+                          isBeingDragged && "opacity-40 bg-accent/30",
+                          isDropLeft && "border-l-2 border-primary bg-primary/5",
+                          isDropRight && "border-r-2 border-primary bg-primary/5",
+                          column.headerClassName,
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          {canReorder && (
+                            <GripVertical className="size-3 text-muted-foreground/30 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
+                          )}
+                          <div className="flex-1 truncate">
+                            {column.filterable ? (
+                              <ColumnFilter
+                                label={column.header}
+                                values={uniqueValues[column.key] ?? []}
+                                selected={filters[column.key]}
+                                onChange={(next) =>
+                                  setFilters((prev) => {
+                                    const draft = { ...prev };
+                                    if (next === undefined) delete draft[column.key];
+                                    else draft[column.key] = next;
+                                    return draft;
+                                  })
+                                }
+                              />
+                            ) : (
+                              column.header
+                            )}
+                          </div>
+                        </div>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {pageRows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="border-b border-border/70 transition-colors last:border-0 hover:bg-accent/40"
+                  >
+                    {orderedRenderColumns.map((item) => {
+                      if (item.type === "actions") {
+                        return (
+                          <td key={ACTIONS_COLUMN_KEY} className="px-3 py-3 text-center whitespace-nowrap">
+                            {rowActions?.(row)}
+                          </td>
+                        );
+                      }
+
+                      const { column } = item;
+                      return (
+                        <td
+                          key={column.key}
+                          className={cn(
+                            "px-4 py-3 align-middle text-foreground",
+                            column.className,
+                          )}
+                        >
+                          {column.cell ? column.cell(row) : column.value(row)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {!loading && filtered.length > pageSize && (

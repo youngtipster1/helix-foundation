@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { ExpenseApprovalDialog } from "@/modules/tools/components/expense-approval-dialog";
 import { DocumentViewerModal } from "@/modules/tools/components/document-viewer-modal";
+import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
 import { toolsExpenseService } from "@/modules/tools/services/tools-expense-service";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
@@ -34,8 +35,8 @@ function ExpenseApprovalsPage() {
   const [expenses, setExpenses] = useState<ToolExpense[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<"pending" | "approved" | "rejected" | "all">("pending");
-
   const [reviewingExpense, setReviewingExpense] = useState<ToolExpense | null>(null);
+  const [selectedJobNumber, setSelectedJobNumber] = useState<string | null>(null);
   const [viewingDoc, setViewingDoc] = useState<{
     title: string;
     fileName: string;
@@ -63,16 +64,48 @@ function ExpenseApprovalsPage() {
     fetchExpenses();
   }, []);
 
+  const handleApprove = async (id: string) => {
+    if (!user) return;
+    try {
+      await toolsExpenseService.approve(id, {
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+      });
+      toast.success(`Expense claim ${id} approved.`);
+      fetchExpenses();
+    } catch (err) {
+      toast.error("Failed to approve expense.");
+    }
+  };
+
+  const handleReject = async (id: string, reason: string) => {
+    if (!user) return;
+    try {
+      await toolsExpenseService.reject(
+        id,
+        {
+          id: user.id,
+          name: `${user.firstName} ${user.lastName}`,
+        },
+        reason,
+      );
+      toast.error(`Expense claim ${id} rejected.`);
+      fetchExpenses();
+    } catch (err) {
+      toast.error("Failed to reject expense.");
+    }
+  };
+
   if (!isAdmin) {
     return (
       <div className="surface-panel p-8 text-center space-y-4 max-w-md mx-auto my-12">
         <ShieldAlert className="size-10 text-destructive mx-auto" />
         <h2 className="text-base font-bold text-foreground">Access Restricted</h2>
         <p className="text-xs text-muted-foreground">
-          Only Administrators have permission to audit and approve operational expenses.
+          Only Administrators have authorization to audit and approve operational expenses.
         </p>
-        <Button size="sm" variant="outline" onClick={() => navigate({ to: "/app/tools" })} className="text-xs">
-          Return to Tools
+        <Button size="sm" variant="outline" onClick={() => navigate({ to: "/app/tools/my-expenses" })} className="text-xs">
+          Go to My Claims
         </Button>
       </div>
     );
@@ -91,35 +124,6 @@ function ExpenseApprovalsPage() {
 
   const pendingAmountTotal = pendingList.reduce((sum, e) => sum + e.amount, 0);
 
-  const handleApprove = async (expenseId: string) => {
-    if (!user) return;
-    try {
-      await toolsExpenseService.approve(expenseId, {
-        id: user.id,
-        name: `${user.firstName} ${user.lastName}`,
-      });
-      toast.success(`Expense ${expenseId} approved.`);
-      fetchExpenses();
-    } catch (err) {
-      toast.error("Failed to approve expense.");
-    }
-  };
-
-  const handleReject = async (expenseId: string, reason: string) => {
-    if (!user) return;
-    try {
-      await toolsExpenseService.reject(
-        expenseId,
-        { id: user.id, name: `${user.firstName} ${user.lastName}` },
-        reason,
-      );
-      toast.error(`Expense ${expenseId} rejected.`);
-      fetchExpenses();
-    } catch (err) {
-      toast.error("Failed to reject expense.");
-    }
-  };
-
   const columns: DataTableColumn<ToolExpense>[] = [
     {
       key: "date",
@@ -133,13 +137,13 @@ function ExpenseApprovalsPage() {
       header: "Job Number",
       value: (row) => row.jobId,
       cell: (row) => (
-        <Link
-          to="/app/tools/jobs/$jobId"
-          params={{ jobId: row.jobId }}
-          className="font-mono font-bold text-xs text-primary hover:underline"
+        <button
+          type="button"
+          onClick={() => setSelectedJobNumber(row.jobId)}
+          className="font-mono font-bold text-xs text-primary hover:underline cursor-pointer"
         >
           {row.jobId}
-        </Link>
+        </button>
       ),
       className: "font-mono font-semibold",
       filterable: true,
@@ -335,6 +339,14 @@ function ExpenseApprovalsPage() {
         open={Boolean(viewingDoc)}
         onOpenChange={(open) => !open && setViewingDoc(null)}
         document={viewingDoc}
+      />
+
+      {/* Job Detail Modal */}
+      <JobDetailModal
+        open={Boolean(selectedJobNumber)}
+        onOpenChange={(open) => !open && setSelectedJobNumber(null)}
+        jobNumber={selectedJobNumber}
+        onJobUpdated={fetchExpenses}
       />
     </div>
   );

@@ -16,6 +16,7 @@ import {
   DollarSign,
   Receipt,
   FileCheck,
+  ArrowLeftRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -84,3 +85,14 @@ export const TOOLS_USER_MAIN_NAV: NavItem[] = [
   { label: "My Expenses", to: "/app/tools/my-expenses", icon: Receipt },
   { label: "Documents", to: "/app/tools/documents", icon: FileCheck },
 ];
+
+/* =========================================================================
+   PARTS MODULE — 4-TAB MAIN NAVIGATION (USER & ADMIN)
+========================================================================= */
+export const PARTS_MAIN_NAV: NavItem[] = [
+  { label: "Dashboard", to: "/app/parts/dashboard", icon: LayoutDashboard },
+  { label: "Parts List", to: "/app/parts/list", icon: Boxes },
+  { label: "Stock Movements", to: "/app/parts/movements", icon: ArrowLeftRight },
+  { label: "Parts Audit", to: "/app/parts/audit", icon: ClipboardCheck },
+];
+

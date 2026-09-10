@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { DocumentUploadModal } from "@/modules/tools/components/document-upload-modal";
 import { DocumentViewerModal } from "@/modules/tools/components/document-viewer-modal";
+import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
 import { toolsDocumentService } from "@/modules/tools/services/tools-document-service";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
@@ -34,6 +35,7 @@ function DocumentsVaultPage() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [selectedJobNumber, setSelectedJobNumber] = useState<string | null>(null);
 
   const [viewingDoc, setViewingDoc] = useState<{
     title: string;
@@ -150,13 +152,13 @@ function DocumentsVaultPage() {
       value: (row) => row.jobId || "—",
       cell: (row) =>
         row.jobId ? (
-          <Link
-            to="/app/tools/jobs/$jobId"
-            params={{ jobId: row.jobId }}
-            className="font-mono text-xs text-primary hover:underline"
+          <button
+            type="button"
+            onClick={() => setSelectedJobNumber(row.jobId!)}
+            className="font-mono text-xs text-primary hover:underline cursor-pointer"
           >
             {row.jobId}
-          </Link>
+          </button>
         ) : (
           <span className="text-muted-foreground text-xs font-mono">—</span>
         ),
@@ -276,6 +278,14 @@ function DocumentsVaultPage() {
         open={Boolean(viewingDoc)}
         onOpenChange={(open) => !open && setViewingDoc(null)}
         document={viewingDoc}
+      />
+
+      {/* Job Detail Modal */}
+      <JobDetailModal
+        open={Boolean(selectedJobNumber)}
+        onOpenChange={(open) => !open && setSelectedJobNumber(null)}
+        jobNumber={selectedJobNumber}
+        onJobUpdated={fetchDocuments}
       />
     </div>
   );

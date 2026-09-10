@@ -32,19 +32,70 @@ export const Route = createFileRoute("/login")({
 });
 
 const DEMO_USERS = [
-  { role: "Super Admin", user: "John Doe", username: "johndoe", pass: "hemp1234" },
-  { role: "Tools Admin", user: "Sara Haddad", username: "sarah", pass: "hemp1234" },
-  { role: "Tools User", user: "Marcus Vance", username: "marcusv", pass: "hemp1234" },
-  { role: "Quality Admin", user: "Liam Fischer", username: "liamf", pass: "hemp1234" },
-  { role: "Quality User", user: "Amara Okoye", username: "amarao", pass: "hemp1234" },
+  {
+    role: "Parts Admin",
+    user: "Emeka Nwosu",
+    username: "emekan",
+    pass: "hemp1234",
+    module: "Parts Inventory",
+    description: "Full administrative control: Add/edit parts catalog, manage supplier pricing, approve physical audit shrinkage write-offs, and record stock movements.",
+  },
+  {
+    role: "Parts User",
+    user: "Khadija Umar",
+    username: "khadijau",
+    pass: "hemp1234",
+    module: "Parts Inventory",
+    description: "Technician access: View inventory levels & specs, browse stock movements, inspect locations, and enter physical audit counts (without sign-off permissions).",
+  },
+  {
+    role: "Super Admin",
+    user: "John Doe",
+    username: "johndoe",
+    pass: "hemp1234",
+    module: "Global System",
+    description: "Universal administrative access across all HEMP engineering modules.",
+  },
+  {
+    role: "Tools Admin",
+    user: "Sara Haddad",
+    username: "sarah",
+    pass: "hemp1234",
+    module: "Tools & Equipment",
+    description: "Tools registry management, calibration certificate reviews, and job dispatching.",
+  },
+  {
+    role: "Tools User",
+    user: "Marcus Vance",
+    username: "marcusv",
+    pass: "hemp1234",
+    module: "Tools & Equipment",
+    description: "Workbench specialist: Assigned jobs queue, test equipment checkouts, and expense claims.",
+  },
+  {
+    role: "Quality Admin",
+    user: "Liam Fischer",
+    username: "liamf",
+    pass: "hemp1234",
+    module: "Quality & Governance",
+    description: "Clinical policy document management, training matrix dispatching, and checklist reviews.",
+  },
+  {
+    role: "Quality User",
+    user: "Amara Okoye",
+    username: "amarao",
+    pass: "hemp1234",
+    module: "Quality & Governance",
+    description: "Clinical engineer: Policy document training, SOP compliance monitoring, and task execution.",
+  },
 ];
 
 function LoginPage() {
   const { ready, isAuthenticated, signIn } = useAuth();
   const navigate = useNavigate();
 
-  const [selectedDemoUser, setSelectedDemoUser] = useState("johndoe");
-  const [username, setUsername] = useState("johndoe");
+  const [selectedDemoUser, setSelectedDemoUser] = useState("emekan");
+  const [username, setUsername] = useState("emekan");
   const [password, setPassword] = useState("hemp1234");
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -141,14 +192,21 @@ function LoginPage() {
             </div>
 
             {currentDemo && (
-              <div className="p-2.5 rounded-md bg-muted/40 border border-border/80 flex items-center justify-between text-xs">
-                <div>
-                  <span className="font-bold text-foreground block text-[11px]">{currentDemo.role}</span>
-                  <span className="text-[10px] text-muted-foreground">{currentDemo.user}</span>
+              <div className="p-3 rounded-md bg-muted/40 border border-border/80 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-foreground text-xs">{currentDemo.role}</span>
+                    <span className="text-[11px] text-muted-foreground">({currentDemo.user})</span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary font-semibold border border-primary/20">
+                    {currentDemo.module}
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-background border border-border font-semibold text-muted-foreground">
-                  Ready to Sign In
-                </span>
+                {currentDemo.description && (
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {currentDemo.description}
+                  </p>
+                )}
               </div>
             )}
 

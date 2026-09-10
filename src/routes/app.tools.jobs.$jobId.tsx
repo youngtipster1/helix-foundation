@@ -696,67 +696,39 @@ function JobDetailsPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-border bg-card">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead className="bg-muted/40 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
-                  <tr>
-                    <th className="px-4 py-3">Date</th>
-                    <th className="px-4 py-3">Expense Type</th>
-                    <th className="px-4 py-3">Amount</th>
-                    <th className="px-4 py-3">Submitted By</th>
-                    <th className="px-4 py-3">Receipt</th>
-                    <th className="px-4 py-3">Approval Status</th>
-                    <th className="px-4 py-3 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {expenses.map((exp) => {
-                    const formatted = new Intl.NumberFormat("en-NG", {
-                      style: "currency",
-                      currency: "NGN",
-                      maximumFractionDigits: 0,
-                    }).format(exp.amount);
+            <>
+              {/* Mobile Vertical Cards (md:hidden) */}
+              <div className="space-y-3 md:hidden">
+                {expenses.map((exp) => {
+                  const formatted = new Intl.NumberFormat("en-NG", {
+                    style: "currency",
+                    currency: "NGN",
+                    maximumFractionDigits: 0,
+                  }).format(exp.amount);
 
-                    return (
-                      <tr key={exp.id} className="hover:bg-accent/40 transition-colors">
-                        <td className="px-4 py-3 font-mono text-muted-foreground">{exp.date}</td>
-                        <td className="px-4 py-3 font-medium text-foreground">
-                          {exp.expenseType}
-                          {exp.comment && (
-                            <span className="block text-[11px] text-muted-foreground truncate max-w-xs">
-                              {exp.comment}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 font-mono font-bold text-foreground">{formatted}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{exp.submittedByName}</td>
-                        <td className="px-4 py-3">
-                          {exp.receiptFileName ? (
-                            <button
-                              onClick={() =>
-                                setViewingDoc({
-                                  title: "Expense Receipt",
-                                  fileName: exp.receiptFileName || "Receipt.pdf",
-                                  fileSize: exp.receiptFileSize || "1.1 MB",
-                                  documentType: exp.expenseType,
-                                  uploadedBy: exp.submittedByName,
-                                  dateUploaded: exp.date,
-                                  comment: exp.comment,
-                                })
-                              }
-                              className="text-primary hover:underline inline-flex items-center gap-1 font-mono text-xs cursor-pointer"
-                            >
-                              <FileText className="size-3" />
-                              <span>{exp.receiptFileName}</span>
-                            </button>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={exp.approvalStatus} />
-                        </td>
-                        <td className="px-4 py-3 text-right">
+                  return (
+                    <div
+                      key={exp.id}
+                      className="rounded-xl border border-border/80 bg-card p-3.5 shadow-2xs space-y-3 transition-colors hover:border-primary/40"
+                    >
+                      {/* Card Header: Type + Amount & Action */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase block">
+                            Expense Type
+                          </span>
+                          <span className="text-xs font-bold text-foreground block mt-0.5">
+                            {exp.expenseType}
+                          </span>
+                          <span className="text-[11px] font-mono text-muted-foreground block mt-0.5">
+                            {exp.date} &bull; {exp.submittedByName}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <span className="text-sm font-mono font-bold text-foreground">
+                            {formatted}
+                          </span>
                           {isToolsAdmin ? (
                             <Button
                               variant="outline"
@@ -767,17 +739,133 @@ function JobDetailsPage() {
                               Review / Audit
                             </Button>
                           ) : (
-                            <span className="text-[11px] text-muted-foreground italic">
+                            <span className="text-[10px] text-muted-foreground italic">
                               {exp.approvalStatus === "Pending Approval" ? "In Review" : "Processed"}
                             </span>
                           )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                      </div>
+
+                      {exp.comment && (
+                        <p className="text-[11px] text-muted-foreground bg-muted/30 p-2 rounded border border-border/60 break-words leading-relaxed">
+                          {exp.comment}
+                        </p>
+                      )}
+
+                      {/* Card Body: Status & Receipt */}
+                      <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
+                        <StatusBadge status={exp.approvalStatus} />
+
+                        {exp.receiptFileName && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setViewingDoc({
+                                title: "Expense Receipt",
+                                fileName: exp.receiptFileName || "Receipt.pdf",
+                                fileSize: exp.receiptFileSize || "1.1 MB",
+                                documentType: exp.expenseType,
+                                uploadedBy: exp.submittedByName,
+                                dateUploaded: exp.date,
+                                comment: exp.comment,
+                              })
+                            }
+                            className="text-primary hover:underline inline-flex items-center gap-1 font-mono text-xs cursor-pointer"
+                          >
+                            <FileText className="size-3" />
+                            <span>Receipt</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table View (hidden md:block) */}
+              <div className="hidden md:block overflow-x-auto rounded-lg border border-border bg-card">
+                <table className="w-full text-xs text-left border-collapse">
+                  <thead className="bg-muted/40 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th className="px-4 py-3">Date</th>
+                      <th className="px-4 py-3">Expense Type</th>
+                      <th className="px-4 py-3">Amount</th>
+                      <th className="px-4 py-3">Submitted By</th>
+                      <th className="px-4 py-3">Receipt</th>
+                      <th className="px-4 py-3 text-center">Action</th>
+                      <th className="px-4 py-3">Approval Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {expenses.map((exp) => {
+                      const formatted = new Intl.NumberFormat("en-NG", {
+                        style: "currency",
+                        currency: "NGN",
+                        maximumFractionDigits: 0,
+                      }).format(exp.amount);
+
+                      return (
+                        <tr key={exp.id} className="hover:bg-accent/40 transition-colors">
+                          <td className="px-4 py-3 font-mono text-muted-foreground">{exp.date}</td>
+                          <td className="px-4 py-3 font-medium text-foreground">
+                            {exp.expenseType}
+                            {exp.comment && (
+                              <span className="block text-[11px] text-muted-foreground truncate max-w-xs">
+                                {exp.comment}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 font-mono font-bold text-foreground">{formatted}</td>
+                          <td className="px-4 py-3 text-muted-foreground">{exp.submittedByName}</td>
+                          <td className="px-4 py-3">
+                            {exp.receiptFileName ? (
+                              <button
+                                onClick={() =>
+                                  setViewingDoc({
+                                    title: "Expense Receipt",
+                                    fileName: exp.receiptFileName || "Receipt.pdf",
+                                    fileSize: exp.receiptFileSize || "1.1 MB",
+                                    documentType: exp.expenseType,
+                                    uploadedBy: exp.submittedByName,
+                                    dateUploaded: exp.date,
+                                    comment: exp.comment,
+                                  })
+                                }
+                                className="text-primary hover:underline inline-flex items-center gap-1 font-mono text-xs cursor-pointer"
+                              >
+                                <FileText className="size-3" />
+                                <span>{exp.receiptFileName}</span>
+                              </button>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {isToolsAdmin ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setReviewingExpense(exp)}
+                                className="h-7 text-xs"
+                              >
+                                Review / Audit
+                              </Button>
+                            ) : (
+                              <span className="text-[11px] text-muted-foreground italic">
+                                {exp.approvalStatus === "Pending Approval" ? "In Review" : "Processed"}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={exp.approvalStatus} />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </TabsContent>
 
@@ -818,8 +906,8 @@ function JobDetailsPage() {
                     <th className="px-4 py-3">File Name</th>
                     <th className="px-4 py-3">Size</th>
                     <th className="px-4 py-3">Uploaded By</th>
+                    <th className="px-4 py-3 text-center">Actions</th>
                     <th className="px-4 py-3">Date Uploaded</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -848,9 +936,8 @@ function JobDetailsPage() {
                       </td>
                       <td className="px-4 py-3 font-mono text-muted-foreground">{doc.fileSize}</td>
                       <td className="px-4 py-3 text-muted-foreground">{doc.uploadedByName}</td>
-                      <td className="px-4 py-3 font-mono text-muted-foreground">{doc.dateUploaded}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -883,6 +970,7 @@ function JobDetailsPage() {
                           )}
                         </div>
                       </td>
+                      <td className="px-4 py-3 font-mono text-muted-foreground">{doc.dateUploaded}</td>
                     </tr>
                   ))}
                 </tbody>

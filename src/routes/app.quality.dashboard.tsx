@@ -174,57 +174,109 @@ function QualityDashboardPage() {
                 <p className="text-sm text-muted-foreground">All items cleared! No actions pending.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/20">
-                      <th className="py-2.5 px-3 font-semibold text-muted-foreground">Document / Checklist</th>
-                      <th className="hidden md:table-cell py-2.5 px-3 font-semibold text-muted-foreground">Required Action</th>
-                      <th className="py-2.5 px-3 font-semibold text-muted-foreground">Status</th>
-                      <th className="hidden sm:table-cell py-2.5 px-3 font-semibold text-muted-foreground">Last Updated</th>
-                      <th className="py-2.5 px-3 text-right font-semibold text-muted-foreground">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {attentionList.map((item) => (
-                      <tr key={item.id} className="hover:bg-accent/5 transition-colors">
-                        <td className="py-3 px-3">
-                          <p className="font-semibold text-foreground max-w-[150px] sm:max-w-[200px] truncate">{item.description}</p>
-                          <span className="text-[10px] text-muted-foreground font-mono">{item.identifier}</span>
-                        </td>
-                        <td className="hidden md:table-cell py-3 px-3 font-medium text-foreground">{item.actionRequired}</td>
-                        <td className="py-3 px-3">
-                          <span
-                            className={cn(
-                              "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold border uppercase tracking-wider",
-                              item.status === "Under Review"
-                                ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                                : "bg-primary/10 text-primary border-primary/20"
-                            )}
-                          >
-                            {item.status}
+              <>
+                {/* Mobile Vertical Cards (sm:hidden) */}
+                <div className="space-y-3 sm:hidden">
+                  {attentionList.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-xl border border-border/80 bg-card p-3.5 shadow-2xs space-y-2.5 transition-colors hover:border-primary/40"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-foreground text-xs line-clamp-2">
+                            {item.description}
+                          </p>
+                          <span className="text-[10px] text-muted-foreground font-mono block mt-0.5">
+                            {item.identifier}
                           </span>
-                        </td>
-                        <td className="hidden sm:table-cell py-3 px-3 font-mono text-[10px] text-muted-foreground">{item.lastUpdated}</td>
-                        <td className="py-3 px-3 text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs font-semibold cursor-pointer"
-                            onClick={() => {
-                              navigate({
-                                to: item.type === "document" ? "/app/quality/policy-documents" : "/app/quality/checklists",
-                              });
-                            }}
-                          >
-                            Resolve
-                          </Button>
-                        </td>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs font-semibold cursor-pointer shrink-0"
+                          onClick={() => {
+                            navigate({
+                              to: item.type === "document" ? "/app/quality/policy-documents" : "/app/quality/checklists",
+                            });
+                          }}
+                        >
+                          Resolve
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold border uppercase tracking-wider",
+                            item.status === "Under Review"
+                              ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                              : "bg-primary/10 text-primary border-primary/20",
+                          )}
+                        >
+                          {item.status}
+                        </span>
+                        <span className="font-mono text-[10px] text-muted-foreground">
+                          {item.lastUpdated}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View (hidden sm:block) */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/20">
+                        <th className="py-2.5 px-3 font-semibold text-muted-foreground">Document / Checklist</th>
+                        <th className="hidden md:table-cell py-2.5 px-3 font-semibold text-muted-foreground">Required Action</th>
+                        <th className="py-2.5 px-3 font-semibold text-muted-foreground">Status</th>
+                        <th className="py-2.5 px-3 text-center font-semibold text-muted-foreground">Action</th>
+                        <th className="hidden sm:table-cell py-2.5 px-3 font-semibold text-muted-foreground">Last Updated</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {attentionList.map((item) => (
+                        <tr key={item.id} className="hover:bg-accent/5 transition-colors">
+                          <td className="py-3 px-3">
+                            <p className="font-semibold text-foreground max-w-[150px] sm:max-w-[200px] truncate">{item.description}</p>
+                            <span className="text-[10px] text-muted-foreground font-mono">{item.identifier}</span>
+                          </td>
+                          <td className="hidden md:table-cell py-3 px-3 font-medium text-foreground">{item.actionRequired}</td>
+                          <td className="py-3 px-3">
+                            <span
+                              className={cn(
+                                "inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold border uppercase tracking-wider",
+                                item.status === "Under Review"
+                                  ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                                  : "bg-primary/10 text-primary border-primary/20",
+                              )}
+                            >
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs font-semibold cursor-pointer"
+                              onClick={() => {
+                                navigate({
+                                  to: item.type === "document" ? "/app/quality/policy-documents" : "/app/quality/checklists",
+                                });
+                              }}
+                            >
+                              Resolve
+                            </Button>
+                          </td>
+                          <td className="hidden sm:table-cell py-3 px-3 font-mono text-[10px] text-muted-foreground">{item.lastUpdated}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>

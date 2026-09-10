@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { ExpenseFormModal } from "@/modules/tools/components/expense-form-modal";
 import { DocumentViewerModal } from "@/modules/tools/components/document-viewer-modal";
+import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
 import { toolsExpenseService } from "@/modules/tools/services/tools-expense-service";
 import { useAuth } from "@/features/auth/auth-context";
 import type { ToolExpense, CreateExpenseInput } from "@/modules/tools/types";
@@ -33,6 +34,7 @@ function MyExpensesPage() {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [selectedJobNumber, setSelectedJobNumber] = useState<string | null>(null);
 
   const [viewingDoc, setViewingDoc] = useState<{
     title: string;
@@ -116,13 +118,13 @@ function MyExpensesPage() {
       header: "Job Number",
       value: (row) => row.jobId,
       cell: (row) => (
-        <Link
-          to="/app/tools/jobs/$jobId"
-          params={{ jobId: row.jobId }}
-          className="font-mono font-bold text-xs text-primary hover:underline"
+        <button
+          type="button"
+          onClick={() => setSelectedJobNumber(row.jobId)}
+          className="font-mono font-bold text-xs text-primary hover:underline cursor-pointer"
         >
           {row.jobId}
-        </Link>
+        </button>
       ),
       className: "font-mono font-semibold",
       filterable: true,
@@ -202,7 +204,7 @@ function MyExpensesPage() {
           {
             label: "Open Job Workspace",
             icon: Eye,
-            onClick: () => navigate({ to: "/app/tools/jobs/$jobId", params: { jobId: row.jobId } }),
+            onClick: () => setSelectedJobNumber(row.jobId),
           },
         ]}
       />
@@ -305,6 +307,14 @@ function MyExpensesPage() {
         open={Boolean(viewingDoc)}
         onOpenChange={(open) => !open && setViewingDoc(null)}
         document={viewingDoc}
+      />
+
+      {/* Job Detail Modal */}
+      <JobDetailModal
+        open={Boolean(selectedJobNumber)}
+        onOpenChange={(open) => !open && setSelectedJobNumber(null)}
+        jobNumber={selectedJobNumber}
+        onJobUpdated={fetchMyExpenses}
       />
     </div>
   );
