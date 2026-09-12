@@ -88,6 +88,22 @@ const DEMO_USERS = [
     module: "Quality & Governance",
     description: "Clinical engineer: Policy document training, SOP compliance monitoring, and task execution.",
   },
+  {
+    role: "Financial Admin",
+    user: "Ngozi Adeleke",
+    username: "financeadmin",
+    pass: "hemp1234",
+    module: "Financial",
+    description: "Financial management: Create/edit/archive purchase requisitions, approve orders, generate supplier POs, and view procurement KPIs.",
+  },
+  {
+    role: "Financial User",
+    user: "Tunde Bakare",
+    username: "financeuser",
+    pass: "hemp1234",
+    module: "Financial",
+    description: "Procurement engineer: Place orders for parts, service, or invoices, track order status and delivery receipts.",
+  },
 ];
 
 function LoginPage() {

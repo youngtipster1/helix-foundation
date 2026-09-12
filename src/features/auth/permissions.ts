@@ -20,15 +20,23 @@ export function getModulePermission(
   if (user.permissions) {
     if (moduleKey === "parts" || moduleKey === "parts-inventory") {
       const partsPerm =
-        user.permissions["parts-inventory"] || (user.permissions as any).parts;
-      if (partsPerm) return partsPerm;
+        user.permissions["parts-inventory"] ?? (user.permissions as any).parts;
+      return partsPerm ?? null;
+    }
+    if (moduleKey === "financial" || moduleKey === "financials") {
+      const finPerm = user.permissions.financial ?? (user.permissions as any).financials;
+      return finPerm ?? null;
+    }
+    if (moduleKey === "settings") {
+      const settingsPerm = (user.permissions as any).settings;
+      return settingsPerm ?? null;
     }
     const perm = user.permissions[moduleKey as keyof typeof user.permissions];
-    if (perm) return perm;
+    return perm ?? null;
   }
 
-  // Role-based fallbacks
-  const roleLower = user.role.toLowerCase();
+  // Strict role-based fallbacks (only used if explicit permissions map is not present)
+  const roleLower = (user.role || "").toLowerCase();
 
   if (moduleKey === "quality") {
     if (roleLower.includes("quality admin")) return "admin";
@@ -41,13 +49,17 @@ export function getModulePermission(
   }
 
   if (moduleKey === "settings") {
-    if (roleLower.includes("admin")) return "admin";
+    if (roleLower === "system admin" || roleLower === "super admin") return "admin";
   }
 
   if (moduleKey === "parts" || moduleKey === "parts-inventory") {
     if (roleLower.includes("parts admin")) return "admin";
     if (roleLower.includes("parts user")) return "user";
-    if (roleLower.includes("admin") || roleLower.includes("manager") || roleLower.includes("lead")) return "admin";
+  }
+
+  if (moduleKey === "financial" || moduleKey === "financials") {
+    if (roleLower.includes("financial admin") || roleLower.includes("finance admin")) return "admin";
+    if (roleLower.includes("financial user") || roleLower.includes("finance user")) return "user";
   }
 
   return null;

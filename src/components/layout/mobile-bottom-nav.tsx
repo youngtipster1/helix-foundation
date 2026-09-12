@@ -21,12 +21,14 @@ import {
   LayoutGrid,
   ChevronRight,
   LogOut,
+  ArrowLeftRight,
+  Landmark,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
-import { isModuleAdmin } from "@/features/auth/permissions";
+import { hasModuleAccess, isModuleAdmin } from "@/features/auth/permissions";
 import { useNavBadgeCounts } from "@/hooks/use-nav-badge-counts";
 import {
   Drawer,
@@ -54,12 +56,72 @@ export function MobileBottomNav() {
 
   if (!user) return null;
 
+  const isSuperAdmin = Boolean(user.isSuperAdmin || user.role === "Super Admin");
+  const canAccessParts = hasModuleAccess(user, "parts");
+  const canAccessFinancial = hasModuleAccess(user, "financial");
+  const canAccessTools = hasModuleAccess(user, "tools");
+  const canAccessQuality = hasModuleAccess(user, "quality");
+  const canAccessSettings = hasModuleAccess(user, "settings");
+
   const isToolsAdmin = isModuleAdmin(user, "tools");
   const isQualityAdmin = isModuleAdmin(user, "quality");
+  const isSettingsAdmin = isModuleAdmin(user, "settings");
 
   // Determine current active section
   const isTools = pathname.startsWith("/app/tools");
   const isQuality = pathname.startsWith("/app/quality");
+  const isParts = pathname.startsWith("/app/parts");
+  const isFinancial = pathname.startsWith("/app/financial");
+  const isSettings = pathname.startsWith("/app/settings");
+
+  // Authorized modules for dynamic switcher
+  const authorizedModules = [
+    {
+      id: "parts",
+      label: "Parts Inventory",
+      to: "/app/parts/dashboard",
+      icon: Boxes,
+      hasAccess: canAccessParts,
+      isCurrent: isParts,
+    },
+    {
+      id: "financial",
+      label: "Financial Module",
+      to: "/app/financial/dashboard",
+      icon: Landmark,
+      hasAccess: canAccessFinancial,
+      isCurrent: isFinancial,
+    },
+    {
+      id: "tools",
+      label: "Tools & Equipment",
+      to: isToolsAdmin ? "/app/tools/dashboard" : "/app/tools/my-jobs",
+      icon: Wrench,
+      hasAccess: canAccessTools,
+      isCurrent: isTools,
+    },
+    {
+      id: "quality",
+      label: "Quality & Training",
+      to: isQualityAdmin ? "/app/quality/dashboard" : "/app/quality/training",
+      icon: ShieldCheck,
+      hasAccess: canAccessQuality,
+      isCurrent: isQuality,
+    },
+    {
+      id: "settings",
+      label: "System Settings",
+      to: "/app/settings/dashboard",
+      icon: LayoutDashboard,
+      hasAccess: canAccessSettings,
+      isCurrent: isSettings,
+    },
+  ];
+
+  const switchableModules = authorizedModules.filter((m) => m.hasAccess && !m.isCurrent);
+  const accessibleModuleCount = authorizedModules.filter((m) => m.hasAccess).length;
+  // Only show Workspace Hub Portal if superadmin or user has access to multiple modules
+  const showHubPortal = isSuperAdmin || accessibleModuleCount > 1;
 
   let tabs: BottomTabItem[] = [];
   let moreBadgeCount: number | undefined = undefined;
@@ -98,13 +160,31 @@ export function MobileBottomNav() {
         { label: "Policies", to: "/app/quality/policy-documents", icon: FileText },
       ];
     }
-  } else {
-    // Settings / Workspace Hub
+  } else if (isFinancial) {
+    tabs = [
+      { label: "Dashboard", to: "/app/financial/dashboard", icon: LayoutDashboard },
+      { label: "Orders", to: "/app/financial/orders", icon: ClipboardCheck },
+      { label: "POs", to: "/app/financial/purchase-orders", icon: Receipt },
+      { label: "Contracts", to: "/app/financial/service-contracts", icon: FileText },
+    ];
+  } else if (isParts) {
+    tabs = [
+      { label: "Dashboard", to: "/app/parts/dashboard", icon: LayoutDashboard },
+      { label: "Parts List", to: "/app/parts/list", icon: Boxes },
+      { label: "Movements", to: "/app/parts/movements", icon: ArrowLeftRight },
+      { label: "Audit", to: "/app/parts/audit", icon: ClipboardCheck },
+    ];
+  } else if (isSettings) {
     tabs = [
       { label: "Dashboard", to: "/app/settings/dashboard", icon: LayoutDashboard },
-      { label: "Quality", to: "/app/settings/quality", icon: ClipboardCheck },
-      { label: "Tools", to: "/app/settings/tools", icon: Wrench },
-      { label: "Training", to: "/app/settings/training", icon: GraduationCap },
+      { label: "Debrief", to: "/app/settings/debrief", icon: MessageSquareCode },
+      { label: "Personnel", to: "/app/settings/personnel", icon: Users },
+      { label: "Audit Log", to: "/app/settings/audit-log", icon: History },
+    ];
+  } else {
+    // Fallback
+    tabs = [
+      { label: "Hub", to: "/app", icon: LayoutGrid },
     ];
   }
 
@@ -174,7 +254,15 @@ export function MobileBottomNav() {
         <DrawerContent className="max-h-[85vh] px-4 pb-8 focus:outline-none">
           <DrawerHeader className="text-left border-b border-border/60 pb-3 mb-3">
             <DrawerTitle className="text-base font-semibold">
-              {isTools ? "Tools Navigation" : isQuality ? "Quality Navigation" : "Workspace Navigation"}
+              {isTools
+                ? "Tools Navigation"
+                : isQuality
+                ? "Quality Navigation"
+                : isFinancial
+                ? "Financial Navigation"
+                : isParts
+                ? "Parts Navigation"
+                : "Workspace Navigation"}
             </DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
               Signed in as {user.firstName} {user.lastName} ({user.role})
@@ -249,15 +337,79 @@ export function MobileBottomNav() {
               </div>
             )}
 
-            {!isTools && !isQuality && (
+            {isFinancial && (
+              <div className="space-y-1">
+                <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Financial Menus
+                </p>
+                <DrawerLink
+                  to="/app/financial/dashboard"
+                  icon={LayoutDashboard}
+                  label="Financial Dashboard"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/financial/orders"
+                  icon={ClipboardCheck}
+                  label="Orders Directory"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/financial/purchase-orders"
+                  icon={Receipt}
+                  label="Purchase Orders"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/financial/service-contracts"
+                  icon={FileText}
+                  label="Service Contracts"
+                  onNavigate={handleNavigate}
+                />
+              </div>
+            )}
+
+            {isParts && (
+              <div className="space-y-1">
+                <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Parts Menus
+                </p>
+                <DrawerLink
+                  to="/app/parts/dashboard"
+                  icon={LayoutDashboard}
+                  label="Parts Dashboard"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/parts/list"
+                  icon={Boxes}
+                  label="Parts Directory"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/parts/movements"
+                  icon={ArrowLeftRight}
+                  label="Stock Movements"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/parts/audit"
+                  icon={ClipboardCheck}
+                  label="Physical Audit"
+                  onNavigate={handleNavigate}
+                />
+              </div>
+            )}
+
+            {isSettings && canAccessSettings && (
               <div className="space-y-1">
                 <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Workspace & System
                 </p>
                 <DrawerLink
-                  to="/app/settings/parts-inventory"
-                  icon={Boxes}
-                  label="Parts Inventory"
+                  to="/app/settings/dashboard"
+                  icon={LayoutDashboard}
+                  label="Settings Dashboard"
                   onNavigate={handleNavigate}
                 />
                 <DrawerLink
@@ -272,55 +424,50 @@ export function MobileBottomNav() {
                   label="Personnel"
                   onNavigate={handleNavigate}
                 />
-                <DrawerLink
-                  to="/app/settings/user-accounts"
-                  icon={UserCheck}
-                  label="User Accounts"
-                  onNavigate={handleNavigate}
-                />
-                <DrawerLink
-                  to="/app/settings/audit-log"
-                  icon={History}
-                  label="Audit Log"
-                  onNavigate={handleNavigate}
-                />
+                {(isSettingsAdmin || isSuperAdmin) && (
+                  <>
+                    <DrawerLink
+                      to="/app/settings/user-accounts"
+                      icon={UserCheck}
+                      label="User Accounts"
+                      onNavigate={handleNavigate}
+                    />
+                    <DrawerLink
+                      to="/app/settings/audit-log"
+                      icon={History}
+                      label="Audit Log"
+                      onNavigate={handleNavigate}
+                    />
+                  </>
+                )}
               </div>
             )}
 
-            {/* Quick Module Switcher */}
-            <div className="space-y-1 border-t border-border/60 pt-3">
-              <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Switch Module / Hub
-              </p>
-              <DrawerLink
-                to="/app"
-                icon={LayoutGrid}
-                label="Workspace Hub Portal"
-                onNavigate={handleNavigate}
-              />
-              {!isQuality && (
-                <DrawerLink
-                  to="/app/quality"
-                  icon={ClipboardCheck}
-                  label="Quality Module"
-                  onNavigate={handleNavigate}
-                />
-              )}
-              {!isTools && (
-                <DrawerLink
-                  to="/app/tools"
-                  icon={Wrench}
-                  label="Tools Module"
-                  onNavigate={handleNavigate}
-                />
-              )}
-              <DrawerLink
-                to="/app/settings/dashboard"
-                icon={LayoutDashboard}
-                label="Settings & Configs"
-                onNavigate={handleNavigate}
-              />
-            </div>
+            {/* Dynamic Module Switcher / Hub */}
+            {(showHubPortal || switchableModules.length > 0) && (
+              <div className="space-y-1 border-t border-border/60 pt-3">
+                <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Switch Module / Hub
+                </p>
+                {showHubPortal && (
+                  <DrawerLink
+                    to="/app"
+                    icon={LayoutGrid}
+                    label="Workspace Hub Portal"
+                    onNavigate={handleNavigate}
+                  />
+                )}
+                {switchableModules.map((m) => (
+                  <DrawerLink
+                    key={m.id}
+                    to={m.to}
+                    icon={m.icon}
+                    label={m.label}
+                    onNavigate={handleNavigate}
+                  />
+                ))}
+              </div>
+            )}
 
             {/* Session Management */}
             <div className="border-t border-border/60 pt-2">

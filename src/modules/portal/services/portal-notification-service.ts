@@ -60,11 +60,25 @@ export const portalNotificationService = {
     const debriefCount = 0;
     const partsInventoryCount = 0;
     const managementCount = 0;
-    const financialsCount = 0;
+    let financialsCount = 0;
     const assetsCount = 0;
     const kpiCount = 0;
 
-    const totalAttentionRequired = qualityCount + toolsCount + settingsCount;
+    try {
+      const { financialService } = await import("@/modules/financial/services/financial-service");
+      const orders = await financialService.getOrders({ includeArchived: false });
+      const isAdmin = user.isSuperAdmin || user.role.toLowerCase().includes("admin");
+      if (isAdmin) {
+        financialsCount = orders.filter((o) => o.status === "SUBMITTED" || o.status === "APPROVED").length;
+      } else {
+        financialsCount = orders.filter((o) => o.status === "SENT_BACK" && o.requestedById === user.id).length;
+      }
+    } catch (err) {
+      console.error("Error computing financials count for portal:", err);
+      financialsCount = 0;
+    }
+
+    const totalAttentionRequired = qualityCount + toolsCount + settingsCount + financialsCount;
 
     return {
       qualityCount,

@@ -18,20 +18,13 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const authService = mockAuthService;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== "undefined") {
-      return authService.restore();
-    }
-    return null;
-  });
-  const [ready, setReady] = useState(() => typeof window !== "undefined");
+  const [user, setUser] = useState<User | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!ready) {
-      setUser(authService.restore());
-      setReady(true);
-    }
-  }, [ready]);
+    setUser(authService.restore());
+    setReady(true);
+  }, []);
 
   const signIn = useCallback(async (credentials: Credentials) => {
     const result = await authService.signIn(credentials);

@@ -96,3 +96,13 @@ export const PARTS_MAIN_NAV: NavItem[] = [
   { label: "Parts Audit", to: "/app/parts/audit", icon: ClipboardCheck },
 ];
 
+/* =========================================================================
+   FINANCIAL MODULE — 4-TAB MAIN NAVIGATION (USER & ADMIN)
+========================================================================= */
+export const FINANCIAL_NAV: NavItem[] = [
+  { label: "Dashboard", to: "/app/financial/dashboard", icon: LayoutDashboard },
+  { label: "Orders", to: "/app/financial/orders", icon: ClipboardCheck },
+  { label: "Purchase Orders", to: "/app/financial/purchase-orders", icon: Receipt },
+  { label: "Service Contracts", to: "/app/financial/service-contracts", icon: FileText },
+];
+
