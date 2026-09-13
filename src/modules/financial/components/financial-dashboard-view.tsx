@@ -140,12 +140,12 @@ export function FinancialDashboardView({
             </div>
 
             {/* Metric Selector Buttons */}
-            <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg border border-border/60 self-start sm:self-auto">
+            <div className="flex flex-wrap items-center gap-1 bg-muted/60 p-1 rounded-lg border border-border/60 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setActiveTrend("otif")}
                 className={cn(
-                  "px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer",
+                  "flex-1 sm:flex-none px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer text-center",
                   activeTrend === "otif"
                     ? "bg-background text-foreground shadow-2xs font-bold"
                     : "text-muted-foreground hover:text-foreground",
@@ -157,7 +157,7 @@ export function FinancialDashboardView({
                 type="button"
                 onClick={() => setActiveTrend("cycleTime")}
                 className={cn(
-                  "px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer",
+                  "flex-1 sm:flex-none px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer text-center",
                   activeTrend === "cycleTime"
                     ? "bg-background text-foreground shadow-2xs font-bold"
                     : "text-muted-foreground hover:text-foreground",
@@ -169,7 +169,7 @@ export function FinancialDashboardView({
                 type="button"
                 onClick={() => setActiveTrend("accuracy")}
                 className={cn(
-                  "px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer",
+                  "flex-1 sm:flex-none px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer text-center",
                   activeTrend === "accuracy"
                     ? "bg-background text-foreground shadow-2xs font-bold"
                     : "text-muted-foreground hover:text-foreground",
@@ -377,18 +377,18 @@ export function FinancialDashboardView({
                 <div
                   key={o.id}
                   onClick={() => onViewOrder?.(o)}
-                  className="p-2.5 rounded-lg border border-border/80 bg-muted/20 hover:bg-muted/50 transition-colors cursor-pointer flex items-center justify-between gap-3 text-xs"
+                  className="p-2.5 rounded-lg border border-border/80 bg-muted/20 hover:bg-muted/50 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
                 >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-bold text-primary">{o.orderNumber}</span>
                       <OrderStatusBadge status={o.status} />
                     </div>
-                    <div className="text-muted-foreground text-[11px]">
+                    <div className="text-muted-foreground text-[11px] truncate">
                       By {o.requestedByName} • Category: {o.category}
                     </div>
                   </div>
-                  <div className="text-right font-mono">
+                  <div className="text-left sm:text-right font-mono shrink-0">
                     <div className="font-bold text-foreground">
                       ₦{o.grossTotal.toLocaleString("en-US", { minimumFractionDigits: 0 })}
                     </div>
@@ -423,18 +423,18 @@ export function FinancialDashboardView({
               <div
                 key={o.id}
                 onClick={() => onViewOrder?.(o)}
-                className="p-2.5 rounded-lg border border-border/80 bg-card hover:bg-muted/40 transition-colors cursor-pointer flex items-center justify-between gap-3 text-xs"
+                className="p-2.5 rounded-lg border border-border/80 bg-card hover:bg-muted/40 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
               >
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-0.5 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-mono font-bold text-foreground">{o.orderNumber}</span>
                     <OrderStatusBadge status={o.status} />
                   </div>
-                  <div className="text-muted-foreground text-[11px] truncate max-w-xs">
+                  <div className="text-muted-foreground text-[11px] truncate">
                     {o.items[0]?.description || "Order items"}
                   </div>
                 </div>
-                <div className="text-right font-mono">
+                <div className="text-left sm:text-right font-mono shrink-0">
                   <div className="font-bold text-foreground">
                     ₦{o.grossTotal.toLocaleString("en-US", { minimumFractionDigits: 0 })}
                   </div>

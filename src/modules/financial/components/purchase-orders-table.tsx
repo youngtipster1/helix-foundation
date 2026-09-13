@@ -119,20 +119,20 @@ export function PurchaseOrdersTable({
   return (
     <div className="space-y-4">
       {/* Top Controls */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2.5 flex-1">
-          <div className="relative min-w-[200px] flex-1 sm:max-w-xs">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 w-full">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1">
+          <div className="relative flex-1 min-w-0 sm:max-w-xs">
             <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
             <Input
               placeholder="Search by PO #, source order #, vendor, or item..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 text-xs h-9 bg-background"
+              className="pl-8 text-xs h-9 bg-background w-full"
             />
           </div>
 
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-[160px] text-xs h-9 bg-background">
+            <SelectTrigger className="w-full sm:w-[160px] text-xs h-9 bg-background shrink-0">
               <SelectValue placeholder="PO Status" />
             </SelectTrigger>
             <SelectContent>
@@ -149,7 +149,7 @@ export function PurchaseOrdersTable({
             variant="outline"
             size="sm"
             onClick={onExportCsv}
-            className="h-9 gap-1.5 text-xs shrink-0"
+            className="h-9 gap-1.5 text-xs shrink-0 w-full sm:w-auto"
           >
             <Download className="size-3.5" />
             <span>Export Registry</span>
@@ -316,8 +316,8 @@ export function PurchaseOrdersTable({
         </div>
 
         {/* Table Pagination & Valuation Footer */}
-        <div className="px-3.5 py-2.5 bg-muted/20 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="px-3.5 py-2.5 bg-muted/20 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between sm:justify-start gap-3">
             <span>
               Showing <strong className="text-foreground">{filteredPOs.length > 0 ? startIndex + 1 : 0}</strong> to{" "}
               <strong className="text-foreground">{endIndex}</strong> of{" "}
@@ -346,7 +346,7 @@ export function PurchaseOrdersTable({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between sm:justify-end gap-3">
             <div className="font-mono text-xs hidden lg:block">
               Total PO Valuation:{" "}
               <strong className="text-foreground font-bold">

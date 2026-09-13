@@ -40,9 +40,9 @@ function AppShell() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background text-foreground">
+    <div className="flex min-h-screen w-full flex-col bg-background text-foreground overflow-x-hidden">
       <Topbar user={user} />
-      <main className="min-w-0 flex-1 w-full p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
+      <main className="min-w-0 flex-1 w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8 pb-24 lg:pb-8">
         <Outlet />
       </main>
       <MobileBottomNav />

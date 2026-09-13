@@ -25,7 +25,7 @@ export function BrandLockup({ compact = false }: { compact?: boolean }) {
           <span className="block text-sm font-semibold tracking-[0.14em] text-foreground">
             HEMP
           </span>
-          <span className="block truncate text-[11px] leading-tight text-muted-foreground">
+          <span className="hidden sm:block truncate text-[11px] leading-tight text-muted-foreground">
             Healthcare Engineering
           </span>
         </span>

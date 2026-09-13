@@ -270,15 +270,15 @@ export function OrdersTable({
   return (
     <div className="space-y-4">
       {/* ── Role-Based Workflow Tabs ────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
-        <div className="flex items-center gap-1.5 p-1 bg-muted/60 rounded-xl border border-border/60">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 max-w-full">
+        <div className="flex items-center gap-1.5 p-1 bg-muted/60 rounded-xl border border-border/60 overflow-x-auto max-w-full scrollbar-none">
           {isAdmin ? (
             <>
               <button
                 type="button"
                 onClick={() => setActiveTab("pending")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
                   activeTab === "pending"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -297,7 +297,7 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("active")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
                   activeTab === "active"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -316,7 +316,7 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("completed")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
                   activeTab === "completed"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -335,7 +335,7 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("archived")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
                   activeTab === "archived"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -356,7 +356,7 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("active")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
                   activeTab === "active"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -375,7 +375,7 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("sent_back")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
                   activeTab === "sent_back"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -394,7 +394,7 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("completed")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap",
                   activeTab === "completed"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
@@ -413,62 +413,66 @@ export function OrdersTable({
         </div>
 
         {/* Search, Filter, Export & Create Order Toolbar */}
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <div className="relative min-w-[200px]">
-            <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
-            <Input
-              placeholder="Search orders, vendor, requisition..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 text-xs h-8.5 bg-background"
-            />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full max-w-full">
+          <div className="flex items-center gap-2 flex-1 w-full min-w-0">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search orders, vendor, requisition..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-8 text-xs h-8.5 bg-background w-full"
+              />
+            </div>
+
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[120px] sm:w-[140px] shrink-0 text-xs h-8.5 bg-background">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="PARTS">Parts</SelectItem>
+                <SelectItem value="TOOLS">Tools</SelectItem>
+                <SelectItem value="LABOUR">Labour</SelectItem>
+                <SelectItem value="THIRD_PARTY_SERVICE">3rd-Party Service</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[140px] text-xs h-8.5 bg-background">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="PARTS">Parts</SelectItem>
-              <SelectItem value="TOOLS">Tools</SelectItem>
-              <SelectItem value="LABOUR">Labour</SelectItem>
-              <SelectItem value="THIRD_PARTY_SERVICE">3rd-Party Service</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+            {Object.values(columnFilters).filter((v) => v !== undefined).length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setColumnFilters({})}
+                className="h-8.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                Clear filters
+              </Button>
+            )}
 
-          {Object.values(columnFilters).filter((v) => v !== undefined).length > 0 && (
+            {onExportCsv && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onExportCsv}
+                className="h-8.5 gap-1.5 text-xs cursor-pointer"
+              >
+                <Download className="size-3.5" />
+                <span className="hidden sm:inline">Export CSV</span>
+              </Button>
+            )}
+
+            {/* Primary Create Order Button */}
             <Button
-              variant="ghost"
               size="sm"
-              onClick={() => setColumnFilters({})}
-              className="h-8.5 text-xs text-muted-foreground hover:text-foreground"
+              onClick={onAddOrder}
+              className="h-8.5 gap-1.5 text-xs font-semibold cursor-pointer bg-primary text-primary-foreground shadow-xs px-3 ml-auto sm:ml-0"
             >
-              Clear filters
+              <Plus className="size-3.5" />
+              <span>Create Order</span>
             </Button>
-          )}
-
-          {onExportCsv && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onExportCsv}
-              className="h-8.5 gap-1.5 text-xs cursor-pointer"
-            >
-              <Download className="size-3.5" />
-              <span className="hidden sm:inline">Export CSV</span>
-            </Button>
-          )}
-
-          {/* Primary Create Order Button */}
-          <Button
-            size="sm"
-            onClick={onAddOrder}
-            className="h-8.5 gap-1.5 text-xs font-semibold cursor-pointer bg-primary text-primary-foreground shadow-xs px-3"
-          >
-            <Plus className="size-3.5" />
-            <span>Create Order</span>
-          </Button>
+          </div>
         </div>
       </div>
 
@@ -799,8 +803,8 @@ export function OrdersTable({
         </div>
 
         {/* Table Pagination & Valuation Footer */}
-        <div className="px-3.5 py-2.5 bg-muted/20 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="px-3.5 py-2.5 bg-muted/20 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between sm:justify-start gap-3">
             <span>
               Showing <strong className="text-foreground">{filteredOrders.length > 0 ? startIndex + 1 : 0}</strong> to{" "}
               <strong className="text-foreground">{endIndex}</strong> of{" "}
@@ -829,7 +833,7 @@ export function OrdersTable({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between sm:justify-end gap-3">
             <div className="font-mono text-xs hidden lg:block">
               Total Valuation (Gross):{" "}
               <strong className="text-primary font-bold">
@@ -864,7 +868,7 @@ export function OrdersTable({
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={safePage >= totalPages}
-                className="h-8 px-2.5 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
+                className="h-7.5 px-2 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
                 title="Next page"
               >
                 <span>Next</span>

@@ -165,15 +165,15 @@ export function Topbar({ user }: { user: User }) {
   return (
     <header className="sticky top-0 z-30 w-full bg-background/95 backdrop-blur-md border-b border-border shadow-xs">
       {/* Tier 1: Global Navigation & Utilities */}
-      <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6">
-        {/* Left: Brand + Active Accessible Modules Side by Side */}
+      <div className="flex h-14 items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6">
+        {/* Left: Brand + Active Accessible Modules (Hidden on Mobile/Tablet) */}
         <div className="flex items-center gap-3 min-w-0">
           <BrandLockup />
 
-          <div className="h-4 w-px bg-border/80 mx-1 shrink-0 hidden sm:block" />
+          <div className="h-4 w-px bg-border/80 mx-1 shrink-0 hidden lg:block" />
 
-          {/* Side-by-side Module Navigation Bar (Only accessible modules, no scrollbar) */}
-          <nav className="flex items-center gap-1.5 flex-nowrap">
+          {/* Side-by-side Module Navigation Bar (Desktop Only) */}
+          <nav className="hidden lg:flex items-center gap-1.5 flex-nowrap">
             {authorizedModules.map((mod) => {
               const Icon = mod.icon;
               return (
@@ -200,12 +200,13 @@ export function Topbar({ user }: { user: User }) {
         </div>
 
         {/* Right: Global Actions & User Menu */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate({ to: "/app" })}
-            className="h-8 text-xs font-semibold gap-1.5 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary cursor-pointer"
+            className="h-8 px-2 sm:px-2.5 text-xs font-semibold gap-1.5 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary cursor-pointer"
+            title="Workspace Hub"
           >
             <LayoutGrid className="size-3.5" />
             <span className="hidden sm:inline">Workspace Hub</span>
