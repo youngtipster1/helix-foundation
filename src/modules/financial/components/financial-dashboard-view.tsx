@@ -24,6 +24,7 @@ import {
   Tooltip as RechartsTooltip,
   CartesianGrid,
   Legend,
+  LabelList,
 } from "recharts";
 import { Button } from "@/components/ui/button";
 import { FinancialDashboardMetrics, Order } from "../types";
@@ -179,10 +180,21 @@ export function FinancialDashboardView({
             </div>
           </div>
 
-          {/* Recharts Chart */}
-          <div className="h-[280px] w-full pt-2">
+          {/* Centered Chart Header Title (Matching PowerPoint Slide 4) */}
+          <div className="text-center pt-1 pb-1">
+            <h4 className="text-sm font-bold tracking-widest text-foreground uppercase">
+              {activeTrend === "otif"
+                ? "OTIF"
+                : activeTrend === "cycleTime"
+                ? "ORDER CYCLE TIME"
+                : "ORDER ACCURACY RATE"}
+            </h4>
+          </div>
+
+          {/* Recharts Chart with Values Directly on Data Points */}
+          <div className="h-[290px] w-full pt-1">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={metrics.monthlyTrends} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
+              <LineChart data={metrics.monthlyTrends} margin={{ top: 25, right: 20, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.6} />
                 <XAxis
                   dataKey="month"
@@ -194,10 +206,18 @@ export function FinancialDashboardView({
                   tickLine={false}
                   axisLine={{ stroke: "hsl(var(--border))" }}
                   tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-                  domain={activeTrend === "cycleTime" ? [0, 25] : [70, 100]}
+                  domain={activeTrend === "cycleTime" ? [0, 25] : [60, 105]}
                   unit={activeTrend === "cycleTime" ? "d" : "%"}
                 />
                 <RechartsTooltip
+                  formatter={(val: any) => [
+                    activeTrend === "cycleTime" ? `${val} days` : `${val}%`,
+                    activeTrend === "otif"
+                      ? "OTIF Rate"
+                      : activeTrend === "cycleTime"
+                      ? "Cycle Time"
+                      : "Accuracy Rate",
+                  ]}
                   contentStyle={{
                     backgroundColor: "hsl(var(--popover))",
                     borderColor: "hsl(var(--border))",
@@ -206,39 +226,59 @@ export function FinancialDashboardView({
                     fontSize: "12px",
                   }}
                 />
-                {activeTrend === "otif" && (
-                  <Line
-                    type="monotone"
-                    dataKey="otif"
-                    name="OTIF Rate (%)"
-                    stroke="#10B981"
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: "#10B981" }}
-                    activeDot={{ r: 6 }}
+                <Line
+                  type="linear"
+                  dataKey={
+                    activeTrend === "otif"
+                      ? "otif"
+                      : activeTrend === "cycleTime"
+                      ? "cycleTimeDays"
+                      : "accuracyRate"
+                  }
+                  name={
+                    activeTrend === "otif"
+                      ? "OTIF Rate (%)"
+                      : activeTrend === "cycleTime"
+                      ? "Cycle Time (Days)"
+                      : "Accuracy Rate (%)"
+                  }
+                  stroke="#0284C7"
+                  strokeWidth={2.5}
+                  dot={{ r: 4.5, fill: "#0284C7", strokeWidth: 1.5, stroke: "#FFFFFF" }}
+                  activeDot={{ r: 6.5, fill: "#0284C7" }}
+                >
+                  <LabelList
+                    dataKey={
+                      activeTrend === "otif"
+                        ? "otif"
+                        : activeTrend === "cycleTime"
+                        ? "cycleTimeDays"
+                        : "accuracyRate"
+                    }
+                    content={(props: any) => {
+                      const { x, y, value } = props;
+                      if (value === undefined || value === null) return null;
+                      const n = Number(value);
+                      const formatted = activeTrend === "cycleTime" ? `${n}d` : `${n}%`;
+                      const safeY = typeof y === "number" ? Math.max(14, y - 10) : 14;
+                      return (
+                        <text
+                          x={x}
+                          y={safeY}
+                          textAnchor="middle"
+                          className="fill-foreground font-mono font-bold select-none pointer-events-none"
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: 700,
+                            fill: "hsl(var(--foreground))",
+                          }}
+                        >
+                          {formatted}
+                        </text>
+                      );
+                    }}
                   />
-                )}
-                {activeTrend === "cycleTime" && (
-                  <Line
-                    type="monotone"
-                    dataKey="cycleTimeDays"
-                    name="Cycle Time (Days)"
-                    stroke="#3B82F6"
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: "#3B82F6" }}
-                    activeDot={{ r: 6 }}
-                  />
-                )}
-                {activeTrend === "accuracy" && (
-                  <Line
-                    type="monotone"
-                    dataKey="accuracyRate"
-                    name="Accuracy Rate (%)"
-                    stroke="#6366F1"
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: "#6366F1" }}
-                    activeDot={{ r: 6 }}
-                  />
-                )}
+                </Line>
               </LineChart>
             </ResponsiveContainer>
           </div>

@@ -3628,12 +3628,18 @@ class FinancialService {
     };
 
     const monthlyTrends = [
-      { month: "Oct 2025", orderValue: 24500000, otif: 92, cycleTimeDays: 16.2, accuracyRate: 96 },
-      { month: "Nov 2025", orderValue: 31200000, otif: 88, cycleTimeDays: 18.0, accuracyRate: 95 },
-      { month: "Dec 2025", orderValue: 48900000, otif: 94, cycleTimeDays: 14.8, accuracyRate: 97 },
-      { month: "Jan 2026", orderValue: 38400000, otif: 96, cycleTimeDays: 13.5, accuracyRate: 98 },
-      { month: "Feb 2026", orderValue: 52100000, otif: 95, cycleTimeDays: 12.8, accuracyRate: 99 },
-      { month: "Mar 2026", orderValue: totalOrderValue, otif: otifRate, cycleTimeDays: orderCycleTimeDays, accuracyRate: orderAccuracyRate },
+      { month: "Jan-26", orderValue: 42000000, otif: 98, cycleTimeDays: 10.5, accuracyRate: 98 },
+      { month: "Feb-26", orderValue: 35500000, otif: 75, cycleTimeDays: 18.2, accuracyRate: 91 },
+      { month: "Mar-26", orderValue: 48000000, otif: 85, cycleTimeDays: 14.0, accuracyRate: 94 },
+      { month: "Apr-26", orderValue: 51200000, otif: 95, cycleTimeDays: 11.2, accuracyRate: 97 },
+      { month: "May-26", orderValue: 39000000, otif: 74, cycleTimeDays: 17.5, accuracyRate: 89 },
+      { month: "Jun-26", orderValue: 33500000, otif: 68, cycleTimeDays: 19.8, accuracyRate: 86 },
+      { month: "Jul-26", orderValue: 44000000, otif: 75, cycleTimeDays: 16.0, accuracyRate: 92 },
+      { month: "Aug-26", orderValue: 49500000, otif: 84, cycleTimeDays: 13.5, accuracyRate: 95 },
+      { month: "Sep-26", orderValue: 56000000, otif: 91, cycleTimeDays: 11.8, accuracyRate: 97 },
+      { month: "Oct-26", orderValue: 41000000, otif: 78, cycleTimeDays: 15.2, accuracyRate: 93 },
+      { month: "Nov-26", orderValue: 53500000, otif: 89, cycleTimeDays: 12.0, accuracyRate: 96 },
+      { month: "Dec-26", orderValue: totalOrderValue, otif: 82, cycleTimeDays: 14.5, accuracyRate: 94 },
     ];
 
     return {
