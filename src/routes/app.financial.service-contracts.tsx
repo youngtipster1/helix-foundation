@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ServiceContractsView } from "@/modules/financial/components/service-contracts-view";
+import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 
 export const Route = createFileRoute("/app/financial/service-contracts")({
   head: () => ({
@@ -12,9 +12,5 @@ export const Route = createFileRoute("/app/financial/service-contracts")({
       },
     ],
   }),
-  component: FinancialServiceContractsPage,
+  component: () => <ModulePlaceholder title="Service Contracts" />,
 });
-
-function FinancialServiceContractsPage() {
-  return <ServiceContractsView />;
-}

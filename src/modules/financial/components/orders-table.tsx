@@ -278,16 +278,16 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("pending")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "pending"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Clock className="size-4 text-amber-500" />
+                <Clock className="size-3.5 text-amber-500" />
                 <span>Pending Approval</span>
                 {tabCounts.pending !== undefined && tabCounts.pending > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white leading-tight">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white leading-tight">
                     {tabCounts.pending}
                   </span>
                 )}
@@ -297,16 +297,16 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("active")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "active"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Layers className="size-4 text-blue-500" />
+                <Layers className="size-3.5 text-blue-500" />
                 <span>Active Orders</span>
                 {tabCounts.active !== undefined && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground leading-tight">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground leading-tight">
                     {tabCounts.active}
                   </span>
                 )}
@@ -316,16 +316,16 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("completed")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "completed"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <CheckCircle2 className="size-4 text-emerald-500" />
+                <CheckCircle2 className="size-3.5 text-emerald-500" />
                 <span>Completed</span>
                 {tabCounts.completed !== undefined && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground leading-tight">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground leading-tight">
                     {tabCounts.completed}
                   </span>
                 )}
@@ -335,16 +335,16 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("archived")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "archived"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Archive className="size-4 text-stone-500" />
+                <Archive className="size-3.5 text-stone-500" />
                 <span>Archived</span>
                 {tabCounts.archived !== undefined && tabCounts.archived > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground leading-tight">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground leading-tight">
                     {tabCounts.archived}
                   </span>
                 )}
@@ -356,16 +356,16 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("active")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "active"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Layers className="size-4 text-blue-500" />
+                <Layers className="size-3.5 text-blue-500" />
                 <span>Active Orders</span>
                 {tabCounts.active !== undefined && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground leading-tight">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground leading-tight">
                     {tabCounts.active}
                   </span>
                 )}
@@ -375,16 +375,16 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("sent_back")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "sent_back"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <RotateCcw className="size-4 text-rose-500" />
+                <RotateCcw className="size-3.5 text-rose-500" />
                 <span>Sent Back</span>
                 {tabCounts.sent_back !== undefined && tabCounts.sent_back > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white leading-tight">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500 text-white leading-tight">
                     {tabCounts.sent_back}
                   </span>
                 )}
@@ -394,16 +394,16 @@ export function OrdersTable({
                 type="button"
                 onClick={() => setActiveTab("completed")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                   activeTab === "completed"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <CheckCircle2 className="size-4 text-emerald-500" />
+                <CheckCircle2 className="size-3.5 text-emerald-500" />
                 <span>Completed</span>
                 {tabCounts.completed !== undefined && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground leading-tight">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted text-muted-foreground leading-tight">
                     {tabCounts.completed}
                   </span>
                 )}
@@ -414,18 +414,18 @@ export function OrdersTable({
 
         {/* Search, Filter, Export & Create Order Toolbar */}
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <div className="relative min-w-[220px]">
-            <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
+          <div className="relative min-w-[200px]">
+            <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
             <Input
               placeholder="Search orders, vendor, requisition..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 text-sm h-9 bg-background"
+              className="pl-8 text-xs h-8.5 bg-background"
             />
           </div>
 
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[150px] text-sm h-9 bg-background">
+            <SelectTrigger className="w-[140px] text-xs h-8.5 bg-background">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -442,7 +442,7 @@ export function OrdersTable({
               variant="ghost"
               size="sm"
               onClick={() => setColumnFilters({})}
-              className="h-9 text-xs text-muted-foreground hover:text-foreground"
+              className="h-8.5 text-xs text-muted-foreground hover:text-foreground"
             >
               Clear filters
             </Button>
@@ -453,9 +453,9 @@ export function OrdersTable({
               variant="outline"
               size="sm"
               onClick={onExportCsv}
-              className="h-9 gap-1.5 text-sm cursor-pointer"
+              className="h-8.5 gap-1.5 text-xs cursor-pointer"
             >
-              <Download className="size-4" />
+              <Download className="size-3.5" />
               <span className="hidden sm:inline">Export CSV</span>
             </Button>
           )}
@@ -464,9 +464,9 @@ export function OrdersTable({
           <Button
             size="sm"
             onClick={onAddOrder}
-            className="h-9 gap-1.5 text-sm font-semibold cursor-pointer bg-primary text-primary-foreground shadow-xs px-3.5"
+            className="h-8.5 gap-1.5 text-xs font-semibold cursor-pointer bg-primary text-primary-foreground shadow-xs px-3"
           >
-            <Plus className="size-4" />
+            <Plus className="size-3.5" />
             <span>Create Order</span>
           </Button>
         </div>
@@ -475,11 +475,11 @@ export function OrdersTable({
       {/* ── 17-Column Order List Ledger with Unified Actions in Center ────── */}
       <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] md:text-sm border-collapse whitespace-nowrap">
+          <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
             <thead>
-              <tr className="border-b border-border bg-muted/60 font-semibold text-muted-foreground text-xs md:text-[13px] uppercase tracking-wider select-none">
-                <th className="py-3.5 px-3.5 text-center w-12">SN</th>
-                <th className="py-3.5 px-3.5">
+              <tr className="border-b border-border bg-muted/60 font-semibold text-muted-foreground text-[11px] uppercase tracking-wider select-none">
+                <th className="py-2 px-2.5 text-center w-12">SN</th>
+                <th className="py-2 px-2.5">
                   <ColumnFilter
                     label="Order code"
                     values={uniqueFilterValues.orderNumber}
@@ -487,7 +487,7 @@ export function OrdersTable({
                     onChange={(val) => handleColumnFilterChange("orderNumber", val)}
                   />
                 </th>
-                <th className="py-3.5 px-3.5">
+                <th className="py-2 px-2.5">
                   <ColumnFilter
                     label="Requested by"
                     values={uniqueFilterValues.requestedByName}
@@ -495,7 +495,7 @@ export function OrdersTable({
                     onChange={(val) => handleColumnFilterChange("requestedByName", val)}
                   />
                 </th>
-                <th className="py-3.5 px-3.5">
+                <th className="py-2 px-2.5">
                   <ColumnFilter
                     label="Date raised"
                     values={uniqueFilterValues.dateRaised}
@@ -505,14 +505,14 @@ export function OrdersTable({
                 </th>
 
                 {/* Unified Action Button positioned in the middle of the table */}
-                <th className="py-3.5 px-3.5 text-center w-28 text-foreground font-bold">
+                <th className="py-2 px-2.5 text-center w-28 text-foreground font-bold">
                   Actions
                 </th>
 
-                <th className="py-3.5 px-3.5 max-w-[180px]">Note</th>
-                <th className="py-3.5 px-3.5 text-center">Quantity</th>
-                <th className="py-3.5 px-3.5 text-center">Order age</th>
-                <th className="py-3.5 px-3.5">
+                <th className="py-2 px-2.5 max-w-[180px]">Note</th>
+                <th className="py-2 px-2.5 text-center">Quantity</th>
+                <th className="py-2 px-2.5 text-center">Order age</th>
+                <th className="py-2 px-2.5">
                   <ColumnFilter
                     label="Requisition number"
                     values={uniqueFilterValues.requisitionNumber}
@@ -520,7 +520,7 @@ export function OrdersTable({
                     onChange={(val) => handleColumnFilterChange("requisitionNumber", val)}
                   />
                 </th>
-                <th className="py-3.5 px-3.5">
+                <th className="py-2 px-2.5">
                   <ColumnFilter
                     label="Supplier"
                     values={uniqueFilterValues.supplier}
@@ -528,9 +528,9 @@ export function OrdersTable({
                     onChange={(val) => handleColumnFilterChange("supplier", val)}
                   />
                 </th>
-                <th className="py-3.5 px-3.5 text-right">Total Cost</th>
-                <th className="py-3.5 px-3.5 text-right">Gross Total Cost</th>
-                <th className="py-3.5 px-3.5">
+                <th className="py-2 px-2.5 text-right">Total Cost</th>
+                <th className="py-2 px-2.5 text-right">Gross Total Cost</th>
+                <th className="py-2 px-2.5">
                   <ColumnFilter
                     label="PO Number"
                     values={uniqueFilterValues.poNumber}
@@ -538,8 +538,8 @@ export function OrdersTable({
                     onChange={(val) => handleColumnFilterChange("poNumber", val)}
                   />
                 </th>
-                <th className="py-3.5 px-3.5">Approval date</th>
-                <th className="py-3.5 px-3.5 text-center">
+                <th className="py-2 px-2.5">Approval date</th>
+                <th className="py-2 px-2.5 text-center">
                   <ColumnFilter
                     label="Order Status"
                     values={uniqueFilterValues.status}
@@ -547,7 +547,7 @@ export function OrdersTable({
                     onChange={(val) => handleColumnFilterChange("status", val)}
                   />
                 </th>
-                <th className="py-3.5 px-3.5 text-center">
+                <th className="py-2 px-2.5 text-center">
                   <ColumnFilter
                     label="Order Category"
                     values={uniqueFilterValues.category}
@@ -555,17 +555,17 @@ export function OrdersTable({
                     onChange={(val) => handleColumnFilterChange("category", val)}
                   />
                 </th>
-                <th className="py-3.5 px-3.5 text-center">Delivery</th>
+                <th className="py-2 px-2.5 text-center">Delivery</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/60 font-sans text-[13px] md:text-sm">
+            <tbody className="divide-y divide-border/60 font-sans text-xs">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={17} className="py-14 text-center text-muted-foreground">
+                  <td colSpan={17} className="py-12 text-center text-muted-foreground">
                     <div className="max-w-xs mx-auto space-y-2">
-                      <Package className="size-8 mx-auto text-muted-foreground/40 mb-2" />
-                      <p className="font-semibold text-foreground text-sm">No Orders Found</p>
-                      <p className="text-xs text-muted-foreground">
+                      <Package className="size-7 mx-auto text-muted-foreground/40 mb-2" />
+                      <p className="font-semibold text-foreground text-xs">No Orders Found</p>
+                      <p className="text-[11px] text-muted-foreground">
                         No orders in this tab match your current filter parameters.
                       </p>
                     </div>
@@ -611,19 +611,19 @@ export function OrdersTable({
 
                   // Delivery status
                   let deliveryBadge = (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-muted text-muted-foreground">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-muted text-muted-foreground">
                       Pending
                     </span>
                   );
                   if (order.status === "COMPLETED") {
                     deliveryBadge = (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                         Delivered In Full
                       </span>
                     );
                   } else if (order.status === "PARTIALLY_FULFILLED" || totalFulfilled > 0) {
                     deliveryBadge = (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-400">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/15 text-blue-700 dark:text-blue-400">
                         Partially Fulfilled ({totalFulfilled}/{totalQty})
                       </span>
                     );
@@ -642,28 +642,28 @@ export function OrdersTable({
                       )}
                     >
                       {/* 1. SN */}
-                      <td className="py-3.5 px-3.5 text-center text-muted-foreground font-mono text-sm">
+                      <td className="py-2 px-2.5 text-center text-muted-foreground font-mono text-xs">
                         {startIndex + index + 1}
                       </td>
 
                       {/* 2. Order code */}
-                      <td className="py-3.5 px-3.5 font-mono font-bold text-foreground text-sm">
+                      <td className="py-2 px-2.5 font-mono font-bold text-foreground text-xs">
                         {order.orderNumber}
                       </td>
 
                       {/* 3. Requested by */}
-                      <td className="py-3.5 px-3.5 text-foreground font-semibold text-sm">
+                      <td className="py-2 px-2.5 text-foreground font-semibold text-xs">
                         {order.requestedByName}
                       </td>
 
                       {/* 4. Date raised */}
-                      <td className="py-3.5 px-3.5 font-mono text-muted-foreground text-sm">
+                      <td className="py-2 px-2.5 font-mono text-muted-foreground text-xs">
                         {new Date(order.dateRaised).toISOString().split("T")[0]}
                       </td>
 
                       {/* 5. Unified Row Actions Dropdown in Center */}
                       <td
-                        className="py-3.5 px-3.5 text-center"
+                        className="py-2 px-2.5 text-center"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <RowActionsMenu
@@ -725,71 +725,71 @@ export function OrdersTable({
 
                       {/* 6. Note */}
                       <td
-                        className="py-3.5 px-3.5 max-w-[180px] truncate text-muted-foreground text-sm"
+                        className="py-2 px-2.5 max-w-[180px] truncate text-muted-foreground text-xs"
                         title={order.notes}
                       >
                         {order.notes || "-"}
                       </td>
 
                       {/* 7. Quantity */}
-                      <td className="py-3.5 px-3.5 text-center font-mono font-bold text-foreground text-sm">
+                      <td className="py-2 px-2.5 text-center font-mono font-bold text-foreground text-xs">
                         {totalQty}
                       </td>
 
                       {/* 8. Order age */}
-                      <td className="py-3.5 px-3.5 text-center font-mono text-sm text-muted-foreground">
+                      <td className="py-2 px-2.5 text-center font-mono text-xs text-muted-foreground">
                         {ageDays}d
                       </td>
 
                       {/* 9. Requisition number */}
-                      <td className="py-3.5 px-3.5 font-mono font-bold text-foreground text-sm">
+                      <td className="py-2 px-2.5 font-mono font-bold text-foreground text-xs">
                         {order.requisition?.requisitionNumber || "-"}
                       </td>
 
                       {/* 10. Supplier */}
                       <td
-                        className="py-3.5 px-3.5 text-foreground font-medium text-sm max-w-[200px] truncate"
+                        className="py-2 px-2.5 text-foreground font-medium text-xs max-w-[200px] truncate"
                         title={supplierDisplay}
                       >
                         {supplierDisplay}
                       </td>
 
                       {/* 11. Total Cost (Net) */}
-                      <td className="py-3.5 px-3.5 text-right font-mono text-sm text-muted-foreground">
+                      <td className="py-2 px-2.5 text-right font-mono text-xs text-muted-foreground">
                         ₦{order.totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </td>
 
                       {/* 12. Gross Total Cost (Inc VAT) */}
-                      <td className="py-3.5 px-3.5 text-right font-mono font-bold text-sm text-primary">
+                      <td className="py-2 px-2.5 text-right font-mono font-bold text-xs text-primary">
                         ₦{order.grossTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </td>
 
                       {/* 13. PO Number */}
-                      <td className="py-3.5 px-3.5 font-mono text-foreground font-bold text-sm">
+                      <td className="py-2 px-2.5 font-mono text-foreground font-bold text-xs">
                         {order.requisition?.status === "FINAL_APPROVED" ? poDisplay : "-"}
                       </td>
 
                       {/* 14. Approval date */}
-                      <td className="py-3.5 px-3.5 font-mono text-muted-foreground text-sm">
+                      <td className="py-2 px-2.5 font-mono text-muted-foreground text-xs">
                         {order.approvedAt
                           ? new Date(order.approvedAt).toISOString().split("T")[0]
                           : "-"}
                       </td>
 
                       {/* 15. Order Status */}
-                      <td className="py-3.5 px-3.5 text-center">
+                      <td className="py-2 px-2.5 text-center">
                         <OrderStatusBadge status={order.status} />
                       </td>
 
                       {/* 16. Order Category */}
-                      <td className="py-3.5 px-3.5 text-center">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2.5 py-1 rounded bg-muted">
+                      <td className="py-2 px-2.5 text-center">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-2 py-0.5 rounded bg-muted">
                           {order.category.replace(/_/g, " ")}
                         </span>
                       </td>
 
                       {/* 17. Delivery */}
-                      <td className="py-3.5 px-3.5 text-center">{deliveryBadge}</td>
+                      <td className="py-2 px-2.5 text-center">{deliveryBadge}</td>
                     </tr>
                   );
                 })
@@ -799,7 +799,7 @@ export function OrdersTable({
         </div>
 
         {/* Table Pagination & Valuation Footer */}
-        <div className="px-4 py-3 bg-muted/20 border-t border-border flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+        <div className="px-3.5 py-2.5 bg-muted/20 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
           <div className="flex flex-wrap items-center gap-3">
             <span>
               Showing <strong className="text-foreground">{filteredOrders.length > 0 ? startIndex + 1 : 0}</strong> to{" "}
@@ -816,7 +816,7 @@ export function OrdersTable({
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="h-7.5 w-16 text-xs bg-background">
+                <SelectTrigger className="h-7 w-15 text-xs bg-background">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -829,8 +829,8 @@ export function OrdersTable({
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="font-mono text-xs sm:text-sm hidden lg:block">
+          <div className="flex items-center gap-3">
+            <div className="font-mono text-xs hidden lg:block">
               Total Valuation (Gross):{" "}
               <strong className="text-primary font-bold">
                 ₦
@@ -841,13 +841,13 @@ export function OrdersTable({
             </div>
 
             {/* Pagination Controls */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={safePage <= 1}
-                className="h-8 px-2.5 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
+                className="h-7.5 px-2 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
                 title="Previous page"
               >
                 <ChevronLeft className="size-3.5" />

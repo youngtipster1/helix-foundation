@@ -52,89 +52,89 @@ export function FinancialDashboardView({
   return (
     <div className="space-y-6">
       {/* 4 Primary KPI Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* 1. Total Order Value */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Total Order Value
             </span>
-            <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <DollarSign className="size-4" />
+            <div className="size-7 rounded-md bg-primary/10 flex items-center justify-center text-primary">
+              <DollarSign className="size-3.5" />
             </div>
           </div>
-          <div className="text-2xl md:text-[28px] xl:text-3xl font-mono font-bold text-foreground">
+          <div className="text-xl md:text-2xl font-mono font-bold text-foreground">
             ₦{metrics.totalOrderValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </div>
-          <p className="text-xs xl:text-[13px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground leading-normal">
             Active approved & ongoing procurement valuation
           </p>
         </div>
 
         {/* 2. OTIF (On-Time, In-Full) */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               OTIF Rate
             </span>
-            <div className="size-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 className="size-4" />
+            <div className="size-7 rounded-md bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="size-3.5" />
             </div>
           </div>
-          <div className="text-2xl md:text-[28px] xl:text-3xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
+          <div className="text-xl md:text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
             {metrics.otifRate}%
           </div>
-          <p className="text-xs xl:text-[13px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground leading-normal">
             Orders fully fulfilled on or before target delivery date
           </p>
         </div>
 
         {/* 3. Order Cycle Time */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Order Cycle Time
             </span>
-            <div className="size-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-              <Clock className="size-4" />
+            <div className="size-7 rounded-md bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <Clock className="size-3.5" />
             </div>
           </div>
-          <div className="text-2xl md:text-[28px] xl:text-3xl font-mono font-bold text-foreground">
+          <div className="text-xl md:text-2xl font-mono font-bold text-foreground">
             {metrics.orderCycleTimeDays}{" "}
-            <span className="text-sm font-sans font-medium text-muted-foreground">days</span>
+            <span className="text-xs font-sans font-medium text-muted-foreground">days</span>
           </div>
-          <p className="text-xs xl:text-[13px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground leading-normal">
             Average duration from request creation to complete fulfillment
           </p>
         </div>
 
         {/* 4. Order Accuracy Rate */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Order Accuracy Rate
             </span>
-            <div className="size-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-              <Percent className="size-4" />
+            <div className="size-7 rounded-md bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <Percent className="size-3.5" />
             </div>
           </div>
-          <div className="text-2xl md:text-[28px] xl:text-3xl font-mono font-bold text-indigo-600 dark:text-indigo-400">
+          <div className="text-xl md:text-2xl font-mono font-bold text-indigo-600 dark:text-indigo-400">
             {metrics.orderAccuracyRate}%
           </div>
-          <p className="text-xs xl:text-[13px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground leading-normal">
             Accurate orders divided by total fulfilled orders
           </p>
         </div>
       </div>
 
       {/* Main Graph & Action Hub Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Trend Graph (2 Columns) */}
-        <div className="lg:col-span-2 rounded-xl border border-border bg-card p-5 shadow-2xs space-y-4">
+        <div className="lg:col-span-2 rounded-xl border border-border bg-card p-4 shadow-2xs space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg xl:text-xl font-semibold text-foreground">Procurement Performance Trends</h3>
-              <p className="text-xs xl:text-[13px] text-muted-foreground">
+              <h3 className="text-sm md:text-base font-bold text-foreground">Procurement Performance Trends</h3>
+              <p className="text-xs text-muted-foreground">
                 Historical monthly trends for OTIF, procurement cycle speed, and receipt accuracy.
               </p>
             </div>
@@ -145,7 +145,7 @@ export function FinancialDashboardView({
                 type="button"
                 onClick={() => setActiveTrend("otif")}
                 className={cn(
-                  "px-2.5 py-1 rounded text-[13px] md:text-sm font-medium transition-all cursor-pointer",
+                  "px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer",
                   activeTrend === "otif"
                     ? "bg-background text-foreground shadow-2xs font-bold"
                     : "text-muted-foreground hover:text-foreground",
@@ -157,7 +157,7 @@ export function FinancialDashboardView({
                 type="button"
                 onClick={() => setActiveTrend("cycleTime")}
                 className={cn(
-                  "px-2.5 py-1 rounded text-[13px] md:text-sm font-medium transition-all cursor-pointer",
+                  "px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer",
                   activeTrend === "cycleTime"
                     ? "bg-background text-foreground shadow-2xs font-bold"
                     : "text-muted-foreground hover:text-foreground",
@@ -169,7 +169,7 @@ export function FinancialDashboardView({
                 type="button"
                 onClick={() => setActiveTrend("accuracy")}
                 className={cn(
-                  "px-2.5 py-1 rounded text-[13px] md:text-sm font-medium transition-all cursor-pointer",
+                  "px-2.5 py-1 rounded text-xs font-medium transition-all cursor-pointer",
                   activeTrend === "accuracy"
                     ? "bg-background text-foreground shadow-2xs font-bold"
                     : "text-muted-foreground hover:text-foreground",
@@ -287,15 +287,15 @@ export function FinancialDashboardView({
         {/* Quick Lifecycle Distribution & Actions (1 Column) */}
         <div className="space-y-4">
           {/* Quick Action Card */}
-          <div className="rounded-xl border border-border bg-card p-5 shadow-2xs space-y-3">
-            <h3 className="text-lg xl:text-xl font-semibold text-foreground">Procurement Actions</h3>
-            <p className="text-xs xl:text-[13px] text-muted-foreground">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-2.5">
+            <h3 className="text-sm md:text-base font-bold text-foreground">Procurement Actions</h3>
+            <p className="text-xs text-muted-foreground">
               Initiate requisition orders with automatic pack calculations and multi-vendor splitting.
             </p>
             <div className="pt-1 flex flex-col gap-2">
               <Button
                 onClick={onCreateOrder}
-                className="w-full gap-2 text-[13px] md:text-sm font-medium cursor-pointer"
+                className="w-full gap-2 text-xs font-semibold cursor-pointer"
                 size="sm"
               >
                 <Plus className="size-3.5" />
@@ -304,7 +304,7 @@ export function FinancialDashboardView({
               <Link to="/app/financial/orders">
                 <Button
                   variant="outline"
-                  className="w-full gap-2 text-[13px] md:text-sm font-medium cursor-pointer"
+                  className="w-full gap-2 text-xs font-medium cursor-pointer"
                   size="sm"
                 >
                   <Layers className="size-3.5" />
@@ -315,9 +315,9 @@ export function FinancialDashboardView({
           </div>
 
           {/* Lifecycle Status Counts */}
-          <div className="rounded-xl border border-border bg-card p-5 shadow-2xs space-y-3 text-[13px] md:text-sm">
-            <h3 className="text-lg xl:text-xl font-semibold text-foreground">Pipeline Status Breakdown</h3>
-            <div className="space-y-2">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-2.5 text-xs">
+            <h3 className="text-sm md:text-base font-bold text-foreground">Pipeline Status Breakdown</h3>
+            <div className="space-y-1.5">
               <div className="flex justify-between items-center py-1 border-b border-border/60">
                 <span className="text-muted-foreground">Under Review (Submitted):</span>
                 <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
@@ -354,22 +354,22 @@ export function FinancialDashboardView({
       </div>
 
       {/* Pending Reviews & Recent Activity Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Orders Pending Admin Attention */}
-        <div className="rounded-xl border border-border bg-card p-5 shadow-2xs space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertCircle className="size-4 text-amber-500" />
-              <h3 className="text-lg xl:text-xl font-semibold text-foreground">Orders Pending Attention</h3>
+              <h3 className="text-sm md:text-base font-bold text-foreground">Orders Pending Attention</h3>
             </div>
-            <span className="text-xs xl:text-[13px] font-mono font-semibold text-muted-foreground">
+            <span className="text-xs font-mono font-semibold text-muted-foreground">
               {pendingOrders.length} pending
             </span>
           </div>
 
           <div className="space-y-2">
             {pendingOrders.length === 0 ? (
-              <p className="text-xs xl:text-[13px] text-muted-foreground py-6 text-center">
+              <p className="text-xs text-muted-foreground py-6 text-center">
                 All submitted orders have been reviewed.
               </p>
             ) : (
@@ -377,14 +377,14 @@ export function FinancialDashboardView({
                 <div
                   key={o.id}
                   onClick={() => onViewOrder?.(o)}
-                  className="p-3 rounded-lg border border-border/80 bg-muted/20 hover:bg-muted/50 transition-colors cursor-pointer flex items-center justify-between gap-3 text-[13px] md:text-sm"
+                  className="p-2.5 rounded-lg border border-border/80 bg-muted/20 hover:bg-muted/50 transition-colors cursor-pointer flex items-center justify-between gap-3 text-xs"
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-primary">{o.orderNumber}</span>
                       <OrderStatusBadge status={o.status} />
                     </div>
-                    <div className="text-muted-foreground text-xs xl:text-[13px]">
+                    <div className="text-muted-foreground text-[11px]">
                       By {o.requestedByName} • Category: {o.category}
                     </div>
                   </div>
@@ -392,7 +392,7 @@ export function FinancialDashboardView({
                     <div className="font-bold text-foreground">
                       ₦{o.grossTotal.toLocaleString("en-US", { minimumFractionDigits: 0 })}
                     </div>
-                    <div className="text-xs xl:text-[13px] text-muted-foreground">
+                    <div className="text-[11px] text-muted-foreground">
                       {new Date(o.dateRaised).toLocaleDateString()}
                     </div>
                   </div>
@@ -403,15 +403,15 @@ export function FinancialDashboardView({
         </div>
 
         {/* Recent Orders Overview */}
-        <div className="rounded-xl border border-border bg-card p-5 shadow-2xs space-y-3">
+        <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Receipt className="size-4 text-primary" />
-              <h3 className="text-lg xl:text-xl font-semibold text-foreground">Recent Procurement Activity</h3>
+              <h3 className="text-sm md:text-base font-bold text-foreground">Recent Procurement Activity</h3>
             </div>
             <Link
               to="/app/financial/orders"
-              className="text-xs xl:text-[13px] font-semibold text-primary hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
             >
               <span>View All</span>
               <ArrowRight className="size-3" />
@@ -423,14 +423,14 @@ export function FinancialDashboardView({
               <div
                 key={o.id}
                 onClick={() => onViewOrder?.(o)}
-                className="p-3 rounded-lg border border-border/80 bg-card hover:bg-muted/40 transition-colors cursor-pointer flex items-center justify-between gap-3 text-[13px] md:text-sm"
+                className="p-2.5 rounded-lg border border-border/80 bg-card hover:bg-muted/40 transition-colors cursor-pointer flex items-center justify-between gap-3 text-xs"
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-bold text-foreground">{o.orderNumber}</span>
                     <OrderStatusBadge status={o.status} />
                   </div>
-                  <div className="text-muted-foreground text-xs xl:text-[13px] truncate max-w-xs">
+                  <div className="text-muted-foreground text-[11px] truncate max-w-xs">
                     {o.items[0]?.description || "Order items"}
                   </div>
                 </div>
@@ -438,7 +438,7 @@ export function FinancialDashboardView({
                   <div className="font-bold text-foreground">
                     ₦{o.grossTotal.toLocaleString("en-US", { minimumFractionDigits: 0 })}
                   </div>
-                  <div className="text-xs xl:text-[13px] text-muted-foreground">
+                  <div className="text-[11px] text-muted-foreground">
                     {new Date(o.dateRaised).toLocaleDateString()}
                   </div>
                 </div>

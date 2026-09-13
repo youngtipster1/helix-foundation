@@ -160,10 +160,10 @@ export function PurchaseOrdersTable({
       {/* Main Table */}
       <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px] md:text-sm border-collapse whitespace-nowrap">
+          <table className="w-full text-left text-xs border-collapse whitespace-nowrap">
             <thead>
-              <tr className="border-b border-border bg-muted/60 font-semibold text-muted-foreground text-xs md:text-[13px] uppercase tracking-wider select-none">
-                <th className="py-3.5 px-4">
+              <tr className="border-b border-border bg-muted/60 font-semibold text-muted-foreground text-[11px] uppercase tracking-wider select-none">
+                <th className="py-2 px-3">
                   <ColumnFilter
                     label="PO Number"
                     values={uniqueFilterValues.poNumber}
@@ -171,7 +171,7 @@ export function PurchaseOrdersTable({
                     onChange={(val) => handleColumnFilterChange("poNumber", val)}
                   />
                 </th>
-                <th className="py-3.5 px-4">
+                <th className="py-2 px-3">
                   <ColumnFilter
                     label="Source Order"
                     values={uniqueFilterValues.sourceOrderNumber}
@@ -179,7 +179,7 @@ export function PurchaseOrdersTable({
                     onChange={(val) => handleColumnFilterChange("sourceOrderNumber", val)}
                   />
                 </th>
-                <th className="py-3.5 px-4">
+                <th className="py-2 px-3">
                   <ColumnFilter
                     label="Supplier / Vendor"
                     values={uniqueFilterValues.supplierName}
@@ -189,15 +189,15 @@ export function PurchaseOrdersTable({
                 </th>
 
                 {/* Actions column positioned in the middle */}
-                <th className="py-3.5 px-4 text-center w-28 text-foreground font-bold">
+                <th className="py-2 px-3 text-center w-28 text-foreground font-bold">
                   Actions
                 </th>
 
-                <th className="py-3.5 px-4 text-center">Items</th>
-                <th className="py-3.5 px-4">Target Date</th>
-                <th className="py-3.5 px-4 text-right">Gross Valuation (₦)</th>
-                <th className="py-3.5 px-4 text-center min-w-[130px]">Fulfillment</th>
-                <th className="py-3.5 px-4 text-center">
+                <th className="py-2 px-3 text-center">Items</th>
+                <th className="py-2 px-3">Target Date</th>
+                <th className="py-2 px-3 text-right">Gross Valuation (₦)</th>
+                <th className="py-2 px-3 text-center min-w-[130px]">Fulfillment</th>
+                <th className="py-2 px-3 text-center">
                   <ColumnFilter
                     label="Status"
                     values={uniqueFilterValues.status}
@@ -207,13 +207,13 @@ export function PurchaseOrdersTable({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/60 text-[13px] md:text-sm">
+            <tbody className="divide-y divide-border/60 text-xs">
               {filteredPOs.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-14 text-center text-muted-foreground">
+                  <td colSpan={9} className="py-12 text-center text-muted-foreground">
                     <div className="max-w-xs mx-auto space-y-2">
-                      <p className="font-semibold text-foreground text-sm">No Purchase Orders Found</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-semibold text-foreground text-xs">No Purchase Orders Found</p>
+                      <p className="text-[11px] text-muted-foreground">
                         Purchase orders will appear here once approved requests undergo final authorization.
                       </p>
                     </div>
@@ -232,23 +232,23 @@ export function PurchaseOrdersTable({
                       className="hover:bg-muted/40 transition-colors cursor-pointer group"
                     >
                       {/* PO Number */}
-                      <td className="py-3.5 px-4 font-mono font-bold text-primary text-sm group-hover:underline">
+                      <td className="py-2 px-3 font-mono font-bold text-primary text-xs group-hover:underline">
                         {po.poNumber}
                       </td>
 
                       {/* Source Order */}
-                      <td className="py-3.5 px-4 font-mono font-semibold text-muted-foreground text-sm">
+                      <td className="py-2 px-3 font-mono font-semibold text-muted-foreground text-xs">
                         {po.sourceOrderNumber}
                       </td>
 
                       {/* Supplier */}
-                      <td className="py-3.5 px-4">
-                        <div className="font-semibold text-foreground text-sm">{po.supplierName}</div>
-                        <div className="text-xs text-muted-foreground">{po.supplierEmail || "No Email"}</div>
+                      <td className="py-2 px-3">
+                        <div className="font-semibold text-foreground text-xs">{po.supplierName}</div>
+                        <div className="text-[11px] text-muted-foreground">{po.supplierEmail || "No Email"}</div>
                       </td>
 
                       {/* Unified Row Actions Dropdown in Middle */}
-                      <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
                         <RowActionsMenu
                           label="Actions"
                           align="start"
@@ -271,24 +271,24 @@ export function PurchaseOrdersTable({
                       </td>
 
                       {/* Items */}
-                      <td className="py-3.5 px-4 text-center font-mono font-bold text-sm">
+                      <td className="py-2 px-3 text-center font-mono font-bold text-xs">
                         {po.items.length}
                       </td>
 
                       {/* Target Date */}
-                      <td className="py-3.5 px-4 font-mono text-muted-foreground text-sm">
+                      <td className="py-2 px-3 font-mono text-muted-foreground text-xs">
                         {po.targetDeliveryDate}
                       </td>
 
                       {/* Gross Valuation */}
-                      <td className="py-3.5 px-4 text-right font-mono font-bold text-foreground text-sm">
+                      <td className="py-2 px-3 text-right font-mono font-bold text-foreground text-xs">
                         ₦{po.grossTotal.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </td>
 
                       {/* Fulfillment Progress */}
-                      <td className="py-3.5 px-4 text-center min-w-[130px]">
+                      <td className="py-2 px-3 text-center min-w-[130px]">
                         <div className="space-y-1">
-                          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                             <div
                               className={cn(
                                 "h-full transition-all duration-300",
@@ -297,14 +297,14 @@ export function PurchaseOrdersTable({
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <span className="text-xs font-mono text-muted-foreground block">
+                          <span className="text-[11px] font-mono text-muted-foreground block">
                             {totalFulfilled} / {totalOrdered} ({pct}%)
                           </span>
                         </div>
                       </td>
 
                       {/* Status */}
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-2 px-3 text-center">
                         <OrderStatusBadge status={po.status} />
                       </td>
                     </tr>
@@ -316,7 +316,7 @@ export function PurchaseOrdersTable({
         </div>
 
         {/* Table Pagination & Valuation Footer */}
-        <div className="px-4 py-3 bg-muted/20 border-t border-border flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+        <div className="px-3.5 py-2.5 bg-muted/20 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
           <div className="flex flex-wrap items-center gap-3">
             <span>
               Showing <strong className="text-foreground">{filteredPOs.length > 0 ? startIndex + 1 : 0}</strong> to{" "}
@@ -333,7 +333,7 @@ export function PurchaseOrdersTable({
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="h-7.5 w-16 text-xs bg-background">
+                <SelectTrigger className="h-7 w-15 text-xs bg-background">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -346,8 +346,8 @@ export function PurchaseOrdersTable({
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="font-mono text-xs sm:text-sm hidden lg:block">
+          <div className="flex items-center gap-3">
+            <div className="font-mono text-xs hidden lg:block">
               Total PO Valuation:{" "}
               <strong className="text-foreground font-bold">
                 ₦
@@ -358,13 +358,13 @@ export function PurchaseOrdersTable({
             </div>
 
             {/* Pagination Controls */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={safePage <= 1}
-                className="h-8 px-2.5 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
+                className="h-7.5 px-2 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
                 title="Previous page"
               >
                 <ChevronLeft className="size-3.5" />
@@ -381,7 +381,7 @@ export function PurchaseOrdersTable({
                 size="sm"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={safePage >= totalPages}
-                className="h-8 px-2.5 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
+                className="h-7.5 px-2 text-xs gap-1 cursor-pointer disabled:cursor-not-allowed"
                 title="Next page"
               >
                 <span>Next</span>

@@ -112,10 +112,10 @@ function FinancialOrdersPage() {
       {/* Page Title Lockup */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
         <div>
-          <h2 className="text-[22px] md:text-2xl xl:text-[26px] font-bold tracking-tight text-foreground">
+          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
             Purchase Orders Directory
           </h2>
-          <p className="text-xs xl:text-[13px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Manage purchase requisitions, approval revisions, vendor split allocations, and fulfillment states.
           </p>
         </div>
