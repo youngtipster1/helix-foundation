@@ -188,11 +188,6 @@ export function PurchaseOrdersTable({
                   />
                 </th>
 
-                {/* Actions column positioned in the middle */}
-                <th className="py-2 px-3 text-center w-28 text-foreground font-bold">
-                  Actions
-                </th>
-
                 <th className="py-2 px-3 text-center">Items</th>
                 <th className="py-2 px-3">Target Date</th>
                 <th className="py-2 px-3 text-right">Gross Valuation (₦)</th>
@@ -204,6 +199,9 @@ export function PurchaseOrdersTable({
                     selected={columnFilters.status}
                     onChange={(val) => handleColumnFilterChange("status", val)}
                   />
+                </th>
+                <th className="py-2 px-3 text-right sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -247,29 +245,6 @@ export function PurchaseOrdersTable({
                         <div className="text-[11px] text-muted-foreground">{po.supplierEmail || "No Email"}</div>
                       </td>
 
-                      {/* Unified Row Actions Dropdown in Middle */}
-                      <td className="py-2 px-3 text-center" onClick={(e) => e.stopPropagation()}>
-                        <RowActionsMenu
-                          label="Actions"
-                          align="start"
-                          actions={[
-                            {
-                              label: "View PO Details",
-                              icon: Eye,
-                              onClick: () => onViewPO?.(po),
-                            },
-                            isAdmin && po.status !== "COMPLETED"
-                              ? {
-                                  label: "Record Delivery",
-                                  icon: PackageCheck,
-                                  variant: "success",
-                                  onClick: () => onRecordDelivery?.(po),
-                                }
-                              : null,
-                          ]}
-                        />
-                      </td>
-
                       {/* Items */}
                       <td className="py-2 px-3 text-center font-mono font-bold text-xs">
                         {po.items.length}
@@ -306,6 +281,34 @@ export function PurchaseOrdersTable({
                       {/* Status */}
                       <td className="py-2 px-3 text-center">
                         <OrderStatusBadge status={po.status} />
+                      </td>
+
+                      {/* Unified Row Actions Dropdown Sticky on Right */}
+                      <td
+                        className="py-2 px-3 text-right whitespace-nowrap sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs z-10"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex items-center justify-end">
+                          <RowActionsMenu
+                            label="Actions"
+                            align="end"
+                            actions={[
+                              {
+                                label: "View PO Details",
+                                icon: Eye,
+                                onClick: () => onViewPO?.(po),
+                              },
+                              isAdmin && po.status !== "COMPLETED"
+                                ? {
+                                    label: "Record Delivery",
+                                    icon: PackageCheck,
+                                    variant: "success",
+                                    onClick: () => onRecordDelivery?.(po),
+                                  }
+                                : null,
+                            ]}
+                          />
+                        </div>
                       </td>
                     </tr>
                   );

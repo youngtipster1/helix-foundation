@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { Part } from "../types";
 import { cn } from "@/lib/utils";
 
@@ -392,10 +393,6 @@ export function PartsTable({
               <th className="px-3.5 py-3">OEM / Vendor Part #</th>
               <th className="px-3.5 py-3">Supplier</th>
               <th className="px-3.5 py-3">Category</th>
-              {/* Action Column is positioned at column 6 as per project design standard */}
-              <th className="px-3 py-3 text-center w-28 bg-muted/60 text-primary font-bold">
-                Action
-              </th>
               <th className="px-3 py-3">Age</th>
               <th className="px-3.5 py-3">OEM</th>
               <th className="px-3 py-3">Modality</th>
@@ -407,6 +404,9 @@ export function PartsTable({
               <th className="px-3.5 py-3">Location</th>
               <th className="px-2.5 py-3 text-center">Col</th>
               <th className="px-2.5 py-3 text-center">Row</th>
+              <th className="px-3.5 py-3 text-right sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60">
@@ -450,44 +450,6 @@ export function PartsTable({
 
                     <td className="px-3.5 py-2.5 text-foreground whitespace-nowrap">
                       {part.category}
-                    </td>
-
-                    {/* Column 6: Action Button */}
-                    <td className="px-3 py-2.5 text-center whitespace-nowrap bg-muted/10 group-hover:bg-muted/30">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {onViewPart && (
-                          <button
-                            type="button"
-                            onClick={() => onViewPart(part)}
-                            className="p-1 rounded text-muted-foreground hover:text-foreground cursor-pointer"
-                            title="View part specs"
-                          >
-                            <Eye className="size-3.5" />
-                          </button>
-                        )}
-
-                        {isAdmin && onEditPart && (
-                          <button
-                            type="button"
-                            onClick={() => onEditPart(part)}
-                            className="p-1 rounded text-primary hover:text-primary/80 cursor-pointer"
-                            title="Edit part"
-                          >
-                            <Edit2 className="size-3.5" />
-                          </button>
-                        )}
-
-                        {isAdmin && onArchivePart && (
-                          <button
-                            type="button"
-                            onClick={() => onArchivePart(part)}
-                            className="p-1 rounded text-muted-foreground hover:text-destructive cursor-pointer"
-                            title="Archive part"
-                          >
-                            <Archive className="size-3.5" />
-                          </button>
-                        )}
-                      </div>
                     </td>
 
                     <td className="px-3 py-2.5 font-mono text-muted-foreground whitespace-nowrap">
@@ -536,6 +498,43 @@ export function PartsTable({
 
                     <td className="px-2.5 py-2.5 text-center font-mono text-muted-foreground">
                       {part.row}
+                    </td>
+
+                    {/* Actions Sticky Dropdown */}
+                    <td
+                      className="px-3.5 py-2.5 text-right whitespace-nowrap sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs z-10"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-end">
+                        <RowActionsMenu
+                          label="Actions"
+                          align="end"
+                          actions={[
+                            onViewPart
+                              ? {
+                                  label: "View Part Specs",
+                                  icon: Eye,
+                                  onClick: () => onViewPart(part),
+                                }
+                              : null,
+                            isAdmin && onEditPart
+                              ? {
+                                  label: "Edit Part",
+                                  icon: Edit2,
+                                  onClick: () => onEditPart(part),
+                                }
+                              : null,
+                            isAdmin && onArchivePart
+                              ? {
+                                  label: "Archive Part",
+                                  icon: Archive,
+                                  variant: "destructive",
+                                  onClick: () => onArchivePart(part),
+                                }
+                              : null,
+                          ]}
+                        />
+                      </div>
                     </td>
                   </tr>
                 );

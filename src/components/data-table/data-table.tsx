@@ -61,27 +61,11 @@ export function DataTable<T extends { id: string }>({
   const [filters, setFilters] = useState<ColumnFilterState>({});
   const [page, setPage] = useState(1);
 
-  // Column reordering state - default positions Actions column at 6th column for larger tables (>= 5 columns),
-  // or second-to-last for smaller tables.
+  // Column reordering state - default positions Actions column at the far right
   const defaultKeys = useMemo(() => {
     const colKeys = columns.map((c) => c.key);
     if (rowActions) {
-      if (colKeys.length >= 5) {
-        return [
-          ...colKeys.slice(0, 5),
-          ACTIONS_COLUMN_KEY,
-          ...colKeys.slice(5),
-        ];
-      } else if (colKeys.length > 1) {
-        return [
-          ...colKeys.slice(0, colKeys.length - 1),
-          ACTIONS_COLUMN_KEY,
-          colKeys[colKeys.length - 1],
-        ];
-      } else if (colKeys.length === 1) {
-        return [colKeys[0], ACTIONS_COLUMN_KEY];
-      }
-      return [ACTIONS_COLUMN_KEY];
+      return [...colKeys, ACTIONS_COLUMN_KEY];
     }
     return colKeys;
   }, [columns, rowActions]);
@@ -128,13 +112,7 @@ export function DataTable<T extends { id: string }>({
     }
 
     if (rowActions && !result.some((r) => r.type === "actions")) {
-      if (result.length >= 5) {
-        result.splice(5, 0, { type: "actions", key: ACTIONS_COLUMN_KEY });
-      } else if (result.length > 1) {
-        result.splice(result.length - 1, 0, { type: "actions", key: ACTIONS_COLUMN_KEY });
-      } else {
-        result.push({ type: "actions", key: ACTIONS_COLUMN_KEY });
-      }
+      result.push({ type: "actions", key: ACTIONS_COLUMN_KEY });
     }
 
     return result;
@@ -355,7 +333,7 @@ export function DataTable<T extends { id: string }>({
                       <th
                         key={ACTIONS_COLUMN_KEY}
                         scope="col"
-                        className="px-3 py-2.5 text-center text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap"
+                        className="px-4 py-2.5 text-right text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10"
                       >
                         Actions
                       </th>
@@ -382,8 +360,14 @@ export function DataTable<T extends { id: string }>({
                   {orderedRenderColumns.map((item) => {
                     if (item.type === "actions") {
                       return (
-                        <td key={ACTIONS_COLUMN_KEY} className="px-3 py-3 text-center whitespace-nowrap">
-                          {rowActions?.(row)}
+                        <td
+                          key={ACTIONS_COLUMN_KEY}
+                          className="px-4 py-3 text-right whitespace-nowrap sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs z-10"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-end">
+                            {rowActions?.(row)}
+                          </div>
                         </td>
                       );
                     }
@@ -495,14 +479,14 @@ export function DataTable<T extends { id: string }>({
                           onDragEnd={handleDragEnd}
                           title={canReorder ? "Drag Actions column to reorder" : undefined}
                           className={cn(
-                            "group/th relative px-3 py-2.5 text-center text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap transition-colors",
+                            "group/th relative px-4 py-2.5 text-right text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap transition-colors sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10",
                             canReorder && "cursor-grab active:cursor-grabbing",
                             isBeingDragged && "opacity-40 bg-accent/30",
                             isDropLeft && "border-l-2 border-primary bg-primary/5",
                             isDropRight && "border-r-2 border-primary bg-primary/5",
                           )}
                         >
-                          <div className="flex items-center justify-center gap-1.5">
+                          <div className="flex items-center justify-end gap-1.5">
                             {canReorder && (
                               <GripVertical className="size-3 text-muted-foreground/30 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
                             )}
@@ -576,8 +560,14 @@ export function DataTable<T extends { id: string }>({
                     {orderedRenderColumns.map((item) => {
                       if (item.type === "actions") {
                         return (
-                          <td key={ACTIONS_COLUMN_KEY} className="px-3 py-3 text-center whitespace-nowrap">
-                            {rowActions?.(row)}
+                          <td
+                            key={ACTIONS_COLUMN_KEY}
+                            className="px-4 py-3 text-right whitespace-nowrap sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs z-10"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="flex items-center justify-end">
+                              {rowActions?.(row)}
+                            </div>
                           </td>
                         );
                       }

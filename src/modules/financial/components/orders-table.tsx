@@ -508,11 +508,6 @@ export function OrdersTable({
                   />
                 </th>
 
-                {/* Unified Action Button positioned in the middle of the table */}
-                <th className="py-2 px-2.5 text-center w-28 text-foreground font-bold">
-                  Actions
-                </th>
-
                 <th className="py-2 px-2.5 max-w-[180px]">Note</th>
                 <th className="py-2 px-2.5 text-center">Quantity</th>
                 <th className="py-2 px-2.5 text-center">Order age</th>
@@ -560,6 +555,9 @@ export function OrdersTable({
                   />
                 </th>
                 <th className="py-2 px-2.5 text-center">Delivery</th>
+                <th className="py-2 px-2.5 text-right sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60 font-sans text-xs">
@@ -665,69 +663,7 @@ export function OrdersTable({
                         {new Date(order.dateRaised).toISOString().split("T")[0]}
                       </td>
 
-                      {/* 5. Unified Row Actions Dropdown in Center */}
-                      <td
-                        className="py-2 px-2.5 text-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <RowActionsMenu
-                          label="Actions"
-                          align="start"
-                          actions={[
-                            {
-                              label: "View Details",
-                              icon: Eye,
-                              onClick: () => onViewOrder?.(order),
-                            },
-                            {
-                              label: "Edit Order",
-                              icon: Edit2,
-                              disabled: !canEditRow,
-                              onClick: () => onEditOrder?.(order),
-                            },
-                            isAdmin && order.status === "SUBMITTED"
-                              ? {
-                                  label: "Review & Approve",
-                                  icon: CheckCircle2,
-                                  variant: "success",
-                                  onClick: () => onApproveOrder?.(order),
-                                }
-                              : null,
-                            isAdmin && order.status === "SUBMITTED"
-                              ? {
-                                  label: "Send Back for Revision",
-                                  icon: RotateCcw,
-                                  variant: "warning",
-                                  onClick: () => onSendBackOrder?.(order),
-                                }
-                              : null,
-                            isAdmin && order.requisition?.status === "PENDING_FINAL_APPROVAL"
-                              ? {
-                                  label: "Final PO Authorization",
-                                  icon: ShieldCheck,
-                                  variant: "success",
-                                  onClick: () => onFinalApproveOrder?.(order),
-                                }
-                              : null,
-                            isAdmin
-                              ? {
-                                  label: order.isArchived ? "Unarchive Order" : "Archive Order",
-                                  icon: Archive,
-                                  variant: order.isArchived ? "default" : "destructive",
-                                  onClick: () => {
-                                    if (order.isArchived) {
-                                      onUnarchiveOrder?.(order);
-                                    } else {
-                                      onArchiveOrder?.(order);
-                                    }
-                                  },
-                                }
-                              : null,
-                          ]}
-                        />
-                      </td>
-
-                      {/* 6. Note */}
+                      {/* 5. Note */}
                       <td
                         className="py-2 px-2.5 max-w-[180px] truncate text-muted-foreground text-xs"
                         title={order.notes}
@@ -794,6 +730,70 @@ export function OrdersTable({
 
                       {/* 17. Delivery */}
                       <td className="py-2 px-2.5 text-center">{deliveryBadge}</td>
+
+                      {/* 18. Unified Row Actions Dropdown Sticky on Right */}
+                      <td
+                        className="py-2 px-2.5 text-right whitespace-nowrap sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs z-10"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex items-center justify-end">
+                          <RowActionsMenu
+                            label="Actions"
+                            align="end"
+                            actions={[
+                              {
+                                label: "View Details",
+                                icon: Eye,
+                                onClick: () => onViewOrder?.(order),
+                              },
+                              {
+                                label: "Edit Order",
+                                icon: Edit2,
+                                disabled: !canEditRow,
+                                onClick: () => onEditOrder?.(order),
+                              },
+                              isAdmin && order.status === "SUBMITTED"
+                                ? {
+                                    label: "Review & Approve",
+                                    icon: CheckCircle2,
+                                    variant: "success",
+                                    onClick: () => onApproveOrder?.(order),
+                                  }
+                                : null,
+                              isAdmin && order.status === "SUBMITTED"
+                                ? {
+                                    label: "Send Back for Revision",
+                                    icon: RotateCcw,
+                                    variant: "warning",
+                                    onClick: () => onSendBackOrder?.(order),
+                                  }
+                                : null,
+                              isAdmin && order.requisition?.status === "PENDING_FINAL_APPROVAL"
+                                ? {
+                                    label: "Final PO Authorization",
+                                    icon: ShieldCheck,
+                                    variant: "success",
+                                    onClick: () => onFinalApproveOrder?.(order),
+                                  }
+                                : null,
+                              isAdmin
+                                ? {
+                                    label: order.isArchived ? "Unarchive Order" : "Archive Order",
+                                    icon: Archive,
+                                    variant: order.isArchived ? "default" : "destructive",
+                                    onClick: () => {
+                                      if (order.isArchived) {
+                                        onUnarchiveOrder?.(order);
+                                      } else {
+                                        onArchiveOrder?.(order);
+                                      }
+                                    },
+                                  }
+                                : null,
+                            ]}
+                          />
+                        </div>
+                      </td>
                     </tr>
                   );
                 })

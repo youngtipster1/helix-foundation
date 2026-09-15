@@ -14,11 +14,13 @@ import {
   X,
   History,
   ShieldAlert,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { AuditItem, AuditRun } from "../types";
 import { partsService } from "../services/parts-service";
 import { cn } from "@/lib/utils";
@@ -418,6 +420,9 @@ export function PartsAuditTable({
                   <th className="px-3.5 py-3 text-right bg-blue-500/5 text-foreground font-bold">
                     Shrinkage Value
                   </th>
+                  <th className="px-3.5 py-3 text-right sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -545,6 +550,34 @@ export function PartsAuditTable({
                         ) : (
                           <span className="text-muted-foreground/50">—</span>
                         )}
+                      </td>
+
+                      {/* Actions Sticky Dropdown */}
+                      <td
+                        className="px-3.5 py-2 text-right whitespace-nowrap sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs z-10"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex items-center justify-end">
+                          <RowActionsMenu
+                            label="Actions"
+                            align="end"
+                            actions={[
+                              {
+                                label: "Auto-Match (Zero Shrinkage)",
+                                icon: CheckCircle2,
+                                disabled: !isAdmin,
+                                onClick: () => handleAuditedQuantityChange(item.id, String(item.quantityInStock)),
+                              },
+                              {
+                                label: "Reset Audit Count",
+                                icon: RotateCcw,
+                                disabled: !isAdmin,
+                                variant: "warning",
+                                onClick: () => handleAuditedQuantityChange(item.id, ""),
+                              },
+                            ]}
+                          />
+                        </div>
                       </td>
                     </tr>
                   );

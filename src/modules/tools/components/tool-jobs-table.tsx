@@ -140,10 +140,10 @@ export function ToolJobsTable({ jobs, onJobUpdated }: ToolJobsTableProps) {
               <th className="px-4 py-3">Job Status</th>
               <th className="px-4 py-3">Open Date</th>
               <th className="px-4 py-3">Age</th>
-              <th className="px-4 py-3 text-center">Action</th>
               <th className="px-4 py-3">Assigned To</th>
               <th className="px-4 py-3">Tool Status</th>
               <th className="px-4 py-3">Close Date</th>
+              <th className="px-4 py-3 text-right sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -175,16 +175,6 @@ export function ToolJobsTable({ jobs, onJobUpdated }: ToolJobsTableProps) {
                   <td className="px-4 py-3 font-mono text-muted-foreground">
                     {age}
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedJobNumber(job.jobNumber)}
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium cursor-pointer"
-                    >
-                      <span>View</span>
-                      <ArrowUpRight className="size-3" />
-                    </button>
-                  </td>
                   <td className="px-4 py-3 font-medium text-foreground">
                     {job.assignedToName}
                   </td>
@@ -193,6 +183,19 @@ export function ToolJobsTable({ jobs, onJobUpdated }: ToolJobsTableProps) {
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {job.closeDate || "—"}
+                  </td>
+                  <td
+                    className="px-4 py-3 text-right whitespace-nowrap sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs z-10"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedJobNumber(job.jobNumber)}
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium cursor-pointer"
+                    >
+                      <span>View</span>
+                      <ArrowUpRight className="size-3" />
+                    </button>
                   </td>
                 </tr>
               );
