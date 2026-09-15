@@ -183,9 +183,9 @@ export interface ContractDashboardMetrics {
   totalAmountPaid: number;
   totalAmountOutstanding: number; // Relabeled as Outstanding Payable
   amountPayableNextMonth: number;
-  equipmentContractPercentage: { name: string; value: number; color: string }[];
-  contractTypeDistribution: { name: string; value: number; color: string }[];
-  contractsByLocation: { location: string; count: number }[];
-  contractsByModality: { modality: string; count: number }[];
-  contractsByOem: { oem: string; count: number }[];
+  equipmentContractPercentage: { name: string; value: number; color: string; percentage?: number }[];
+  contractTypeDistribution: { name: string; value: number; color: string; percentage?: number }[];
+  contractsByLocation: { location: string; count: number; color?: string }[];
+  contractsByModality: { modality: string; count: number; color?: string }[];
+  contractsByOem: { oem: string; count: number; color?: string }[];
 }
