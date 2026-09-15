@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { ContractsTable } from "@/modules/assets/components/contracts-table";
-import { ContractModal } from "@/modules/assets/components/contract-modal";
-import { CreateContractModal } from "@/modules/assets/components/create-contract-modal";
 import { ContractDetailWorkspace } from "@/modules/assets/components/contract-detail-workspace";
 import { ServiceContract } from "@/modules/assets/types";
 import { useAuth } from "@/features/auth/auth-context";
@@ -31,13 +29,8 @@ function ContractsListPage() {
   const [contracts, setContracts] = useState<ServiceContract[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Full screen detail workspace
+  // Screen for Create / Edit / View Contract (Slides 20, 22, 24)
   const [workspaceContract, setWorkspaceContract] = useState<ServiceContract | null>(null);
-
-  // Modals
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedContract, setSelectedContract] = useState<ServiceContract | null>(null);
 
   const loadData = () => {
     const data = assetService.getContracts(true);
@@ -68,33 +61,46 @@ function ContractsListPage() {
   };
 
   const handleEditContract = (contract: ServiceContract) => {
-    setSelectedContract(contract);
-    setIsEditModalOpen(true);
+    setWorkspaceContract(contract);
   };
 
   const handleAddContract = () => {
-    setIsCreateModalOpen(true);
+    const newTemplateContract: ServiceContract = {
+      id: `cnt_${Date.now()}`,
+      contractNumber: `CNT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      contractType: "PM + LABOUR",
+      contractStatus: "In Contract",
+      contractValue: 0,
+      contractStartDate: new Date().toISOString().split("T")[0],
+      contractEndDate: new Date(Date.now() + 365 * 86400000).toISOString().split("T")[0],
+      poNumber: "",
+      contractOrderNumber: "",
+      contractInvoiceNumber: "",
+      totalAmountPaid: 0,
+      totalAmountOutstanding: 0,
+      paymentTermMonths: 3,
+      paymentStartDate: new Date().toISOString().split("T")[0],
+      paymentEndDate: new Date(Date.now() + 365 * 86400000).toISOString().split("T")[0],
+      nextPaymentDate: new Date().toISOString().split("T")[0],
+      payments: [],
+      linkedEquipmentIds: [],
+      notes: "",
+      isArchived: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setWorkspaceContract(newTemplateContract);
   };
 
-  const handleSaveNewContract = (
-    contractData: Partial<ServiceContract>,
-    openWorkspace = false
-  ) => {
-    const newContract = assetService.createContract(contractData as any);
-    setIsCreateModalOpen(false);
-    if (openWorkspace && newContract) {
-      setWorkspaceContract(newContract);
+  const handleSaveWorkspaceContract = (updated: ServiceContract) => {
+    const exists = contracts.some((c) => c.id === updated.id);
+    if (exists) {
+      assetService.updateContract(updated.id, updated);
+    } else {
+      assetService.createContract(updated as any);
     }
-  };
-
-  const handleSaveEditedContract = (contractData: Partial<ServiceContract>) => {
-    if (selectedContract) {
-      const updated = assetService.updateContract(selectedContract.id, contractData);
-      setIsEditModalOpen(false);
-      if (workspaceContract && workspaceContract.id === selectedContract.id) {
-        setWorkspaceContract(updated);
-      }
-    }
+    setWorkspaceContract(null);
+    loadData();
   };
 
   const handleArchiveContract = (contract: ServiceContract) => {
@@ -117,17 +123,14 @@ function ContractsListPage() {
     );
   }
 
-  // If viewing a contract workspace, render full-screen workspace
+  // If viewing or creating a contract, render Slide 20/22/24 3-tab layout
   if (workspaceContract) {
     return (
       <div className="space-y-4">
         <ContractDetailWorkspace
           contract={workspaceContract}
           onBack={() => setWorkspaceContract(null)}
-          onUpdateContract={(updated) => {
-            assetService.updateContract(updated.id, updated);
-            setWorkspaceContract(updated);
-          }}
+          onUpdateContract={handleSaveWorkspaceContract}
           isAdmin={isAdmin}
         />
       </div>
@@ -156,22 +159,6 @@ function ContractsListPage() {
         onAddContract={handleAddContract}
         onArchiveContract={handleArchiveContract}
         onUnarchiveContract={handleUnarchiveContract}
-      />
-
-      {/* Create Contract Modal */}
-      <CreateContractModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSave={handleSaveNewContract}
-      />
-
-      {/* Quick Edit Contract Modal */}
-      <ContractModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        contract={selectedContract}
-        mode="edit"
-        onSave={handleSaveEditedContract}
       />
     </div>
   );
