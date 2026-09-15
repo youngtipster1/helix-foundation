@@ -88,6 +88,8 @@ export interface Asset {
   modality: string;
   model: string;
   assetType?: string;
+  orderNumber?: string;
+  poNumber?: string;
 
   // 2. Status & Lifecycle
   equipmentStatus: EquipmentStatus;

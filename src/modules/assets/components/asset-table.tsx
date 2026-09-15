@@ -280,22 +280,38 @@ export const AssetTable: React.FC<AssetTableProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-border bg-muted/40 text-muted-foreground font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-2.5 px-3">Equipment #</th>
-                <th className="py-2.5 px-3">OEM & Model</th>
+              <tr className="border-b border-border bg-muted/40 text-muted-foreground font-semibold uppercase tracking-wider text-[10px] whitespace-nowrap">
+                <th className="py-2.5 px-3">SN</th>
+                <th className="py-2.5 px-3">Equipment Number</th>
+                <th className="py-2.5 px-3">Serial Number</th>
+                <th className="py-2.5 px-3">OEM</th>
                 <th className="py-2.5 px-3">Modality</th>
-                <th className="py-2.5 px-3">Serial #</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3">Warranty</th>
-                <th className="py-2.5 px-3">Contract</th>
-                <th className="py-2.5 px-3">Supplier & Location</th>
+                <th className="py-2.5 px-3">Model</th>
+                <th className="py-2.5 px-3">Equipment Status</th>
+                <th className="py-2.5 px-3">Order Number</th>
+                <th className="py-2.5 px-3">PO Number</th>
+                <th className="py-2.5 px-3">Installation Date</th>
+                <th className="py-2.5 px-3">Warranty Status</th>
+                <th className="py-2.5 px-3">Warranty Start Date</th>
+                <th className="py-2.5 px-3">Warranty End Date</th>
+                <th className="py-2.5 px-3">Contract Status</th>
+                <th className="py-2.5 px-3">Contract Number</th>
+                <th className="py-2.5 px-3">Contract Start Date</th>
+                <th className="py-2.5 px-3">Contract End Date</th>
+                <th className="py-2.5 px-3">Contract Order Number</th>
+                <th className="py-2.5 px-3">Contract PO Number</th>
+                <th className="py-2.5 px-3">Next PPM Date</th>
+                <th className="py-2.5 px-3">PPM Schedule</th>
+                <th className="py-2.5 px-3">Customer</th>
+                <th className="py-2.5 px-3">Location</th>
+                <th className="py-2.5 px-3">Region</th>
                 <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60 font-medium text-foreground">
               {filteredAssets.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-10 text-center text-muted-foreground">
+                  <td colSpan={25} className="py-10 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-1.5">
                       <AlertCircle className="size-5 text-muted-foreground/60" />
                       <p className="text-xs font-medium">No assets matching your filters</p>
@@ -306,80 +322,143 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   </td>
                 </tr>
               ) : (
-                filteredAssets.map((asset) => (
+                filteredAssets.map((asset, idx) => (
                   <tr
                     key={asset.id}
                     className="hover:bg-muted/30 transition-colors group cursor-pointer"
                     onClick={() => onViewAsset(asset)}
                   >
-                    {/* Equipment # */}
-                    <td className="py-2.5 px-3 whitespace-nowrap">
-                      <span className="font-mono font-bold text-foreground group-hover:text-primary transition-colors">
-                        {asset.equipmentNumber}
-                      </span>
-                      {asset.assetType && (
-                        <div className="text-[10px] text-muted-foreground font-normal">
-                          {asset.assetType}
-                        </div>
-                      )}
+                    {/* 1. SN */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {idx + 1}
                     </td>
 
-                    {/* OEM & Model */}
-                    <td className="py-2.5 px-3 whitespace-nowrap">
-                      <div className="font-semibold text-foreground">
-                        {asset.oem}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground font-normal truncate max-w-[170px]">
-                        {asset.model}
-                      </div>
+                    {/* 2. Equipment Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono font-bold text-foreground group-hover:text-primary transition-colors">
+                      {asset.equipmentNumber}
                     </td>
 
-                    {/* Modality */}
+                    {/* 3. Serial Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {asset.serialNumber || "—"}
+                    </td>
+
+                    {/* 4. OEM */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-semibold text-foreground">
+                      {asset.oem}
+                    </td>
+
+                    {/* 5. Modality */}
                     <td className="py-2.5 px-3 whitespace-nowrap">
                       <Badge variant="outline" className="font-normal text-[10px] py-0 px-1.5">
                         {asset.modality}
                       </Badge>
                     </td>
 
-                    {/* Serial # */}
-                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
-                      {asset.serialNumber}
+                    {/* 6. Model */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground truncate max-w-[160px]">
+                      {asset.model}
                     </td>
 
-                    {/* Equipment Status */}
+                    {/* 7. Equipment Status */}
                     <td className="py-2.5 px-3 whitespace-nowrap">
                       <EquipmentStatusBadge status={asset.equipmentStatus} />
                     </td>
 
-                    {/* Warranty */}
+                    {/* 8. Order Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {asset.orderNumber || asset.contractOrderNumber || "—"}
+                    </td>
+
+                    {/* 9. PO Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {asset.poNumber || asset.contractPoNumber || "—"}
+                    </td>
+
+                    {/* 10. Installation Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {asset.installationDate || "—"}
+                    </td>
+
+                    {/* 11. Warranty Status */}
                     <td className="py-2.5 px-3 whitespace-nowrap">
                       <WarrantyStatusBadge status={asset.warrantyStatus} />
                     </td>
 
-                    {/* Contract */}
+                    {/* 12. Warranty Start Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {asset.warrantyStartDate || "—"}
+                    </td>
+
+                    {/* 13. Warranty End Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {asset.warrantyEndDate || "—"}
+                    </td>
+
+                    {/* 14. Contract Status */}
                     <td className="py-2.5 px-3 whitespace-nowrap">
                       <ContractStatusBadge status={asset.contractStatus} />
-                      {asset.contractNumber && (
-                        <div className="text-[10px] text-muted-foreground font-mono mt-0.5">
-                          {asset.contractNumber}
-                        </div>
+                    </td>
+
+                    {/* 15. Contract Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {asset.contractNumber || "—"}
+                    </td>
+
+                    {/* 16. Contract Start Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {asset.contractStartDate || "—"}
+                    </td>
+
+                    {/* 17. Contract End Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {asset.contractEndDate || "—"}
+                    </td>
+
+                    {/* 18. Contract Order Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {asset.contractOrderNumber || "—"}
+                    </td>
+
+                    {/* 19. Contract PO Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {asset.contractPoNumber || "—"}
+                    </td>
+
+                    {/* 20. Next PPM Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {asset.nextPpmDate || "—"}
+                    </td>
+
+                    {/* 21. PPM Schedule */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px]">
+                      {asset.ppmSchedule ? (
+                        <Badge variant="secondary" className="font-normal text-[10px] py-0 px-1.5">
+                          {asset.ppmSchedule}
+                        </Badge>
+                      ) : (
+                        "—"
                       )}
                     </td>
 
-                    {/* Supplier & Location (Changed from Customer to Supplier per user request) */}
-                    <td className="py-2.5 px-3 whitespace-nowrap">
-                      <div className="font-medium text-foreground truncate max-w-[200px] flex items-center gap-1">
-                        <Building2 className="size-3 text-muted-foreground shrink-0" />
-                        <span>{asset.supplier || asset.customer || "GE Healthcare Direct"}</span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground truncate max-w-[200px]">
-                        {asset.location}, {asset.region}
-                      </div>
+                    {/* 22. Customer */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-medium text-foreground truncate max-w-[180px]">
+                      {asset.customer || asset.supplier || "—"}
                     </td>
 
-                    {/* Actions */}
+                    {/* 23. Location */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground truncate max-w-[160px]">
+                      {asset.location || "—"}
+                    </td>
+
+                    {/* 24. Region */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-muted-foreground">
+                      {asset.region || "—"}
+                    </td>
+
+                    {/* 25. Actions */}
                     <td
-                      className="py-2.5 px-3 whitespace-nowrap text-right"
+                      className="py-2.5 px-3 whitespace-nowrap text-right sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-end">

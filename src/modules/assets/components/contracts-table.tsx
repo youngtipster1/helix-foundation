@@ -195,99 +195,125 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Contract #</th>
-                <th className="py-3 px-4">Vendor / Provider</th>
-                <th className="py-3 px-4">Type</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Contract Period</th>
-                <th className="py-3 px-4">Contract Value</th>
-                <th className="py-3 px-4">Amount Paid</th>
-                <th className="py-3 px-4">Outstanding Payable</th>
-                <th className="py-3 px-4">Equipment</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+              <tr className="border-b border-border bg-muted/40 text-muted-foreground font-semibold uppercase tracking-wider text-[10px] whitespace-nowrap">
+                <th className="py-2.5 px-3">SN</th>
+                <th className="py-2.5 px-3">Contract Type</th>
+                <th className="py-2.5 px-3">Contract Number</th>
+                <th className="py-2.5 px-3">Contract Start Date</th>
+                <th className="py-2.5 px-3">Contract End Date</th>
+                <th className="py-2.5 px-3">Contract Order Number</th>
+                <th className="py-2.5 px-3">Contract PO Number</th>
+                <th className="py-2.5 px-3">Contract Invoice Number</th>
+                <th className="py-2.5 px-3">Contract Value</th>
+                <th className="py-2.5 px-3">Amount Paid</th>
+                <th className="py-2.5 px-3">Amount Outstanding</th>
+                <th className="py-2.5 px-3">Payment Terms</th>
+                <th className="py-2.5 px-3">Payment Start Date</th>
+                <th className="py-2.5 px-3">Payment End Date</th>
+                <th className="py-2.5 px-3">Next Payment Date</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium text-slate-700 dark:text-slate-200">
+            <tbody className="divide-y divide-border/60 font-medium text-foreground">
               {filteredContracts.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-slate-400">
+                  <td colSpan={16} className="py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <AlertCircle className="size-6 text-slate-300 dark:text-slate-600" />
+                      <AlertCircle className="size-6 text-muted-foreground/60" />
                       <p className="text-sm font-medium">No service contracts match your filter</p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-muted-foreground">
                         Try clearing search terms or modifying contract status filters.
                       </p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredContracts.map((contract) => (
+                filteredContracts.map((contract, idx) => (
                   <tr
                     key={contract.id}
-                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                    className="hover:bg-muted/30 transition-colors group cursor-pointer"
                     onClick={() => onViewContract(contract)}
                   >
-                    {/* Contract # */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <span className="font-mono font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                        {contract.contractNumber}
-                      </span>
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        PO: {contract.poNumber}
-                      </div>
+                    {/* 1. SN */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {idx + 1}
                     </td>
 
-                    {/* Vendor */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <div className="font-semibold text-slate-900 dark:text-white">
-                        {contract.vendorName}
-                      </div>
-                    </td>
-
-                    {/* Type */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <Badge variant="outline" className="font-normal text-[11px] py-0 px-2 bg-slate-50 dark:bg-slate-800">
+                    {/* 2. Contract Type */}
+                    <td className="py-2.5 px-3 whitespace-nowrap">
+                      <Badge variant="outline" className="font-normal text-[10px] py-0 px-1.5">
                         {contract.contractType}
                       </Badge>
                     </td>
 
-                    {/* Status */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <ContractStatusBadge status={contract.contractStatus} />
+                    {/* 3. Contract Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono font-bold text-foreground group-hover:text-primary transition-colors">
+                      {contract.contractNumber}
                     </td>
 
-                    {/* Dates */}
-                    <td className="py-3 px-4 whitespace-nowrap text-[11px]">
-                      <div>{contract.contractStartDate}</div>
-                      <div className="text-slate-400">to {contract.contractEndDate}</div>
+                    {/* 4. Contract Start Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {contract.contractStartDate || "—"}
                     </td>
 
-                    {/* Value */}
-                    <td className="py-3 px-4 whitespace-nowrap font-mono font-semibold text-slate-900 dark:text-white">
+                    {/* 5. Contract End Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {contract.contractEndDate || "—"}
+                    </td>
+
+                    {/* 6. Contract Order Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {contract.contractOrderNumber || "—"}
+                    </td>
+
+                    {/* 7. Contract PO Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {contract.poNumber || "—"}
+                    </td>
+
+                    {/* 8. Contract Invoice Number */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
+                      {contract.contractInvoiceNumber || "—"}
+                    </td>
+
+                    {/* 9. Contract Value */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono font-semibold text-foreground">
                       ₦{contract.contractValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}
                     </td>
 
-                    {/* Amount Paid */}
-                    <td className="py-3 px-4 whitespace-nowrap font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                    {/* 10. Amount Paid */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono font-medium text-foreground">
                       ₦{contract.totalAmountPaid.toLocaleString("en-US", { minimumFractionDigits: 0 })}
                     </td>
 
-                    {/* Outstanding Payable */}
-                    <td className="py-3 px-4 whitespace-nowrap font-mono text-rose-600 dark:text-rose-400 font-semibold">
+                    {/* 11. Amount Outstanding */}
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono font-medium text-foreground">
                       ₦{contract.totalAmountOutstanding.toLocaleString("en-US", { minimumFractionDigits: 0 })}
                     </td>
 
-                    {/* Linked Equipment */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <Badge variant="secondary" className="font-medium text-[11px]">
-                        {contract.linkedEquipmentIds.length} units
-                      </Badge>
+                    {/* 12. Payment Terms */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {contract.paymentTermMonths ? `${contract.paymentTermMonths} Months` : "—"}
                     </td>
 
-                    {/* Actions */}
+                    {/* 13. Payment Start Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {contract.paymentStartDate || "—"}
+                    </td>
+
+                    {/* 14. Payment End Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {contract.paymentEndDate || "—"}
+                    </td>
+
+                    {/* 15. Next Payment Date */}
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[11px] text-muted-foreground">
+                      {contract.nextPaymentDate || "—"}
+                    </td>
+
+                    {/* 16. Actions */}
                     <td
-                      className="py-3 px-4 whitespace-nowrap text-right"
+                      className="py-2.5 px-3 whitespace-nowrap text-right sticky right-0 bg-card/95 backdrop-blur-xs shadow-xs"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-end">
