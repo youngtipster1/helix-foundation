@@ -29,7 +29,7 @@ function ContractsListPage() {
   const [contracts, setContracts] = useState<ServiceContract[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Screen for Create / Edit / View Contract (Slides 20, 22, 24)
+  // Full screen create / edit contract workspace (Slide 19, 20, 22, 24)
   const [workspaceContract, setWorkspaceContract] = useState<ServiceContract | null>(null);
 
   const loadData = () => {
@@ -65,31 +65,24 @@ function ContractsListPage() {
   };
 
   const handleAddContract = () => {
-    const newTemplateContract: ServiceContract = {
-      id: `cnt_${Date.now()}`,
+    const newDraft: ServiceContract = {
+      id: `cnt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       contractNumber: `CNT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      vendorName: "",
       contractType: "PM + LABOUR",
       contractStatus: "In Contract",
       contractValue: 0,
       contractStartDate: new Date().toISOString().split("T")[0],
       contractEndDate: new Date(Date.now() + 365 * 86400000).toISOString().split("T")[0],
-      poNumber: "",
-      contractOrderNumber: "",
-      contractInvoiceNumber: "",
       totalAmountPaid: 0,
       totalAmountOutstanding: 0,
-      paymentTermMonths: 3,
-      paymentStartDate: new Date().toISOString().split("T")[0],
-      paymentEndDate: new Date(Date.now() + 365 * 86400000).toISOString().split("T")[0],
-      nextPaymentDate: new Date().toISOString().split("T")[0],
       payments: [],
       linkedEquipmentIds: [],
-      notes: "",
       isArchived: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setWorkspaceContract(newTemplateContract);
+    setWorkspaceContract(newDraft);
   };
 
   const handleSaveWorkspaceContract = (updated: ServiceContract) => {
@@ -99,7 +92,7 @@ function ContractsListPage() {
     } else {
       assetService.createContract(updated as any);
     }
-    setWorkspaceContract(null);
+    setWorkspaceContract(updated);
     loadData();
   };
 
@@ -123,7 +116,7 @@ function ContractsListPage() {
     );
   }
 
-  // If viewing or creating a contract, render Slide 20/22/24 3-tab layout
+  // If viewing or creating a contract workspace (Slide 19, 20, 22, 24)
   if (workspaceContract) {
     return (
       <div className="space-y-4">
