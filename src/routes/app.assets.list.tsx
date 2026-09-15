@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { AssetTable } from "@/modules/assets/components/asset-table";
-import { AssetNavTabs } from "@/modules/assets/components/asset-nav-tabs";
 import { AssetModal } from "@/modules/assets/components/asset-modal";
 import { AssetBatchUploadModal } from "@/modules/assets/components/asset-batch-upload-modal";
 import { Asset } from "@/modules/assets/types";
@@ -65,7 +64,6 @@ function AssetListPage() {
   };
 
   const handleLogJob = (asset: Asset) => {
-    // Open modal directly on the equipment service tab
     setSelectedAsset(asset);
     setModalMode("view");
     setIsModalOpen(true);
@@ -104,19 +102,16 @@ function AssetListPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
+    <div className="p-3.5 sm:p-5 lg:p-6 space-y-3.5 max-w-7xl mx-auto">
+      {/* Header - Compact System Design */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Asset Inventory & Equipment List
+        <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+          Asset List & Inventory
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Complete inventory of registered clinical and biomedical devices, operational health, and maintenance contracts.
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Biomedical equipment inventory, operational status, warranty lifecycle, and supplier contracts.
         </p>
       </div>
-
-      {/* 4-Pill Header Navigation */}
-      <AssetNavTabs />
 
       {/* Table Section */}
       <AssetTable

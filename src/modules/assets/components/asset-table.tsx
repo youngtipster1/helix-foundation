@@ -9,12 +9,10 @@ import {
   Eye,
   Edit2,
   Wrench,
-  Download,
-  CheckCircle2,
   AlertCircle,
-  FileSpreadsheet,
+  Building2,
 } from "lucide-react";
-import { Asset, EquipmentStatus, ContractStatus, WarrantyStatus } from "../types";
+import { Asset } from "../types";
 import { EquipmentStatusBadge, ContractStatusBadge, WarrantyStatusBadge } from "./status-badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,7 +51,6 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   const userRole = user?.role || "User";
   const isSuperAdmin = userRole === "Super Admin";
   const isAdmin = userRole === "Admin" || userRole === "Asset Admin" || isSuperAdmin;
-  // User can view and log jobs, but cannot add/edit/archive
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -101,15 +98,17 @@ export const AssetTable: React.FC<AssetTableProps> = ({
         return false;
       }
 
-      // Search query
+      // Search query (includes supplier, equipment #, serial, model, OEM)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
+        const supplierText = (asset.supplier || asset.customer || "").toLowerCase();
         const match =
           asset.equipmentNumber.toLowerCase().includes(q) ||
           asset.serialNumber.toLowerCase().includes(q) ||
           asset.oem.toLowerCase().includes(q) ||
           asset.model.toLowerCase().includes(q) ||
-          asset.customer.toLowerCase().includes(q) ||
+          supplierText.includes(q) ||
+          (asset.supplierCode && asset.supplierCode.toLowerCase().includes(q)) ||
           asset.location.toLowerCase().includes(q) ||
           (asset.contractNumber && asset.contractNumber.toLowerCase().includes(q));
         if (!match) return false;
@@ -131,18 +130,18 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   const archivedCount = assets.filter((a) => a.isArchived).length;
 
   return (
-    <div className="space-y-4">
-      {/* Top Filter and Action Bar */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+    <div className="space-y-3">
+      {/* Top Filter and Action Bar - Compact System Design */}
+      <div className="bg-card p-3 sm:p-3.5 rounded-xl border border-border space-y-2.5 shadow-2xs">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
           {/* Search */}
-          <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
             <Input
-              placeholder="Search by equipment #, serial, OEM, model, hospital..."
+              placeholder="Search by equipment #, serial, OEM, model, supplier..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 text-xs h-9"
+              className="pl-8 text-xs h-8"
             />
           </div>
 
@@ -153,11 +152,11 @@ export const AssetTable: React.FC<AssetTableProps> = ({
               variant={showArchived ? "secondary" : "outline"}
               size="sm"
               onClick={() => setShowArchived(!showArchived)}
-              className="text-xs h-9 gap-1.5"
+              className="text-xs h-8 gap-1.5"
             >
-              <Archive className="h-3.5 w-3.5 text-slate-500" />
-              <span>{showArchived ? "Viewing Archived" : "Show Archived"}</span>
-              <Badge variant="outline" className="text-[10px] ml-1 px-1.5 py-0 h-4">
+              <Archive className="h-3 w-3 text-muted-foreground" />
+              <span>{showArchived ? "Archived" : "Show Archived"}</span>
+              <Badge variant="outline" className="text-[10px] ml-0.5 px-1 py-0 h-3.5">
                 {showArchived ? archivedCount : activeCount}
               </Badge>
             </Button>
@@ -168,9 +167,9 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={onBatchUpload}
-                className="text-xs h-9 gap-1.5"
+                className="text-xs h-8 gap-1.5"
               >
-                <Upload className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
+                <Upload className="h-3 w-3" />
                 <span className="hidden sm:inline">Batch Import</span>
               </Button>
             )}
@@ -180,7 +179,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
               <Button
                 size="sm"
                 onClick={onAddAsset}
-                className="text-xs h-9 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                className="text-xs h-8 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add Equipment</span>
@@ -190,14 +189,14 @@ export const AssetTable: React.FC<AssetTableProps> = ({
         </div>
 
         {/* Dropdown Filters */}
-        <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-slate-100 dark:border-slate-800 text-xs">
-          <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1 mr-1">
-            <Filter className="h-3 w-3" /> Filters:
+        <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-border/60 text-xs">
+          <span className="text-muted-foreground text-[11px] font-medium flex items-center gap-1 mr-1">
+            <Filter className="h-3 w-3" /> Filter:
           </span>
 
           {/* Equipment Status */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-8 text-xs w-[140px]">
+            <SelectTrigger className="h-7 text-xs w-[130px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -211,7 +210,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
 
           {/* Warranty Status */}
           <Select value={warrantyFilter} onValueChange={setWarrantyFilter}>
-            <SelectTrigger className="h-8 text-xs w-[145px]">
+            <SelectTrigger className="h-7 text-xs w-[130px]">
               <SelectValue placeholder="Warranty" />
             </SelectTrigger>
             <SelectContent>
@@ -223,7 +222,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
 
           {/* Contract Status */}
           <Select value={contractFilter} onValueChange={setContractFilter}>
-            <SelectTrigger className="h-8 text-xs w-[145px]">
+            <SelectTrigger className="h-7 text-xs w-[130px]">
               <SelectValue placeholder="Contract" />
             </SelectTrigger>
             <SelectContent>
@@ -235,7 +234,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
 
           {/* Modality */}
           <Select value={modalityFilter} onValueChange={setModalityFilter}>
-            <SelectTrigger className="h-8 text-xs w-[150px]">
+            <SelectTrigger className="h-7 text-xs w-[140px]">
               <SelectValue placeholder="Modality" />
             </SelectTrigger>
             <SelectContent>
@@ -263,44 +262,44 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                 setModalityFilter("all");
                 setSearchQuery("");
               }}
-              className="h-8 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+              className="h-7 text-xs text-muted-foreground hover:text-foreground"
             >
-              Reset Filters
+              Reset
             </Button>
           )}
 
-          <div className="ml-auto text-[11px] text-slate-500">
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{filteredAssets.length}</span> of {assets.length} assets
+          <div className="ml-auto text-[11px] text-muted-foreground">
+            Showing <span className="font-semibold text-foreground">{filteredAssets.length}</span> of {assets.length} assets
           </div>
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
+      {/* Table Section with Supplier Column */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Equipment #</th>
-                <th className="py-3 px-4">OEM & Model</th>
-                <th className="py-3 px-4">Modality</th>
-                <th className="py-3 px-4">Serial #</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Warranty</th>
-                <th className="py-3 px-4">Contract</th>
-                <th className="py-3 px-4">Customer & Location</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+              <tr className="border-b border-border bg-muted/40 text-muted-foreground font-semibold uppercase tracking-wider text-[11px]">
+                <th className="py-2.5 px-3">Equipment #</th>
+                <th className="py-2.5 px-3">OEM & Model</th>
+                <th className="py-2.5 px-3">Modality</th>
+                <th className="py-2.5 px-3">Serial #</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3">Warranty</th>
+                <th className="py-2.5 px-3">Contract</th>
+                <th className="py-2.5 px-3">Supplier & Location</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium text-slate-700 dark:text-slate-200">
+            <tbody className="divide-y divide-border/60 font-medium text-foreground">
               {filteredAssets.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-slate-400">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <AlertCircle className="size-6 text-slate-300 dark:text-slate-600" />
-                      <p className="text-sm font-medium">No assets matching your filters</p>
-                      <p className="text-xs text-slate-400">
-                        Try changing your search query or reset the active filters.
+                  <td colSpan={9} className="py-10 text-center text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center gap-1.5">
+                      <AlertCircle className="size-5 text-muted-foreground/60" />
+                      <p className="text-xs font-medium">No assets matching your filters</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Try modifying search query or reset active filters.
                       </p>
                     </div>
                   </td>
@@ -309,76 +308,77 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                 filteredAssets.map((asset) => (
                   <tr
                     key={asset.id}
-                    className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                    className="hover:bg-muted/30 transition-colors group cursor-pointer"
                     onClick={() => onViewAsset(asset)}
                   >
                     {/* Equipment # */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <span className="font-mono font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
+                      <span className="font-mono font-bold text-foreground group-hover:text-primary transition-colors">
                         {asset.equipmentNumber}
                       </span>
                       {asset.assetType && (
-                        <div className="text-[10px] text-slate-400 font-normal">
+                        <div className="text-[10px] text-muted-foreground font-normal">
                           {asset.assetType}
                         </div>
                       )}
                     </td>
 
                     {/* OEM & Model */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <div className="font-semibold text-slate-900 dark:text-white">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
+                      <div className="font-semibold text-foreground">
                         {asset.oem}
                       </div>
-                      <div className="text-[11px] text-slate-500 font-normal truncate max-w-[180px]">
+                      <div className="text-[11px] text-muted-foreground font-normal truncate max-w-[170px]">
                         {asset.model}
                       </div>
                     </td>
 
                     {/* Modality */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <Badge variant="outline" className="font-normal text-[11px] py-0 px-2 bg-slate-50 dark:bg-slate-800">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
+                      <Badge variant="outline" className="font-normal text-[10px] py-0 px-1.5">
                         {asset.modality}
                       </Badge>
                     </td>
 
                     {/* Serial # */}
-                    <td className="py-3 px-4 whitespace-nowrap font-mono text-[11px] text-slate-600 dark:text-slate-400">
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
                       {asset.serialNumber}
                     </td>
 
                     {/* Equipment Status */}
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       <EquipmentStatusBadge status={asset.equipmentStatus} />
                     </td>
 
                     {/* Warranty */}
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       <WarrantyStatusBadge status={asset.warrantyStatus} />
                     </td>
 
                     {/* Contract */}
-                    <td className="py-3 px-4 whitespace-nowrap">
+                    <td className="py-2.5 px-3 whitespace-nowrap">
                       <ContractStatusBadge status={asset.contractStatus} />
                       {asset.contractNumber && (
-                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        <div className="text-[10px] text-muted-foreground font-mono mt-0.5">
                           {asset.contractNumber}
                         </div>
                       )}
                     </td>
 
-                    {/* Customer & Location */}
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <div className="font-medium text-slate-900 dark:text-slate-100 truncate max-w-[200px]">
-                        {asset.customer}
+                    {/* Supplier & Location (Changed from Customer to Supplier per user request) */}
+                    <td className="py-2.5 px-3 whitespace-nowrap">
+                      <div className="font-medium text-foreground truncate max-w-[200px] flex items-center gap-1">
+                        <Building2 className="size-3 text-muted-foreground shrink-0" />
+                        <span>{asset.supplier || asset.customer || "GE Healthcare Direct"}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500 truncate max-w-[200px]">
+                      <div className="text-[10px] text-muted-foreground truncate max-w-[200px]">
                         {asset.location}, {asset.region}
                       </div>
                     </td>
 
                     {/* Actions */}
                     <td
-                      className="py-3 px-4 whitespace-nowrap text-right"
+                      className="py-2.5 px-3 whitespace-nowrap text-right"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-end gap-1">
@@ -386,7 +386,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="size-7 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                          className="size-7 text-muted-foreground hover:text-foreground"
                           title="View Details"
                           onClick={() => onViewAsset(asset)}
                         >
@@ -398,7 +398,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                           variant="ghost"
                           size="icon"
                           className="size-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50"
-                          title="Log Maintenance Job"
+                          title="Equipment Service / Jobs"
                           onClick={() => onLogJob(asset)}
                         >
                           <Wrench className="size-3.5" />
@@ -409,7 +409,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-7 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                            className="size-7 text-muted-foreground hover:text-foreground"
                             title="Edit Asset"
                             onClick={() => onEditAsset(asset)}
                           >

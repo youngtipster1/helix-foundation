@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { AssetDashboardView } from "@/modules/assets/components/asset-dashboard-view";
-import { AssetNavTabs } from "@/modules/assets/components/asset-nav-tabs";
 import { AssetModal } from "@/modules/assets/components/asset-modal";
 import { AssetBatchUploadModal } from "@/modules/assets/components/asset-batch-upload-modal";
 import { AssetDashboardMetrics, Asset } from "@/modules/assets/types";
@@ -69,14 +68,14 @@ function AssetDashboardPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Header & Sub-Nav */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="p-3.5 sm:p-5 lg:p-6 space-y-4 max-w-7xl mx-auto">
+      {/* Header - Compact System Design */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
             Assets & Devices Dashboard
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Clinical engineering asset lifecycle overview, operational status, and manufacturer distribution.
           </p>
         </div>
@@ -87,25 +86,22 @@ function AssetDashboardPage() {
               variant="outline"
               size="sm"
               onClick={() => setIsBatchOpen(true)}
-              className="text-xs h-9 gap-1.5"
+              className="text-xs h-8 gap-1.5"
             >
-              <Upload className="size-3.5" /> Batch Import
+              <Upload className="size-3" /> Batch Import
             </Button>
             <Button
               size="sm"
               onClick={() => setIsCreateOpen(true)}
-              className="text-xs h-9 gap-1.5 bg-primary text-primary-foreground font-semibold"
+              className="text-xs h-8 gap-1.5 bg-primary text-primary-foreground font-semibold"
             >
-              <Plus className="size-3.5" /> Add Equipment
+              <Plus className="size-3" /> Add Equipment
             </Button>
           </div>
         )}
       </div>
 
-      {/* 4-Pill Header Navigation */}
-      <AssetNavTabs />
-
-      {/* Dashboard Metrics Content */}
+      {/* Dashboard Metrics Content (in-page duplicate tab removed per user instruction) */}
       <AssetDashboardView metrics={metrics} />
 
       {/* Modals */}

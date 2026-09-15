@@ -181,9 +181,9 @@ export function MobileBottomNav() {
   } else if (isAssets) {
     tabs = [
       { label: "Dashboard", to: "/app/assets/dashboard", icon: LayoutDashboard },
-      { label: "Assets", to: "/app/assets/list", icon: Stethoscope },
-      { label: "Contracts", to: "/app/assets/contracts-dashboard", icon: FileCheck },
-      { label: "Registry", to: "/app/assets/contracts", icon: FileText },
+      { label: "Asset List", to: "/app/assets/list", icon: Stethoscope },
+      { label: "Contract", to: "/app/assets/contracts-dashboard", icon: FileCheck },
+      { label: "Service List", to: "/app/assets/contracts", icon: FileText },
     ];
   } else if (isParts) {
     tabs = [

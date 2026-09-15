@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { ContractDashboardView } from "@/modules/assets/components/contract-dashboard-view";
-import { AssetNavTabs } from "@/modules/assets/components/asset-nav-tabs";
 import { ContractModal } from "@/modules/assets/components/contract-modal";
 import { ContractDashboardMetrics, ServiceContract } from "@/modules/assets/types";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import { useAuth } from "@/features/auth/auth-context";
 export const Route = createFileRoute("/app/assets/contracts-dashboard")({
   head: () => ({
     meta: [
-      { title: "Service Contracts Dashboard — HEMP" },
+      { title: "Service Contracts — HEMP" },
       {
         name: "description",
         content:
@@ -63,14 +62,14 @@ function ContractsDashboardPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="p-3.5 sm:p-5 lg:p-6 space-y-4 max-w-7xl mx-auto">
+      {/* Header - Compact System Design */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Service Contracts Dashboard
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+            Service Contracts Overview
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Financial analytics for service agreements, verified settlements, and outstanding payable balances.
           </p>
         </div>
@@ -79,17 +78,14 @@ function ContractsDashboardPage() {
           <Button
             size="sm"
             onClick={() => setIsCreateOpen(true)}
-            className="text-xs h-9 gap-1.5 bg-primary text-primary-foreground font-semibold"
+            className="text-xs h-8 gap-1.5 bg-primary text-primary-foreground font-semibold"
           >
-            <Plus className="size-3.5" /> New Service Contract
+            <Plus className="size-3" /> New Contract
           </Button>
         )}
       </div>
 
-      {/* 4-Pill Header Navigation */}
-      <AssetNavTabs />
-
-      {/* Dashboard Metrics View */}
+      {/* Dashboard Metrics View (duplicate in-page tab removed) */}
       <ContractDashboardView metrics={metrics} />
 
       {/* Modals */}

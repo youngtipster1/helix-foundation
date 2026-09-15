@@ -113,13 +113,16 @@ export interface Asset {
   swVersion: string;
   dicVersion: string;
 
-  // 4. Customer & Location
-  customer: string;
+  // 4. Supplier & Location
+  supplier: string;
+  supplierCode?: string;
+  supplierContact?: string;
+  email?: string;
+  phoneNumber?: string;
+  address?: string;
   region: string;
   location: string;
-  customerContact: string;
-  email: string;
-  phoneNumber: string;
+  customer?: string;
 
   // Data Tab (IT & Network)
   ipAddress?: string;
@@ -138,6 +141,19 @@ export interface Asset {
   isArchived: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SupplierDirectoryEntry {
+  id: string;
+  supplier: string;
+  supplierCode: string;
+  supplierContact: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  region: string;
+  location: string;
+  supportTier?: string;
 }
 
 export interface CustomerDirectoryEntry {

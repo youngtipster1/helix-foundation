@@ -4,6 +4,7 @@ import {
   ServiceContract,
   ContractPayment,
   CustomerDirectoryEntry,
+  SupplierDirectoryEntry,
   AssetDashboardMetrics,
   ContractDashboardMetrics,
   EquipmentStatus,
@@ -14,18 +15,21 @@ import {
   MOCK_CONTRACTS,
   MOCK_ASSET_JOBS,
   MOCK_CUSTOMERS,
+  MOCK_SUPPLIERS,
 } from "../mocks/asset-data";
 
-const ASSETS_STORAGE_KEY = "hemp.assets.devices.v1";
-const CONTRACTS_STORAGE_KEY = "hemp.assets.contracts.v1";
-const JOBS_STORAGE_KEY = "hemp.assets.jobs.v1";
-const CUSTOMERS_STORAGE_KEY = "hemp.assets.customers.v1";
+const ASSETS_STORAGE_KEY = "hemp.assets.devices.v2";
+const CONTRACTS_STORAGE_KEY = "hemp.assets.contracts.v2";
+const JOBS_STORAGE_KEY = "hemp.assets.jobs.v2";
+const CUSTOMERS_STORAGE_KEY = "hemp.assets.customers.v2";
+const SUPPLIERS_STORAGE_KEY = "hemp.assets.suppliers.v2";
 
 export class AssetService {
   private assets: Asset[] = [];
   private contracts: ServiceContract[] = [];
   private jobs: AssetJob[] = [];
   private customers: CustomerDirectoryEntry[] = [];
+  private suppliers: SupplierDirectoryEntry[] = [];
   private listeners: Set<() => void> = new Set();
 
   constructor() {
@@ -45,11 +49,15 @@ export class AssetService {
 
       const storedCustomers = localStorage.getItem(CUSTOMERS_STORAGE_KEY);
       this.customers = storedCustomers ? JSON.parse(storedCustomers) : [...MOCK_CUSTOMERS];
+
+      const storedSuppliers = localStorage.getItem(SUPPLIERS_STORAGE_KEY);
+      this.suppliers = storedSuppliers ? JSON.parse(storedSuppliers) : [...MOCK_SUPPLIERS];
     } catch {
       this.assets = [...MOCK_ASSETS];
       this.contracts = [...MOCK_CONTRACTS];
       this.jobs = [...MOCK_ASSET_JOBS];
       this.customers = [...MOCK_CUSTOMERS];
+      this.suppliers = [...MOCK_SUPPLIERS];
     }
   }
 
@@ -59,6 +67,7 @@ export class AssetService {
       localStorage.setItem(CONTRACTS_STORAGE_KEY, JSON.stringify(this.contracts));
       localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(this.jobs));
       localStorage.setItem(CUSTOMERS_STORAGE_KEY, JSON.stringify(this.customers));
+      localStorage.setItem(SUPPLIERS_STORAGE_KEY, JSON.stringify(this.suppliers));
     } catch (e) {
       console.error("Failed to save assets state to localStorage", e);
     }
@@ -81,7 +90,7 @@ export class AssetService {
   }
 
   // ==========================================
-  // CUSTOMER DIRECTORY (FOR AUTO-FILL)
+  // CUSTOMER & SUPPLIER DIRECTORY (FOR AUTO-FILL)
   // ==========================================
   public getCustomers(): CustomerDirectoryEntry[] {
     return this.customers;
@@ -90,6 +99,16 @@ export class AssetService {
   public getCustomerByName(name: string): CustomerDirectoryEntry | undefined {
     return this.customers.find(
       (c) => c.customer.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+  }
+
+  public getSuppliers(): SupplierDirectoryEntry[] {
+    return this.suppliers;
+  }
+
+  public getSupplierByName(name: string): SupplierDirectoryEntry | undefined {
+    return this.suppliers.find(
+      (s) => s.supplier.trim().toLowerCase() === name.trim().toLowerCase()
     );
   }
 

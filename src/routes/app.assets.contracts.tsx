@@ -3,14 +3,13 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { ContractsTable } from "@/modules/assets/components/contracts-table";
-import { AssetNavTabs } from "@/modules/assets/components/asset-nav-tabs";
 import { ContractModal } from "@/modules/assets/components/contract-modal";
 import { ServiceContract } from "@/modules/assets/types";
 
 export const Route = createFileRoute("/app/assets/contracts")({
   head: () => ({
     meta: [
-      { title: "Service Contracts — HEMP" },
+      { title: "Service List — HEMP" },
       {
         name: "description",
         content:
@@ -91,21 +90,18 @@ function ContractsListPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
+    <div className="p-3.5 sm:p-5 lg:p-6 space-y-3.5 max-w-7xl mx-auto">
+      {/* Header - Compact System Design */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-          Service Contracts Ledger
+        <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+          Service Contracts & Agreements List
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-muted-foreground mt-0.5">
           Master register of equipment maintenance agreements, payment installment terms, and verified settlement records.
         </p>
       </div>
 
-      {/* 4-Pill Header Navigation */}
-      <AssetNavTabs />
-
-      {/* Table Section */}
+      {/* Table Section (duplicate in-page tab removed) */}
       <ContractsTable
         contracts={contracts}
         onViewContract={handleViewContract}

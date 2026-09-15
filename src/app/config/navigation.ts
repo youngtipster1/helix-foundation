@@ -111,10 +111,10 @@ export const FINANCIAL_NAV: NavItem[] = [
    ASSETS MODULE — 4-TAB MAIN NAVIGATION (USER & ADMIN)
 ========================================================================= */
 export const ASSETS_NAV: NavItem[] = [
-  { label: "Dashboard - Asset", to: "/app/assets/dashboard", icon: LayoutDashboard },
+  { label: "Dashboard", to: "/app/assets/dashboard", icon: LayoutDashboard },
   { label: "Asset list", to: "/app/assets/list", icon: Stethoscope },
-  { label: "Dashboard - Service contracts", to: "/app/assets/contracts-dashboard", icon: FileCheck },
-  { label: "Service contracts list", to: "/app/assets/contracts", icon: FileText },
+  { label: "Service contract", to: "/app/assets/contracts-dashboard", icon: FileCheck },
+  { label: "Service list", to: "/app/assets/contracts", icon: FileText },
 ];
 
 
