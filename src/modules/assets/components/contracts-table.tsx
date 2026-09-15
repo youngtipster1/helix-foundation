@@ -9,6 +9,8 @@ import {
   Edit2,
   FileSpreadsheet,
   AlertCircle,
+  CreditCard,
+  Wrench,
 } from "lucide-react";
 import { ServiceContract, ContractType, ContractStatus } from "../types";
 import { ContractStatusBadge } from "./status-badges";
@@ -27,7 +29,7 @@ import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 
 interface ContractsTableProps {
   contracts: ServiceContract[];
-  onViewContract: (contract: ServiceContract) => void;
+  onViewContract: (contract: ServiceContract, initialTab?: "details" | "payments" | "equipment") => void;
   onEditContract: (contract: ServiceContract) => void;
   onAddContract: () => void;
   onArchiveContract: (contract: ServiceContract) => void;
@@ -232,7 +234,7 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
                   <tr
                     key={contract.id}
                     className="hover:bg-muted/30 transition-colors group cursor-pointer"
-                    onClick={() => onViewContract(contract)}
+                    onClick={() => onViewContract(contract, "details")}
                   >
                     {/* 1. SN */}
                     <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
@@ -322,9 +324,19 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
                           align="end"
                           actions={[
                             {
-                              label: "View Contract Details",
+                              label: "Contract Details",
                               icon: Eye,
-                              onClick: () => onViewContract(contract),
+                              onClick: () => onViewContract(contract, "details"),
+                            },
+                            {
+                              label: "Payment Terms & History",
+                              icon: CreditCard,
+                              onClick: () => onViewContract(contract, "payments"),
+                            },
+                            {
+                              label: "Covered Equipment",
+                              icon: Wrench,
+                              onClick: () => onViewContract(contract, "equipment"),
                             },
                             {
                               label: "Edit Contract",

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { ContractsTable } from "@/modules/assets/components/contracts-table";
-import { ContractDetailWorkspace } from "@/modules/assets/components/contract-detail-workspace";
+import { ContractModal } from "@/modules/assets/components/contract-detail-workspace";
 import { ServiceContract } from "@/modules/assets/types";
 import { useAuth } from "@/features/auth/auth-context";
 
@@ -29,8 +29,10 @@ function ContractsListPage() {
   const [contracts, setContracts] = useState<ServiceContract[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Full screen create / edit contract workspace (Slide 19, 20, 22, 24)
-  const [workspaceContract, setWorkspaceContract] = useState<ServiceContract | null>(null);
+  // Modal State (Slide 19: Pop up window for creating or editing contract)
+  const [activeContract, setActiveContract] = useState<ServiceContract | null>(null);
+  const [activeTab, setActiveTab] = useState<"details" | "payments" | "equipment">("details");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const loadData = () => {
     const data = assetService.getContracts(true);
@@ -46,22 +48,19 @@ function ContractsListPage() {
     return unsubscribe;
   }, []);
 
-  // Keep workspace contract in sync when contract collection changes
-  useEffect(() => {
-    if (workspaceContract) {
-      const fresh = contracts.find((c) => c.id === workspaceContract.id);
-      if (fresh) {
-        setWorkspaceContract(fresh);
-      }
-    }
-  }, [contracts]);
-
-  const handleViewContract = (contract: ServiceContract) => {
-    setWorkspaceContract(contract);
+  const handleViewContract = (
+    contract: ServiceContract,
+    tab: "details" | "payments" | "equipment" = "details"
+  ) => {
+    setActiveContract(contract);
+    setActiveTab(tab);
+    setIsModalOpen(true);
   };
 
   const handleEditContract = (contract: ServiceContract) => {
-    setWorkspaceContract(contract);
+    setActiveContract(contract);
+    setActiveTab("details");
+    setIsModalOpen(true);
   };
 
   const handleAddContract = () => {
@@ -82,17 +81,20 @@ function ContractsListPage() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setWorkspaceContract(newDraft);
+    setActiveContract(newDraft);
+    setActiveTab("details");
+    setIsModalOpen(true);
   };
 
-  const handleSaveWorkspaceContract = (updated: ServiceContract) => {
+  const handleSaveContract = (updated: ServiceContract) => {
     const exists = contracts.some((c) => c.id === updated.id);
     if (exists) {
       assetService.updateContract(updated.id, updated);
     } else {
       assetService.createContract(updated as any);
     }
-    setWorkspaceContract(updated);
+    setIsModalOpen(false);
+    setActiveContract(null);
     loadData();
   };
 
@@ -112,20 +114,6 @@ function ContractsListPage() {
     return (
       <div className="flex h-64 items-center justify-center">
         <Loading />
-      </div>
-    );
-  }
-
-  // If viewing or creating a contract workspace (Slide 19, 20, 22, 24)
-  if (workspaceContract) {
-    return (
-      <div className="space-y-4">
-        <ContractDetailWorkspace
-          contract={workspaceContract}
-          onBack={() => setWorkspaceContract(null)}
-          onUpdateContract={handleSaveWorkspaceContract}
-          isAdmin={isAdmin}
-        />
       </div>
     );
   }
@@ -152,6 +140,19 @@ function ContractsListPage() {
         onAddContract={handleAddContract}
         onArchiveContract={handleArchiveContract}
         onUnarchiveContract={handleUnarchiveContract}
+      />
+
+      {/* Slide 19/20/22/24 Pop up window (Modal) for create / edit / view */}
+      <ContractModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setActiveContract(null);
+        }}
+        contract={activeContract}
+        initialTab={activeTab}
+        onSave={handleSaveContract}
+        isAdmin={isAdmin}
       />
     </div>
   );
