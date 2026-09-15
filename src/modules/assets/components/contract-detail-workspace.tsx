@@ -17,9 +17,7 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -269,41 +267,41 @@ export const ContractModal: React.FC<ContractModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto p-0 border border-border bg-card rounded-2xl shadow-2xl">
-        {/* MODAL HEADER WITH INTEGRATED TABS (Slide 19, 20, 22, 24) */}
-        <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-md px-6 py-4 border-b border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <FileText className="size-5" />
+      <DialogContent className="flex flex-col w-[96vw] sm:w-[94vw] lg:max-w-5xl h-[92dvh] sm:h-[88dvh] max-h-[92dvh] sm:max-h-[88dvh] overflow-hidden p-0 gap-0 border border-border bg-card rounded-2xl shadow-2xl">
+        {/* FIXED MODAL HEADER WITH RESPONSIVE TABS (Slide 19, 20, 22, 24) */}
+        <div className="shrink-0 bg-card border-b border-border/80 px-4 sm:px-6 py-3 sm:py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 pr-11 sm:pr-12">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="size-8 sm:size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <FileText className="size-4 sm:size-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <DialogTitle className="text-base font-bold font-mono text-foreground">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <DialogTitle className="text-sm sm:text-base font-bold font-mono text-foreground truncate">
                   {contractNumber || "CREATE / EDIT CONTRACT"}
                 </DialogTitle>
                 <ContractStatusBadge status={contract?.contractStatus || "In Contract"} />
-                <Badge variant="outline" className="text-[10px] font-mono py-0 px-2">
+                <Badge variant="outline" className="text-[10px] font-mono py-0 px-1.5 hidden sm:inline-flex">
                   {contractType}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                <span>Contract Modal Window</span>
+              <p className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                <span>Contract Window</span>
                 <span>&bull;</span>
-                <Calendar className="size-3 text-muted-foreground" />
-                <span>
+                <Calendar className="size-3 text-muted-foreground shrink-0" />
+                <span className="truncate">
                   {contractStartDate || "—"} to {contractEndDate || "—"}
                 </span>
               </p>
             </div>
           </div>
 
-          {/* SEGMENTED TABS (Strictly matching Slides 20, 22, 24) */}
-          <div className="bg-muted/80 p-1 rounded-lg border border-border/80 flex items-center gap-1 self-start sm:self-auto shadow-2xs mr-7">
+          {/* RESPONSIVE SEGMENTED TABS (Strictly matching Slides 20, 22, 24) */}
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto p-1 bg-muted/80 rounded-lg border border-border/80 shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab("details")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer",
+                "flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap",
                 activeTab === "details"
                   ? "bg-background text-foreground shadow-xs font-bold ring-1 ring-border/50"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/40"
@@ -317,7 +315,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
               type="button"
               onClick={() => setActiveTab("payments")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer",
+                "flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap",
                 activeTab === "payments"
                   ? "bg-background text-foreground shadow-xs font-bold ring-1 ring-border/50"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/40"
@@ -331,7 +329,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
               type="button"
               onClick={() => setActiveTab("equipment")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer",
+                "flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap",
                 activeTab === "equipment"
                   ? "bg-background text-foreground shadow-xs font-bold ring-1 ring-border/50"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/40"
@@ -343,8 +341,8 @@ export const ContractModal: React.FC<ContractModalProps> = ({
           </div>
         </div>
 
-        {/* MODAL BODY */}
-        <div className="p-6 space-y-5">
+        {/* SCROLLABLE MODAL BODY - ONLY THIS REGION SCROLLS */}
+        <div className="flex-1 overflow-y-auto overscroll-contain p-3.5 sm:p-6 space-y-4 sm:space-y-5">
           {/* ========================================================================= */}
           {/* TAB 1: CONTRACT DETAILS (SLIDE 20)                                         */}
           {/* ========================================================================= */}
@@ -716,7 +714,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
 
                 <div className="rounded-lg border border-border overflow-hidden bg-background">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border-collapse whitespace-nowrap">
+                    <table className="w-full text-xs text-left border-collapse whitespace-nowrap min-w-[620px]">
                       <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider border-b border-border">
                         <tr>
                           <th className="py-2.5 px-3 w-14 text-center">S/N</th>
@@ -784,7 +782,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-1">
+                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 pt-1">
                   <span className="text-xs font-semibold text-muted-foreground">
                     Update payment:
                   </span>
@@ -980,7 +978,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
 
                 <div className="rounded-lg border border-border overflow-hidden bg-background">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border-collapse whitespace-nowrap">
+                    <table className="w-full text-xs text-left border-collapse whitespace-nowrap min-w-[760px]">
                       <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider border-b border-border">
                         <tr>
                           <th className="py-2.5 px-3 w-12 text-center">S/N</th>
@@ -1051,7 +1049,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-1">
+                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 pt-1">
                   <span className="text-xs font-semibold text-muted-foreground">
                     Update equipment list:
                   </span>
@@ -1083,13 +1081,13 @@ export const ContractModal: React.FC<ContractModalProps> = ({
           )}
         </div>
 
-        {/* MODAL FOOTER WITH SAVE & CLOSE BUTTONS (Slides 20, 22, 24) */}
-        <DialogFooter className="sticky bottom-0 z-20 bg-card/95 backdrop-blur-md px-6 py-4 border-t border-border/80 flex items-center justify-end gap-3">
+        {/* FIXED MODAL FOOTER WITH SAVE & CLOSE BUTTONS (Slides 20, 22, 24) */}
+        <div className="shrink-0 bg-card border-t border-border/80 px-4 sm:px-6 py-3 flex items-center justify-between sm:justify-end gap-2.5">
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
-            className="h-9 px-5 text-xs font-semibold cursor-pointer border-border"
+            className="h-9 px-4 sm:px-5 text-xs font-semibold cursor-pointer border-border flex-1 sm:flex-initial"
           >
             <X className="size-3.5 mr-1.5 text-muted-foreground" />
             <span>Close</span>
@@ -1097,12 +1095,12 @@ export const ContractModal: React.FC<ContractModalProps> = ({
           <Button
             type="button"
             onClick={handleMasterSave}
-            className="h-9 px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs"
+            className="h-9 px-5 sm:px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs flex-1 sm:flex-initial"
           >
             <Save className="size-3.5 mr-1.5" />
             <span>Save Contract</span>
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
