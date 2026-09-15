@@ -13,6 +13,8 @@ import {
   Banknote,
   Receipt,
   FileCheck2,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import {
   Dialog,
@@ -92,6 +94,15 @@ export const ContractModal: React.FC<ContractModalProps> = ({
   const [payments, setPayments] = useState<ContractPayment[]>([]);
   const [paymentTermsNote, setPaymentTermsNote] = useState<string>("");
 
+  // Manual payment entry & edit form state (Slide 22 & 23)
+  const [editingPaymentId, setEditingPaymentId] = useState<string | null>(null);
+  const [paymentFormInvoiceNumber, setPaymentFormInvoiceNumber] = useState<string>("");
+  const [paymentFormPlannedDate, setPaymentFormPlannedDate] = useState<string>("");
+  const [paymentFormPaymentDate, setPaymentFormPaymentDate] = useState<string>("");
+  const [paymentFormAmount, setPaymentFormAmount] = useState<number | "">("");
+  const [paymentFormNote, setPaymentFormNote] = useState<string>("");
+  const [paymentFormProofName, setPaymentFormProofName] = useState<string>("");
+
   // -------------------------------------------------------------
   // SLIDE 24 & 25: EQUIPMENT LIST STATE
   // -------------------------------------------------------------
@@ -144,6 +155,13 @@ export const ContractModal: React.FC<ContractModalProps> = ({
       setDetailsNote(contract.notes || "");
       setPaymentTermsNote("");
       setEquipmentListNote("");
+      setEditingPaymentId(null);
+      setPaymentFormInvoiceNumber("");
+      setPaymentFormPlannedDate("");
+      setPaymentFormPaymentDate("");
+      setPaymentFormAmount("");
+      setPaymentFormNote("");
+      setPaymentFormProofName("");
       setServiceContractsList([
         {
           id: "doc_1",
@@ -184,30 +202,88 @@ export const ContractModal: React.FC<ContractModalProps> = ({
     toast.success("Service contract document uploaded.");
   };
 
-  const handleUploadPayment = () => {
-    if (!contractInvoiceNumber.trim()) {
-      toast.error("Please enter a Contract Invoice Number first.");
+  const handleSavePayment = () => {
+    if (!paymentFormInvoiceNumber.trim()) {
+      toast.error("Please enter an Invoice Number.");
+      return;
+    }
+    if (paymentFormAmount === "" || Number(paymentFormAmount) <= 0) {
+      toast.error("Please enter a valid Payment Amount.");
       return;
     }
 
-    const plannedDate = new Date();
-    plannedDate.setMonth(plannedDate.getMonth() + (Number(paymentTermMonths) || 3));
+    if (editingPaymentId) {
+      setPayments((prev) =>
+        prev.map((pmt) =>
+          pmt.id === editingPaymentId
+            ? {
+                ...pmt,
+                invoiceNumber: paymentFormInvoiceNumber.trim(),
+                dateOfPlannedPayment: paymentFormPlannedDate,
+                dateOfPayment: paymentFormPaymentDate,
+                amount: Number(paymentFormAmount) || 0,
+                note: paymentFormNote.trim() || undefined,
+                proofOfPaymentName:
+                  paymentFormProofName ||
+                  pmt.proofOfPaymentName ||
+                  `Receipt_${paymentFormInvoiceNumber.trim()}.pdf`,
+              }
+            : pmt
+        )
+      );
+      toast.success(`Payment invoice ${paymentFormInvoiceNumber.trim()} updated.`);
+      setEditingPaymentId(null);
+    } else {
+      const newPayment: ContractPayment = {
+        id: `pmt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        invoiceNumber: paymentFormInvoiceNumber.trim(),
+        dateOfPlannedPayment: paymentFormPlannedDate,
+        dateOfPayment: paymentFormPaymentDate,
+        amount: Number(paymentFormAmount) || 0,
+        status: "Paid",
+        note: paymentFormNote.trim() || undefined,
+        proofOfPaymentName:
+          paymentFormProofName || `Receipt_${paymentFormInvoiceNumber.trim()}.pdf`,
+      };
+      setPayments((prev) => [...prev, newPayment]);
+      toast.success(`Payment invoice ${newPayment.invoiceNumber} saved to table.`);
+    }
 
-    const newPayment: ContractPayment = {
-      id: `pmt_${Date.now()}`,
-      invoiceNumber: contractInvoiceNumber.trim(),
-      dateOfPlannedPayment: plannedDate.toISOString().split("T")[0],
-      dateOfPayment: new Date().toISOString().split("T")[0],
-      amount: Math.round(
-        Number(contractValue) / Math.max(1, Math.round(12 / (Number(paymentTermMonths) || 3)))
-      ),
-      status: "Paid",
-      note: paymentTermsNote.trim() || "Payment recorded",
-      proofOfPaymentName: `Payment_Receipt_${contractInvoiceNumber.trim()}.pdf`,
-    };
+    // Reset payment entry fields
+    setPaymentFormInvoiceNumber("");
+    setPaymentFormPlannedDate("");
+    setPaymentFormPaymentDate("");
+    setPaymentFormAmount("");
+    setPaymentFormNote("");
+    setPaymentFormProofName("");
+  };
 
-    setPayments((prev) => [...prev, newPayment]);
-    toast.success(`Payment invoice ${newPayment.invoiceNumber} recorded.`);
+  const handleEditPayment = (pmt: ContractPayment) => {
+    setEditingPaymentId(pmt.id);
+    setPaymentFormInvoiceNumber(pmt.invoiceNumber || "");
+    setPaymentFormPlannedDate(pmt.dateOfPlannedPayment || "");
+    setPaymentFormPaymentDate(pmt.dateOfPayment || "");
+    setPaymentFormAmount(pmt.amount || "");
+    setPaymentFormNote(pmt.note || "");
+    setPaymentFormProofName(pmt.proofOfPaymentName || "");
+  };
+
+  const handleCancelEditPayment = () => {
+    setEditingPaymentId(null);
+    setPaymentFormInvoiceNumber("");
+    setPaymentFormPlannedDate("");
+    setPaymentFormPaymentDate("");
+    setPaymentFormAmount("");
+    setPaymentFormNote("");
+    setPaymentFormProofName("");
+  };
+
+  const handleDeletePayment = (paymentId: string) => {
+    setPayments((prev) => prev.filter((p) => p.id !== paymentId));
+    if (editingPaymentId === paymentId) {
+      handleCancelEditPayment();
+    }
+    toast.info("Payment record removed.");
   };
 
   const handleAddEquipment = () => {
@@ -694,7 +770,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                 </div>
               </div>
 
-              {/* PAYMENT HISTORY Card */}
+              {/* PAYMENT HISTORY Card (Slide 22 & 23) */}
               <div className="rounded-xl border border-border bg-card p-5 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between border-b border-border/70 pb-3">
                   <div className="flex items-center gap-2">
@@ -706,15 +782,168 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                         PAYMENT HISTORY
                       </h2>
                       <p className="text-[11px] text-muted-foreground">
-                        Date of planned payment is auto-calculated based on payment terms (Slide 23).
+                        Enter payment details manually and save to log verified installments on this contract.
                       </p>
                     </div>
                   </div>
                 </div>
 
+                {/* Manual Payment Entry & Edit Form */}
+                <div className="p-4 rounded-xl border border-border bg-muted/20 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      {editingPaymentId ? (
+                        <>
+                          <Pencil className="size-3.5 text-primary" />
+                          <span>Edit Payment Record</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="size-3.5 text-primary" />
+                          <span>Record Payment</span>
+                        </>
+                      )}
+                    </span>
+                    {editingPaymentId && (
+                      <Badge variant="outline" className="text-[10px] text-primary font-mono py-0">
+                        Editing Active
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-semibold text-foreground">
+                        Invoice Number <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        value={paymentFormInvoiceNumber}
+                        onChange={(e) => setPaymentFormInvoiceNumber(e.target.value)}
+                        placeholder="e.g. INV-2026-001"
+                        className="h-8 text-xs font-mono font-bold bg-background border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-semibold text-foreground">
+                        Date of planned payment
+                      </Label>
+                      <Input
+                        type="date"
+                        value={paymentFormPlannedDate}
+                        onChange={(e) => setPaymentFormPlannedDate(e.target.value)}
+                        className="h-8 text-xs bg-background border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-semibold text-foreground">
+                        Date of payment
+                      </Label>
+                      <Input
+                        type="date"
+                        value={paymentFormPaymentDate}
+                        onChange={(e) => setPaymentFormPaymentDate(e.target.value)}
+                        className="h-8 text-xs bg-background border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-semibold text-foreground">
+                        Amount (₦) <span className="text-destructive">*</span>
+                      </Label>
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-1.5 text-xs font-mono font-bold text-muted-foreground">
+                          ₦
+                        </span>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={paymentFormAmount}
+                          onChange={(e) =>
+                            setPaymentFormAmount(e.target.value === "" ? "" : Number(e.target.value))
+                          }
+                          placeholder="0.00"
+                          className="h-8 text-xs pl-6 font-mono font-bold bg-background border-border"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-semibold text-foreground">Note</Label>
+                      <Input
+                        value={paymentFormNote}
+                        onChange={(e) => setPaymentFormNote(e.target.value)}
+                        placeholder="Milestone note, bank ref..."
+                        className="h-8 text-xs bg-background border-border"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[11px] font-semibold text-foreground">
+                        Proof of Payment
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <label className="h-8 px-3 rounded-md border border-border bg-background hover:bg-muted/60 text-xs font-medium flex items-center gap-1.5 cursor-pointer shadow-2xs flex-1 truncate">
+                          <Upload className="size-3 text-primary shrink-0" />
+                          <span className="truncate text-muted-foreground">
+                            {paymentFormProofName || "Attach receipt (PDF/IMG)"}
+                          </span>
+                          <input
+                            type="file"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setPaymentFormProofName(file.name);
+                                toast.success(`Attached ${file.name}`);
+                              }
+                            }}
+                          />
+                        </label>
+                        {paymentFormProofName && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setPaymentFormProofName("")}
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                          >
+                            <X className="size-3.5" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    {editingPaymentId && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancelEditPayment}
+                        className="h-8 px-3 text-xs font-semibold cursor-pointer border-border"
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      onClick={handleSavePayment}
+                      disabled={!isAdmin}
+                      className="h-8 px-5 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs gap-1.5"
+                    >
+                      <Save className="size-3.5" />
+                      <span>{editingPaymentId ? "Save Changes" : "Save"}</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* The Table */}
                 <div className="rounded-lg border border-border overflow-hidden bg-background">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border-collapse whitespace-nowrap min-w-[620px]">
+                    <table className="w-full text-xs text-left border-collapse whitespace-nowrap min-w-[660px]">
                       <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider border-b border-border">
                         <tr>
                           <th className="py-2.5 px-3 w-14 text-center">S/N</th>
@@ -724,15 +953,16 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                           <th className="py-2.5 px-3 text-right">AMOUNT (₦)</th>
                           <th className="py-2.5 px-3">NOTE</th>
                           <th className="py-2.5 px-3 text-center">VIEW PROOF OF PAYMENT</th>
+                          <th className="py-2.5 px-3 text-right">ACTIONS</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border/60">
                         {payments.length === 0 ? (
                           <tr>
-                            <td colSpan={7} className="py-8 text-center text-muted-foreground">
+                            <td colSpan={8} className="py-8 text-center text-muted-foreground">
                               <p className="font-medium text-xs text-foreground">No payments recorded</p>
                               <p className="text-[11px] text-muted-foreground mt-0.5">
-                                Click "Upload" below to log verified installment receipts.
+                                Enter payment details in the form above and click "Save" to add them to this table.
                               </p>
                             </td>
                           </tr>
@@ -774,27 +1004,36 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                                   <span className="text-muted-foreground/60 font-mono">—</span>
                                 )}
                               </td>
+                              <td className="py-2.5 px-3 text-right">
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleEditPayment(pmt)}
+                                    disabled={!isAdmin}
+                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-primary cursor-pointer"
+                                    title="Edit payment"
+                                  >
+                                    <Pencil className="size-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleDeletePayment(pmt.id)}
+                                    disabled={!isAdmin}
+                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                                    title="Delete payment"
+                                  >
+                                    <Trash2 className="size-3" />
+                                  </Button>
+                                </div>
+                              </td>
                             </tr>
                           ))
                         )}
                       </tbody>
                     </table>
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 pt-1">
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    Update payment:
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleUploadPayment}
-                    className="h-9 px-4 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border hover:bg-muted/80"
-                  >
-                    <Upload className="size-3.5 text-primary" />
-                    <span>Upload</span>
-                  </Button>
                 </div>
               </div>
 
@@ -840,20 +1079,22 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">
                       Equipment Number
                     </Label>
-                    <Input
-                      placeholder="Enter or select EQ #..."
+                    <Select
                       value={selectedEquipmentNumber}
-                      onChange={(e) => setSelectedEquipmentNumber(e.target.value)}
-                      list="equipment-numbers-datalist"
-                      className="h-9 text-xs font-mono font-bold bg-background border-border"
-                    />
-                    <datalist id="equipment-numbers-datalist">
-                      {allAssets.map((a) => (
-                        <option key={a.id} value={a.equipmentNumber}>
-                          {a.equipmentNumber} — {a.oem} {a.model}
-                        </option>
-                      ))}
-                    </datalist>
+                      onValueChange={(val) => setSelectedEquipmentNumber(val)}
+                    >
+                      <SelectTrigger className="h-9 text-xs font-mono font-bold bg-background border-border">
+                        <SelectValue placeholder="Select Equipment #" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {allAssets.map((a) => (
+                          <SelectItem key={a.id} value={a.equipmentNumber} className="text-xs py-1.5">
+                            <span className="font-mono font-bold text-primary">{a.equipmentNumber}</span>
+                            <span className="text-muted-foreground ml-1.5">— {a.oem} {a.model}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-1.5">
@@ -1049,21 +1290,6 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 pt-1">
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    Update equipment list:
-                  </span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddEquipment}
-                    disabled={!isAdmin}
-                    className="h-9 px-4 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border hover:bg-muted/80 disabled:opacity-50"
-                  >
-                    <Plus className="size-3.5 text-primary" />
-                    <span>Add</span>
-                  </Button>
-                </div>
               </div>
 
               {/* Note (Bottom Textarea) */}
