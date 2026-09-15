@@ -102,15 +102,17 @@ function AssetListPage() {
   }
 
   return (
-    <div className="p-3.5 sm:p-5 lg:p-6 space-y-3.5 max-w-7xl mx-auto">
-      {/* Header - Compact System Design */}
-      <div>
-        <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
-          Asset List & Inventory
-        </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Biomedical equipment inventory, operational status, warranty lifecycle, and supplier contracts.
-        </p>
+    <div className="space-y-4">
+      {/* Page Title Lockup */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+        <div>
+          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
+            Asset List & Inventory
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Biomedical equipment inventory, operational status, warranty lifecycle, and supplier contracts.
+          </p>
+        </div>
       </div>
 
       {/* Table Section */}

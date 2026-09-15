@@ -68,14 +68,14 @@ function AssetDashboardPage() {
   }
 
   return (
-    <div className="p-3.5 sm:p-5 lg:p-6 space-y-4 max-w-7xl mx-auto">
-      {/* Header - Compact System Design */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="space-y-4">
+      {/* Page Title Lockup */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
         <div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
             Assets & Devices Dashboard
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          </h2>
+          <p className="text-xs text-muted-foreground">
             Clinical engineering asset lifecycle overview, operational status, and manufacturer distribution.
           </p>
         </div>

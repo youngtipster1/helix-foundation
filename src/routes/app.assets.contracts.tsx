@@ -90,15 +90,17 @@ function ContractsListPage() {
   }
 
   return (
-    <div className="p-3.5 sm:p-5 lg:p-6 space-y-3.5 max-w-7xl mx-auto">
-      {/* Header - Compact System Design */}
-      <div>
-        <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
-          Service Contracts & Agreements List
-        </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Master register of equipment maintenance agreements, payment installment terms, and verified settlement records.
-        </p>
+    <div className="space-y-4">
+      {/* Page Title Lockup */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+        <div>
+          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
+            Service Contracts & Agreements List
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Master register of equipment maintenance agreements, payment installment terms, and verified settlement records.
+          </p>
+        </div>
       </div>
 
       {/* Table Section (duplicate in-page tab removed) */}

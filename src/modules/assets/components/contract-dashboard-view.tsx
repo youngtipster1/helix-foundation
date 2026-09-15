@@ -162,15 +162,11 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
                 <Pie
                   data={metrics.equipmentContractPercentage}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={45}
-                  outerRadius={70}
+                  cy="45%"
+                  innerRadius={50}
+                  outerRadius={75}
                   paddingAngle={4}
                   dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} (${(percent * 100).toFixed(0)}%)`
-                  }
-                  labelLine={false}
                 >
                   {metrics.equipmentContractPercentage.map((entry, index) => (
                     <Cell key={`cell-cov-${index}`} fill={entry.color} />
@@ -182,18 +178,17 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
                     name,
                   ]}
                   contentStyle={{
-                    backgroundColor: "#1e293b",
-                    borderColor: "#334155",
-                    color: "#f8fafc",
+                    backgroundColor: "hsl(var(--card))",
+                    borderColor: "hsl(var(--border))",
                     borderRadius: "0.5rem",
-                    fontSize: "11px",
+                    fontSize: "12px",
                   }}
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={28}
+                  height={32}
                   formatter={(value) => (
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground mr-3 font-medium">
                       {value}
                     </span>
                   )}
@@ -212,19 +207,17 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
             <span className="text-[11px] text-muted-foreground">Coverage levels</span>
           </div>
 
-          <div className="h-52 w-full">
+          <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={metrics.contractTypeDistribution}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={45}
-                  outerRadius={70}
+                  cy="45%"
+                  innerRadius={50}
+                  outerRadius={75}
                   paddingAngle={4}
                   dataKey="value"
-                  label={({ name, value }) => (value > 0 ? `${name}: ${value}` : "")}
-                  labelLine={false}
                 >
                   {metrics.contractTypeDistribution.map((entry, index) => (
                     <Cell key={`cell-type-${index}`} fill={entry.color} />
@@ -236,18 +229,17 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
                     name,
                   ]}
                   contentStyle={{
-                    backgroundColor: "#1e293b",
-                    borderColor: "#334155",
-                    color: "#f8fafc",
+                    backgroundColor: "hsl(var(--card))",
+                    borderColor: "hsl(var(--border))",
                     borderRadius: "0.5rem",
-                    fontSize: "11px",
+                    fontSize: "12px",
                   }}
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={28}
+                  height={32}
                   formatter={(value) => (
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground mr-3 font-medium">
                       {value}
                     </span>
                   )}
