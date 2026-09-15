@@ -1,9 +1,11 @@
 import React from "react";
 import {
   Banknote,
+  CheckCircle2,
   AlertCircle,
   Calendar,
   FileSpreadsheet,
+  ShieldAlert,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -27,67 +29,123 @@ export interface ContractDashboardViewProps {
 export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
   return (
     <div className="space-y-4">
-      {/* Top Row: Left KPI Cards (Total Contract Value, Outstanding Payable, Payable Next Month) + Center Contract Donut + Right Contract Type Donut */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
-        {/* Left Column: 3 Metric Cards Stacked (Black text, no colored values) */}
-        <div className="lg:col-span-4 flex flex-col justify-between gap-3">
-          {/* 1. Total Contract Value */}
-          <div className="flex-1 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Total Contract Value
-              </span>
-              <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-                <Banknote className="size-3.5" />
-              </div>
+      {/* 1. Restored 6 KPI Summary Cards (All neutral black numbers, no colored values) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Card 1: Total Contract Value */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Total Contract Value
+            </span>
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
+              <Banknote className="size-3.5" />
             </div>
-            <div className="my-1 text-2xl font-mono font-bold text-foreground">
-              ₦{metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-            </div>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              Combined value of active service agreements ({metrics.totalContracts} contracts)
-            </p>
           </div>
-
-          {/* 2. Total Amount Outstanding (Payable per client rule) */}
-          <div className="flex-1 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Total Amount Outstanding
-              </span>
-              <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-                <AlertCircle className="size-3.5" />
-              </div>
-            </div>
-            <div className="my-1 text-2xl font-mono font-bold text-foreground">
-              ₦{metrics.totalAmountOutstanding.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-            </div>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              Outstanding payable balance on agreements
-            </p>
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
+            ₦{metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}
           </div>
-
-          {/* 3. Contract Amount Payable Next Month */}
-          <div className="flex-1 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Payable Next Month
-              </span>
-              <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-                <Calendar className="size-3.5" />
-              </div>
-            </div>
-            <div className="my-1 text-2xl font-mono font-bold text-foreground">
-              ₦{metrics.amountPayableNextMonth.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-            </div>
-            <p className="text-[11px] text-muted-foreground leading-normal">
-              Contract amount payable next month
-            </p>
-          </div>
+          <p className="text-[11px] text-muted-foreground leading-normal">
+            Combined value of active service agreements ({metrics.totalContracts} contracts)
+          </p>
         </div>
 
-        {/* Center Column: Contract Status Donut (Slide 17: Red 75% NOT ON CONTRACT, Green 25% CONTRACT) */}
-        <div className="lg:col-span-4 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+        {/* Card 2: Total Amount Paid */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Total Amount Paid
+            </span>
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
+              <CheckCircle2 className="size-3.5" />
+            </div>
+          </div>
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
+            ₦{metrics.totalAmountPaid.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-normal">
+            Verified settlement payments ({((metrics.totalAmountPaid / (metrics.totalValue || 1)) * 100).toFixed(0)}% fulfilled)
+          </p>
+        </div>
+
+        {/* Card 3: Outstanding Payable */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Outstanding Payable
+            </span>
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
+              <AlertCircle className="size-3.5" />
+            </div>
+          </div>
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
+            ₦{metrics.totalAmountOutstanding.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-normal">
+            Remaining balance payable on agreements
+          </p>
+        </div>
+
+        {/* Card 4: Covered Equipment */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Covered Equipment
+            </span>
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
+              <FileSpreadsheet className="size-3.5" />
+            </div>
+          </div>
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
+            {metrics.equipmentUnderContract}{" "}
+            <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-normal">
+            Devices protected under vendor maintenance agreements
+          </p>
+        </div>
+
+        {/* Card 5: Payable Next Month */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Payable Next Month
+            </span>
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
+              <Calendar className="size-3.5" />
+            </div>
+          </div>
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
+            ₦{metrics.amountPayableNextMonth.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-normal">
+            Contract amount payable next month
+          </p>
+        </div>
+
+        {/* Card 6: Service Contracts */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Service Contracts
+            </span>
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
+              <ShieldAlert className="size-3.5" />
+            </div>
+          </div>
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
+            {metrics.totalContracts}{" "}
+            <span className="text-xs font-sans font-medium text-muted-foreground">active</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-normal">
+            Active OEM and 3rd-party vendor service agreements
+          </p>
+        </div>
+      </div>
+
+      {/* 2. Middle Row: 2 Donut Charts (Contract Status + Service Contract Types) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+        {/* Donut 1: Contract Status (Slide 17: Red 75% NOT ON CONTRACT, Green 25% CONTRACT) */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
               <FileSpreadsheet className="size-4 text-foreground" />
@@ -147,8 +205,8 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
           </div>
         </div>
 
-        {/* Right Column: Contract Types Donut (Slide 17: PM ONLY, LABOUR ONLY, PM + LABOUR, COMPREHENSIVE) */}
-        <div className="lg:col-span-4 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+        {/* Donut 2: Service Contract Types (Slide 17: PM ONLY, LABOUR ONLY, PM + LABOUR, COMPREHENSIVE) */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
               <Banknote className="size-4 text-foreground" />
@@ -217,9 +275,9 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
         </div>
       </div>
 
-      {/* Bottom Row: 3 Bar Charts matching slide 17 (CONTRACT BY LOCATION, CONTRACT BY MODALITY, CONTRACT BY OEM) */}
+      {/* 3. Bottom Row: 3 Bar Charts matching slide 17 (CONTRACT BY LOCATION, CONTRACT BY MODALITY, CONTRACT BY OEM) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-        {/* 1. CONTRACT BY LOCATION */}
+        {/* Bar 1: CONTRACT BY LOCATION */}
         <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="text-center mb-3">
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
@@ -271,7 +329,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
           </div>
         </div>
 
-        {/* 2. CONTRACT BY MODALITY */}
+        {/* Bar 2: CONTRACT BY MODALITY */}
         <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="text-center mb-3">
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
@@ -330,7 +388,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
           </div>
         </div>
 
-        {/* 3. CONTRACT BY OEM */}
+        {/* Bar 3: CONTRACT BY OEM */}
         <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="text-center mb-3">
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
