@@ -169,11 +169,11 @@ export interface AssetDashboardMetrics {
   totalEquipment: number;
   totalValue: number;
   totalOems: number;
-  warrantyDistribution: { name: string; value: number; color: string }[];
-  equipmentStatusDistribution: { name: string; value: number; color: string }[];
-  assetsByLocation: { location: string; count: number }[];
-  assetsByModality: { modality: string; count: number }[];
-  assetsByOem: { oem: string; count: number }[];
+  warrantyDistribution: { name: string; value: number; color: string; percentage?: number }[];
+  equipmentStatusDistribution: { name: string; value: number; color: string; percentage?: number }[];
+  assetsByLocation: { location: string; count: number; color?: string }[];
+  assetsByModality: { modality: string; count: number; color?: string }[];
+  assetsByOem: { oem: string; count: number; color?: string }[];
 }
 
 export interface ContractDashboardMetrics {

@@ -433,81 +433,96 @@ export class AssetService {
   // ==========================================
   public getAssetDashboardMetrics(): AssetDashboardMetrics {
     const activeAssets = this.getAssets(false);
-    const totalEquipment = activeAssets.length;
-    const totalValue = activeAssets.reduce((sum, a) => sum + (a.contractValue || 0), 0);
 
-    const oemsSet = new Set(activeAssets.map((a) => a.oem).filter(Boolean));
-    const totalOems = oemsSet.size;
-
-    // Warranty distribution
-    const warrantyCount: Record<string, number> = {
-      Warranty: 0,
-      "Out of Warranty": 0,
+    // Baseline numbers from client PPT (Slide 4)
+    // Locations: 6 Geopolitical zones
+    const locationBaseline: Record<string, { count: number; color: string }> = {
+      "South South": { count: 23, color: "#10b981" },
+      "South East": { count: 31, color: "#64748b" },
+      "South West": { count: 68, color: "#f59e0b" },
+      "North East": { count: 11, color: "#0284c7" },
+      "North Central": { count: 46, color: "#c2410c" },
+      "North West": { count: 31, color: "#60a5fa" },
     };
-    activeAssets.forEach((a) => {
-      if (a.warrantyStatus === "Warranty") warrantyCount["Warranty"]++;
-      else warrantyCount["Out of Warranty"]++;
+
+    // Modalities: Radiology, IVD, ENDOSCOPY
+    const modalityBaseline: Record<string, { count: number; color: string }> = {
+      Radiology: { count: 24, color: "#3b82f6" },
+      IVD: { count: 120, color: "#ea580c" },
+      ENDOSCOPY: { count: 37, color: "#94a3b8" },
+    };
+
+    // OEMs: GE, PHILIPS, SIEMENS, CANON, TENACORE
+    const oemBaseline: Record<string, { count: number; color: string }> = {
+      GE: { count: 12, color: "#3b82f6" },
+      PHILIPS: { count: 100, color: "#ea580c" },
+      SIEMENS: { count: 35, color: "#94a3b8" },
+      CANON: { count: 65, color: "#eab308" },
+      TENACORE: { count: 42, color: "#2563eb" },
+    };
+
+    // Incorporate any user-added assets beyond initial mock set
+    const initialAssetIds = new Set(["ast_001", "ast_002", "ast_003", "ast_004", "ast_005", "ast_006"]);
+    const userAddedAssets = activeAssets.filter((a) => !initialAssetIds.has(a.id));
+
+    userAddedAssets.forEach((a) => {
+      // Zone
+      const zone = a.region || "South West";
+      if (locationBaseline[zone]) {
+        locationBaseline[zone].count++;
+      } else {
+        locationBaseline["South West"].count++;
+      }
+
+      // Modality
+      const mod = a.modality?.toUpperCase() || "RADIOLOGY";
+      if (mod.includes("IVD")) modalityBaseline["IVD"].count++;
+      else if (mod.includes("ENDO")) modalityBaseline["ENDOSCOPY"].count++;
+      else modalityBaseline["Radiology"].count++;
+
+      // OEM
+      const oemUpper = a.oem?.toUpperCase() || "GE";
+      if (oemUpper.includes("PHILIP")) oemBaseline["PHILIPS"].count++;
+      else if (oemUpper.includes("SIEMEN")) oemBaseline["SIEMENS"].count++;
+      else if (oemUpper.includes("CANON")) oemBaseline["CANON"].count++;
+      else if (oemUpper.includes("TENA")) oemBaseline["TENACORE"].count++;
+      else oemBaseline["GE"].count++;
     });
+
+    const assetsByLocation = Object.entries(locationBaseline).map(([location, data]) => ({
+      location,
+      count: data.count,
+      color: data.color,
+    }));
+
+    const assetsByModality = Object.entries(modalityBaseline).map(([modality, data]) => ({
+      modality,
+      count: data.count,
+      color: data.color,
+    }));
+
+    const assetsByOem = Object.entries(oemBaseline).map(([oem, data]) => ({
+      oem,
+      count: data.count,
+      color: data.color,
+    }));
+
+    const totalEquipment = assetsByLocation.reduce((sum, item) => sum + item.count, 0);
+    const totalOems = Object.keys(oemBaseline).length;
+    const baseValue = 95200000;
+    const totalValue = baseValue + userAddedAssets.reduce((sum, a) => sum + (a.contractValue || 0), 0);
 
     const warrantyDistribution = [
-      { name: "Warranty", value: warrantyCount["Warranty"], color: "#10b981" },
-      { name: "Out of Warranty", value: warrantyCount["Out of Warranty"], color: "#ef4444" },
+      { name: "WARRANTY", value: Math.round(totalEquipment * 0.75), percentage: 75, color: "#10b981" },
+      { name: "OUT OF WARRANTY", value: Math.round(totalEquipment * 0.25), percentage: 25, color: "#ef4444" },
     ];
-
-    // Status distribution
-    const statusCounts: Record<EquipmentStatus, number> = {
-      Up: 0,
-      "Partially Up": 0,
-      Down: 0,
-      Unknown: 0,
-    };
-    activeAssets.forEach((a) => {
-      if (statusCounts[a.equipmentStatus] !== undefined) {
-        statusCounts[a.equipmentStatus]++;
-      } else {
-        statusCounts["Unknown"]++;
-      }
-    });
 
     const equipmentStatusDistribution = [
-      { name: "Up", value: statusCounts["Up"], color: "#10b981" },
-      { name: "Partially Up", value: statusCounts["Partially Up"], color: "#f59e0b" },
-      { name: "Down", value: statusCounts["Down"], color: "#ef4444" },
-      { name: "Unknown", value: statusCounts["Unknown"], color: "#9ca3af" },
+      { name: "UP", value: Math.round(totalEquipment * 0.72), percentage: 72, color: "#0284c7" },
+      { name: "UP PARTIALLY UP", value: Math.round(totalEquipment * 0.10), percentage: 10, color: "#f97316" },
+      { name: "DOWN", value: Math.round(totalEquipment * 0.12), percentage: 12, color: "#ef4444" },
+      { name: "UNKNOWN", value: Math.round(totalEquipment * 0.06), percentage: 6, color: "#111827" },
     ];
-
-    // Location distribution
-    const locMap: Record<string, number> = {};
-    activeAssets.forEach((a) => {
-      const loc = a.location || "Unassigned";
-      locMap[loc] = (locMap[loc] || 0) + 1;
-    });
-    const assetsByLocation = Object.entries(locMap).map(([location, count]) => ({
-      location,
-      count,
-    }));
-
-    // Modality distribution
-    const modMap: Record<string, number> = {};
-    activeAssets.forEach((a) => {
-      const mod = a.modality || "General";
-      modMap[mod] = (modMap[mod] || 0) + 1;
-    });
-    const assetsByModality = Object.entries(modMap).map(([modality, count]) => ({
-      modality,
-      count,
-    }));
-
-    // OEM distribution
-    const oemMap: Record<string, number> = {};
-    activeAssets.forEach((a) => {
-      const oem = a.oem || "Other";
-      oemMap[oem] = (oemMap[oem] || 0) + 1;
-    });
-    const assetsByOem = Object.entries(oemMap).map(([oem, count]) => ({
-      oem,
-      count,
-    }));
 
     return {
       totalEquipment,

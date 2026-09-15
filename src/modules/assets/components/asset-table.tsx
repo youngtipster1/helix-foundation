@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/auth-context";
+import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 
 interface AssetTableProps {
   assets: Asset[];
@@ -381,67 +382,44 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                       className="py-2.5 px-3 whitespace-nowrap text-right"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center justify-end gap-1">
-                        {/* View details */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 text-muted-foreground hover:text-foreground"
-                          title="View Details"
-                          onClick={() => onViewAsset(asset)}
-                        >
-                          <Eye className="size-3.5" />
-                        </Button>
-
-                        {/* Log Job (Available to all users) */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50"
-                          title="Equipment Service / Jobs"
-                          onClick={() => onLogJob(asset)}
-                        >
-                          <Wrench className="size-3.5" />
-                        </Button>
-
-                        {/* Edit (Admin only) */}
-                        {isAdmin && !asset.isArchived && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 text-muted-foreground hover:text-foreground"
-                            title="Edit Asset"
-                            onClick={() => onEditAsset(asset)}
-                          >
-                            <Edit2 className="size-3.5" />
-                          </Button>
-                        )}
-
-                        {/* Archive (Admin only) */}
-                        {isAdmin && !asset.isArchived && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                            title="Archive Asset"
-                            onClick={() => onArchiveAsset(asset)}
-                          >
-                            <Archive className="size-3.5" />
-                          </Button>
-                        )}
-
-                        {/* Unarchive (Super Admin only) */}
-                        {isSuperAdmin && asset.isArchived && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
-                            title="Unarchive Asset"
-                            onClick={() => onUnarchiveAsset(asset)}
-                          >
-                            <RotateCcw className="size-3.5" />
-                          </Button>
-                        )}
+                      <div className="flex items-center justify-end">
+                        <RowActionsMenu
+                          label="Actions"
+                          align="end"
+                          actions={[
+                            {
+                              label: "View Details",
+                              icon: Eye,
+                              onClick: () => onViewAsset(asset),
+                            },
+                            {
+                              label: "Equipment Service",
+                              icon: Wrench,
+                              onClick: () => onLogJob(asset),
+                              separatorAfter: isAdmin,
+                            },
+                            {
+                              label: "Edit Equipment",
+                              icon: Edit2,
+                              onClick: () => onEditAsset(asset),
+                              hidden: !isAdmin || asset.isArchived,
+                            },
+                            {
+                              label: "Archive Equipment",
+                              icon: Archive,
+                              onClick: () => onArchiveAsset(asset),
+                              variant: "destructive",
+                              hidden: !isAdmin || asset.isArchived,
+                            },
+                            {
+                              label: "Unarchive Equipment",
+                              icon: RotateCcw,
+                              onClick: () => onUnarchiveAsset(asset),
+                              variant: "success",
+                              hidden: !isSuperAdmin || !asset.isArchived,
+                            },
+                          ]}
+                        />
                       </div>
                     </td>
                   </tr>

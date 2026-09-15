@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/auth-context";
+import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 
 interface ContractsTableProps {
   contracts: ServiceContract[];
@@ -289,56 +290,38 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
                       className="py-3 px-4 whitespace-nowrap text-right"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center justify-end gap-1">
-                        {/* View */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                          title="View Details"
-                          onClick={() => onViewContract(contract)}
-                        >
-                          <Eye className="size-3.5" />
-                        </Button>
-
-                        {/* Edit (Admin only) */}
-                        {isAdmin && !contract.isArchived && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                            title="Edit Contract"
-                            onClick={() => onEditContract(contract)}
-                          >
-                            <Edit2 className="size-3.5" />
-                          </Button>
-                        )}
-
-                        {/* Archive (Admin only) */}
-                        {isAdmin && !contract.isArchived && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/50"
-                            title="Archive Contract"
-                            onClick={() => onArchiveContract(contract)}
-                          >
-                            <Archive className="size-3.5" />
-                          </Button>
-                        )}
-
-                        {/* Unarchive (Super Admin only) */}
-                        {isSuperAdmin && contract.isArchived && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
-                            title="Unarchive Contract"
-                            onClick={() => onUnarchiveContract(contract)}
-                          >
-                            <RotateCcw className="size-3.5" />
-                          </Button>
-                        )}
+                      <div className="flex items-center justify-end">
+                        <RowActionsMenu
+                          label="Actions"
+                          align="end"
+                          actions={[
+                            {
+                              label: "View Details",
+                              icon: Eye,
+                              onClick: () => onViewContract(contract),
+                            },
+                            {
+                              label: "Edit Contract",
+                              icon: Edit2,
+                              onClick: () => onEditContract(contract),
+                              hidden: !isAdmin || contract.isArchived,
+                            },
+                            {
+                              label: "Archive Contract",
+                              icon: Archive,
+                              onClick: () => onArchiveContract(contract),
+                              variant: "destructive",
+                              hidden: !isAdmin || contract.isArchived,
+                            },
+                            {
+                              label: "Unarchive Contract",
+                              icon: RotateCcw,
+                              onClick: () => onUnarchiveContract(contract),
+                              variant: "success",
+                              hidden: !isSuperAdmin || !contract.isArchived,
+                            },
+                          ]}
+                        />
                       </div>
                     </td>
                   </tr>

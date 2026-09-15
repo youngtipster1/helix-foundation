@@ -40,7 +40,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Total Contract Value
             </span>
-            <div className="size-7 rounded-md bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
               <Banknote className="size-3.5" />
             </div>
           </div>
@@ -58,11 +58,11 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Total Amount Paid
             </span>
-            <div className="size-7 rounded-md bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
               <CheckCircle2 className="size-3.5" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
             ₦{metrics.totalAmountPaid.toLocaleString("en-US", { minimumFractionDigits: 0 })}
           </div>
           <p className="text-[11px] text-muted-foreground leading-normal">
@@ -73,14 +73,14 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
         {/* 3. Outstanding Payable */}
         <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Outstanding Payable
             </span>
-            <div className="size-7 rounded-md bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
               <AlertCircle className="size-3.5" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-rose-600 dark:text-rose-400">
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
             ₦{metrics.totalAmountOutstanding.toLocaleString("en-US", { minimumFractionDigits: 0 })}
           </div>
           <p className="text-[11px] text-muted-foreground leading-normal">
@@ -94,7 +94,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Covered Equipment
             </span>
-            <div className="size-7 rounded-md bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400">
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
               <FileSpreadsheet className="size-3.5" />
             </div>
           </div>
@@ -110,14 +110,14 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
         {/* 5. Amount Payable Next Month */}
         <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Payable Next Month
             </span>
-            <div className="size-7 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
               <Calendar className="size-3.5" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-amber-600 dark:text-amber-400">
+          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
             ₦{metrics.amountPayableNextMonth.toLocaleString("en-US", { minimumFractionDigits: 0 })}
           </div>
           <p className="text-[11px] text-muted-foreground leading-normal">
@@ -131,7 +131,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Service Contracts
             </span>
-            <div className="size-7 rounded-md bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
               <ShieldAlert className="size-3.5" />
             </div>
           </div>
