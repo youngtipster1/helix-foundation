@@ -127,10 +127,10 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
               <Button
                 size="sm"
                 onClick={onAddContract}
-                className="text-xs h-9 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                className="text-xs h-9 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs"
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>New Service Contract</span>
+                <span>Create Contract</span>
               </Button>
             )}
           </div>
@@ -322,7 +322,7 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
                           align="end"
                           actions={[
                             {
-                              label: "View Details",
+                              label: "View Contract Details",
                               icon: Eye,
                               onClick: () => onViewContract(contract),
                             },
