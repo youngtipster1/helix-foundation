@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/data-table";
+import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -311,27 +312,26 @@ function QualityTrainingPage() {
     const isCompleted = row.trainingStatus === "Completed";
 
     return (
-      <div className="flex justify-end items-center gap-2">
-        {!isAdmin && !isCompleted ? (
-          <Button
-            size="sm"
-            onClick={() => setAcknowledgeTarget(row)}
-            className="h-7 text-[11px] px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
-          >
-            <CheckCircle2 className="size-3" />
-            <span>Read & Acknowledge</span>
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setAcknowledgeTarget(row)}
-            className="h-7 text-[11px] px-2.5 gap-1 text-muted-foreground"
-          >
-            <Eye className="size-3" />
-            <span>View Record</span>
-          </Button>
-        )}
+      <div className="flex justify-end">
+        <RowActionsMenu
+          label="Actions"
+          align="end"
+          actions={[
+            !isAdmin && !isCompleted
+              ? {
+                  label: "Read & Acknowledge",
+                  icon: CheckCircle2,
+                  variant: "success",
+                  onClick: () => setAcknowledgeTarget(row),
+                }
+              : null,
+            {
+              label: "View Training Record",
+              icon: Eye,
+              onClick: () => setAcknowledgeTarget(row),
+            },
+          ]}
+        />
       </div>
     );
   };

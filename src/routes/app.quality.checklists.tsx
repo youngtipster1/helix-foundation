@@ -964,35 +964,39 @@ function EquipmentChecklistsPage() {
     const isAuthor = row.preparedByName === currentFullName;
 
     return (
-      <RowActionsMenu
-        actions={[
-          {
-            label: "View Checklist",
-            icon: Eye,
-            onClick: () => handleMockView(row),
-          },
-          {
-            label: "Download",
-            icon: Download,
-            onClick: () => handleMockDownload(row),
-          },
-          isAdmin || isAuthor
-            ? {
-                label: "Edit Checklist",
-                icon: Edit2,
-                onClick: () => handleEditClick(row),
-              }
-            : null,
-          isAdmin
-            ? {
-                label: "Archive",
-                icon: Archive,
-                variant: "destructive",
-                onClick: () => handleArchiveClick(row),
-              }
-            : null,
-        ]}
-      />
+      <div className="flex justify-end">
+        <RowActionsMenu
+          label="Actions"
+          align="end"
+          actions={[
+            {
+              label: "View Checklist",
+              icon: Eye,
+              onClick: () => handleMockView(row),
+            },
+            {
+              label: "Download",
+              icon: Download,
+              onClick: () => handleMockDownload(row),
+            },
+            isAdmin || isAuthor
+              ? {
+                  label: "Edit Checklist",
+                  icon: Edit2,
+                  onClick: () => handleEditClick(row),
+                }
+              : null,
+            isAdmin
+              ? {
+                  label: "Archive",
+                  icon: Archive,
+                  variant: "destructive",
+                  onClick: () => handleArchiveClick(row),
+                }
+              : null,
+          ]}
+        />
+      </div>
     );
   };
 
