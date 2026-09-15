@@ -18,6 +18,11 @@ import { Route as AppPartsRouteImport } from './routes/app.parts'
 import { Route as AppQualityRouteImport } from './routes/app.quality'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppToolsRouteImport } from './routes/app.tools'
+import { Route as AppAssetsIndexRouteImport } from './routes/app.assets.index'
+import { Route as AppAssetsContractsRouteImport } from './routes/app.assets.contracts'
+import { Route as AppAssetsContractsDashboardRouteImport } from './routes/app.assets.contracts-dashboard'
+import { Route as AppAssetsDashboardRouteImport } from './routes/app.assets.dashboard'
+import { Route as AppAssetsListRouteImport } from './routes/app.assets.list'
 import { Route as AppFinancialIndexRouteImport } from './routes/app.financial.index'
 import { Route as AppFinancialDashboardRouteImport } from './routes/app.financial.dashboard'
 import { Route as AppFinancialOrdersRouteImport } from './routes/app.financial.orders'
@@ -105,6 +110,32 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
 const AppToolsRoute = AppToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssetsIndexRoute = AppAssetsIndexRouteImport.update({
+  id: '/assets/',
+  path: '/assets/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssetsContractsRoute = AppAssetsContractsRouteImport.update({
+  id: '/assets/contracts',
+  path: '/assets/contracts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssetsContractsDashboardRoute =
+  AppAssetsContractsDashboardRouteImport.update({
+    id: '/assets/contracts-dashboard',
+    path: '/assets/contracts-dashboard',
+    getParentRoute: () => AppRoute,
+  } as any)
+const AppAssetsDashboardRoute = AppAssetsDashboardRouteImport.update({
+  id: '/assets/dashboard',
+  path: '/assets/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAssetsListRoute = AppAssetsListRouteImport.update({
+  id: '/assets/list',
+  path: '/assets/list',
   getParentRoute: () => AppRoute,
 } as any)
 const AppFinancialIndexRoute = AppFinancialIndexRouteImport.update({
@@ -338,6 +369,10 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/tools': typeof AppToolsRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/assets/contracts': typeof AppAssetsContractsRoute
+  '/app/assets/contracts-dashboard': typeof AppAssetsContractsDashboardRoute
+  '/app/assets/dashboard': typeof AppAssetsDashboardRoute
+  '/app/assets/list': typeof AppAssetsListRoute
   '/app/financial/dashboard': typeof AppFinancialDashboardRoute
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
@@ -372,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/app/tools/expense-approvals': typeof AppToolsExpenseApprovalsRoute
   '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
   '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
+  '/app/assets/': typeof AppAssetsIndexRoute
   '/app/financial/': typeof AppFinancialIndexRoute
   '/app/parts/': typeof AppPartsIndexRoute
   '/app/quality/': typeof AppQualityIndexRoute
@@ -386,6 +422,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/app': typeof AppIndexRoute
+  '/app/assets/contracts': typeof AppAssetsContractsRoute
+  '/app/assets/contracts-dashboard': typeof AppAssetsContractsDashboardRoute
+  '/app/assets/dashboard': typeof AppAssetsDashboardRoute
+  '/app/assets/list': typeof AppAssetsListRoute
   '/app/financial/dashboard': typeof AppFinancialDashboardRoute
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
@@ -420,6 +460,7 @@ export interface FileRoutesByTo {
   '/app/tools/expense-approvals': typeof AppToolsExpenseApprovalsRoute
   '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
   '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
+  '/app/assets': typeof AppAssetsIndexRoute
   '/app/financial': typeof AppFinancialIndexRoute
   '/app/parts': typeof AppPartsIndexRoute
   '/app/quality': typeof AppQualityIndexRoute
@@ -441,6 +482,10 @@ export interface FileRoutesById {
   '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/tools': typeof AppToolsRouteWithChildren
   '/app/': typeof AppIndexRoute
+  '/app/assets/contracts': typeof AppAssetsContractsRoute
+  '/app/assets/contracts-dashboard': typeof AppAssetsContractsDashboardRoute
+  '/app/assets/dashboard': typeof AppAssetsDashboardRoute
+  '/app/assets/list': typeof AppAssetsListRoute
   '/app/financial/dashboard': typeof AppFinancialDashboardRoute
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
@@ -475,6 +520,7 @@ export interface FileRoutesById {
   '/app/tools/expense-approvals': typeof AppToolsExpenseApprovalsRoute
   '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
   '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
+  '/app/assets/': typeof AppAssetsIndexRoute
   '/app/financial/': typeof AppFinancialIndexRoute
   '/app/parts/': typeof AppPartsIndexRoute
   '/app/quality/': typeof AppQualityIndexRoute
@@ -497,6 +543,10 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/tools'
     | '/app/'
+    | '/app/assets/contracts'
+    | '/app/assets/contracts-dashboard'
+    | '/app/assets/dashboard'
+    | '/app/assets/list'
     | '/app/financial/dashboard'
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
@@ -531,6 +581,7 @@ export interface FileRouteTypes {
     | '/app/tools/expense-approvals'
     | '/app/tools/my-expenses'
     | '/app/tools/my-jobs'
+    | '/app/assets/'
     | '/app/financial/'
     | '/app/parts/'
     | '/app/quality/'
@@ -545,6 +596,10 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/app'
+    | '/app/assets/contracts'
+    | '/app/assets/contracts-dashboard'
+    | '/app/assets/dashboard'
+    | '/app/assets/list'
     | '/app/financial/dashboard'
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
@@ -579,6 +634,7 @@ export interface FileRouteTypes {
     | '/app/tools/expense-approvals'
     | '/app/tools/my-expenses'
     | '/app/tools/my-jobs'
+    | '/app/assets'
     | '/app/financial'
     | '/app/parts'
     | '/app/quality'
@@ -599,6 +655,10 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/tools'
     | '/app/'
+    | '/app/assets/contracts'
+    | '/app/assets/contracts-dashboard'
+    | '/app/assets/dashboard'
+    | '/app/assets/list'
     | '/app/financial/dashboard'
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
@@ -633,6 +693,7 @@ export interface FileRouteTypes {
     | '/app/tools/expense-approvals'
     | '/app/tools/my-expenses'
     | '/app/tools/my-jobs'
+    | '/app/assets/'
     | '/app/financial/'
     | '/app/parts/'
     | '/app/quality/'
@@ -713,6 +774,41 @@ declare module '@tanstack/react-router' {
       path: '/tools'
       fullPath: '/app/tools'
       preLoaderRoute: typeof AppToolsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/assets/': {
+      id: '/app/assets/'
+      path: '/assets'
+      fullPath: '/app/assets/'
+      preLoaderRoute: typeof AppAssetsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/assets/contracts': {
+      id: '/app/assets/contracts'
+      path: '/assets/contracts'
+      fullPath: '/app/assets/contracts'
+      preLoaderRoute: typeof AppAssetsContractsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/assets/contracts-dashboard': {
+      id: '/app/assets/contracts-dashboard'
+      path: '/assets/contracts-dashboard'
+      fullPath: '/app/assets/contracts-dashboard'
+      preLoaderRoute: typeof AppAssetsContractsDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/assets/dashboard': {
+      id: '/app/assets/dashboard'
+      path: '/assets/dashboard'
+      fullPath: '/app/assets/dashboard'
+      preLoaderRoute: typeof AppAssetsDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/assets/list': {
+      id: '/app/assets/list'
+      path: '/assets/list'
+      fullPath: '/app/assets/list'
+      preLoaderRoute: typeof AppAssetsListRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/financial/': {
@@ -1162,6 +1258,11 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
   AppToolsRoute: typeof AppToolsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
+  AppAssetsContractsRoute: typeof AppAssetsContractsRoute
+  AppAssetsContractsDashboardRoute: typeof AppAssetsContractsDashboardRoute
+  AppAssetsDashboardRoute: typeof AppAssetsDashboardRoute
+  AppAssetsListRoute: typeof AppAssetsListRoute
+  AppAssetsIndexRoute: typeof AppAssetsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1171,6 +1272,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRouteWithChildren,
   AppToolsRoute: AppToolsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
+  AppAssetsContractsRoute: AppAssetsContractsRoute,
+  AppAssetsContractsDashboardRoute: AppAssetsContractsDashboardRoute,
+  AppAssetsDashboardRoute: AppAssetsDashboardRoute,
+  AppAssetsListRoute: AppAssetsListRoute,
+  AppAssetsIndexRoute: AppAssetsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

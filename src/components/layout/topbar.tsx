@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Settings2,
   Landmark,
+  Stethoscope,
 } from "lucide-react";
 
 import { BrandLockup } from "@/components/hemp/brand";
@@ -43,6 +44,7 @@ import {
   TOOLS_USER_MAIN_NAV,
   PARTS_MAIN_NAV,
   FINANCIAL_NAV,
+  ASSETS_NAV,
   type NavItem,
 } from "@/app/config/navigation";
 import { cn } from "@/lib/utils";
@@ -115,11 +117,20 @@ export function Topbar({ user }: { user: User }) {
   const isSettings = pathname.startsWith("/app/settings");
   const isParts = pathname.startsWith("/app/parts");
   const isFinancial = pathname.startsWith("/app/financial");
+  const isAssets = pathname.startsWith("/app/assets");
 
   const isToolsAdmin = isModuleAdmin(user, "tools");
   const isQualityAdmin = isModuleAdmin(user, "quality");
 
   const authorizedModules = [
+    {
+      id: "assets",
+      label: "Assets & Devices",
+      to: "/app/assets/dashboard",
+      icon: Stethoscope,
+      isActive: isAssets,
+      hasAccess: hasModuleAccess(user, "assets"),
+    },
     {
       id: "parts",
       label: "Parts Inventory",
@@ -351,7 +362,15 @@ export function Topbar({ user }: { user: User }) {
           </>
         )}
 
-        {!isTools && !isQuality && !isParts && !isFinancial && (
+        {isAssets && (
+          <>
+            {ASSETS_NAV.map((item) => (
+              <HeaderNavLink key={item.to} item={item} />
+            ))}
+          </>
+        )}
+
+        {!isTools && !isQuality && !isParts && !isFinancial && !isAssets && (
           <>
             {SETTINGS_WORKSPACE_NAV.map((item) => (
               <HeaderNavLink key={item.to} item={item} />

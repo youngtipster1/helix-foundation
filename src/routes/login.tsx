@@ -97,12 +97,20 @@ const DEMO_USERS = [
     description: "Financial management: Create/edit/archive purchase requisitions, approve orders, generate supplier POs, and view procurement KPIs.",
   },
   {
-    role: "Financial User",
-    user: "Tunde Bakare",
-    username: "financeuser",
+    role: "Asset Admin",
+    user: "Chidi Okonkwo",
+    username: "assetadmin",
     pass: "hemp1234",
-    module: "Financial",
-    description: "Procurement engineer: Place orders for parts, service, or invoices, track order status and delivery receipts.",
+    module: "Assets & Devices",
+    description: "Asset Management Admin: Add, edit, and archive clinical equipment and service contracts, review KPIs, and oversee fleet maintenance.",
+  },
+  {
+    role: "Asset User",
+    user: "Fatima Bello",
+    username: "assetuser",
+    pass: "hemp1234",
+    module: "Assets & Devices",
+    description: "Field technician: View equipment registries and service contract terms, inspect warranty/PPM lifecycle, and create maintenance jobs on assets.",
   },
 ];
 

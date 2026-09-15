@@ -23,6 +23,7 @@ import {
   LogOut,
   ArrowLeftRight,
   Landmark,
+  Stethoscope,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -59,6 +60,7 @@ export function MobileBottomNav() {
   const isSuperAdmin = Boolean(user.isSuperAdmin || user.role === "Super Admin");
   const canAccessParts = hasModuleAccess(user, "parts");
   const canAccessFinancial = hasModuleAccess(user, "financial");
+  const canAccessAssets = hasModuleAccess(user, "assets");
   const canAccessTools = hasModuleAccess(user, "tools");
   const canAccessQuality = hasModuleAccess(user, "quality");
   const canAccessSettings = hasModuleAccess(user, "settings");
@@ -72,10 +74,19 @@ export function MobileBottomNav() {
   const isQuality = pathname.startsWith("/app/quality");
   const isParts = pathname.startsWith("/app/parts");
   const isFinancial = pathname.startsWith("/app/financial");
+  const isAssets = pathname.startsWith("/app/assets");
   const isSettings = pathname.startsWith("/app/settings");
 
   // Authorized modules for dynamic switcher
   const authorizedModules = [
+    {
+      id: "assets",
+      label: "Assets & Devices",
+      to: "/app/assets/dashboard",
+      icon: Stethoscope,
+      hasAccess: canAccessAssets,
+      isCurrent: isAssets,
+    },
     {
       id: "parts",
       label: "Parts Inventory",
@@ -166,6 +177,13 @@ export function MobileBottomNav() {
       { label: "Orders", to: "/app/financial/orders", icon: ClipboardCheck },
       { label: "POs", to: "/app/financial/purchase-orders", icon: Receipt },
       { label: "Contracts", to: "/app/financial/service-contracts", icon: FileText },
+    ];
+  } else if (isAssets) {
+    tabs = [
+      { label: "Dashboard", to: "/app/assets/dashboard", icon: LayoutDashboard },
+      { label: "Assets", to: "/app/assets/list", icon: Stethoscope },
+      { label: "Contracts", to: "/app/assets/contracts-dashboard", icon: FileCheck },
+      { label: "Registry", to: "/app/assets/contracts", icon: FileText },
     ];
   } else if (isParts) {
     tabs = [

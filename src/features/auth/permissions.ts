@@ -27,6 +27,10 @@ export function getModulePermission(
       const finPerm = user.permissions.financial ?? (user.permissions as any).financials;
       return finPerm ?? null;
     }
+    if (moduleKey === "assets" || moduleKey === "asset") {
+      const assetsPerm = user.permissions.assets ?? (user.permissions as any).asset;
+      return assetsPerm ?? null;
+    }
     if (moduleKey === "settings") {
       const settingsPerm = (user.permissions as any).settings;
       return settingsPerm ?? null;
@@ -60,6 +64,11 @@ export function getModulePermission(
   if (moduleKey === "financial" || moduleKey === "financials") {
     if (roleLower.includes("financial admin") || roleLower.includes("finance admin")) return "admin";
     if (roleLower.includes("financial user") || roleLower.includes("finance user")) return "user";
+  }
+
+  if (moduleKey === "assets" || moduleKey === "asset") {
+    if (roleLower.includes("asset admin") || roleLower.includes("assets admin")) return "admin";
+    if (roleLower.includes("asset user") || roleLower.includes("assets user")) return "user";
   }
 
   return null;

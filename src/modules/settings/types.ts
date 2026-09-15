@@ -5,7 +5,8 @@ export type ModuleKey =
   | "parts-inventory"
   | "training"
   | "management"
-  | "financial";
+  | "financial"
+  | "assets";
 
 export type ModuleStatus = "available" | "coming-soon";
 
@@ -49,6 +50,7 @@ export type ModulePermissions = {
   debrief: PermissionLevel;
   management: PermissionLevel;
   financial?: PermissionLevel | undefined;
+  assets?: PermissionLevel | undefined;
 };
 
 export type UserAccount = {
