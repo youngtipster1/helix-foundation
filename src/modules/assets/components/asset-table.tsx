@@ -157,13 +157,13 @@ export const AssetTable: React.FC<AssetTableProps> = ({
       <div className="bg-card p-3 sm:p-3.5 rounded-xl border border-border space-y-2.5 shadow-2xs">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
           {/* Search */}
-          <div className="relative flex-1 min-w-[220px]">
+          <div className="relative flex-1 min-w-0 w-full md:w-auto">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               placeholder="Search by equipment #, serial, OEM, model, supplier..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 text-xs h-8"
+              className="pl-8 text-xs h-8 w-full"
             />
           </div>
 
@@ -298,8 +298,8 @@ export const AssetTable: React.FC<AssetTableProps> = ({
 
       {/* Table Section with Supplier Column */}
       <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+        <div className="overflow-x-auto relative">
+          <table className="min-w-[1600px] w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-muted-foreground font-semibold uppercase tracking-wider text-[10px] whitespace-nowrap">
                 <th className="py-2.5 px-3">SN</th>
@@ -326,7 +326,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                 <th className="py-2.5 px-3">Customer</th>
                 <th className="py-2.5 px-3">Location</th>
                 <th className="py-2.5 px-3">Region</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
+                <th className="py-2.5 px-3 text-right sticky right-0 bg-muted/90 backdrop-blur-xs shadow-xs z-10">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60 font-medium text-foreground">

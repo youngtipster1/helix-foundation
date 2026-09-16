@@ -97,12 +97,12 @@ function QualityDashboardPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Policy Documents
             </span>
-            <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
+            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
               <FileText className="size-4" />
             </div>
           </div>
           <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight">{metrics.policyDocuments}</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.policyDocuments}</span>
             <span className="text-[10px] text-muted-foreground font-medium">Active & Approved</span>
           </div>
         </div>
@@ -113,44 +113,44 @@ function QualityDashboardPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Equipment Checklists
             </span>
-            <div className="rounded-lg bg-blue-500/10 p-2 text-blue-600 dark:text-blue-400">
+            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
               <ClipboardCheck className="size-4" />
             </div>
           </div>
           <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight">{metrics.equipmentChecklists}</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.equipmentChecklists}</span>
             <span className="text-[10px] text-muted-foreground font-medium">Active & Approved</span>
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="surface-panel p-5 flex flex-col h-full justify-between border-amber-500/20 bg-amber-500/5 hover:shadow-md transition-shadow">
+        <div className="surface-panel p-5 flex flex-col h-full justify-between hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Pending Reviews
             </span>
-            <div className="rounded-lg bg-amber-500/15 p-2 text-amber-600 dark:text-amber-400">
+            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
               <Clock className="size-4" />
             </div>
           </div>
           <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">{metrics.pendingReviews}</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.pendingReviews}</span>
             <span className="text-[10px] text-muted-foreground font-medium">Awaiting peer evaluation</span>
           </div>
         </div>
 
         {/* Metric 4 */}
-        <div className="surface-panel p-5 flex flex-col h-full justify-between border-primary/20 bg-primary/5 hover:shadow-md transition-shadow">
+        <div className="surface-panel p-5 flex flex-col h-full justify-between hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Pending Approvals
             </span>
-            <div className="rounded-lg bg-primary/10 p-2 text-primary">
+            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
               <ShieldCheck className="size-4" />
             </div>
           </div>
           <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight text-primary">{metrics.pendingApprovals}</span>
+            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.pendingApprovals}</span>
             <span className="text-[10px] text-muted-foreground font-medium">Awaiting sign-off</span>
           </div>
         </div>
@@ -292,7 +292,7 @@ function QualityDashboardPage() {
                 className="flex flex-col items-center justify-center h-20 text-center gap-1.5 cursor-pointer hover:bg-accent/40"
                 onClick={() => navigate({ to: "/app/quality/policy-documents" })}
               >
-                <PlusCircle className="size-5 text-emerald-500" />
+                <PlusCircle className="size-5 text-foreground" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">Add Document</span>
               </Button>
               <Button
@@ -300,7 +300,7 @@ function QualityDashboardPage() {
                 className="flex flex-col items-center justify-center h-20 text-center gap-1.5 cursor-pointer hover:bg-accent/40"
                 onClick={() => navigate({ to: "/app/quality/checklists" })}
               >
-                <PlusCircle className="size-5 text-blue-500" />
+                <PlusCircle className="size-5 text-foreground" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">Add Checklist</span>
               </Button>
               <Button
@@ -308,7 +308,7 @@ function QualityDashboardPage() {
                 className="flex flex-col items-center justify-center h-20 text-center gap-1.5 cursor-pointer hover:bg-accent/40"
                 onClick={() => navigate({ to: "/app/quality/reviews" })}
               >
-                <CheckSquare className="size-5 text-amber-500" />
+                <CheckSquare className="size-5 text-foreground" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">View Reviews</span>
               </Button>
               <Button
@@ -316,7 +316,7 @@ function QualityDashboardPage() {
                 className="flex flex-col items-center justify-center h-20 text-center gap-1.5 cursor-pointer hover:bg-accent/40"
                 onClick={() => navigate({ to: "/app/quality/approvals" })}
               >
-                <ShieldCheck className="size-5 text-primary" />
+                <ShieldCheck className="size-5 text-foreground" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">View Approvals</span>
               </Button>
             </div>

@@ -116,31 +116,31 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
   return (
     <div className="space-y-4">
       {/* Top Filter and Action Bar */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="bg-card p-3 sm:p-4 rounded-xl border border-border space-y-3 shadow-2xs">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
           {/* Search */}
-          <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by contract #, vendor, PO number..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 text-xs h-9"
+              className="pl-9 text-xs h-9 w-full bg-background border-border"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Archive toggle */}
             <Button
               variant={showArchived ? "secondary" : "outline"}
               size="sm"
               onClick={() => setShowArchived(!showArchived)}
-              className="text-xs h-9 gap-1.5"
+              className="text-xs h-9 gap-1.5 flex-1 sm:flex-initial"
             >
-              <Archive className="h-3.5 w-3.5 text-slate-500" />
-              <span>{showArchived ? "Viewing Archived" : "Show Archived"}</span>
-              <Badge variant="outline" className="text-[10px] ml-1 px-1.5 py-0 h-4">
+              <Archive className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="truncate">{showArchived ? "Viewing Archived" : "Show Archived"}</span>
+              <Badge variant="outline" className="text-[10px] ml-0.5 px-1.5 py-0 h-4">
                 {showArchived ? archivedCount : activeCount}
               </Badge>
             </Button>
@@ -150,7 +150,7 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
               <Button
                 size="sm"
                 onClick={onAddContract}
-                className="text-xs h-9 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs"
+                className="text-xs h-9 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs flex-1 sm:flex-initial shrink-0"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Create Contract</span>
@@ -160,63 +160,65 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
         </div>
 
         {/* Dropdown Filters */}
-        <div className="flex items-center gap-2 flex-wrap pt-1 border-t border-slate-100 dark:border-slate-800 text-xs">
-          <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1 mr-1">
-            <Filter className="h-3 w-3" /> Filters:
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-border/60 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-muted-foreground text-[11px] font-medium flex items-center gap-1 shrink-0">
+              <Filter className="h-3 w-3" /> Filters:
+            </span>
 
-          {/* Contract Type */}
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="h-8 text-xs w-[160px]">
-              <SelectValue placeholder="Contract Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="COMPREHENSIVE">COMPREHENSIVE</SelectItem>
-              <SelectItem value="PM + LABOUR">PM + LABOUR</SelectItem>
-              <SelectItem value="PM ONLY">PM ONLY</SelectItem>
-              <SelectItem value="LABOUR ONLY">LABOUR ONLY</SelectItem>
-              <SelectItem value="NO CONTRACT">NO CONTRACT</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Contract Type */}
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="h-8 text-xs w-[140px] sm:w-[160px] bg-background border-border">
+                <SelectValue placeholder="Contract Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="COMPREHENSIVE">COMPREHENSIVE</SelectItem>
+                <SelectItem value="PM + LABOUR">PM + LABOUR</SelectItem>
+                <SelectItem value="PM ONLY">PM ONLY</SelectItem>
+                <SelectItem value="LABOUR ONLY">LABOUR ONLY</SelectItem>
+                <SelectItem value="NO CONTRACT">NO CONTRACT</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Status */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-8 text-xs w-[150px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="In Contract">In Contract</SelectItem>
-              <SelectItem value="Out of Contract">Out of Contract</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Status */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-8 text-xs w-[130px] sm:w-[150px] bg-background border-border">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="In Contract">In Contract</SelectItem>
+                <SelectItem value="Out of Contract">Out of Contract</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {(typeFilter !== "all" || statusFilter !== "all" || searchQuery) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setTypeFilter("all");
-                setStatusFilter("all");
-                setSearchQuery("");
-              }}
-              className="h-8 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
-            >
-              Reset Filters
-            </Button>
-          )}
+            {(typeFilter !== "all" || statusFilter !== "all" || searchQuery) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setTypeFilter("all");
+                  setStatusFilter("all");
+                  setSearchQuery("");
+                }}
+                className="h-8 text-xs text-muted-foreground hover:text-foreground"
+              >
+                Reset Filters
+              </Button>
+            )}
+          </div>
 
-          <div className="ml-auto text-[11px] text-slate-500">
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{totalItems === 0 ? 0 : `${fromItem}–${toItem}`}</span> of {totalItems} contracts
+          <div className="text-[11px] text-muted-foreground sm:ml-auto">
+            Showing <span className="font-semibold text-foreground">{totalItems === 0 ? 0 : `${fromItem}–${toItem}`}</span> of {totalItems} contracts
           </div>
         </div>
       </div>
 
       {/* Table Section */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+      <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xs">
+        <div className="overflow-x-auto relative">
+          <table className="min-w-[1350px] w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-muted-foreground font-semibold uppercase tracking-wider text-[10px] whitespace-nowrap">
                 <th className="py-2.5 px-3">SN</th>
