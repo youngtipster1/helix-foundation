@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Stepper, type StepItem } from "@/components/ui/stepper";
+import { cn } from "@/lib/utils";
 import {
   Stethoscope,
   Network,
@@ -31,6 +33,9 @@ import {
   Calendar,
   Save,
   X,
+  ChevronLeft,
+  ChevronRight,
+  Check,
 } from "lucide-react";
 import {
   Asset,
@@ -106,6 +111,33 @@ const OWNERSHIP_TYPE_OPTIONS: OwnershipType[] = [
   "Rented",
 ];
 
+const ASSET_CREATE_STEPS: StepItem[] = [
+  {
+    id: "general",
+    title: "General",
+    description: "Equipment & Customer",
+    icon: Stethoscope,
+  },
+  {
+    id: "data",
+    title: "Data & IT",
+    description: "Network & Diagrams",
+    icon: Network,
+  },
+  {
+    id: "service",
+    title: "Equipment Service",
+    description: "PPM & Service Jobs",
+    icon: Wrench,
+  },
+  {
+    id: "financial",
+    title: "Financial",
+    description: "Warranty & Contract",
+    icon: DollarSign,
+  },
+];
+
 interface AssetModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -128,6 +160,11 @@ export const AssetModal: React.FC<AssetModalProps> = ({
 
   const [mode, setMode] = useState<"view" | "edit" | "create">(initialMode);
   const [activeTab, setActiveTab] = useState("general");
+
+  const currentStepIndex = Math.max(
+    0,
+    ASSET_CREATE_STEPS.findIndex((s) => s.id === activeTab)
+  );
 
   useEffect(() => {
     setMode(initialMode);
@@ -381,11 +418,16 @@ export const AssetModal: React.FC<AssetModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-background">
         {/* Header - Compact System Design */}
-        <DialogHeader className="p-3.5 sm:p-4 border-b border-border bg-card flex-shrink-0">
+        <DialogHeader
+          className={cn(
+            "border-b border-border bg-card flex-shrink-0",
+            mode === "create" ? "p-4 sm:p-5 space-y-3" : "p-3.5 sm:p-4"
+          )}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                <Stethoscope className="size-4" />
+              <div className="size-8.5 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <Stethoscope className="size-4.5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -394,13 +436,13 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       ? "Add Equipment"
                       : `${formData.equipmentNumber || "Asset Details"} — ${formData.oem || ""} ${formData.model || ""}`}
                   </DialogTitle>
-                  {formData.equipmentStatus && (
+                  {formData.equipmentStatus && mode !== "create" && (
                     <EquipmentStatusBadge status={formData.equipmentStatus} />
                   )}
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
                   {mode === "create"
-                    ? "Register new biomedical device into equipment catalog"
+                    ? "Step-by-step biomedical equipment onboarding, networking, service schedule & contract"
                     : `Serial: ${formData.serialNumber || "N/A"} • Modality: ${formData.modality || "General"}`}
                 </p>
               </div>
@@ -417,6 +459,24 @@ export const AssetModal: React.FC<AssetModalProps> = ({
               </Button>
             )}
           </div>
+
+          {/* Stepper for Asset Creation */}
+          {mode === "create" && (
+            <div className="pt-2">
+              <Stepper
+                steps={ASSET_CREATE_STEPS}
+                currentStep={currentStepIndex}
+                onStepClick={(idx) => {
+                  if (currentStepIndex === 0 && idx > 0 && !formData.equipmentNumber?.trim()) {
+                    toast.error("Please enter an Equipment Number before proceeding.");
+                    return;
+                  }
+                  setActiveTab(ASSET_CREATE_STEPS[idx].id);
+                }}
+                allowStepClick={true}
+              />
+            </div>
+          )}
         </DialogHeader>
 
         {/* Modal Tabs */}
@@ -425,22 +485,25 @@ export const AssetModal: React.FC<AssetModalProps> = ({
           onValueChange={setActiveTab}
           className="flex-1 flex flex-col overflow-hidden"
         >
-          <div className="px-4 pt-2.5 bg-card border-b border-border">
-            <TabsList className="grid grid-cols-4 w-full sm:w-auto sm:inline-flex h-8 bg-muted p-0.5">
-              <TabsTrigger value="general" className="text-xs gap-1 py-1">
-                <Stethoscope className="size-3" /> General
-              </TabsTrigger>
-              <TabsTrigger value="data" className="text-xs gap-1 py-1">
-                <Network className="size-3" /> Data & IT
-              </TabsTrigger>
-              <TabsTrigger value="service" className="text-xs gap-1 py-1">
-                <Wrench className="size-3" /> Equipment Service
-              </TabsTrigger>
-              <TabsTrigger value="financial" className="text-xs gap-1 py-1">
-                <DollarSign className="size-3" /> Financial
-              </TabsTrigger>
-            </TabsList>
-          </div>
+          {/* TabsList for View/Edit Modes */}
+          {mode !== "create" && (
+            <div className="px-4 pt-2.5 bg-card border-b border-border">
+              <TabsList className="grid grid-cols-4 w-full sm:w-auto sm:inline-flex h-8 bg-muted p-0.5">
+                <TabsTrigger value="general" className="text-xs gap-1 py-1">
+                  <Stethoscope className="size-3" /> General
+                </TabsTrigger>
+                <TabsTrigger value="data" className="text-xs gap-1 py-1">
+                  <Network className="size-3" /> Data & IT
+                </TabsTrigger>
+                <TabsTrigger value="service" className="text-xs gap-1 py-1">
+                  <Wrench className="size-3" /> Equipment Service
+                </TabsTrigger>
+                <TabsTrigger value="financial" className="text-xs gap-1 py-1">
+                  <DollarSign className="size-3" /> Financial
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-3.5">
             {/* ========================================================= */}
@@ -1458,29 +1521,96 @@ export const AssetModal: React.FC<AssetModalProps> = ({
           </div>
         </Tabs>
 
-        {/* MODAL FOOTER (Slides 9, 11, 13, 15: Save and Close buttons) */}
-        <DialogFooter className="p-3 sm:p-4 border-t border-border bg-card flex items-center justify-between sm:justify-end gap-2.5 flex-shrink-0">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="h-9 px-4 sm:px-5 text-xs font-semibold cursor-pointer border-border flex-1 sm:flex-initial"
-          >
-            <X className="size-3.5 mr-1.5 text-muted-foreground" />
-            <span>Close</span>
-          </Button>
-
-          {!isReadOnly && (
+        {/* MODAL FOOTER */}
+        {mode === "create" ? (
+          <DialogFooter className="p-3 sm:p-4 border-t border-border bg-card flex items-center justify-between sm:justify-between gap-2.5 flex-shrink-0">
             <Button
               type="button"
-              onClick={handleSave}
-              className="h-9 px-5 sm:px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs flex-1 sm:flex-initial"
+              variant="outline"
+              onClick={onClose}
+              className="h-9 px-4 sm:px-5 text-xs font-semibold cursor-pointer border-border"
             >
-              <Save className="size-3.5 mr-1.5" />
-              <span>Save</span>
+              <X className="size-3.5 mr-1.5 text-muted-foreground" />
+              <span>Cancel</span>
             </Button>
-          )}
-        </DialogFooter>
+
+            <div className="flex items-center gap-2">
+              {currentStepIndex > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setActiveTab(ASSET_CREATE_STEPS[currentStepIndex - 1].id)}
+                  className="h-9 px-3.5 text-xs font-medium cursor-pointer"
+                >
+                  <ChevronLeft className="size-3.5 mr-1" />
+                  <span>Back</span>
+                </Button>
+              )}
+
+              {currentStepIndex < ASSET_CREATE_STEPS.length - 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSave}
+                  className="h-9 px-3.5 text-xs font-medium cursor-pointer text-muted-foreground hover:text-foreground hidden sm:inline-flex"
+                  title="Save progress and close"
+                >
+                  <Save className="size-3.5 mr-1.5" />
+                  <span>Save & Exit</span>
+                </Button>
+              )}
+
+              {currentStepIndex < ASSET_CREATE_STEPS.length - 1 ? (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (currentStepIndex === 0 && !formData.equipmentNumber?.trim()) {
+                      toast.error("Please enter an Equipment Number before proceeding.");
+                      return;
+                    }
+                    setActiveTab(ASSET_CREATE_STEPS[currentStepIndex + 1].id);
+                  }}
+                  className="h-9 px-5 text-xs font-semibold cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+                >
+                  <span>Next: {ASSET_CREATE_STEPS[currentStepIndex + 1].title}</span>
+                  <ChevronRight className="size-3.5 ml-1" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  className="h-9 px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs"
+                >
+                  <Check className="size-3.5 mr-1.5" />
+                  <span>Create Equipment</span>
+                </Button>
+              )}
+            </div>
+          </DialogFooter>
+        ) : (
+          <DialogFooter className="p-3 sm:p-4 border-t border-border bg-card flex items-center justify-between sm:justify-end gap-2.5 flex-shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="h-9 px-4 sm:px-5 text-xs font-semibold cursor-pointer border-border flex-1 sm:flex-initial"
+            >
+              <X className="size-3.5 mr-1.5 text-muted-foreground" />
+              <span>Close</span>
+            </Button>
+
+            {!isReadOnly && (
+              <Button
+                type="button"
+                onClick={handleSave}
+                className="h-9 px-5 sm:px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs flex-1 sm:flex-initial"
+              >
+                <Save className="size-3.5 mr-1.5" />
+                <span>Save</span>
+              </Button>
+            )}
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
