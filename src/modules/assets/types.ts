@@ -139,6 +139,11 @@ export interface Asset {
   ownershipType: OwnershipType;
   financialNote?: string;
 
+  // General & Service Notes
+  notes?: string;
+  generalNote?: string;
+  ppmScheduleMonths?: string;
+
   // Metadata
   isArchived: boolean;
   createdAt: string;
