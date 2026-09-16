@@ -49,6 +49,7 @@ export interface ContractModalProps {
   onClose: () => void;
   contract: ServiceContract | null;
   initialTab?: "details" | "payments" | "equipment";
+  initialEditMode?: boolean;
   onSave: (updated: ServiceContract) => void;
   isAdmin?: boolean;
 }
@@ -58,10 +59,13 @@ export const ContractModal: React.FC<ContractModalProps> = ({
   onClose,
   contract,
   initialTab = "details",
+  initialEditMode = false,
   onSave,
   isAdmin = true,
 }) => {
   const [activeTab, setActiveTab] = useState<"details" | "payments" | "equipment">("details");
+  const [isEditing, setIsEditing] = useState<boolean>(initialEditMode);
+  const contractFileInputRef = React.useRef<HTMLInputElement>(null);
   const allAssets = useMemo(() => assetService.getAssets(false), []);
 
   // -------------------------------------------------------------
@@ -79,7 +83,6 @@ export const ContractModal: React.FC<ContractModalProps> = ({
   const [serviceContractsList, setServiceContractsList] = useState<
     Array<{ id: string; name: string; note: string; date?: string; size?: string }>
   >([]);
-  const [docNote, setDocNote] = useState<string>("");
   const [detailsNote, setDetailsNote] = useState<string>("");
 
   // -------------------------------------------------------------
@@ -133,46 +136,51 @@ export const ContractModal: React.FC<ContractModalProps> = ({
 
   // Sync state when contract or isOpen changes
   useEffect(() => {
-    if (isOpen && contract) {
+    if (isOpen) {
       setActiveTab(initialTab || "details");
-      setContractValue(contract.contractValue || 0);
-      setAmountPaid(contract.totalAmountPaid || 0);
-      setContractType(contract.contractType || "PM + LABOUR");
-      setContractNumber(contract.contractNumber || "");
-      setContractStartDate(contract.contractStartDate || new Date().toISOString().split("T")[0]);
-      setContractEndDate(
-        contract.contractEndDate ||
-          new Date(Date.now() + 365 * 86400000).toISOString().split("T")[0]
-      );
-      setContractInvoiceNumber(contract.contractInvoiceNumber || "");
-      setContractPoNumber(contract.poNumber || "");
-      setPaymentTermMonths(contract.paymentTermMonths || 3);
-      setPaymentStartDate(contract.paymentStartDate || contract.contractStartDate || "");
-      setPaymentEndDate(contract.paymentEndDate || contract.contractEndDate || "");
-      setNextPaymentDate(contract.nextPaymentDate || contract.contractStartDate || "");
-      setPayments(contract.payments || []);
-      setLinkedEquipmentIds(contract.linkedEquipmentIds || []);
-      setDetailsNote(contract.notes || "");
-      setPaymentTermsNote("");
-      setEquipmentListNote("");
-      setEditingPaymentId(null);
-      setPaymentFormInvoiceNumber("");
-      setPaymentFormPlannedDate("");
-      setPaymentFormPaymentDate("");
-      setPaymentFormAmount("");
-      setPaymentFormNote("");
-      setPaymentFormProofName("");
-      setServiceContractsList([
-        {
-          id: "doc_1",
-          name: `${contract.contractNumber || "CTR-2026-881"}_Agreement_Signed.pdf`,
-          note: "Fully executed OEM maintenance agreement",
-          date: contract.contractStartDate,
-          size: "2.4 MB",
-        },
-      ]);
+      const shouldEdit = initialEditMode !== undefined ? initialEditMode : !contract?.id;
+      setIsEditing(shouldEdit);
+
+      if (contract) {
+        setContractValue(contract.contractValue || 0);
+        setAmountPaid(contract.totalAmountPaid || 0);
+        setContractType(contract.contractType || "PM + LABOUR");
+        setContractNumber(contract.contractNumber || "");
+        setContractStartDate(contract.contractStartDate || new Date().toISOString().split("T")[0]);
+        setContractEndDate(
+          contract.contractEndDate ||
+            new Date(Date.now() + 365 * 86400000).toISOString().split("T")[0]
+        );
+        setContractInvoiceNumber(contract.contractInvoiceNumber || "");
+        setContractPoNumber(contract.poNumber || "");
+        setPaymentTermMonths(contract.paymentTermMonths || 3);
+        setPaymentStartDate(contract.paymentStartDate || contract.contractStartDate || "");
+        setPaymentEndDate(contract.paymentEndDate || contract.contractEndDate || "");
+        setNextPaymentDate(contract.nextPaymentDate || contract.contractStartDate || "");
+        setPayments(contract.payments || []);
+        setLinkedEquipmentIds(contract.linkedEquipmentIds || []);
+        setDetailsNote(contract.notes || "");
+        setPaymentTermsNote("");
+        setEquipmentListNote("");
+        setEditingPaymentId(null);
+        setPaymentFormInvoiceNumber("");
+        setPaymentFormPlannedDate("");
+        setPaymentFormPaymentDate("");
+        setPaymentFormAmount("");
+        setPaymentFormNote("");
+        setPaymentFormProofName("");
+        setServiceContractsList([
+          {
+            id: "doc_1",
+            name: `${contract.contractNumber || "CTR-2026-881"}_Agreement_Signed.pdf`,
+            note: contract.notes || "Fully executed OEM maintenance agreement",
+            date: contract.contractStartDate,
+            size: "2.4 MB",
+          },
+        ]);
+      }
     }
-  }, [isOpen, contract, initialTab]);
+  }, [isOpen, contract, initialTab, initialEditMode]);
 
   // Slide 23: Total Amount paid = sum of all payment amount made
   const totalAmountPaidCalculated = useMemo(() => {
@@ -184,31 +192,33 @@ export const ContractModal: React.FC<ContractModalProps> = ({
 
   useEffect(() => {
     if (totalAmountPaidCalculated > 0) {
-      setAmountPaid(totalAmountPaidCalculated);
+      setAmountPaid(Math.min(totalAmountPaidCalculated, contractValue > 0 ? contractValue : totalAmountPaidCalculated));
     }
-  }, [totalAmountPaidCalculated]);
+  }, [totalAmountPaidCalculated, contractValue]);
 
   // Actions
-  const handleUploadServiceContract = () => {
-    const newDoc = {
-      id: `doc_${Date.now()}`,
-      name: `${contractNumber || "Contract"}_Annexure_${Date.now().toString().slice(-4)}.pdf`,
-      note: docNote.trim() || "Uploaded signed contract document",
-      date: new Date().toISOString().split("T")[0],
-      size: "1.8 MB",
-    };
-    setServiceContractsList((prev) => [...prev, newDoc]);
-    setDocNote("");
-    toast.success("Service contract document uploaded.");
-  };
-
   const handleSavePayment = () => {
     if (!paymentFormInvoiceNumber.trim()) {
       toast.error("Please enter an Invoice Number.");
       return;
     }
-    if (paymentFormAmount === "" || Number(paymentFormAmount) <= 0) {
+    const enteredAmount = Number(paymentFormAmount) || 0;
+    if (paymentFormAmount === "" || enteredAmount <= 0) {
       toast.error("Please enter a valid Payment Amount.");
+      return;
+    }
+
+    const currentPaidExcludingActive = payments
+      .filter((p) => p.id !== editingPaymentId)
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+    const projectedTotalPaid = currentPaidExcludingActive + enteredAmount;
+
+    if (contractValue > 0 && projectedTotalPaid > contractValue) {
+      const maxRemaining = Math.max(0, contractValue - currentPaidExcludingActive);
+      toast.error(
+        `Amount paid cannot be greater than the contracted amount (₦${contractValue.toLocaleString()}). Maximum remaining payable amount is ₦${maxRemaining.toLocaleString()}.`
+      );
       return;
     }
 
@@ -221,7 +231,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                 invoiceNumber: paymentFormInvoiceNumber.trim(),
                 dateOfPlannedPayment: paymentFormPlannedDate,
                 dateOfPayment: paymentFormPaymentDate,
-                amount: Number(paymentFormAmount) || 0,
+                amount: enteredAmount,
                 note: paymentFormNote.trim() || undefined,
                 proofOfPaymentName:
                   paymentFormProofName ||
@@ -239,7 +249,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
         invoiceNumber: paymentFormInvoiceNumber.trim(),
         dateOfPlannedPayment: paymentFormPlannedDate,
         dateOfPayment: paymentFormPaymentDate,
-        amount: Number(paymentFormAmount) || 0,
+        amount: enteredAmount,
         status: "Paid",
         note: paymentFormNote.trim() || undefined,
         proofOfPaymentName:
@@ -278,14 +288,6 @@ export const ContractModal: React.FC<ContractModalProps> = ({
     setPaymentFormProofName("");
   };
 
-  const handleDeletePayment = (paymentId: string) => {
-    setPayments((prev) => prev.filter((p) => p.id !== paymentId));
-    if (editingPaymentId === paymentId) {
-      handleCancelEditPayment();
-    }
-    toast.info("Payment record removed.");
-  };
-
   const handleAddEquipment = () => {
     if (!matchedAsset) {
       toast.error("Please enter or select a valid Equipment Number.");
@@ -302,9 +304,37 @@ export const ContractModal: React.FC<ContractModalProps> = ({
     toast.success(`Added ${matchedAsset.equipmentNumber} (${matchedAsset.model}) to equipment list.`);
   };
 
+  const handleCancelMasterEdit = () => {
+    if (!contract?.id || contract.id.startsWith("cnt_draft")) {
+      onClose();
+      return;
+    }
+    setContractValue(contract.contractValue || 0);
+    setAmountPaid(contract.totalAmountPaid || 0);
+    setContractType(contract.contractType || "PM + LABOUR");
+    setContractNumber(contract.contractNumber || "");
+    setContractStartDate(contract.contractStartDate || "");
+    setContractEndDate(contract.contractEndDate || "");
+    setContractInvoiceNumber(contract.contractInvoiceNumber || "");
+    setContractPoNumber(contract.poNumber || "");
+    setPaymentTermMonths(contract.paymentTermMonths || 3);
+    setPaymentStartDate(contract.paymentStartDate || "");
+    setPaymentEndDate(contract.paymentEndDate || "");
+    setNextPaymentDate(contract.nextPaymentDate || "");
+    setPayments(contract.payments || []);
+    setLinkedEquipmentIds(contract.linkedEquipmentIds || []);
+    setDetailsNote(contract.notes || "");
+    setIsEditing(false);
+    toast.info("Edit cancelled. Reverted to saved contract details.");
+  };
+
   const handleMasterSave = () => {
     if (!contractNumber.trim()) {
       toast.error("Contract Number is required.");
+      return;
+    }
+    if (contractValue > 0 && Number(amountPaid) > Number(contractValue)) {
+      toast.error(`Amount paid cannot be greater than the contracted amount (₦${contractValue.toLocaleString()}).`);
       return;
     }
 
@@ -313,7 +343,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
       id: contract?.id || `cnt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       contractNumber: contractNumber.trim(),
       contractType,
-      contractStatus: "In Contract",
+      contractStatus: contract?.contractStatus || "In Contract",
       contractValue: Number(contractValue) || 0,
       contractStartDate,
       contractEndDate,
@@ -337,7 +367,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
     };
 
     onSave(updatedContract);
-    onClose();
+    setIsEditing(false);
     toast.success(`Contract ${updatedContract.contractNumber} saved successfully.`);
   };
 
@@ -359,9 +389,25 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                 <Badge variant="outline" className="text-[10px] font-mono py-0 px-1.5 hidden sm:inline-flex">
                   {contractType}
                 </Badge>
+                {isAdmin && !isEditing && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                    className="h-6 px-2 text-[11px] font-bold gap-1 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs ml-1"
+                  >
+                    <Pencil className="size-3" />
+                    <span>Edit</span>
+                  </Button>
+                )}
+                {isEditing && (
+                  <Badge variant="secondary" className="text-[10px] font-semibold py-0 px-1.5 text-primary border border-primary/30">
+                    Editing
+                  </Badge>
+                )}
               </div>
               <p className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                <span>Contract Window</span>
+                <span>{isEditing ? "Editing Contract" : "Viewing Contract (Locked)"}</span>
                 <span>&bull;</span>
                 <Calendar className="size-3 text-muted-foreground shrink-0" />
                 <span className="truncate">
@@ -454,9 +500,17 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       <Input
                         type="number"
                         min="0"
-                        value={contractValue}
-                        onChange={(e) => setContractValue(Number(e.target.value) || 0)}
-                        className="h-9 text-xs pl-7 font-mono font-bold text-foreground bg-background border-border"
+                        disabled={!isEditing}
+                        value={contractValue || ""}
+                        onChange={(e) => {
+                          const val = Math.max(0, Number(e.target.value) || 0);
+                          setContractValue(val);
+                          if (val > 0 && amountPaid > val) {
+                            setAmountPaid(val);
+                            toast.warning("Amount Paid was adjusted to Contract Value.");
+                          }
+                        }}
+                        className="h-9 text-xs pl-7 font-mono font-bold text-foreground bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -475,9 +529,19 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       <Input
                         type="number"
                         min="0"
-                        value={amountPaid}
-                        onChange={(e) => setAmountPaid(Number(e.target.value) || 0)}
-                        className="h-9 text-xs pl-7 font-mono font-bold text-foreground bg-background border-border"
+                        max={contractValue > 0 ? contractValue : undefined}
+                        disabled={!isEditing}
+                        value={amountPaid || ""}
+                        onChange={(e) => {
+                          const val = Math.max(0, Number(e.target.value) || 0);
+                          if (contractValue > 0 && val > contractValue) {
+                            toast.error(`Amount Paid cannot be greater than Contract Value (₦${contractValue.toLocaleString()}).`);
+                            setAmountPaid(contractValue);
+                          } else {
+                            setAmountPaid(val);
+                          }
+                        }}
+                        className="h-9 text-xs pl-7 font-mono font-bold text-foreground bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -509,9 +573,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">Contract Type</Label>
                     <Select
                       value={contractType}
+                      disabled={!isEditing}
                       onValueChange={(val) => setContractType(val as ContractType)}
                     >
-                      <SelectTrigger className="h-9 text-xs font-medium bg-background border-border">
+                      <SelectTrigger className="h-9 text-xs font-medium bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -528,9 +593,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">Contract Number</Label>
                     <Input
                       value={contractNumber}
+                      disabled={!isEditing}
                       onChange={(e) => setContractNumber(e.target.value)}
                       placeholder="e.g. CTR-2026-881"
-                      className="h-9 text-xs font-mono font-bold bg-background border-border"
+                      className="h-9 text-xs font-mono font-bold bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -538,9 +604,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">Contract Start date</Label>
                     <Input
                       type="date"
+                      disabled={!isEditing}
                       value={contractStartDate}
                       onChange={(e) => setContractStartDate(e.target.value)}
-                      className="h-9 text-xs bg-background border-border"
+                      className="h-9 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -548,9 +615,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">Contract end date</Label>
                     <Input
                       type="date"
+                      disabled={!isEditing}
                       value={contractEndDate}
                       onChange={(e) => setContractEndDate(e.target.value)}
-                      className="h-9 text-xs bg-background border-border"
+                      className="h-9 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -603,42 +671,48 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     </table>
                   </div>
 
-                  <div className="w-full lg:w-64 p-4 rounded-lg border border-border bg-muted/20 space-y-3 shrink-0">
+                  <div className="w-full lg:w-64 p-4 rounded-lg border border-border bg-muted/20 space-y-3 shrink-0 flex flex-col justify-between">
                     <div>
                       <span className="text-xs font-bold text-foreground block">
                         Upload service contract
                       </span>
-                      <span className="text-[11px] text-muted-foreground block">
+                      <span className="text-[11px] text-muted-foreground block mt-0.5">
                         Attach signed PDF or agreement annexure
                       </span>
                     </div>
 
-                    <Input
-                      placeholder="Document note..."
-                      value={docNote}
-                      onChange={(e) => setDocNote(e.target.value)}
-                      className="h-8 text-xs bg-background border-border"
+                    <input
+                      type="file"
+                      ref={contractFileInputRef}
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const newDoc = {
+                            id: `doc_${Date.now()}`,
+                            name: file.name,
+                            note: detailsNote.trim() || "Executed agreement document",
+                            date: new Date().toISOString().split("T")[0],
+                            size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+                          };
+                          setServiceContractsList((prev) => [...prev, newDoc]);
+                          toast.success(`Attached ${file.name}`);
+                          e.target.value = "";
+                        }
+                      }}
                     />
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleUploadServiceContract}
-                        className="h-9 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border"
-                      >
-                        <Upload className="size-3.5" />
-                        <span>Upload</span>
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={handleMasterSave}
-                        className="h-9 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs"
-                      >
-                        <Save className="size-3.5 mr-1" />
-                        <span>Save</span>
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={!isEditing}
+                      onClick={() => contractFileInputRef.current?.click()}
+                      className="h-9 w-full text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Upload className="size-3.5 text-primary" />
+                      <span>Choose File to Upload</span>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -648,10 +722,11 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                 <Label className="text-xs font-bold text-foreground">Note</Label>
                 <Textarea
                   rows={3}
+                  disabled={!isEditing}
                   value={detailsNote}
                   onChange={(e) => setDetailsNote(e.target.value)}
                   placeholder="Enter agreement terms, special warranty clauses, or administrative notes..."
-                  className="text-xs bg-background border-border resize-none"
+                  className="text-xs bg-background border-border resize-none disabled:opacity-75 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -685,9 +760,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     </Label>
                     <Input
                       value={contractInvoiceNumber}
+                      disabled={!isEditing}
                       onChange={(e) => setContractInvoiceNumber(e.target.value)}
                       placeholder="e.g. INV-2026-001"
-                      className="h-9 text-xs font-mono font-bold bg-background border-border"
+                      className="h-9 text-xs font-mono font-bold bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -697,9 +773,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     </Label>
                     <Input
                       value={contractPoNumber}
+                      disabled={!isEditing}
                       onChange={(e) => setContractPoNumber(e.target.value)}
                       placeholder="e.g. PO-88910"
-                      className="h-9 text-xs font-mono font-bold bg-background border-border"
+                      className="h-9 text-xs font-mono font-bold bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -710,9 +787,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Input
                       type="number"
                       min="1"
+                      disabled={!isEditing}
                       value={paymentTermMonths}
                       onChange={(e) => setPaymentTermMonths(Number(e.target.value) || 1)}
-                      className="h-9 text-xs font-mono font-semibold bg-background border-border"
+                      className="h-9 text-xs font-mono font-semibold bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -742,9 +820,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">Payment start date</Label>
                     <Input
                       type="date"
+                      disabled={!isEditing}
                       value={paymentStartDate}
                       onChange={(e) => setPaymentStartDate(e.target.value)}
-                      className="h-9 text-xs bg-background border-border"
+                      className="h-9 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -752,9 +831,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">Payment end date</Label>
                     <Input
                       type="date"
+                      disabled={!isEditing}
                       value={paymentEndDate}
                       onChange={(e) => setPaymentEndDate(e.target.value)}
-                      className="h-9 text-xs bg-background border-border"
+                      className="h-9 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -762,9 +842,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Label className="text-xs font-semibold text-foreground">Next Payment date</Label>
                     <Input
                       type="date"
+                      disabled={!isEditing}
                       value={nextPaymentDate}
                       onChange={(e) => setNextPaymentDate(e.target.value)}
-                      className="h-9 text-xs bg-background border-border"
+                      className="h-9 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -818,9 +899,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       </Label>
                       <Input
                         value={paymentFormInvoiceNumber}
+                        disabled={!isEditing}
                         onChange={(e) => setPaymentFormInvoiceNumber(e.target.value)}
                         placeholder="e.g. INV-2026-001"
-                        className="h-8 text-xs font-mono font-bold bg-background border-border"
+                        className="h-8 text-xs font-mono font-bold bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -830,9 +912,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       </Label>
                       <Input
                         type="date"
+                        disabled={!isEditing}
                         value={paymentFormPlannedDate}
                         onChange={(e) => setPaymentFormPlannedDate(e.target.value)}
-                        className="h-8 text-xs bg-background border-border"
+                        className="h-8 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -842,9 +925,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       </Label>
                       <Input
                         type="date"
+                        disabled={!isEditing}
                         value={paymentFormPaymentDate}
                         onChange={(e) => setPaymentFormPaymentDate(e.target.value)}
-                        className="h-8 text-xs bg-background border-border"
+                        className="h-8 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -859,12 +943,13 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                         <Input
                           type="number"
                           min="0"
+                          disabled={!isEditing}
                           value={paymentFormAmount}
                           onChange={(e) =>
                             setPaymentFormAmount(e.target.value === "" ? "" : Number(e.target.value))
                           }
                           placeholder="0.00"
-                          className="h-8 text-xs pl-6 font-mono font-bold bg-background border-border"
+                          className="h-8 text-xs pl-6 font-mono font-bold bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                         />
                       </div>
                     </div>
@@ -873,9 +958,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       <Label className="text-[11px] font-semibold text-foreground">Note</Label>
                       <Input
                         value={paymentFormNote}
+                        disabled={!isEditing}
                         onChange={(e) => setPaymentFormNote(e.target.value)}
                         placeholder="Milestone note, bank ref..."
-                        className="h-8 text-xs bg-background border-border"
+                        className="h-8 text-xs bg-background border-border disabled:opacity-75 disabled:cursor-not-allowed"
                       />
                     </div>
 
@@ -884,7 +970,10 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                         Proof of Payment
                       </Label>
                       <div className="flex items-center gap-2">
-                        <label className="h-8 px-3 rounded-md border border-border bg-background hover:bg-muted/60 text-xs font-medium flex items-center gap-1.5 cursor-pointer shadow-2xs flex-1 truncate">
+                        <label className={cn(
+                          "h-8 px-3 rounded-md border border-border bg-background text-xs font-medium flex items-center gap-1.5 shadow-2xs flex-1 truncate",
+                          isEditing ? "cursor-pointer hover:bg-muted/60" : "opacity-75 cursor-not-allowed"
+                        )}>
                           <Upload className="size-3 text-primary shrink-0" />
                           <span className="truncate text-muted-foreground">
                             {paymentFormProofName || "Attach receipt (PDF/IMG)"}
@@ -892,6 +981,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                           <input
                             type="file"
                             accept=".pdf,.png,.jpg,.jpeg"
+                            disabled={!isEditing}
                             className="hidden"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
@@ -902,7 +992,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                             }}
                           />
                         </label>
-                        {paymentFormProofName && (
+                        {paymentFormProofName && isEditing && (
                           <Button
                             type="button"
                             variant="ghost"
@@ -931,8 +1021,8 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Button
                       type="button"
                       onClick={handleSavePayment}
-                      disabled={!isAdmin}
-                      className="h-8 px-5 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs gap-1.5"
+                      disabled={!isEditing || !isAdmin}
+                      className="h-8 px-5 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Save className="size-3.5" />
                       <span>{editingPaymentId ? "Save Changes" : "Save"}</span>
@@ -1010,21 +1100,11 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                                     size="sm"
                                     variant="ghost"
                                     onClick={() => handleEditPayment(pmt)}
-                                    disabled={!isAdmin}
-                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-primary cursor-pointer"
+                                    disabled={!isEditing || !isAdmin}
+                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-primary cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                                     title="Edit payment"
                                   >
                                     <Pencil className="size-3" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleDeletePayment(pmt.id)}
-                                    disabled={!isAdmin}
-                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                                    title="Delete payment"
-                                  >
-                                    <Trash2 className="size-3" />
                                   </Button>
                                 </div>
                               </td>
@@ -1042,10 +1122,11 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                 <Label className="text-xs font-bold text-foreground">Note</Label>
                 <Textarea
                   rows={3}
+                  disabled={!isEditing}
                   value={paymentTermsNote}
                   onChange={(e) => setPaymentTermsNote(e.target.value)}
                   placeholder="Enter banking instructions, payment milestone notes, or exchange terms..."
-                  className="text-xs bg-background border-border resize-none"
+                  className="text-xs bg-background border-border resize-none disabled:opacity-75 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -1082,8 +1163,9 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Select
                       value={selectedEquipmentNumber}
                       onValueChange={(val) => setSelectedEquipmentNumber(val)}
+                      disabled={!isEditing}
                     >
-                      <SelectTrigger className="h-9 text-xs font-mono font-bold bg-background border-border">
+                      <SelectTrigger className="h-9 text-xs font-mono font-bold bg-background border-border" disabled={!isEditing}>
                         <SelectValue placeholder="Select Equipment #" />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
@@ -1141,6 +1223,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                         onChange={(e) =>
                           setEqContractValue(e.target.value === "" ? "" : Number(e.target.value))
                         }
+                        disabled={!isEditing}
                         className="h-9 text-xs pl-7 font-mono font-bold bg-background border-border"
                       />
                     </div>
@@ -1151,8 +1234,9 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Select
                       value={eqContractType}
                       onValueChange={(val) => setEqContractType(val as ContractType)}
+                      disabled={!isEditing}
                     >
-                      <SelectTrigger className="h-9 text-xs bg-background border-border">
+                      <SelectTrigger className="h-9 text-xs bg-background border-border" disabled={!isEditing}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1171,6 +1255,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       type="date"
                       value={eqStartDate}
                       onChange={(e) => setEqStartDate(e.target.value)}
+                      disabled={!isEditing}
                       className="h-9 text-xs bg-background border-border"
                     />
                   </div>
@@ -1181,6 +1266,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       type="date"
                       value={eqEndDate}
                       onChange={(e) => setEqEndDate(e.target.value)}
+                      disabled={!isEditing}
                       className="h-9 text-xs bg-background border-border"
                     />
                   </div>
@@ -1189,7 +1275,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     <Button
                       type="button"
                       onClick={handleAddEquipment}
-                      disabled={!isAdmin}
+                      disabled={!isEditing || !isAdmin}
                       className="h-9 w-full text-xs font-bold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs disabled:opacity-50"
                     >
                       <Plus className="size-3.5" />
@@ -1299,6 +1385,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   rows={3}
                   value={equipmentListNote}
                   onChange={(e) => setEquipmentListNote(e.target.value)}
+                  disabled={!isEditing}
                   placeholder="Enter covered equipment exclusions, accessories included, or PPM scheduling terms..."
                   className="text-xs bg-background border-border resize-none"
                 />
@@ -1309,23 +1396,49 @@ export const ContractModal: React.FC<ContractModalProps> = ({
 
         {/* FIXED MODAL FOOTER WITH SAVE & CLOSE BUTTONS (Slides 20, 22, 24) */}
         <div className="shrink-0 bg-card border-t border-border/80 px-4 sm:px-6 py-3 flex items-center justify-between sm:justify-end gap-2.5">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="h-9 px-4 sm:px-5 text-xs font-semibold cursor-pointer border-border flex-1 sm:flex-initial"
-          >
-            <X className="size-3.5 mr-1.5 text-muted-foreground" />
-            <span>Close</span>
-          </Button>
-          <Button
-            type="button"
-            onClick={handleMasterSave}
-            className="h-9 px-5 sm:px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs flex-1 sm:flex-initial"
-          >
-            <Save className="size-3.5 mr-1.5" />
-            <span>Save Contract</span>
-          </Button>
+          {isEditing ? (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancelMasterEdit}
+                className="h-9 px-4 sm:px-5 text-xs font-semibold cursor-pointer border-border flex-1 sm:flex-initial"
+              >
+                <X className="size-3.5 mr-1.5 text-muted-foreground" />
+                <span>Cancel</span>
+              </Button>
+              <Button
+                type="button"
+                onClick={handleMasterSave}
+                className="h-9 px-5 sm:px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs flex-1 sm:flex-initial"
+              >
+                <Save className="size-3.5 mr-1.5" />
+                <span>Save Contract</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="h-9 px-4 sm:px-5 text-xs font-semibold cursor-pointer border-border flex-1 sm:flex-initial"
+              >
+                <X className="size-3.5 mr-1.5 text-muted-foreground" />
+                <span>Close</span>
+              </Button>
+              {isAdmin && (
+                <Button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="h-9 px-5 sm:px-6 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs flex-1 sm:flex-initial gap-1.5"
+                >
+                  <Pencil className="size-3.5" />
+                  <span>Edit Contract</span>
+                </Button>
+              )}
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>

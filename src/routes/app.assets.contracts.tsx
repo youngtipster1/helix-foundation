@@ -32,6 +32,7 @@ function ContractsListPage() {
   // Modal State (Slide 19: Pop up window for creating or editing contract)
   const [activeContract, setActiveContract] = useState<ServiceContract | null>(null);
   const [activeTab, setActiveTab] = useState<"details" | "payments" | "equipment">("details");
+  const [modalEditMode, setModalEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const loadData = () => {
@@ -54,12 +55,14 @@ function ContractsListPage() {
   ) => {
     setActiveContract(contract);
     setActiveTab(tab);
+    setModalEditMode(false);
     setIsModalOpen(true);
   };
 
   const handleEditContract = (contract: ServiceContract) => {
     setActiveContract(contract);
     setActiveTab("details");
+    setModalEditMode(true);
     setIsModalOpen(true);
   };
 
@@ -83,6 +86,7 @@ function ContractsListPage() {
     };
     setActiveContract(newDraft);
     setActiveTab("details");
+    setModalEditMode(true);
     setIsModalOpen(true);
   };
 
@@ -151,6 +155,7 @@ function ContractsListPage() {
         }}
         contract={activeContract}
         initialTab={activeTab}
+        initialEditMode={modalEditMode}
         onSave={handleSaveContract}
         isAdmin={isAdmin}
       />
