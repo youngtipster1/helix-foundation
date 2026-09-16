@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -26,6 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/auth-context";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
+import { TablePagination } from "@/components/data-table/table-pagination";
 
 interface AssetTableProps {
   assets: Asset[];
@@ -129,6 +130,26 @@ export const AssetTable: React.FC<AssetTableProps> = ({
 
   const activeCount = assets.filter((a) => !a.isArchived).length;
   const archivedCount = assets.filter((a) => a.isArchived).length;
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  // Reset to page 1 when any filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, warrantyFilter, contractFilter, modalityFilter, showArchived]);
+
+  const totalItems = filteredAssets.length;
+  const pageCount = Math.max(1, Math.ceil(totalItems / pageSize));
+  const activePage = Math.min(currentPage, pageCount);
+
+  const paginatedAssets = useMemo(() => {
+    const start = (activePage - 1) * pageSize;
+    return filteredAssets.slice(start, start + pageSize);
+  }, [filteredAssets, activePage, pageSize]);
+
+  const fromItem = totalItems === 0 ? 0 : (activePage - 1) * pageSize + 1;
+  const toItem = Math.min(totalItems, activePage * pageSize);
 
   return (
     <div className="space-y-3">
@@ -270,7 +291,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
           )}
 
           <div className="ml-auto text-[11px] text-muted-foreground">
-            Showing <span className="font-semibold text-foreground">{filteredAssets.length}</span> of {assets.length} assets
+            Showing <span className="font-semibold text-foreground">{totalItems === 0 ? 0 : `${fromItem}–${toItem}`}</span> of {totalItems} assets
           </div>
         </div>
       </div>
@@ -309,7 +330,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60 font-medium text-foreground">
-              {filteredAssets.length === 0 ? (
+              {totalItems === 0 ? (
                 <tr>
                   <td colSpan={25} className="py-10 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-1.5">
@@ -322,7 +343,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   </td>
                 </tr>
               ) : (
-                filteredAssets.map((asset, idx) => (
+                paginatedAssets.map((asset, idx) => (
                   <tr
                     key={asset.id}
                     className="hover:bg-muted/30 transition-colors group cursor-pointer"
@@ -330,7 +351,7 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   >
                     {/* 1. SN */}
                     <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
-                      {idx + 1}
+                      {(activePage - 1) * pageSize + idx + 1}
                     </td>
 
                     {/* 2. Equipment Number */}
@@ -507,6 +528,17 @@ export const AssetTable: React.FC<AssetTableProps> = ({
             </tbody>
           </table>
         </div>
+
+        {totalItems > 0 && (
+          <TablePagination
+            page={activePage}
+            pageCount={pageCount}
+            total={totalItems}
+            from={fromItem}
+            to={toItem}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -26,6 +26,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/auth-context";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
+import { TablePagination } from "@/components/data-table/table-pagination";
 
 interface ContractsTableProps {
   contracts: ServiceContract[];
@@ -91,6 +92,26 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
 
   const activeCount = contracts.filter((c) => !c.isArchived).length;
   const archivedCount = contracts.filter((c) => c.isArchived).length;
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  // Reset to page 1 when any filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, typeFilter, statusFilter, showArchived]);
+
+  const totalItems = filteredContracts.length;
+  const pageCount = Math.max(1, Math.ceil(totalItems / pageSize));
+  const activePage = Math.min(currentPage, pageCount);
+
+  const paginatedContracts = useMemo(() => {
+    const start = (activePage - 1) * pageSize;
+    return filteredContracts.slice(start, start + pageSize);
+  }, [filteredContracts, activePage, pageSize]);
+
+  const fromItem = totalItems === 0 ? 0 : (activePage - 1) * pageSize + 1;
+  const toItem = Math.min(totalItems, activePage * pageSize);
 
   return (
     <div className="space-y-4">
@@ -187,7 +208,7 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
           )}
 
           <div className="ml-auto text-[11px] text-slate-500">
-            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{filteredContracts.length}</span> of {contracts.length} contracts
+            Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{totalItems === 0 ? 0 : `${fromItem}–${toItem}`}</span> of {totalItems} contracts
           </div>
         </div>
       </div>
@@ -217,7 +238,7 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60 font-medium text-foreground">
-              {filteredContracts.length === 0 ? (
+              {totalItems === 0 ? (
                 <tr>
                   <td colSpan={16} className="py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -230,7 +251,7 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
                   </td>
                 </tr>
               ) : (
-                filteredContracts.map((contract, idx) => (
+                paginatedContracts.map((contract, idx) => (
                   <tr
                     key={contract.id}
                     className="hover:bg-muted/30 transition-colors group cursor-pointer"
@@ -238,7 +259,7 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
                   >
                     {/* 1. SN */}
                     <td className="py-2.5 px-3 whitespace-nowrap font-mono text-[11px] text-muted-foreground">
-                      {idx + 1}
+                      {(activePage - 1) * pageSize + idx + 1}
                     </td>
 
                     {/* 2. Contract Type */}
@@ -368,6 +389,17 @@ export const ContractsTable: React.FC<ContractsTableProps> = ({
             </tbody>
           </table>
         </div>
+
+        {totalItems > 0 && (
+          <TablePagination
+            page={activePage}
+            pageCount={pageCount}
+            total={totalItems}
+            from={fromItem}
+            to={toItem}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );
