@@ -43,6 +43,7 @@ import { ContractStatusBadge } from "./status-badges";
 import { assetService } from "../services/asset-service";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { TablePagination } from "@/components/data-table/table-pagination";
 
 export interface ContractModalProps {
   isOpen: boolean;
@@ -134,9 +135,35 @@ export const ContractModal: React.FC<ContractModalProps> = ({
       .filter(Boolean) as Asset[];
   }, [linkedEquipmentIds, allAssets]);
 
+  // Pagination for Payment History Table (Tab 2)
+  const PAYMENTS_PER_PAGE = 5;
+  const [paymentPage, setPaymentPage] = useState(1);
+  const paymentPageCount = Math.max(1, Math.ceil(payments.length / PAYMENTS_PER_PAGE));
+  const currentPaymentPage = Math.min(paymentPage, paymentPageCount);
+  const paginatedPayments = useMemo(() => {
+    const start = (currentPaymentPage - 1) * PAYMENTS_PER_PAGE;
+    return payments.slice(start, start + PAYMENTS_PER_PAGE);
+  }, [payments, currentPaymentPage]);
+  const paymentFrom = payments.length === 0 ? 0 : (currentPaymentPage - 1) * PAYMENTS_PER_PAGE + 1;
+  const paymentTo = Math.min(payments.length, currentPaymentPage * PAYMENTS_PER_PAGE);
+
+  // Pagination for Equipment Register Table (Tab 3)
+  const EQUIPMENT_PER_PAGE = 5;
+  const [equipmentPage, setEquipmentPage] = useState(1);
+  const equipmentPageCount = Math.max(1, Math.ceil(coveredEquipment.length / EQUIPMENT_PER_PAGE));
+  const currentEquipmentPage = Math.min(equipmentPage, equipmentPageCount);
+  const paginatedEquipment = useMemo(() => {
+    const start = (currentEquipmentPage - 1) * EQUIPMENT_PER_PAGE;
+    return coveredEquipment.slice(start, start + EQUIPMENT_PER_PAGE);
+  }, [coveredEquipment, currentEquipmentPage]);
+  const equipmentFrom = coveredEquipment.length === 0 ? 0 : (currentEquipmentPage - 1) * EQUIPMENT_PER_PAGE + 1;
+  const equipmentTo = Math.min(coveredEquipment.length, currentEquipmentPage * EQUIPMENT_PER_PAGE);
+
   // Sync state when contract or isOpen changes
   useEffect(() => {
     if (isOpen) {
+      setPaymentPage(1);
+      setEquipmentPage(1);
       setActiveTab(initialTab || "details");
       const shouldEdit = initialEditMode !== undefined ? initialEditMode : !contract?.id;
       setIsEditing(shouldEdit);
@@ -255,7 +282,11 @@ export const ContractModal: React.FC<ContractModalProps> = ({
         proofOfPaymentName:
           paymentFormProofName || `Receipt_${paymentFormInvoiceNumber.trim()}.pdf`,
       };
-      setPayments((prev) => [...prev, newPayment]);
+      setPayments((prev) => {
+        const nextList = [...prev, newPayment];
+        setPaymentPage(Math.ceil(nextList.length / PAYMENTS_PER_PAGE));
+        return nextList;
+      });
       toast.success(`Payment invoice ${newPayment.invoiceNumber} saved to table.`);
     }
 
@@ -298,7 +329,11 @@ export const ContractModal: React.FC<ContractModalProps> = ({
       return;
     }
 
-    setLinkedEquipmentIds((prev) => [...prev, matchedAsset.id]);
+    setLinkedEquipmentIds((prev) => {
+      const nextList = [...prev, matchedAsset.id];
+      setEquipmentPage(Math.ceil(nextList.length / EQUIPMENT_PER_PAGE));
+      return nextList;
+    });
     setSelectedEquipmentNumber("");
     setEqContractValue("");
     toast.success(`Added ${matchedAsset.equipmentNumber} (${matchedAsset.model}) to equipment list.`);
@@ -309,6 +344,8 @@ export const ContractModal: React.FC<ContractModalProps> = ({
       onClose();
       return;
     }
+    setPaymentPage(1);
+    setEquipmentPage(1);
     setContractValue(contract.contractValue || 0);
     setAmountPaid(contract.totalAmountPaid || 0);
     setContractType(contract.contractType || "PM + LABOUR");
@@ -1057,63 +1094,77 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                             </td>
                           </tr>
                         ) : (
-                          payments.map((pmt, idx) => (
-                            <tr key={pmt.id} className="hover:bg-muted/30 transition-colors">
-                              <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">
-                                {idx + 1}
-                              </td>
-                              <td className="py-2.5 px-3 font-mono font-bold text-primary">
-                                {pmt.invoiceNumber}
-                              </td>
-                              <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                                {pmt.dateOfPlannedPayment || "—"}
-                              </td>
-                              <td className="py-2.5 px-3 font-mono text-foreground font-medium">
-                                {pmt.dateOfPayment || "—"}
-                              </td>
-                              <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">
-                                ₦{Number(pmt.amount || 0).toLocaleString("en-US")}
-                              </td>
-                              <td className="py-2.5 px-3 text-muted-foreground max-w-[200px] truncate">
-                                {pmt.note || "—"}
-                              </td>
-                              <td className="py-2.5 px-3 text-center">
-                                {pmt.proofOfPaymentName ? (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                      toast.info(`Viewing proof: ${pmt.proofOfPaymentName}`)
-                                    }
-                                    className="h-7 text-[10px] gap-1 px-2.5 font-mono cursor-pointer border-border"
-                                  >
-                                    <Eye className="size-3 text-primary" />
-                                    <span>Proof</span>
-                                  </Button>
-                                ) : (
-                                  <span className="text-muted-foreground/60 font-mono">—</span>
-                                )}
-                              </td>
-                              <td className="py-2.5 px-3 text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleEditPayment(pmt)}
-                                    disabled={!isEditing || !isAdmin}
-                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-primary cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                                    title="Edit payment"
-                                  >
-                                    <Pencil className="size-3" />
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))
+                          paginatedPayments.map((pmt, idx) => {
+                            const pmtIndex = (currentPaymentPage - 1) * PAYMENTS_PER_PAGE + idx + 1;
+                            return (
+                              <tr key={pmt.id} className="hover:bg-muted/30 transition-colors">
+                                <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">
+                                  {pmtIndex}
+                                </td>
+                                <td className="py-2.5 px-3 font-mono font-bold text-primary">
+                                  {pmt.invoiceNumber}
+                                </td>
+                                <td className="py-2.5 px-3 font-mono text-muted-foreground">
+                                  {pmt.dateOfPlannedPayment || "—"}
+                                </td>
+                                <td className="py-2.5 px-3 font-mono text-foreground font-medium">
+                                  {pmt.dateOfPayment || "—"}
+                                </td>
+                                <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">
+                                  ₦{Number(pmt.amount || 0).toLocaleString("en-US")}
+                                </td>
+                                <td className="py-2.5 px-3 text-muted-foreground max-w-[200px] truncate">
+                                  {pmt.note || "—"}
+                                </td>
+                                <td className="py-2.5 px-3 text-center">
+                                  {pmt.proofOfPaymentName ? (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        toast.info(`Viewing proof: ${pmt.proofOfPaymentName}`)
+                                      }
+                                      className="h-7 text-[10px] gap-1 px-2.5 font-mono cursor-pointer border-border"
+                                    >
+                                      <Eye className="size-3 text-primary" />
+                                      <span>Proof</span>
+                                    </Button>
+                                  ) : (
+                                    <span className="text-muted-foreground/60 font-mono">—</span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => handleEditPayment(pmt)}
+                                      disabled={!isEditing || !isAdmin}
+                                      className="h-7 w-7 p-0 text-muted-foreground hover:text-primary cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                      title="Edit payment"
+                                    >
+                                      <Pencil className="size-3" />
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
                   </div>
+
+                  {payments.length > 0 && (
+                    <TablePagination
+                      page={currentPaymentPage}
+                      pageCount={paymentPageCount}
+                      total={payments.length}
+                      from={paymentFrom}
+                      to={paymentTo}
+                      onPageChange={(p) => setPaymentPage(p)}
+                    />
+                  )}
                 </div>
               </div>
 
@@ -1332,48 +1383,62 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                             </td>
                           </tr>
                         ) : (
-                          coveredEquipment.map((eq, idx) => (
-                            <tr key={eq.id} className="hover:bg-muted/30 transition-colors">
-                              <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">
-                                {idx + 1}
-                              </td>
-                              <td className="py-2.5 px-3 font-mono font-bold text-primary">
-                                {eq.equipmentNumber}
-                              </td>
-                              <td className="py-2.5 px-3 font-medium text-foreground">{eq.oem}</td>
-                              <td className="py-2.5 px-3">
-                                <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                                  {eq.modality}
-                                </Badge>
-                              </td>
-                              <td className="py-2.5 px-3 font-medium text-foreground">{eq.model}</td>
-                              <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                                {eq.serialNumber}
-                              </td>
-                              <td className="py-2.5 px-3 text-muted-foreground">{eq.location}</td>
-                              <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">
-                                ₦
-                                {Number(
-                                  eq.contractValue || contractValue / Math.max(1, coveredEquipment.length)
-                                ).toLocaleString("en-US", { minimumFractionDigits: 0 })}
-                              </td>
-                              <td className="py-2.5 px-3">
-                                <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
-                                  {eq.contractType || contractType}
-                                </Badge>
-                              </td>
-                              <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                                {eq.contractStartDate || contractStartDate}
-                              </td>
-                              <td className="py-2.5 px-3 font-mono text-muted-foreground">
-                                {eq.contractEndDate || contractEndDate}
-                              </td>
-                            </tr>
-                          ))
+                          paginatedEquipment.map((eq, idx) => {
+                            const eqIndex = (currentEquipmentPage - 1) * EQUIPMENT_PER_PAGE + idx + 1;
+                            return (
+                              <tr key={eq.id} className="hover:bg-muted/30 transition-colors">
+                                <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">
+                                  {eqIndex}
+                                </td>
+                                <td className="py-2.5 px-3 font-mono font-bold text-primary">
+                                  {eq.equipmentNumber}
+                                </td>
+                                <td className="py-2.5 px-3 font-medium text-foreground">{eq.oem}</td>
+                                <td className="py-2.5 px-3">
+                                  <Badge variant="outline" className="text-[10px] py-0 px-1.5">
+                                    {eq.modality}
+                                  </Badge>
+                                </td>
+                                <td className="py-2.5 px-3 font-medium text-foreground">{eq.model}</td>
+                                <td className="py-2.5 px-3 font-mono text-muted-foreground">
+                                  {eq.serialNumber}
+                                </td>
+                                <td className="py-2.5 px-3 text-muted-foreground">{eq.location}</td>
+                                <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">
+                                  ₦
+                                  {Number(
+                                    eq.contractValue || contractValue / Math.max(1, coveredEquipment.length)
+                                  ).toLocaleString("en-US", { minimumFractionDigits: 0 })}
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
+                                    {eq.contractType || contractType}
+                                  </Badge>
+                                </td>
+                                <td className="py-2.5 px-3 font-mono text-muted-foreground">
+                                  {eq.contractStartDate || contractStartDate}
+                                </td>
+                                <td className="py-2.5 px-3 font-mono text-muted-foreground">
+                                  {eq.contractEndDate || contractEndDate}
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
                   </div>
+
+                  {coveredEquipment.length > 0 && (
+                    <TablePagination
+                      page={currentEquipmentPage}
+                      pageCount={equipmentPageCount}
+                      total={coveredEquipment.length}
+                      from={equipmentFrom}
+                      to={equipmentTo}
+                      onPageChange={(p) => setEquipmentPage(p)}
+                    />
+                  )}
                 </div>
 
               </div>
