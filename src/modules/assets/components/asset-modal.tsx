@@ -111,6 +111,17 @@ const OWNERSHIP_TYPE_OPTIONS: OwnershipType[] = [
   "Rented",
 ];
 
+const TECHNICIAN_OPTIONS = [
+  "Engr. Nnamdi Kanu (GE Certified)",
+  "Engr. Peter Obi (Siemens Specialist)",
+  "Engr. Wale Shittu",
+  "Engr. Sunday Daniel",
+  "Engr. Emeka UNTH",
+  "Amara Okoye (Biomedical Engineer)",
+  "Marcus Vance (Biomedical Specialist)",
+  "Engr. Biomedical Tech",
+];
+
 const ASSET_CREATE_STEPS: StepItem[] = [
   {
     id: "general",
@@ -190,7 +201,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
     startDate: new Date().toISOString().split("T")[0],
     endDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
     costOfService: 150000,
-    technician: user?.name || "Engr. Biomedical Tech",
+    technician: TECHNICIAN_OPTIONS[0],
     notes: "",
   });
 
@@ -397,7 +408,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
       startDate: new Date().toISOString().split("T")[0],
       endDate: new Date(Date.now() + 86400000).toISOString().split("T")[0],
       costOfService: 150000,
-      technician: user?.name || "Engr. Biomedical Tech",
+      technician: TECHNICIAN_OPTIONS[0],
       notes: "",
     });
   };
@@ -1270,11 +1281,21 @@ export const AssetModal: React.FC<AssetModalProps> = ({
 
                       <div className="space-y-1">
                         <Label className="text-[11px] font-semibold text-foreground">Technician</Label>
-                        <Input
+                        <Select
                           value={newJob.technician}
-                          onChange={(e) => setNewJob({ ...newJob, technician: e.target.value })}
-                          className="h-8 text-xs bg-background border-border"
-                        />
+                          onValueChange={(val) => setNewJob({ ...newJob, technician: val })}
+                        >
+                          <SelectTrigger className="h-8 text-xs bg-background border-border">
+                            <SelectValue placeholder="Select technician" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TECHNICIAN_OPTIONS.map((tech) => (
+                              <SelectItem key={tech} value={tech} className="text-xs">
+                                {tech}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
 

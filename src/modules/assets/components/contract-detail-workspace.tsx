@@ -196,15 +196,19 @@ export const ContractModal: React.FC<ContractModalProps> = ({
         setPaymentFormAmount("");
         setPaymentFormNote("");
         setPaymentFormProofName("");
-        setServiceContractsList([
-          {
-            id: "doc_1",
-            name: `${contract.contractNumber || "CTR-2026-881"}_Agreement_Signed.pdf`,
-            note: contract.notes || "Fully executed OEM maintenance agreement",
-            date: contract.contractStartDate,
-            size: "2.4 MB",
-          },
-        ]);
+        if (contract.documentName || contract.documentUrl) {
+          setServiceContractsList([
+            {
+              id: "doc_1",
+              name: contract.documentName || contract.documentUrl.split("/").pop() || "Service_Contract.pdf",
+              note: contract.notes || "",
+              date: contract.contractStartDate,
+              size: "PDF",
+            },
+          ]);
+        } else {
+          setServiceContractsList([]);
+        }
       }
     }
   }, [isOpen, contract, initialTab, initialEditMode]);
@@ -400,6 +404,8 @@ export const ContractModal: React.FC<ContractModalProps> = ({
           : activeTab === "payments"
           ? paymentTermsNote.trim() || undefined
           : equipmentListNote.trim() || undefined,
+      documentName: serviceContractsList[0]?.name || contract?.documentName,
+      documentUrl: serviceContractsList[0]?.name || contract?.documentUrl,
       updatedAt: new Date().toISOString(),
     };
 
@@ -690,20 +696,48 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border/60">
-                        {serviceContractsList.map((doc, idx) => (
-                          <tr key={doc.id} className="hover:bg-muted/30 transition-colors">
-                            <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">
-                              {idx + 1}
+                        {serviceContractsList.length === 0 ? (
+                          <tr>
+                            <td colSpan={3} className="py-8 text-center text-xs text-muted-foreground">
+                              No service contract document uploaded yet. Click "Choose File to Upload" to attach a PDF.
                             </td>
-                            <td className="py-2.5 px-3 font-medium text-foreground">
-                              <div className="flex items-center gap-2">
-                                <FileText className="size-3.5 text-primary shrink-0" />
-                                <span className="font-mono text-xs">{doc.name}</span>
-                              </div>
-                            </td>
-                            <td className="py-2.5 px-3 text-muted-foreground">{doc.note}</td>
                           </tr>
-                        ))}
+                        ) : (
+                          serviceContractsList.map((doc, idx) => (
+                            <tr key={doc.id} className="hover:bg-muted/30 transition-colors">
+                              <td className="py-2.5 px-3 text-center font-mono text-muted-foreground">
+                                {idx + 1}
+                              </td>
+                              <td className="py-2.5 px-3 font-medium text-foreground">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <FileText className="size-3.5 text-primary shrink-0" />
+                                    <span className="font-mono text-xs truncate">{doc.name}</span>
+                                  </div>
+                                  {isEditing && (
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="size-6 text-muted-foreground hover:text-destructive cursor-pointer shrink-0"
+                                      onClick={() =>
+                                        setServiceContractsList((prev) =>
+                                          prev.filter((d) => d.id !== doc.id)
+                                        )
+                                      }
+                                      title="Remove document"
+                                    >
+                                      <Trash2 className="size-3.5" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-2.5 px-3 text-muted-foreground">
+                                {detailsNote.trim() || doc.note || "—"}
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -729,7 +763,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                           const newDoc = {
                             id: `doc_${Date.now()}`,
                             name: file.name,
-                            note: detailsNote.trim() || "Executed agreement document",
+                            note: detailsNote.trim(),
                             date: new Date().toISOString().split("T")[0],
                             size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
                           };
