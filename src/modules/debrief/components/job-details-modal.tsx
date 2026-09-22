@@ -6,19 +6,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import type { DebriefJob } from "../types";
 import {
   Stethoscope,
   ClipboardCheck,
-  Calendar,
   User,
   Wrench,
-  AlertTriangle,
-  Building2,
   FileText,
-  Clock,
-  ShieldCheck,
 } from "lucide-react";
 
 interface JobDetailsModalProps {
@@ -38,7 +32,7 @@ export function JobDetailsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header */}
         <DialogHeader className="p-5 pb-4 border-b border-border bg-card/60">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -86,104 +80,105 @@ export function JobDetailsModal({
           </div>
         </DialogHeader>
 
-        {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
-          {/* Top Info Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Equipment Card */}
-            <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-              <h4 className="text-xs font-bold text-foreground flex items-center gap-2 pb-2 border-b border-border/60">
-                <Stethoscope className="size-3.5 text-primary" />
-                Equipment & Asset Information
-              </h4>
-              <dl className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Asset No</dt>
-                  <dd className="font-mono font-bold text-primary">{job.assetNumber}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Modality</dt>
-                  <dd className="font-medium text-foreground">{job.modality}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">OEM</dt>
-                  <dd className="text-foreground">{job.oem}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Model</dt>
-                  <dd className="text-foreground">{job.model}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Serial Number</dt>
-                  <dd className="font-mono text-foreground">{job.serialNumber}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Year of Mfg</dt>
-                  <dd className="text-foreground">{job.yearOfManufacture}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Warranty Period</dt>
-                  <dd className="text-foreground">{job.warrantyStartDate || "—"} to {job.warrantyEndDate || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Contract End</dt>
-                  <dd className="text-foreground">{job.contractEndDate || "—"}</dd>
-                </div>
-                <div className="col-span-2">
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Location & Facility</dt>
-                  <dd className="text-foreground">{job.location || "—"} ({job.address || "—"})</dd>
-                </div>
-              </dl>
-            </div>
-
-            {/* Assignment & Operational Card */}
-            <div className="rounded-lg border border-border bg-card p-4 space-y-3">
-              <h4 className="text-xs font-bold text-foreground flex items-center gap-2 pb-2 border-b border-border/60">
-                <User className="size-3.5 text-primary" />
-                Service Assignment & Labor
-              </h4>
-              <dl className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Primary Engineer</dt>
-                  <dd className="font-bold text-foreground">{job.assignedToName}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Assisted By</dt>
-                  <dd className="text-foreground">{job.assistedBy || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Assigned / Start Date</dt>
-                  <dd className="font-semibold text-primary">{job.jobStartDate || job.startDate || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Completion / End Date</dt>
-                  <dd className="font-mono text-foreground">{job.endDate || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Root Cause</dt>
-                  <dd className="font-semibold text-foreground">{job.rootCause || "—"}</dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Resolution</dt>
-                  <dd className="font-semibold text-foreground">{job.resolution || "—"}</dd>
-                </div>
-                <div className="col-span-2">
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Site Contact</dt>
-                  <dd className="text-foreground">
-                    {job.contactName ? `${job.contactName} (${job.contactEmail || "No email"})` : "—"}
-                  </dd>
-                </div>
-              </dl>
-            </div>
+        {/* Content Body — Full-Width Horizontal Cards */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+          {/* Card 1: Horizontal Equipment & Asset Card */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
+            <h4 className="text-xs font-bold text-foreground flex items-center gap-2 pb-2.5 border-b border-border/60 uppercase tracking-wider">
+              <Stethoscope className="size-3.5 text-primary" />
+              Equipment & Asset Information
+            </h4>
+            <dl className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-xs">
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Asset No</dt>
+                <dd className="font-mono font-bold text-primary">{job.assetNumber}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Modality</dt>
+                <dd className="font-medium text-foreground">{job.modality}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">OEM</dt>
+                <dd className="text-foreground">{job.oem}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Model</dt>
+                <dd className="font-semibold text-foreground">{job.model}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Serial Number</dt>
+                <dd className="font-mono text-muted-foreground">{job.serialNumber}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Year of Mfg</dt>
+                <dd className="text-foreground">{job.yearOfManufacture}</dd>
+              </div>
+              <div className="col-span-2 sm:col-span-3">
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Location & Facility</dt>
+                <dd className="text-foreground">{job.location || "—"} ({job.address || "—"})</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Warranty Period</dt>
+                <dd className="text-foreground">{job.warrantyStartDate || "—"} to {job.warrantyEndDate || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Contract Type</dt>
+                <dd className="text-foreground">{job.contractType || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Contract End</dt>
+                <dd className="font-mono text-muted-foreground">{job.contractEndDate || "—"}</dd>
+              </div>
+            </dl>
           </div>
 
-          {/* Reported Issue */}
-          <div className="rounded-lg border border-border bg-card p-4 space-y-1.5">
-            <h4 className="text-xs font-bold text-foreground flex items-center gap-2">
+          {/* Card 2: Horizontal Service Assignment & Labor Card */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
+            <h4 className="text-xs font-bold text-foreground flex items-center gap-2 pb-2.5 border-b border-border/60 uppercase tracking-wider">
+              <User className="size-3.5 text-primary" />
+              Service Assignment & Labor
+            </h4>
+            <dl className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Primary Engineer</dt>
+                <dd className="font-bold text-foreground">{job.assignedToName}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Assisted By</dt>
+                <dd className="text-muted-foreground">{job.assistedBy || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-primary font-semibold">Assigned / Start Date</dt>
+                <dd className="font-semibold text-primary font-mono">{job.jobStartDate || job.startDate || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-foreground font-semibold">Completion / End Date</dt>
+                <dd className="font-mono text-foreground">{job.endDate || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Site Contact</dt>
+                <dd className="text-foreground truncate">
+                  {job.contactName ? `${job.contactName} (${job.contactEmail || "No email"})` : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Root Cause</dt>
+                <dd className="font-medium text-foreground">{job.rootCause || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase text-muted-foreground">Resolution</dt>
+                <dd className="font-medium text-foreground">{job.resolution || "—"}</dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Card 3: Horizontal Reported Issue Card */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-2 shadow-2xs">
+            <h4 className="text-xs font-bold text-foreground flex items-center gap-2 uppercase tracking-wider">
               <FileText className="size-3.5 text-primary" />
               Reported Issue & Complaint
             </h4>
-            <p className="text-xs text-foreground leading-relaxed bg-muted/30 p-3 rounded border border-border/60">
+            <p className="text-xs text-foreground leading-relaxed bg-muted/30 p-3 rounded-lg border border-border/60">
               {job.reportedIssue || "No complaint notes logged."}
             </p>
           </div>
@@ -196,7 +191,7 @@ export function JobDetailsModal({
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-9 cursor-pointer px-4"
           >
             Close
           </Button>
