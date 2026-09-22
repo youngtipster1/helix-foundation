@@ -225,7 +225,7 @@ export function Topbar({ user }: { user: User }) {
           <div className="flex md:hidden items-center ml-0.5">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold bg-muted/80 text-foreground hover:bg-accent border border-border/80 max-w-[145px] truncate transition-colors cursor-pointer">
+                <button className="flex items-center gap-1 rounded-lg px-2 py-1 text-[13px] font-semibold bg-muted/80 text-foreground hover:bg-accent border border-border/80 max-w-[110px] xs:max-w-[140px] truncate transition-colors cursor-pointer">
                   <CurrentModuleIcon className="size-3.5 shrink-0 text-primary" />
                   <span className="truncate">{currentModule ? currentModule.label : "Modules"}</span>
                   <ChevronDown className="size-3 shrink-0 text-muted-foreground" />
@@ -328,21 +328,27 @@ export function Topbar({ user }: { user: User }) {
         </div>
 
         {/* Right: Global Actions & User Menu */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate({ to: "/app" })}
-            className="h-8 px-2 sm:px-2.5 text-xs font-semibold gap-1.5 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary cursor-pointer"
+            className="hidden sm:inline-flex h-8 px-2 sm:px-2.5 text-xs font-semibold gap-1.5 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary cursor-pointer"
             title="Workspace Hub"
           >
             <LayoutGrid className="size-3.5" />
-            <span className="hidden sm:inline">Workspace Hub</span>
+            <span>Workspace Hub</span>
           </Button>
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+                className="hidden sm:inline-flex"
+              >
                 {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
               </Button>
             </TooltipTrigger>
@@ -351,7 +357,7 @@ export function Topbar({ user }: { user: User }) {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Notifications">
+              <Button variant="ghost" size="icon" aria-label="Notifications" className="size-8">
                 <Bell className="size-4" />
               </Button>
             </TooltipTrigger>
@@ -360,12 +366,12 @@ export function Topbar({ user }: { user: User }) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-md py-1 px-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer">
-                <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-muted text-[11px] font-semibold tracking-wide text-foreground">
+              <button className="flex items-center gap-1.5 rounded-md p-1 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer">
+                <span className="grid size-7.5 shrink-0 place-items-center rounded-full border border-border bg-muted text-[11px] font-semibold tracking-wide text-foreground">
                   {initials(user)}
                 </span>
                 <span className="hidden sm:inline font-medium text-xs">{user.firstName}</span>
-                <ChevronDown className="size-3.5 text-muted-foreground" />
+                <ChevronDown className="size-3 text-muted-foreground" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -379,6 +385,10 @@ export function Topbar({ user }: { user: User }) {
               <DropdownMenuItem onSelect={() => navigate({ to: "/app" })}>
                 <LayoutGrid className="size-4" />
                 Workspace Hub
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => toggleTheme()}>
+                {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+                {theme === "dark" ? "Light Mode" : "Dark Mode"}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => void handleSignOut()}>
                 <LogOut className="size-4" />
