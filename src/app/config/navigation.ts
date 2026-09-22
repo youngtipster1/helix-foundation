@@ -121,4 +121,5 @@ export const ASSETS_NAV: NavItem[] = [
 ========================================================================= */
 export const DEBRIEF_NAV: NavItem[] = [
   { label: "Jobs", to: "/app/debrief", icon: ClipboardCheck },
+  { label: "My Work", to: "/app/debrief/my-work", icon: Wrench },
 ];

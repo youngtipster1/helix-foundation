@@ -1,5 +1,5 @@
 import { MOCK_DEBRIEF_JOBS } from "../mocks/debrief-data";
-import type { DebriefJob, CreateJobInput } from "../types";
+import type { DebriefJob, CreateJobInput, DebriefLabourRecord, DebriefPartUsed, DebriefExpense, DebriefDocument, DebriefToolUsed } from "../types";
 import type { User } from "@/features/auth/types";
 import { isModuleAdmin } from "@/features/auth/permissions";
 
@@ -44,7 +44,7 @@ class DebriefService {
    */
   async list(user?: User | null): Promise<DebriefJob[]> {
     this.init();
-    await new Promise((resolve) => setTimeout(resolve, 50)); // snappy async
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     if (!user) return [...this.jobs];
 
@@ -80,9 +80,20 @@ class DebriefService {
     });
   }
 
+  /**
+   * Returns active jobs for current engineer's "My Work" queue.
+   * Only includes jobs that are In Progress or On Hold (not Completed).
+   */
+  async getMyWork(user?: User | null): Promise<DebriefJob[]> {
+    const assignedJobs = await this.list(user);
+    return assignedJobs.filter(
+      (job) => job.jobStatus === "In Progress" || job.jobStatus === "On Hold" || job.jobStatus === "Open"
+    );
+  }
+
   async getById(id: string): Promise<DebriefJob | null> {
     this.init();
-    const match = this.jobs.find((j) => j.id === id);
+    const match = this.jobs.find((j) => j.id === id || j.jobNumber === id);
     return match ? { ...match } : null;
   }
 
@@ -115,7 +126,7 @@ class DebriefService {
       serialNumber: input.serialNumber,
       warrantyStartDate: input.warrantyStartDate,
       warrantyEndDate: input.warrantyEndDate,
-      contractStartDate: "2026-01-01", // Linked contract start
+      contractStartDate: "2026-01-01",
       contractEndDate: input.contractEndDate,
       contractType: input.contractType,
       yearOfManufacture: input.yearOfManufacture,
@@ -140,7 +151,7 @@ class DebriefService {
       endDate: input.endDate || "—",
       rootCause: "—",
       resolution: "—",
-      jobStatus: "Open",
+      jobStatus: "In Progress",
       createdAt: now,
       updatedAt: now,
     };
@@ -152,7 +163,7 @@ class DebriefService {
 
   async update(id: string, updates: Partial<DebriefJob>): Promise<DebriefJob | null> {
     this.init();
-    const index = this.jobs.findIndex((j) => j.id === id);
+    const index = this.jobs.findIndex((j) => j.id === id || j.jobNumber === id);
     if (index === -1) return null;
 
     this.jobs[index] = {
