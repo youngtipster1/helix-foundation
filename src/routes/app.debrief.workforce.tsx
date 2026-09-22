@@ -177,7 +177,6 @@ function DebriefWorkforcePage() {
   return (
     <div className="w-full space-y-6 pb-12">
       <PageHeader
-        eyebrow="Debrief Module"
         title="Workforce Management"
         subtitle={
           isAdmin

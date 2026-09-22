@@ -619,7 +619,6 @@ function DebriefSchedulePage() {
   return (
     <div className="w-full space-y-5 pb-12">
       <PageHeader
-        eyebrow="Debrief Module"
         title="Schedule Calendar"
         subtitle={
           isAdmin

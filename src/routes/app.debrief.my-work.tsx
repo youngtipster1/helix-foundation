@@ -199,7 +199,6 @@ function DebriefMyWorkPage() {
   return (
     <div className="w-full space-y-6 pb-12">
       <PageHeader
-        eyebrow="Debrief Module"
         title="My Work"
         subtitle="Manage active job executions, view your upcoming scheduled dispatches, and review completed service debriefs."
         icon={Wrench}
