@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
 import { qualityService } from "@/modules/quality/services/quality-service";
 import { isModuleAdmin } from "@/features/auth/permissions";
 import { Loading } from "@/components/ui/loading";
@@ -91,81 +92,38 @@ function QualityDashboardPage() {
 
       {/* Compact summary area */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
-        {/* Metric 1 */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Policy Documents
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <FileText className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">{metrics.policyDocuments}</span>
-            <span className="text-xs text-muted-foreground font-mono">100% Active</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Active & approved policy documentation
-          </p>
-        </div>
-
-        {/* Metric 2 */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Equipment Checklists
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <ClipboardCheck className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">{metrics.equipmentChecklists}</span>
-            <span className="text-xs text-muted-foreground font-mono">Verified</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Standardized operational inspection checklists
-          </p>
-        </div>
-
-        {/* Metric 3 */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Pending Reviews
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Clock className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">{metrics.pendingReviews}</span>
-            <span className="text-xs text-muted-foreground font-mono">In Queue</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Awaiting peer evaluation & QA review
-          </p>
-        </div>
-
-        {/* Metric 4 */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Pending Approvals
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <ShieldCheck className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">{metrics.pendingApprovals}</span>
-            <span className="text-xs text-muted-foreground font-mono">Sign-Off</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Awaiting administrative authorization
-          </p>
-        </div>
+        <StatCard
+          title="Policy Documents"
+          value={metrics.policyDocuments}
+          subtext="100% Active"
+          description="Active & approved policy documentation"
+          icon={FileText}
+          onClick={() => navigate({ to: "/app/quality/policy-documents" })}
+        />
+        <StatCard
+          title="Equipment Checklists"
+          value={metrics.equipmentChecklists}
+          subtext="Verified"
+          description="Standardized operational inspection checklists"
+          icon={ClipboardCheck}
+          onClick={() => navigate({ to: "/app/quality/checklists" })}
+        />
+        <StatCard
+          title="Pending Reviews"
+          value={metrics.pendingReviews}
+          subtext="In Queue"
+          description="Awaiting peer evaluation & QA review"
+          icon={Clock}
+          onClick={() => navigate({ to: "/app/quality/reviews" })}
+        />
+        <StatCard
+          title="Pending Approvals"
+          value={metrics.pendingApprovals}
+          subtext="Sign-Off"
+          description="Awaiting administrative authorization"
+          icon={ShieldCheck}
+          onClick={() => navigate({ to: "/app/quality/approvals" })}
+        />
       </div>
 
       {/* Main Grid: Attention Required & Activity */}

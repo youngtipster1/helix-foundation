@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { StatCard } from "@/components/ui/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
@@ -323,108 +324,44 @@ function ToolsListPage() {
         icon={Wrench}
       />
 
-      {/* Summary KPI Cards (Neutral Clean Aesthetic) */}
       {/* Summary KPI Cards (Unified Design System) */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div
+        <StatCard
+          title="Total Equipment"
+          value={toolsList.length}
+          subtext="100% Tracked"
+          description="Registered biomedical diagnostic tools"
+          icon={Wrench}
+          active={activeFilter === "all"}
           onClick={() => setActiveFilter("all")}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Equipment
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Wrench className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {toolsList.length}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              100% Tracked
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Registered biomedical diagnostic tools
-          </p>
-        </div>
-
-        <div
+        />
+        <StatCard
+          title="Calibrated & Valid"
+          value={validCount}
+          subtext="Valid Active"
+          description="Valid calibration certificates active"
+          icon={CheckCircle2}
+          active={activeFilter === "valid"}
           onClick={() => setActiveFilter("valid")}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Calibrated & Valid
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <CheckCircle2 className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {validCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Valid Active
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Valid calibration certificates active
-          </p>
-        </div>
-
-        <div
+        />
+        <StatCard
+          title="Due Within 30 Days"
+          value={dueSoonCount}
+          subtext="Action Required"
+          description="Calibration slots scheduled with vendors"
+          icon={AlertTriangle}
+          active={activeFilter === "due_soon"}
           onClick={() => setActiveFilter("due_soon")}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Due Within 30 Days
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <AlertTriangle className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {dueSoonCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Action Required
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Calibration slots scheduled with vendors
-          </p>
-        </div>
-
-        <div
+        />
+        <StatCard
+          title="Out of Calibration"
+          value={expiredCount}
+          subtext="Restricted"
+          description="Quarantined & blocked from operational use"
+          icon={ShieldAlert}
+          active={activeFilter === "expired"}
           onClick={() => setActiveFilter("expired")}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Out of Calibration
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <ShieldAlert className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {expiredCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Restricted
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Quarantined & blocked from operational use
-          </p>
-        </div>
+        />
       </div>
 
       {/* Filter Tabs & Add Tool Action */}

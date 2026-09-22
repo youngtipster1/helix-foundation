@@ -32,6 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { StatCard } from "@/components/ui/stat-card";
 import { CalibrationStatusBadge } from "@/modules/tools/components/calibration-status-badge";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
@@ -175,107 +176,38 @@ function ToolsDashboardPage() {
 
       {/* Top 4 Key Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Total Registered Fleet */}
-        <div
+        <StatCard
+          title="Total Equipment Fleet"
+          value={totalTools}
+          subtext="100% Tracked"
+          description="Registered biomedical diagnostic tools"
+          icon={Wrench}
           onClick={() => navigate({ to: "/app/tools" })}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Total Equipment Fleet
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Wrench className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">{totalTools}</span>
-            <span className="text-xs text-muted-foreground font-mono">
-              100% Tracked
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Registered biomedical diagnostic tools
-          </p>
-        </div>
-
-        {/* Card 2: Calibrated & Valid */}
-        <div
+        />
+        <StatCard
+          title="Calibrated & Valid"
+          value={calibratedCount}
+          subtext={`${complianceRate}% Compliance`}
+          description="Valid calibration certificates active"
+          icon={ShieldCheck}
           onClick={() => navigate({ to: "/app/tools" })}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Calibrated & Valid
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <ShieldCheck className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {calibratedCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              {complianceRate}% Compliance
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Valid calibration certificates active
-          </p>
-        </div>
-
-        {/* Card 3: Due for Calibration */}
-        <div
+        />
+        <StatCard
+          title="Due Within 30 Days"
+          value={dueSoonCount}
+          subtext="Action Required"
+          description="Calibration slots scheduled with vendors"
+          icon={AlertTriangle}
           onClick={() => navigate({ to: "/app/tools" })}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Due Within 30 Days
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <AlertTriangle className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {dueSoonCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Action Required
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Calibration slots scheduled with vendors
-          </p>
-        </div>
-
-        {/* Card 4: Out of Calibration */}
-        <div
+        />
+        <StatCard
+          title="Out of Calibration"
+          value={expiredCount}
+          subtext="Restricted"
+          description="Quarantined & blocked from operational use"
+          icon={XCircle}
           onClick={() => navigate({ to: "/app/tools" })}
-          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Out of Calibration
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <XCircle className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {expiredCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Restricted
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Quarantined & blocked from operational use
-          </p>
-        </div>
+        />
       </div>
 
       {/* Main Charts & Visual KPI Section */}

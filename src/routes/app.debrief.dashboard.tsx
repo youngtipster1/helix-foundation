@@ -17,7 +17,9 @@ import {
   Navigation,
   CheckSquare,
   BarChart2,
+  TrendingUp,
 } from "lucide-react";
+import { StatCard } from "@/components/ui/stat-card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -102,220 +104,51 @@ function DebriefDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Card 1: FTFR */}
-          <div
+          <StatCard
+            title="1. FTFR (%)"
+            value={`${kpiData.summary.avgFTFR}%`}
+            subtext="≥ 85% Target"
+            description="First-Time Fix Rate benchmark"
+            icon={CheckCircle2}
+            active={activeKPI === "ftfr"}
             onClick={() => setActiveKPI("ftfr")}
-            className={cn(
-              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
-              activeKPI === "ftfr"
-                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "hover:border-border/80 hover:bg-muted/10"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  activeKPI === "ftfr" ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                1. FTFR (%)
-              </span>
-              <div
-                className={cn(
-                  "size-8 rounded-lg grid place-items-center",
-                  activeKPI === "ftfr"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary/10 text-primary"
-                )}
-              >
-                <CheckCircle2 className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="font-mono font-bold text-2xl text-foreground">
-                {kpiData.summary.avgFTFR}%
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                &ge; 85% Target
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              First-Time Fix Rate benchmark
-            </p>
-          </div>
-
-          {/* Card 2: MTTR */}
-          <div
+          />
+          <StatCard
+            title="2. MTTR (Hours)"
+            value={`${kpiData.summary.avgMTTR}h`}
+            subtext="≤ 3.5h Target"
+            description="Mean Time to Repair resolution"
+            icon={Clock}
+            active={activeKPI === "mttr"}
             onClick={() => setActiveKPI("mttr")}
-            className={cn(
-              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
-              activeKPI === "mttr"
-                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "hover:border-border/80 hover:bg-muted/10"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  activeKPI === "mttr" ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                2. MTTR (Hours)
-              </span>
-              <div
-                className={cn(
-                  "size-8 rounded-lg grid place-items-center",
-                  activeKPI === "mttr"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary/10 text-primary"
-                )}
-              >
-                <Clock className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="font-mono font-bold text-2xl text-foreground">
-                {kpiData.summary.avgMTTR}h
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                &le; 3.5h Target
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Mean Time to Repair resolution
-            </p>
-          </div>
-
-          {/* Card 3: Utilization */}
-          <div
+          />
+          <StatCard
+            title="3. Utilization (%)"
+            value={`${kpiData.summary.avgUtilization}%`}
+            subtext="≥ 75% Target"
+            description="Working Days Active Share"
+            icon={Activity}
+            active={activeKPI === "utilization"}
             onClick={() => setActiveKPI("utilization")}
-            className={cn(
-              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
-              activeKPI === "utilization"
-                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "hover:border-border/80 hover:bg-muted/10"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  activeKPI === "utilization" ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                3. Utilization (%)
-              </span>
-              <div
-                className={cn(
-                  "size-8 rounded-lg grid place-items-center",
-                  activeKPI === "utilization"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary/10 text-primary"
-                )}
-              >
-                <Activity className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="font-mono font-bold text-2xl text-foreground">
-                {kpiData.summary.avgUtilization}%
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                &ge; 75% Target
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Working Days Active Share
-            </p>
-          </div>
-
-          {/* Card 4: Average Travel Time */}
-          <div
+          />
+          <StatCard
+            title="4. Avg Travel Time"
+            value={`${kpiData.summary.avgTravelTimeHours}h`}
+            subtext="Transit Velocity"
+            description="Average Travel per Service Call"
+            icon={Navigation}
+            active={activeKPI === "travel"}
             onClick={() => setActiveKPI("travel")}
-            className={cn(
-              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
-              activeKPI === "travel"
-                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "hover:border-border/80 hover:bg-muted/10"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  activeKPI === "travel" ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                4. Avg Travel Time
-              </span>
-              <div
-                className={cn(
-                  "size-8 rounded-lg grid place-items-center",
-                  activeKPI === "travel"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary/10 text-primary"
-                )}
-              >
-                <Navigation className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="font-mono font-bold text-2xl text-foreground">
-                {kpiData.summary.avgTravelTimeHours}h
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                Transit Velocity
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Average Travel per Service Call
-            </p>
-          </div>
-
-          {/* Card 5: Volume Done */}
-          <div
+          />
+          <StatCard
+            title="5. Total Jobs Done"
+            value={kpiData.summary.totalVolumeDone}
+            subtext="100% Closed"
+            description="Total debriefs executed & verified"
+            icon={TrendingUp}
+            active={activeKPI === "volume"}
             onClick={() => setActiveKPI("volume")}
-            className={cn(
-              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
-              activeKPI === "volume"
-                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "hover:border-border/80 hover:bg-muted/10"
-            )}
-          >
-            <div className="flex items-center justify-between">
-              <span
-                className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  activeKPI === "volume" ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                5. Total Jobs Done
-              </span>
-              <div
-                className={cn(
-                  "size-8 rounded-lg grid place-items-center",
-                  activeKPI === "volume"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-primary/10 text-primary"
-                )}
-              >
-                <TrendingUp className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="font-mono font-bold text-2xl text-foreground">
-                {kpiData.summary.totalVolumeDone}
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                100% Closed
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total debriefs executed & verified
-            </p>
-          </div>
+          />
         </div>
       </div>
 

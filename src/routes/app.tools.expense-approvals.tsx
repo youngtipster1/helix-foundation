@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { StatCard } from "@/components/ui/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
@@ -261,70 +262,36 @@ function ExpenseApprovalsPage() {
 
       {/* Summary KPI Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Awaiting Approval
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Clock className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {pendingList.length}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">claims</span>
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Action Required
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Totaling {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(pendingAmountTotal)}
-          </p>
-        </div>
-
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Approved Claims
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <CheckCircle2 className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {approvedList.length}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">claims</span>
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Verified
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Processed for finance reimbursement</p>
-        </div>
-
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Rejected Claims
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <XCircle className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {rejectedList.length}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">claims</span>
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Declined
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Returned to engineer with audit notes</p>
-        </div>
+        <StatCard
+          title="Awaiting Approval"
+          value={pendingList.length}
+          unit="claims"
+          subtext="Action Required"
+          description={`Totaling ${new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(pendingAmountTotal)}`}
+          icon={Clock}
+          active={activeFilter === "pending"}
+          onClick={() => setActiveFilter("pending")}
+        />
+        <StatCard
+          title="Approved Claims"
+          value={approvedList.length}
+          unit="claims"
+          subtext="Verified"
+          description="Processed for finance reimbursement"
+          icon={CheckCircle2}
+          active={activeFilter === "approved"}
+          onClick={() => setActiveFilter("approved")}
+        />
+        <StatCard
+          title="Rejected Claims"
+          value={rejectedList.length}
+          unit="claims"
+          subtext="Declined"
+          description="Returned to engineer with audit notes"
+          icon={XCircle}
+          active={activeFilter === "rejected"}
+          onClick={() => setActiveFilter("rejected")}
+        />
       </div>
 
       {/* Tabs Filter */}

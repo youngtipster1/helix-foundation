@@ -33,6 +33,7 @@ import {
   LabelList,
 } from "recharts";
 import { PartsDashboardMetrics } from "../types";
+import { StatCard } from "@/components/ui/stat-card";
 import { cn } from "@/lib/utils";
 
 export interface PartsDashboardViewProps {
@@ -49,99 +50,36 @@ export function PartsDashboardView({ metrics }: PartsDashboardViewProps) {
       {/* 4 KPI Summary Cards matching Page 3 of the specification */}
       {/* Row 1: 4 Top KPI Cards (Page 3 of spec) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* 1. Total Inventory Value */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Inventory Value
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <DollarSign className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              ₦{metrics.totalInventoryValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              100% Tracked
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Current replacement valuation across all depots
-          </p>
-        </div>
-
-        {/* 2. Total Inventory Quantity */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Inventory Quantity
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Boxes className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              {metrics.totalInventoryQuantity.toLocaleString()}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              In-Stock Fleet
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Total active spare parts stock recorded in system
-          </p>
-        </div>
-
-        {/* 3. Shrinkage Value */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Shrinkage Value
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <TrendingDown className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              ₦{metrics.shrinkageValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Audit Variance
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Cumulative financial variance identified in physical audits
-          </p>
-        </div>
-
-        {/* 4. Shrinkage Quantity */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Shrinkage Quantity
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <AlertOctagon className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              {metrics.shrinkageQuantity.toLocaleString()}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Discrepancies
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Missing inventory units from stock reconciliation cycles
-          </p>
-        </div>
+        <StatCard
+          title="Total Inventory Value"
+          value={`₦${metrics.totalInventoryValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+          subtext="100% Tracked"
+          description="Current replacement valuation across all depots"
+          icon={DollarSign}
+        />
+        <StatCard
+          title="Total Inventory Quantity"
+          value={metrics.totalInventoryQuantity.toLocaleString()}
+          unit="units"
+          subtext="In-Stock Fleet"
+          description="Total active spare parts stock recorded in system"
+          icon={Boxes}
+        />
+        <StatCard
+          title="Shrinkage Value"
+          value={`₦${metrics.shrinkageValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+          subtext="Audit Variance"
+          description="Cumulative financial variance identified in physical audits"
+          icon={TrendingDown}
+        />
+        <StatCard
+          title="Shrinkage Quantity"
+          value={metrics.shrinkageQuantity.toLocaleString()}
+          unit="units"
+          subtext="Discrepancies"
+          description="Missing inventory units from stock reconciliation cycles"
+          icon={AlertOctagon}
+        />
       </div>
 
       {/* Row 2: Two Main Specification Charts (Page 3 of spec) */}

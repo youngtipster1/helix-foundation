@@ -19,6 +19,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { PageHeader } from "@/components/layout/page-header";
+import { StatCard } from "@/components/ui/stat-card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useAuth } from "@/features/auth/auth-context";
@@ -350,91 +351,34 @@ function QualityTrainingPage() {
 
       {/* Role-tailored KPI Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {isAdmin ? "Total Dispatched" : "My Assigned"}
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <GraduationCap className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {totalCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              100% Tracked
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {isAdmin ? "All team assignments" : "Assigned to your workbench"}
-          </p>
-        </div>
-
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {isAdmin ? "Completed" : "My Completed"}
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <CheckCircle2 className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {completedCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Compliant
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Acknowledged & compliant</p>
-        </div>
-
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {isAdmin ? "Pending" : "Action Required"}
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Clock className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {pendingCount}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              In Queue
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {isAdmin ? "Awaiting technician review" : "Pending your signature"}
-          </p>
-        </div>
-
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {isAdmin ? "Team Compliance" : "Compliance Rate"}
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Award className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono text-foreground">
-              {complianceRate}%
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Target &ge; 90%
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {isAdmin ? "Overall team rate" : "Your personal compliance"}
-          </p>
-        </div>
+        <StatCard
+          title={isAdmin ? "Total Dispatched" : "My Assigned"}
+          value={totalCount}
+          subtext="100% Tracked"
+          description={isAdmin ? "All team assignments" : "Assigned to your workbench"}
+          icon={GraduationCap}
+        />
+        <StatCard
+          title={isAdmin ? "Completed" : "My Completed"}
+          value={completedCount}
+          subtext="Compliant"
+          description="Acknowledged & compliant"
+          icon={CheckCircle2}
+        />
+        <StatCard
+          title={isAdmin ? "Pending" : "Action Required"}
+          value={pendingCount}
+          subtext="In Queue"
+          description={isAdmin ? "Awaiting technician review" : "Pending your signature"}
+          icon={Clock}
+        />
+        <StatCard
+          title={isAdmin ? "Team Compliance" : "Compliance Rate"}
+          value={`${complianceRate}%`}
+          subtext="Target ≥ 90%"
+          description={isAdmin ? "Overall team rate" : "Your personal compliance"}
+          icon={Award}
+        />
       </div>
 
       {/* KPI Bar Chart: % Quality Compliance per User (Matching Client Slide) */}

@@ -27,6 +27,7 @@ import {
   LabelList,
 } from "recharts";
 import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
 import { FinancialDashboardMetrics, Order } from "../types";
 import { OrderStatusBadge } from "./order-status-badge";
 import { cn } from "@/lib/utils";
@@ -53,98 +54,35 @@ export function FinancialDashboardView({
     <div className="space-y-6">
       {/* 4 Primary KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* 1. Total Order Value */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Order Value
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <DollarSign className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              ₦{metrics.totalOrderValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              100% Valuation
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Active approved & ongoing procurement valuation
-          </p>
-        </div>
-
-        {/* 2. OTIF (On-Time, In-Full) */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              OTIF Rate
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <CheckCircle2 className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              {metrics.otifRate}%
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              On-Time & In-Full
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Orders fully fulfilled on or before target delivery date
-          </p>
-        </div>
-
-        {/* 3. Order Cycle Time */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Order Cycle Time
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Clock className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              {metrics.orderCycleTimeDays}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">days</span>
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Avg Turnaround
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Average duration from request creation to complete fulfillment
-          </p>
-        </div>
-
-        {/* 4. Order Accuracy Rate */}
-        <div className="surface-panel p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Order Accuracy Rate
-            </span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-              <Percent className="size-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl font-mono font-bold text-foreground">
-              {metrics.orderAccuracyRate}%
-            </span>
-            <span className="text-xs text-muted-foreground font-mono">
-              Quality Verified
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Accurate orders divided by total fulfilled orders
-          </p>
-        </div>
+        <StatCard
+          title="Total Order Value"
+          value={`₦${metrics.totalOrderValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+          subtext="100% Valuation"
+          description="Active approved & ongoing procurement valuation"
+          icon={DollarSign}
+        />
+        <StatCard
+          title="OTIF Rate"
+          value={`${metrics.otifRate}%`}
+          subtext="On-Time & In-Full"
+          description="Orders fully fulfilled on or before target delivery date"
+          icon={CheckCircle2}
+        />
+        <StatCard
+          title="Order Cycle Time"
+          value={metrics.orderCycleTimeDays}
+          unit="days"
+          subtext="Avg Turnaround"
+          description="Average duration from request creation to complete fulfillment"
+          icon={Clock}
+        />
+        <StatCard
+          title="Order Accuracy Rate"
+          value={`${metrics.orderAccuracyRate}%`}
+          subtext="Quality Verified"
+          description="Accurate orders divided by total fulfilled orders"
+          icon={Percent}
+        />
       </div>
 
       {/* Main Graph & Action Hub Section */}

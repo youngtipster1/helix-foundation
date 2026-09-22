@@ -19,6 +19,7 @@ import {
   CartesianGrid,
   LabelList,
 } from "recharts";
+import { StatCard } from "@/components/ui/stat-card";
 import { AssetDashboardMetrics } from "../types";
 
 export interface AssetDashboardViewProps {
@@ -32,76 +33,32 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
         {/* Left Column: 3 Metric Cards Stacked */}
         <div className="lg:col-span-4 flex flex-col justify-between gap-3.5">
-          {/* 1. Total Equipment */}
-          <div className="flex-1 surface-panel p-5 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Total Equipment
-              </span>
-              <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-                <Stethoscope className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-2xl font-mono font-bold text-foreground">
-                {metrics.totalEquipment}{" "}
-                <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                100% Tracked
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Registered biomedical inventory devices
-            </p>
-          </div>
-
-          {/* 2. Total Value of Equipment */}
-          <div className="flex-1 surface-panel p-5 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Total Value of Equipment
-              </span>
-              <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-                <Banknote className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-2xl font-mono font-bold text-foreground">
-                ₦{metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                Asset Valuation
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Active service & maintenance valuation
-            </p>
-          </div>
-
-          {/* 3. Total Number of OEMs */}
-          <div className="flex-1 surface-panel p-5 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Total Number of OEMs
-              </span>
-              <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
-                <Building2 className="size-4" />
-              </div>
-            </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-2xl font-mono font-bold text-foreground">
-                {metrics.totalOems}{" "}
-                <span className="text-xs font-sans font-medium text-muted-foreground">brands</span>
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                Manufacturers
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Equipment manufacturers under management
-            </p>
-          </div>
+          <StatCard
+            title="Total Equipment"
+            value={metrics.totalEquipment}
+            unit="units"
+            subtext="100% Tracked"
+            description="Registered biomedical inventory devices"
+            icon={Stethoscope}
+            className="flex-1"
+          />
+          <StatCard
+            title="Total Value of Equipment"
+            value={`₦${metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
+            subtext="Asset Valuation"
+            description="Active service & maintenance valuation"
+            icon={Banknote}
+            className="flex-1"
+          />
+          <StatCard
+            title="Total Number of OEMs"
+            value={metrics.totalOems}
+            unit="brands"
+            subtext="Manufacturers"
+            description="Equipment manufacturers under management"
+            icon={Building2}
+            className="flex-1"
+          />
         </div>
 
         {/* Center Column: Warranty Status Donut */}
