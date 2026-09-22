@@ -329,36 +329,37 @@ export function CreateJobModal({
           </div>
         </DialogHeader>
 
-        {/* Modal Form Body — Two Horizontal Cards Layout */}
-        <form onSubmit={handleCreateJob} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-            {/* ================= LEFT HORIZONTAL CARD: EQUIPMENT DETAILS ================= */}
-            <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
-              <div className="flex items-center justify-between pb-3 border-b border-border/60">
-                <div className="flex items-center gap-2">
-                  <span className="grid size-7 place-items-center rounded-md bg-primary/10 text-primary">
-                    <Stethoscope className="size-3.5" />
-                  </span>
-                  <span className="text-xs font-bold text-foreground uppercase tracking-wider">
-                    Equipment Identification
-                  </span>
-                </div>
-                {selectedAsset && (
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                    <Check className="size-3" /> Auto-populated
-                  </span>
-                )}
+        {/* Modal Form Body — Full-Width Horizontal Cards Layout */}
+        <form onSubmit={handleCreateJob} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+          {/* ================= CARD 1: FULL-WIDTH HORIZONTAL EQUIPMENT DETAILS ================= */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
+            <div className="flex items-center justify-between pb-3 border-b border-border/60">
+              <div className="flex items-center gap-2">
+                <span className="grid size-7 place-items-center rounded-md bg-primary/10 text-primary">
+                  <Stethoscope className="size-3.5" />
+                </span>
+                <span className="text-xs font-bold text-foreground uppercase tracking-wider">
+                  Equipment Identification & Specifications
+                </span>
               </div>
+              {selectedAsset && (
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                  <Check className="size-3" /> Auto-populated from Asset Registry
+                </span>
+              )}
+            </div>
 
+            {/* Equipment Search & Attributes Horizontal Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
               {/* Asset Search Field */}
-              <div className="relative" ref={searchContainerRef}>
+              <div className="relative col-span-1 sm:col-span-2" ref={searchContainerRef}>
                 <Label htmlFor="assetNumber" className="text-xs font-semibold text-foreground">
-                  Asset Number (Search) <span className="text-destructive">*</span>
+                  Asset Number (Live Search) <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative mt-1">
                   <Input
                     id="assetNumber"
-                    placeholder="Type equipment number (e.g. EQ-RAD-001)..."
+                    placeholder="Type to search equipment (e.g. EQ-RAD-001)..."
                     value={assetNumber}
                     onChange={(e) => {
                       setAssetNumber(e.target.value);
@@ -411,391 +412,388 @@ export function CreateJobModal({
                 )}
               </div>
 
-              {/* Equipment Attributes Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div className="space-y-1">
-                  <Label htmlFor="modality" className="text-[11px]">
-                    Modality <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="modality"
-                    placeholder="e.g. Radiology"
-                    value={modality}
-                    onChange={(e) => setModality(e.target.value)}
-                    className={cn("h-8 text-xs", errors.modality && "border-destructive")}
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="modality" className="text-[11px]">
+                  Modality <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="modality"
+                  placeholder="e.g. Radiology"
+                  value={modality}
+                  onChange={(e) => setModality(e.target.value)}
+                  className={cn("h-9 text-xs", errors.modality && "border-destructive")}
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="oem" className="text-[11px]">
-                    OEM <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="oem"
-                    placeholder="e.g. GE Healthcare"
-                    value={oem}
-                    onChange={(e) => setOem(e.target.value)}
-                    className={cn("h-8 text-xs", errors.oem && "border-destructive")}
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="oem" className="text-[11px]">
+                  OEM <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="oem"
+                  placeholder="e.g. GE Healthcare"
+                  value={oem}
+                  onChange={(e) => setOem(e.target.value)}
+                  className={cn("h-9 text-xs", errors.oem && "border-destructive")}
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="model" className="text-[11px]">
-                    Model <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="model"
-                    placeholder="e.g. Optima CT660"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    className={cn("h-8 text-xs", errors.model && "border-destructive")}
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="model" className="text-[11px]">
+                  Model <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="model"
+                  placeholder="e.g. Optima CT660"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className={cn("h-9 text-xs", errors.model && "border-destructive")}
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="serialNumber" className="text-[11px]">
-                    Serial Number <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="serialNumber"
-                    placeholder="e.g. SN-98241-GE"
-                    value={serialNumber}
-                    onChange={(e) => setSerialNumber(e.target.value)}
-                    className={cn("h-8 text-xs font-mono", errors.serialNumber && "border-destructive")}
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="serialNumber" className="text-[11px]">
+                  Serial Number <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="serialNumber"
+                  placeholder="e.g. SN-98241-GE"
+                  value={serialNumber}
+                  onChange={(e) => setSerialNumber(e.target.value)}
+                  className={cn("h-9 text-xs font-mono", errors.serialNumber && "border-destructive")}
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="location" className="text-[11px]">Location / Ward</Label>
-                  <Input
-                    id="location"
-                    placeholder="e.g. Main Radiology Complex"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="location" className="text-[11px]">Location / Ward</Label>
+                <Input
+                  id="location"
+                  placeholder="e.g. Main Radiology Complex"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="address" className="text-[11px]">Address</Label>
-                  <Input
-                    id="address"
-                    placeholder="e.g. Garki, Abuja"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="address" className="text-[11px]">Address</Label>
+                <Input
+                  id="address"
+                  placeholder="e.g. Garki, Abuja"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="warrantyStartDate" className="text-[11px]">Warranty Start Date</Label>
-                  <Input
-                    id="warrantyStartDate"
-                    type="date"
-                    value={warrantyStartDate}
-                    onChange={(e) => setWarrantyStartDate(e.target.value)}
-                    className="h-8 text-xs font-mono"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="equipmentStatus" className="text-[11px]">
+                  Equipment Status <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={equipmentStatus}
+                  onValueChange={(val) => setEquipmentStatus(val as EquipmentStatus)}
+                >
+                  <SelectTrigger id="equipmentStatus" className="h-9 text-xs">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EQUIPMENT_STATUSES.map((st) => (
+                      <SelectItem key={st} value={st} className="text-xs">
+                        {st}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="warrantyEndDate" className="text-[11px]">Warranty End Date</Label>
-                  <Input
-                    id="warrantyEndDate"
-                    type="date"
-                    value={warrantyEndDate}
-                    onChange={(e) => setWarrantyEndDate(e.target.value)}
-                    className="h-8 text-xs font-mono"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="yearOfManufacture" className="text-[11px]">Year of Manufacture</Label>
+                <Input
+                  id="yearOfManufacture"
+                  placeholder="e.g. 2023"
+                  value={yearOfManufacture}
+                  onChange={(e) => setYearOfManufacture(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="yearOfManufacture" className="text-[11px]">Year of Manufacture</Label>
-                  <Input
-                    id="yearOfManufacture"
-                    placeholder="e.g. 2023"
-                    value={yearOfManufacture}
-                    onChange={(e) => setYearOfManufacture(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="warrantyStartDate" className="text-[11px]">Warranty Start Date</Label>
+                <Input
+                  id="warrantyStartDate"
+                  type="date"
+                  value={warrantyStartDate}
+                  onChange={(e) => setWarrantyStartDate(e.target.value)}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="equipmentStatus" className="text-[11px]">
-                    Equipment Status <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={equipmentStatus}
-                    onValueChange={(val) => setEquipmentStatus(val as EquipmentStatus)}
-                  >
-                    <SelectTrigger id="equipmentStatus" className="h-8 text-xs">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {EQUIPMENT_STATUSES.map((st) => (
-                        <SelectItem key={st} value={st} className="text-xs">
-                          {st}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="warrantyEndDate" className="text-[11px]">Warranty End Date</Label>
+                <Input
+                  id="warrantyEndDate"
+                  type="date"
+                  value={warrantyEndDate}
+                  onChange={(e) => setWarrantyEndDate(e.target.value)}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="contractType" className="text-[11px]">Contract Type</Label>
-                  <Input
-                    id="contractType"
-                    placeholder="e.g. COMPREHENSIVE"
-                    value={contractType}
-                    onChange={(e) => setContractType(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="contractType" className="text-[11px]">Contract Type</Label>
+                <Input
+                  id="contractType"
+                  placeholder="e.g. COMPREHENSIVE"
+                  value={contractType}
+                  onChange={(e) => setContractType(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="contractEndDate" className="text-[11px]">Contract End Date</Label>
-                  <Input
-                    id="contractEndDate"
-                    type="date"
-                    value={contractEndDate}
-                    onChange={(e) => setContractEndDate(e.target.value)}
-                    className="h-8 text-xs font-mono"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label htmlFor="contractEndDate" className="text-[11px]">Contract End Date</Label>
+                <Input
+                  id="contractEndDate"
+                  type="date"
+                  value={contractEndDate}
+                  onChange={(e) => setContractEndDate(e.target.value)}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ================= CARD 2: FULL-WIDTH HORIZONTAL JOB DETAILS & DISPATCH ================= */}
+          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
+            <div className="flex items-center justify-between pb-3 border-b border-border/60">
+              <div className="flex items-center gap-2">
+                <span className="grid size-7 place-items-center rounded-md bg-primary/10 text-primary">
+                  <ClipboardList className="size-3.5" />
+                </span>
+                <span className="text-xs font-bold text-foreground uppercase tracking-wider">
+                  Service Assignment & Dispatch Details
+                </span>
               </div>
             </div>
 
-            {/* ================= RIGHT HORIZONTAL CARD: JOB DETAILS & DISPATCH ================= */}
-            <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
-              <div className="flex items-center justify-between pb-3 border-b border-border/60">
-                <div className="flex items-center gap-2">
-                  <span className="grid size-7 place-items-center rounded-md bg-primary/10 text-primary">
-                    <ClipboardList className="size-3.5" />
-                  </span>
-                  <span className="text-xs font-bold text-foreground uppercase tracking-wider">
-                    Job Details & Assignment
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Job Type */}
-                <div className="space-y-1">
-                  <Label htmlFor="jobType" className="text-[11px]">
-                    Job Type <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={jobType} onValueChange={setJobType}>
-                    <SelectTrigger id="jobType" className="h-8 text-xs">
-                      <SelectValue placeholder="Job Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {JOB_TYPES.map((t) => (
-                        <SelectItem key={t} value={t} className="text-xs">
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Job Priority */}
-                <div className="space-y-1">
-                  <Label htmlFor="jobPriority" className="text-[11px]">
-                    Job Priority <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={jobPriority}
-                    onValueChange={(val) => setJobPriority(val as JobPriority)}
-                  >
-                    <SelectTrigger id="jobPriority" className="h-8 text-xs">
-                      <SelectValue placeholder="Priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {JOB_PRIORITIES.map((p) => (
-                        <SelectItem key={p} value={p} className="text-xs">
-                          {p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Job Open Date */}
-                <div className="space-y-1">
-                  <Label htmlFor="jobOpenDate" className="text-[11px]">
-                    Job Open Date <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="jobOpenDate"
-                    type="date"
-                    value={jobOpenDate}
-                    onChange={(e) => setJobOpenDate(e.target.value)}
-                    className={cn("h-8 text-xs font-mono", errors.jobOpenDate && "border-destructive")}
-                  />
-                </div>
-
-                {/* Equipment Status in Job */}
-                <div className="space-y-1">
-                  <Label htmlFor="jobEquipmentStatus" className="text-[11px]">
-                    Equipment Status (Job)
-                  </Label>
-                  <Select
-                    value={jobEquipmentStatus}
-                    onValueChange={(val) => setJobEquipmentStatus(val as EquipmentStatus)}
-                  >
-                    <SelectTrigger id="jobEquipmentStatus" className="h-8 text-xs">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {EQUIPMENT_STATUSES.map((st) => (
-                        <SelectItem key={st} value={st} className="text-xs">
-                          {st}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Separated Date Field 1: Assigned / Start Date */}
-                <div className="space-y-1">
-                  <Label htmlFor="assignedDate" className="text-[11px] font-semibold text-primary">
-                    Assigned / Start Date <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="assignedDate"
-                    type="date"
-                    value={assignedDate}
-                    onChange={(e) => setAssignedDate(e.target.value)}
-                    className={cn("h-8 text-xs font-mono", errors.assignedDate && "border-destructive")}
-                  />
-                  {errors.assignedDate && (
-                    <p className="text-[10px] text-destructive">{errors.assignedDate}</p>
-                  )}
-                </div>
-
-                {/* Separated Date Field 2: Estimated End Date */}
-                <div className="space-y-1">
-                  <Label htmlFor="endDate" className="text-[11px] font-semibold text-foreground">
-                    Estimated End Date
-                  </Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="h-8 text-xs font-mono"
-                  />
-                </div>
-
-                {/* Complaint Date */}
-                <div className="space-y-1">
-                  <Label htmlFor="complaintDate" className="text-[11px]">Complaint Date</Label>
-                  <Input
-                    id="complaintDate"
-                    type="date"
-                    value={complaintDate}
-                    onChange={(e) => setComplaintDate(e.target.value)}
-                    className="h-8 text-xs font-mono"
-                  />
-                </div>
-
-                {/* Complaint Time */}
-                <div className="space-y-1">
-                  <Label htmlFor="complaintTime" className="text-[11px]">Complaint Time</Label>
-                  <Input
-                    id="complaintTime"
-                    type="time"
-                    value={complaintTime}
-                    onChange={(e) => setComplaintTime(e.target.value)}
-                    className="h-8 text-xs font-mono"
-                  />
-                </div>
-
-                {/* Contact Name */}
-                <div className="space-y-1">
-                  <Label htmlFor="contactName" className="text-[11px]">Site Contact Name</Label>
-                  <Input
-                    id="contactName"
-                    placeholder="e.g. Dr. Alabi Kunle"
-                    value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
-                    className="h-8 text-xs"
-                  />
-                </div>
-
-                {/* Contact Email */}
-                <div className="space-y-1">
-                  <Label htmlFor="contactEmail" className="text-[11px]">Site Contact Email</Label>
-                  <Input
-                    id="contactEmail"
-                    type="email"
-                    placeholder="e.g. alabi.k@hospital.gov.ng"
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    className={cn("h-8 text-xs", errors.contactEmail && "border-destructive")}
-                  />
-                </div>
-
-                {/* Primary Assignee */}
-                <div className="space-y-1 col-span-1 sm:col-span-2">
-                  <Label htmlFor="assignedToId" className="text-[11px] font-semibold">
-                    Assign To (Primary Engineer) <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={assignedToId} onValueChange={setAssignedToId}>
-                    <SelectTrigger
-                      id="assignedToId"
-                      className={cn("h-8 text-xs", errors.assignedToId && "border-destructive")}
-                    >
-                      <SelectValue placeholder="Select Primary Engineer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {personnelList.map((p) => (
-                        <SelectItem key={p.id} value={p.id} className="text-xs">
-                          {p.firstName} {p.lastName} — {p.jobTitle}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.assignedToId && (
-                    <p className="text-[10px] text-destructive">{errors.assignedToId}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Assisted By Checklist */}
-              <div className="space-y-1 pt-1">
-                <Label className="text-[11px] font-semibold text-muted-foreground">
-                  Assisted By (Optional Assistants)
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+              {/* Job Type */}
+              <div className="space-y-1">
+                <Label htmlFor="jobType" className="text-[11px]">
+                  Job Type <span className="text-destructive">*</span>
                 </Label>
-                <div className="p-2.5 rounded-lg border border-border bg-muted/20 grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-28 overflow-y-auto">
-                  {personnelList
-                    .filter((p) => p.id !== assignedToId)
-                    .map((p) => {
-                      const isChecked = assistedByIds.includes(p.id);
-                      return (
-                        <label
-                          key={p.id}
-                          onClick={() => handleToggleAssistant(p.id)}
-                          className={cn(
-                            "flex items-center gap-2 px-2 py-1 rounded text-xs transition-colors cursor-pointer border",
-                            isChecked
-                              ? "bg-primary/10 border-primary/40 text-primary font-semibold"
-                              : "bg-background border-border/60 hover:bg-accent text-foreground"
-                          )}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {}}
-                            className="size-3 rounded border-primary text-primary pointer-events-none"
-                          />
-                          <span className="truncate text-[11px]">
-                            {p.firstName} {p.lastName}
-                          </span>
-                        </label>
-                      );
-                    })}
-                </div>
+                <Select value={jobType} onValueChange={setJobType}>
+                  <SelectTrigger id="jobType" className="h-9 text-xs">
+                    <SelectValue placeholder="Job Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {JOB_TYPES.map((t) => (
+                      <SelectItem key={t} value={t} className="text-xs">
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Job Priority */}
+              <div className="space-y-1">
+                <Label htmlFor="jobPriority" className="text-[11px]">
+                  Job Priority <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={jobPriority}
+                  onValueChange={(val) => setJobPriority(val as JobPriority)}
+                >
+                  <SelectTrigger id="jobPriority" className="h-9 text-xs">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {JOB_PRIORITIES.map((p) => (
+                      <SelectItem key={p} value={p} className="text-xs">
+                        {p}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Job Open Date */}
+              <div className="space-y-1">
+                <Label htmlFor="jobOpenDate" className="text-[11px]">
+                  Job Open Date <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="jobOpenDate"
+                  type="date"
+                  value={jobOpenDate}
+                  onChange={(e) => setJobOpenDate(e.target.value)}
+                  className={cn("h-9 text-xs font-mono", errors.jobOpenDate && "border-destructive")}
+                />
+              </div>
+
+              {/* Equipment Status in Job */}
+              <div className="space-y-1">
+                <Label htmlFor="jobEquipmentStatus" className="text-[11px]">
+                  Equipment Status (Job)
+                </Label>
+                <Select
+                  value={jobEquipmentStatus}
+                  onValueChange={(val) => setJobEquipmentStatus(val as EquipmentStatus)}
+                >
+                  <SelectTrigger id="jobEquipmentStatus" className="h-9 text-xs">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EQUIPMENT_STATUSES.map((st) => (
+                      <SelectItem key={st} value={st} className="text-xs">
+                        {st}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Separated Date Field 1: Assigned / Start Date */}
+              <div className="space-y-1">
+                <Label htmlFor="assignedDate" className="text-[11px] font-semibold text-primary">
+                  Assigned / Start Date <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="assignedDate"
+                  type="date"
+                  value={assignedDate}
+                  onChange={(e) => setAssignedDate(e.target.value)}
+                  className={cn("h-9 text-xs font-mono", errors.assignedDate && "border-destructive")}
+                />
+                {errors.assignedDate && (
+                  <p className="text-[10px] text-destructive">{errors.assignedDate}</p>
+                )}
+              </div>
+
+              {/* Separated Date Field 2: Estimated End Date */}
+              <div className="space-y-1">
+                <Label htmlFor="endDate" className="text-[11px] font-semibold text-foreground">
+                  Estimated End Date
+                </Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
+
+              {/* Complaint Date */}
+              <div className="space-y-1">
+                <Label htmlFor="complaintDate" className="text-[11px]">Complaint Date</Label>
+                <Input
+                  id="complaintDate"
+                  type="date"
+                  value={complaintDate}
+                  onChange={(e) => setComplaintDate(e.target.value)}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
+
+              {/* Complaint Time */}
+              <div className="space-y-1">
+                <Label htmlFor="complaintTime" className="text-[11px]">Complaint Time</Label>
+                <Input
+                  id="complaintTime"
+                  type="time"
+                  value={complaintTime}
+                  onChange={(e) => setComplaintTime(e.target.value)}
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
+
+              {/* Contact Name */}
+              <div className="space-y-1">
+                <Label htmlFor="contactName" className="text-[11px]">Site Contact Name</Label>
+                <Input
+                  id="contactName"
+                  placeholder="e.g. Dr. Alabi Kunle"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
+
+              {/* Contact Email */}
+              <div className="space-y-1">
+                <Label htmlFor="contactEmail" className="text-[11px]">Site Contact Email</Label>
+                <Input
+                  id="contactEmail"
+                  type="email"
+                  placeholder="e.g. alabi.k@hospital.gov.ng"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  className={cn("h-9 text-xs", errors.contactEmail && "border-destructive")}
+                />
+              </div>
+
+              {/* Primary Assignee */}
+              <div className="space-y-1 col-span-1 sm:col-span-2">
+                <Label htmlFor="assignedToId" className="text-[11px] font-semibold">
+                  Assign To (Primary Engineer) <span className="text-destructive">*</span>
+                </Label>
+                <Select value={assignedToId} onValueChange={setAssignedToId}>
+                  <SelectTrigger
+                    id="assignedToId"
+                    className={cn("h-9 text-xs", errors.assignedToId && "border-destructive")}
+                  >
+                    <SelectValue placeholder="Select Primary Engineer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {personnelList.map((p) => (
+                      <SelectItem key={p.id} value={p.id} className="text-xs">
+                        {p.firstName} {p.lastName} — {p.jobTitle}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.assignedToId && (
+                  <p className="text-[10px] text-destructive">{errors.assignedToId}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Assisted By Checklist */}
+            <div className="space-y-1.5 pt-2 border-t border-border/40">
+              <Label className="text-[11px] font-semibold text-muted-foreground">
+                Assisted By (Optional Assistants)
+              </Label>
+              <div className="p-2.5 rounded-lg border border-border bg-muted/20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-28 overflow-y-auto">
+                {personnelList
+                  .filter((p) => p.id !== assignedToId)
+                  .map((p) => {
+                    const isChecked = assistedByIds.includes(p.id);
+                    return (
+                      <label
+                        key={p.id}
+                        onClick={() => handleToggleAssistant(p.id)}
+                        className={cn(
+                          "flex items-center gap-2 px-2.5 py-1.5 rounded text-xs transition-colors cursor-pointer border",
+                          isChecked
+                            ? "bg-primary/10 border-primary/40 text-primary font-semibold"
+                            : "bg-background border-border/60 hover:bg-accent text-foreground"
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {}}
+                          className="size-3 rounded border-primary text-primary pointer-events-none"
+                        />
+                        <span className="truncate text-[11px]">
+                          {p.firstName} {p.lastName}
+                        </span>
+                      </label>
+                    );
+                  })}
               </div>
             </div>
           </div>
