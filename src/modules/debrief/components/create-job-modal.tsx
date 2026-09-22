@@ -31,7 +31,9 @@ import {
   AlertCircle,
   Search,
   Check,
-  Calendar,
+  RotateCcw,
+  Building2,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +68,7 @@ export function CreateJobModal({
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
-  // Left Card: Equipment Fields
+  // Equipment Attributes (Auto-populated from Asset Registry)
   const [assetNumber, setAssetNumber] = useState("");
   const [modality, setModality] = useState("");
   const [oem, setOem] = useState("");
@@ -81,7 +83,7 @@ export function CreateJobModal({
   const [contractType, setContractType] = useState("");
   const [contractEndDate, setContractEndDate] = useState("");
 
-  // Right Card: Job Details Fields
+  // Job Details Fields
   const [jobType, setJobType] = useState("Corrective Maintenance");
   const [jobOpenDate, setJobOpenDate] = useState("");
   const [complaintDate, setComplaintDate] = useState("");
@@ -176,21 +178,21 @@ export function CreateJobModal({
           a.oem.toLowerCase().includes(q) ||
           a.serialNumber.toLowerCase().includes(q)
       )
-      .slice(0, 6);
+      .slice(0, 8);
   }, [assetNumber, allAssets]);
 
   // Handle asset auto-population
   const handleSelectAsset = (asset: Asset) => {
     setSelectedAsset(asset);
     setAssetNumber(asset.equipmentNumber);
-    setModality(asset.modality || "");
-    setOem(asset.oem || "");
-    setLocation(asset.location || "");
-    setAddress(asset.address || "");
-    setWarrantyStartDate(asset.warrantyStartDate || "");
-    setWarrantyEndDate(asset.warrantyEndDate || "");
-    setModel(asset.model || "");
-    setSerialNumber(asset.serialNumber || "");
+    setModality(asset.modality || "—");
+    setOem(asset.oem || "—");
+    setLocation(asset.location || "—");
+    setAddress(asset.address || "—");
+    setWarrantyStartDate(asset.warrantyStartDate || "—");
+    setWarrantyEndDate(asset.warrantyEndDate || "—");
+    setModel(asset.model || "—");
+    setSerialNumber(asset.serialNumber || "—");
     setYearOfManufacture(
       asset.installationDate ? asset.installationDate.slice(0, 4) : "2023"
     );
@@ -208,12 +210,29 @@ export function CreateJobModal({
     }
 
     setContractType(asset.contractType || "COMPREHENSIVE");
-    setContractEndDate(asset.contractEndDate || "");
+    setContractEndDate(asset.contractEndDate || "—");
     if (!contactName && asset.customerContact) setContactName(asset.customerContact);
     if (!contactEmail && asset.email) setContactEmail(asset.email);
 
     setAssetSearchOpen(false);
-    toast.info(`Auto-populated details for ${asset.equipmentNumber}`);
+    toast.info(`Equipment ${asset.equipmentNumber} selected and specifications auto-populated.`);
+  };
+
+  const handleClearSelectedAsset = () => {
+    setSelectedAsset(null);
+    setAssetNumber("");
+    setModality("");
+    setOem("");
+    setLocation("");
+    setAddress("");
+    setWarrantyStartDate("");
+    setWarrantyEndDate("");
+    setModel("");
+    setSerialNumber("");
+    setYearOfManufacture("");
+    setEquipmentStatus("UP");
+    setContractType("");
+    setContractEndDate("");
   };
 
   const handleToggleAssistant = (id: string) => {
@@ -225,11 +244,9 @@ export function CreateJobModal({
   const validateForm = () => {
     const errs: Record<string, string> = {};
 
-    if (!assetNumber.trim()) errs.assetNumber = "Asset Number is required.";
-    if (!modality.trim()) errs.modality = "Modality is required.";
-    if (!oem.trim()) errs.oem = "OEM is required.";
-    if (!model.trim()) errs.model = "Model is required.";
-    if (!serialNumber.trim()) errs.serialNumber = "Serial Number is required.";
+    if (!assetNumber.trim() || !selectedAsset) {
+      errs.assetNumber = "Please select equipment from the asset registry.";
+    }
 
     if (!jobType.trim()) errs.jobType = "Job Type is required.";
     if (!jobOpenDate.trim()) errs.jobOpenDate = "Job Open Date is required.";
@@ -248,15 +265,16 @@ export function CreateJobModal({
 
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
-      toast.error("Please fill in all required fields.");
+      toast.error("Please complete all required fields correctly.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const selectedPrimaryEngineer = personnelList.find((p) => p.id === assignedToId);
+      const selectedPrimaryEngineer = personnelList.find(
+        (p) => p.id === assignedToId
+      );
       const selectedAssistants = personnelList.filter((p) =>
         assistedByIds.includes(p.id)
       );
@@ -271,24 +289,24 @@ export function CreateJobModal({
 
       const payload: CreateJobInput = {
         assetNumber,
-        modality,
-        oem,
-        location,
-        address,
-        warrantyStartDate,
-        warrantyEndDate,
-        model,
-        serialNumber,
+        modality: modality || "General",
+        oem: oem || "General",
+        location: location || "Facility",
+        address: address || "Hospital",
+        warrantyStartDate: warrantyStartDate || "—",
+        warrantyEndDate: warrantyEndDate || "—",
+        model: model || "Medical Equipment",
+        serialNumber: serialNumber || "SN-UNKNOWN",
         yearOfManufacture: yearOfManufacture || "2023",
         equipmentStatus,
         contractType: contractType || "COMPREHENSIVE",
-        contractEndDate,
+        contractEndDate: contractEndDate || "—",
         jobType,
         jobOpenDate,
-        complaintDate,
-        complaintTime,
-        contactName,
-        contactEmail,
+        complaintDate: complaintDate || jobOpenDate,
+        complaintTime: complaintTime || "09:00",
+        contactName: contactName || "Hospital Contact",
+        contactEmail: contactEmail || "contact@hospital.gov.ng",
         assignedToId,
         assignedToName: primaryName,
         assistedByIds,
@@ -322,265 +340,219 @@ export function CreateJobModal({
               <DialogTitle className="text-lg font-bold text-foreground">
                 Create New Service Job
               </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                Search equipment to auto-populate specifications, then configure service dispatch details.
+              <DialogDescription className="text-xs text-muted-foreground mt-1">
+                Search and select equipment from the registry to auto-populate specifications on the card, then configure service dispatch details.
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         {/* Modal Form Body — Full-Width Horizontal Cards Layout */}
-        <form onSubmit={handleCreateJob} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
-          {/* ================= CARD 1: FULL-WIDTH HORIZONTAL EQUIPMENT DETAILS ================= */}
-          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
-            <div className="flex items-center justify-between pb-3 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <span className="grid size-7 place-items-center rounded-md bg-primary/10 text-primary">
-                  <Stethoscope className="size-3.5" />
+        <form onSubmit={handleCreateJob} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+          {/* ================= CARD 1: FULL-WIDTH AUTO-POPULATED EQUIPMENT CARD ================= */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4 shadow-2xs">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border/60">
+              <div className="flex items-center gap-2.5">
+                <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+                  <Stethoscope className="size-4" />
                 </span>
-                <span className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Equipment Identification & Specifications
-                </span>
+                <div>
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                    Equipment Identification & Specifications
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Auto-populated directly from the Assets & Devices registry
+                  </p>
+                </div>
               </div>
+
               {selectedAsset && (
-                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                  <Check className="size-3" /> Auto-populated from Asset Registry
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
+                    <Check className="size-3.5" /> Auto-populated
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleClearSelectedAsset}
+                    className="h-7 text-xs px-2.5 text-muted-foreground hover:text-foreground gap-1 cursor-pointer"
+                  >
+                    <RotateCcw className="size-3" />
+                    <span>Change</span>
+                  </Button>
+                </div>
               )}
             </div>
 
-            {/* Equipment Search & Attributes Horizontal Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-              {/* Asset Search Field */}
-              <div className="relative col-span-1 sm:col-span-2" ref={searchContainerRef}>
-                <Label htmlFor="assetNumber" className="text-xs font-semibold text-foreground">
-                  Asset Number (Live Search) <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="assetNumber"
-                    placeholder="Type to search equipment (e.g. EQ-RAD-001)..."
-                    value={assetNumber}
-                    onChange={(e) => {
-                      setAssetNumber(e.target.value);
-                      setAssetSearchOpen(true);
-                    }}
-                    onFocus={() => {
-                      if (assetNumber.trim()) setAssetSearchOpen(true);
-                    }}
-                    className={cn(
-                      "h-9 text-xs font-mono pr-8 bg-background",
-                      errors.assetNumber && "border-destructive focus-visible:ring-destructive"
-                    )}
-                  />
-                  <Search className="size-3.5 absolute right-2.5 top-3 text-muted-foreground pointer-events-none" />
+            {/* Asset Live Search Input */}
+            <div className="relative" ref={searchContainerRef}>
+              <Label htmlFor="assetNumber" className="text-xs font-bold text-foreground">
+                Search Equipment Number / Model / OEM <span className="text-destructive">*</span>
+              </Label>
+              <div className="relative mt-1.5">
+                <Input
+                  id="assetNumber"
+                  placeholder="Type equipment number (e.g. EQ-US-004, EQ-RAD-001) or model..."
+                  value={assetNumber}
+                  onChange={(e) => {
+                    setAssetNumber(e.target.value);
+                    setAssetSearchOpen(true);
+                  }}
+                  onFocus={() => {
+                    if (assetNumber.trim()) setAssetSearchOpen(true);
+                  }}
+                  className={cn(
+                    "h-10 text-xs font-mono pr-9 bg-background",
+                    errors.assetNumber && "border-destructive focus-visible:ring-destructive"
+                  )}
+                />
+                <Search className="size-4 absolute right-3 top-3 text-muted-foreground pointer-events-none" />
+              </div>
+
+              {errors.assetNumber && (
+                <p className="text-xs text-destructive mt-1.5 flex items-center gap-1 font-medium">
+                  <AlertCircle className="size-3.5" /> {errors.assetNumber}
+                </p>
+              )}
+
+              {/* Autocomplete Dropdown */}
+              {assetSearchOpen && matchingAssets.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 top-full mt-1.5 rounded-lg border border-border bg-popover text-popover-foreground shadow-xl overflow-hidden max-h-56 overflow-y-auto">
+                  <div className="p-2 text-xs font-bold text-muted-foreground bg-muted/60 border-b border-border/60">
+                    Matching Equipment Registry ({matchingAssets.length})
+                  </div>
+                  {matchingAssets.map((asset) => (
+                    <button
+                      key={asset.id}
+                      type="button"
+                      onClick={() => handleSelectAsset(asset)}
+                      className="w-full text-left px-3.5 py-2.5 text-xs hover:bg-accent/80 transition-colors flex items-center justify-between border-b border-border/40 last:border-0 cursor-pointer"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-primary">{asset.equipmentNumber}</span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="font-semibold text-foreground">{asset.model}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground block mt-0.5">
+                          {asset.oem} ({asset.modality}) — {asset.location || "Main Hospital"}
+                        </span>
+                      </div>
+                      <span className="text-xs px-2.5 py-1 rounded bg-primary/10 text-primary font-bold">
+                        Select
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Auto-Populated Equipment Specifications Display */}
+            {selectedAsset ? (
+              <div className="rounded-lg border border-border/70 bg-muted/20 p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-border/50">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-sm text-primary">
+                      {selectedAsset.equipmentNumber}
+                    </span>
+                    <span className="text-xs font-medium text-foreground">
+                      — {selectedAsset.model} ({selectedAsset.oem})
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                      {selectedAsset.modality || "Biomedical"}
+                    </span>
+                    <span
+                      className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
+                        equipmentStatus === "UP"
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                          : equipmentStatus === "Partially UP"
+                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                          : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                      )}
+                    >
+                      Status: {equipmentStatus}
+                    </span>
+                  </div>
                 </div>
 
-                {errors.assetNumber && (
-                  <p className="text-[11px] text-destructive mt-1 flex items-center gap-1">
-                    <AlertCircle className="size-3" /> {errors.assetNumber}
-                  </p>
-                )}
-
-                {/* Autocomplete Dropdown */}
-                {assetSearchOpen && matchingAssets.length > 0 && (
-                  <div className="absolute z-50 left-0 right-0 top-full mt-1 rounded-md border border-border bg-popover text-popover-foreground shadow-lg overflow-hidden max-h-52 overflow-y-auto">
-                    <div className="p-1.5 text-[11px] font-semibold text-muted-foreground bg-muted/50 border-b border-border/60">
-                      Matching Equipment Registry ({matchingAssets.length})
-                    </div>
-                    {matchingAssets.map((asset) => (
-                      <button
-                        key={asset.id}
-                        type="button"
-                        onClick={() => handleSelectAsset(asset)}
-                        className="w-full text-left px-3 py-2 text-xs hover:bg-accent/80 transition-colors flex items-center justify-between border-b border-border/40 last:border-0 cursor-pointer"
-                      >
-                        <div>
-                          <span className="font-mono font-bold text-primary">{asset.equipmentNumber}</span>
-                          <span className="mx-2 text-muted-foreground">•</span>
-                          <span className="font-medium text-foreground">{asset.model}</span>
-                          <span className="text-[11px] text-muted-foreground block">
-                            {asset.oem} ({asset.modality}) — {asset.location}
-                          </span>
-                        </div>
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-primary/10 text-primary font-semibold">
-                          Select
-                        </span>
-                      </button>
-                    ))}
+                <dl className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 text-xs">
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Serial Number</dt>
+                    <dd className="font-mono font-semibold text-foreground mt-0.5">{serialNumber || "—"}</dd>
                   </div>
-                )}
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Modality</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{modality || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">OEM / Manufacturer</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{oem || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Location / Ward</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{location || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Facility Address</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{address || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Year of Mfg</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{yearOfManufacture || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Warranty Start</dt>
+                    <dd className="font-mono text-foreground mt-0.5">{warrantyStartDate || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Warranty End</dt>
+                    <dd className="font-mono text-foreground mt-0.5">{warrantyEndDate || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Contract Type</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{contractType || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold text-muted-foreground uppercase">Contract Expiry</dt>
+                    <dd className="font-mono text-foreground mt-0.5">{contractEndDate || "—"}</dd>
+                  </div>
+                </dl>
               </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="modality" className="text-[11px]">
-                  Modality <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="modality"
-                  placeholder="e.g. Radiology"
-                  value={modality}
-                  onChange={(e) => setModality(e.target.value)}
-                  className={cn("h-9 text-xs", errors.modality && "border-destructive")}
-                />
+            ) : (
+              <div className="rounded-lg border border-dashed border-border/80 bg-muted/10 p-4 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Select an equipment from the search bar above to auto-populate specifications into this card.
+                </p>
               </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="oem" className="text-[11px]">
-                  OEM <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="oem"
-                  placeholder="e.g. GE Healthcare"
-                  value={oem}
-                  onChange={(e) => setOem(e.target.value)}
-                  className={cn("h-9 text-xs", errors.oem && "border-destructive")}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="model" className="text-[11px]">
-                  Model <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="model"
-                  placeholder="e.g. Optima CT660"
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className={cn("h-9 text-xs", errors.model && "border-destructive")}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="serialNumber" className="text-[11px]">
-                  Serial Number <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="serialNumber"
-                  placeholder="e.g. SN-98241-GE"
-                  value={serialNumber}
-                  onChange={(e) => setSerialNumber(e.target.value)}
-                  className={cn("h-9 text-xs font-mono", errors.serialNumber && "border-destructive")}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="location" className="text-[11px]">Location / Ward</Label>
-                <Input
-                  id="location"
-                  placeholder="e.g. Main Radiology Complex"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="h-9 text-xs"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="address" className="text-[11px]">Address</Label>
-                <Input
-                  id="address"
-                  placeholder="e.g. Garki, Abuja"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="h-9 text-xs"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="equipmentStatus" className="text-[11px]">
-                  Equipment Status <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={equipmentStatus}
-                  onValueChange={(val) => setEquipmentStatus(val as EquipmentStatus)}
-                >
-                  <SelectTrigger id="equipmentStatus" className="h-9 text-xs">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {EQUIPMENT_STATUSES.map((st) => (
-                      <SelectItem key={st} value={st} className="text-xs">
-                        {st}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="yearOfManufacture" className="text-[11px]">Year of Manufacture</Label>
-                <Input
-                  id="yearOfManufacture"
-                  placeholder="e.g. 2023"
-                  value={yearOfManufacture}
-                  onChange={(e) => setYearOfManufacture(e.target.value)}
-                  className="h-9 text-xs"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="warrantyStartDate" className="text-[11px]">Warranty Start Date</Label>
-                <Input
-                  id="warrantyStartDate"
-                  type="date"
-                  value={warrantyStartDate}
-                  onChange={(e) => setWarrantyStartDate(e.target.value)}
-                  className="h-9 text-xs font-mono"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="warrantyEndDate" className="text-[11px]">Warranty End Date</Label>
-                <Input
-                  id="warrantyEndDate"
-                  type="date"
-                  value={warrantyEndDate}
-                  onChange={(e) => setWarrantyEndDate(e.target.value)}
-                  className="h-9 text-xs font-mono"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="contractType" className="text-[11px]">Contract Type</Label>
-                <Input
-                  id="contractType"
-                  placeholder="e.g. COMPREHENSIVE"
-                  value={contractType}
-                  onChange={(e) => setContractType(e.target.value)}
-                  className="h-9 text-xs"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="contractEndDate" className="text-[11px]">Contract End Date</Label>
-                <Input
-                  id="contractEndDate"
-                  type="date"
-                  value={contractEndDate}
-                  onChange={(e) => setContractEndDate(e.target.value)}
-                  className="h-9 text-xs font-mono"
-                />
-              </div>
-            </div>
+            )}
           </div>
 
           {/* ================= CARD 2: FULL-WIDTH HORIZONTAL JOB DETAILS & DISPATCH ================= */}
-          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-4 shadow-2xs">
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4 shadow-2xs">
             <div className="flex items-center justify-between pb-3 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <span className="grid size-7 place-items-center rounded-md bg-primary/10 text-primary">
-                  <ClipboardList className="size-3.5" />
+              <div className="flex items-center gap-2.5">
+                <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+                  <ClipboardList className="size-4" />
                 </span>
-                <span className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Service Assignment & Dispatch Details
-                </span>
+                <div>
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                    Service Assignment & Dispatch Details
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Define work order type, assigned personnel, priorities, and schedule
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {/* Job Type */}
-              <div className="space-y-1">
-                <Label htmlFor="jobType" className="text-[11px]">
+              <div className="space-y-1.5">
+                <Label htmlFor="jobType" className="text-xs font-bold text-foreground">
                   Job Type <span className="text-destructive">*</span>
                 </Label>
                 <Select value={jobType} onValueChange={setJobType}>
@@ -598,8 +570,8 @@ export function CreateJobModal({
               </div>
 
               {/* Job Priority */}
-              <div className="space-y-1">
-                <Label htmlFor="jobPriority" className="text-[11px]">
+              <div className="space-y-1.5">
+                <Label htmlFor="jobPriority" className="text-xs font-bold text-foreground">
                   Job Priority <span className="text-destructive">*</span>
                 </Label>
                 <Select
@@ -620,8 +592,8 @@ export function CreateJobModal({
               </div>
 
               {/* Job Open Date */}
-              <div className="space-y-1">
-                <Label htmlFor="jobOpenDate" className="text-[11px]">
+              <div className="space-y-1.5">
+                <Label htmlFor="jobOpenDate" className="text-xs font-bold text-foreground">
                   Job Open Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -634,8 +606,8 @@ export function CreateJobModal({
               </div>
 
               {/* Equipment Status in Job */}
-              <div className="space-y-1">
-                <Label htmlFor="jobEquipmentStatus" className="text-[11px]">
+              <div className="space-y-1.5">
+                <Label htmlFor="jobEquipmentStatus" className="text-xs font-bold text-foreground">
                   Equipment Status (Job)
                 </Label>
                 <Select
@@ -656,8 +628,8 @@ export function CreateJobModal({
               </div>
 
               {/* Separated Date Field 1: Assigned / Start Date */}
-              <div className="space-y-1">
-                <Label htmlFor="assignedDate" className="text-[11px] font-semibold text-primary">
+              <div className="space-y-1.5">
+                <Label htmlFor="assignedDate" className="text-xs font-bold text-primary">
                   Assigned / Start Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
@@ -668,13 +640,13 @@ export function CreateJobModal({
                   className={cn("h-9 text-xs font-mono", errors.assignedDate && "border-destructive")}
                 />
                 {errors.assignedDate && (
-                  <p className="text-[10px] text-destructive">{errors.assignedDate}</p>
+                  <p className="text-xs text-destructive font-medium">{errors.assignedDate}</p>
                 )}
               </div>
 
               {/* Separated Date Field 2: Estimated End Date */}
-              <div className="space-y-1">
-                <Label htmlFor="endDate" className="text-[11px] font-semibold text-foreground">
+              <div className="space-y-1.5">
+                <Label htmlFor="endDate" className="text-xs font-bold text-foreground">
                   Estimated End Date
                 </Label>
                 <Input
@@ -687,8 +659,10 @@ export function CreateJobModal({
               </div>
 
               {/* Complaint Date */}
-              <div className="space-y-1">
-                <Label htmlFor="complaintDate" className="text-[11px]">Complaint Date</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="complaintDate" className="text-xs font-bold text-foreground">
+                  Complaint Date
+                </Label>
                 <Input
                   id="complaintDate"
                   type="date"
@@ -699,8 +673,10 @@ export function CreateJobModal({
               </div>
 
               {/* Complaint Time */}
-              <div className="space-y-1">
-                <Label htmlFor="complaintTime" className="text-[11px]">Complaint Time</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="complaintTime" className="text-xs font-bold text-foreground">
+                  Complaint Time
+                </Label>
                 <Input
                   id="complaintTime"
                   type="time"
@@ -711,8 +687,10 @@ export function CreateJobModal({
               </div>
 
               {/* Contact Name */}
-              <div className="space-y-1">
-                <Label htmlFor="contactName" className="text-[11px]">Site Contact Name</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="contactName" className="text-xs font-bold text-foreground">
+                  Site Contact Name
+                </Label>
                 <Input
                   id="contactName"
                   placeholder="e.g. Dr. Alabi Kunle"
@@ -723,8 +701,10 @@ export function CreateJobModal({
               </div>
 
               {/* Contact Email */}
-              <div className="space-y-1">
-                <Label htmlFor="contactEmail" className="text-[11px]">Site Contact Email</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="contactEmail" className="text-xs font-bold text-foreground">
+                  Site Contact Email
+                </Label>
                 <Input
                   id="contactEmail"
                   type="email"
@@ -736,8 +716,8 @@ export function CreateJobModal({
               </div>
 
               {/* Primary Assignee */}
-              <div className="space-y-1 col-span-1 sm:col-span-2">
-                <Label htmlFor="assignedToId" className="text-[11px] font-semibold">
+              <div className="space-y-1.5 col-span-1 sm:col-span-2">
+                <Label htmlFor="assignedToId" className="text-xs font-bold text-foreground">
                   Assign To (Primary Engineer) <span className="text-destructive">*</span>
                 </Label>
                 <Select value={assignedToId} onValueChange={setAssignedToId}>
@@ -756,17 +736,17 @@ export function CreateJobModal({
                   </SelectContent>
                 </Select>
                 {errors.assignedToId && (
-                  <p className="text-[10px] text-destructive">{errors.assignedToId}</p>
+                  <p className="text-xs text-destructive font-medium">{errors.assignedToId}</p>
                 )}
               </div>
             </div>
 
             {/* Assisted By Checklist */}
-            <div className="space-y-1.5 pt-2 border-t border-border/40">
-              <Label className="text-[11px] font-semibold text-muted-foreground">
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Assisted By (Optional Assistants)
               </Label>
-              <div className="p-2.5 rounded-lg border border-border bg-muted/20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-28 overflow-y-auto">
+              <div className="p-3 rounded-lg border border-border bg-muted/20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 max-h-32 overflow-y-auto">
                 {personnelList
                   .filter((p) => p.id !== assignedToId)
                   .map((p) => {
@@ -776,9 +756,9 @@ export function CreateJobModal({
                         key={p.id}
                         onClick={() => handleToggleAssistant(p.id)}
                         className={cn(
-                          "flex items-center gap-2 px-2.5 py-1.5 rounded text-xs transition-colors cursor-pointer border",
+                          "flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-colors cursor-pointer border",
                           isChecked
-                            ? "bg-primary/10 border-primary/40 text-primary font-semibold"
+                            ? "bg-primary/10 border-primary/40 text-primary font-bold"
                             : "bg-background border-border/60 hover:bg-accent text-foreground"
                         )}
                       >
@@ -786,9 +766,9 @@ export function CreateJobModal({
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => {}}
-                          className="size-3 rounded border-primary text-primary pointer-events-none"
+                          className="size-3.5 rounded border-primary text-primary pointer-events-none"
                         />
-                        <span className="truncate text-[11px]">
+                        <span className="truncate text-xs">
                           {p.firstName} {p.lastName}
                         </span>
                       </label>
@@ -798,15 +778,15 @@ export function CreateJobModal({
             </div>
           </div>
 
-          {/* ================= FULL WIDTH: REPORTED ISSUE ================= */}
-          <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-2 shadow-2xs">
+          {/* ================= CARD 3: FULL WIDTH REPORTED ISSUE ================= */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-2.5 shadow-2xs">
             <Label htmlFor="reportedIssue" className="text-xs font-bold text-foreground uppercase tracking-wider block">
               Reported Issue Description <span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="reportedIssue"
               rows={3}
-              placeholder="Describe the breakdown symptoms, error codes, client request, or preliminary fault notes in detail..."
+              placeholder="Describe breakdown symptoms, error codes, customer complaints, or preliminary fault notes in detail..."
               value={reportedIssue}
               onChange={(e) => setReportedIssue(e.target.value)}
               className={cn(
@@ -815,12 +795,12 @@ export function CreateJobModal({
               )}
             />
             {errors.reportedIssue && (
-              <p className="text-[11px] text-destructive">{errors.reportedIssue}</p>
+              <p className="text-xs text-destructive font-medium">{errors.reportedIssue}</p>
             )}
           </div>
 
           {/* Modal Footer Controls */}
-          <div className="pt-2 border-t border-border flex items-center justify-between">
+          <div className="pt-3 border-t border-border flex items-center justify-between">
             <Button
               type="button"
               variant="outline"
@@ -835,7 +815,7 @@ export function CreateJobModal({
               type="submit"
               size="sm"
               disabled={submitting}
-              className="text-xs h-9 font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 cursor-pointer shadow-sm px-5"
+              className="text-xs h-9 font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-2 cursor-pointer shadow-sm px-6"
             >
               <CheckCircle2 className="size-4" />
               <span>{submitting ? "Creating Job..." : "Create Job"}</span>
