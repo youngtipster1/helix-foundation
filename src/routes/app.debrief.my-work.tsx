@@ -294,7 +294,7 @@ function DebriefMyWorkPage() {
             )}
           >
             <LayoutGrid className="size-4" />
-            <span className="hidden xs:inline">Grid (6)</span>
+            <span className="hidden xs:inline">Grid</span>
           </button>
 
           <button
@@ -309,8 +309,9 @@ function DebriefMyWorkPage() {
             )}
           >
             <List className="size-4" />
-            <span className="hidden xs:inline">List (25)</span>
+            <span className="hidden xs:inline">List</span>
           </button>
+        </div>
       </div>
 
       {/* Queue Content: Loading / Empty State */}
