@@ -1132,8 +1132,6 @@ export function OrderFormModal({
               )}
             </div>
           )}
-        </div>
-
-      </StepperModal>
+    </StepperModal>
   );
 }
