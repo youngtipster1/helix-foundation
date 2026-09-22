@@ -230,7 +230,7 @@ export function CreateJobModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         onPointerDownOutside={(e) => e.preventDefault()}
-        className="max-w-2xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden"
+        className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden"
       >
         {/* Modal Header with Stepper */}
         <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 space-y-3">
