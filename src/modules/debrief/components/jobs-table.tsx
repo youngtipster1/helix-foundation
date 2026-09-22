@@ -317,7 +317,7 @@ export function JobsTable({
             ? "No service jobs have been recorded yet. Click '+ Create Job' to dispatch a new job."
             : "You have no service jobs assigned to you at this time."
         }
-        mobileStrategy="card"
+        mobileStrategy="scroll"
         enableColumnReordering={true}
         rowActions={(job) => (
           <Button
