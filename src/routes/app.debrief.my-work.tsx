@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import {
   ArrowRight,
   CheckCircle2,
   Building2,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -131,7 +133,7 @@ function DebriefMyWorkPage() {
         </button>
       </div>
 
-      {/* Queue List */}
+      {/* Queue Grid (2-3 columns on desktop, 1 column on mobile) */}
       {loading ? (
         <div className="p-8 text-center text-xs text-muted-foreground">
           Loading your active work queue...
@@ -147,112 +149,116 @@ function DebriefMyWorkPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredJobs.map((job) => {
             const isOnHold = job.jobStatus === "On Hold";
+            const isOpen = job.jobStatus === "Open";
 
             return (
               <div
                 key={job.id}
-                className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3 transition-colors hover:border-primary/50"
+                className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-4 transition-colors hover:border-primary/50"
               >
-                {/* Header Line */}
-                <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-border/60">
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono font-bold text-sm text-primary">
-                        {job.jobNumber}
-                      </span>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="font-bold text-foreground text-xs sm:text-sm">
-                        {job.model}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        ({job.oem})
-                      </span>
+                {/* Header: Job Number & Status Badge */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono font-bold text-sm text-primary">
+                      {job.jobNumber}
+                    </span>
+                    <span
+                      className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
+                        isOnHold
+                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                          : isOpen
+                          ? "bg-muted text-muted-foreground border-border"
+                          : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                      )}
+                    >
+                      {isOnHold
+                        ? `On Hold · ${job.holdReason || "Awaiting Part"}`
+                        : isOpen
+                        ? "Open"
+                        : "In Progress"}
+                    </span>
+                  </div>
 
-                      {/* Status Badges */}
-                      <span
-                        className={cn(
-                          "inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border ml-1",
-                          isOnHold
-                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                            : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
-                        )}
-                      >
-                        {isOnHold ? `On Hold · ${job.holdReason || "Awaiting Part"}` : "In Progress"}
-                      </span>
+                  {/* Equipment & Modality */}
+                  <div>
+                    <h4 className="font-bold text-foreground text-sm leading-snug">
+                      {job.model}
+                    </h4>
+                    <span className="text-xs text-muted-foreground">
+                      {job.modality} · {job.oem}
+                    </span>
+                  </div>
 
-                      <span
-                        className={cn(
-                          "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
-                          job.equipmentStatus === "UP"
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                            : job.equipmentStatus === "Partially UP"
-                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                        )}
-                      >
-                        Equip: {job.equipmentStatus}
+                  {/* Asset & Location */}
+                  <div className="pt-2 border-t border-border/50 space-y-1 text-xs">
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>Asset:</span>
+                      <span className="font-mono font-semibold text-foreground">
+                        {job.assetNumber}
                       </span>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-0.5">
-                      <span className="font-mono font-medium text-foreground">
-                        Asset: {job.assetNumber}
-                      </span>
-                      <span>•</span>
-                      <span>Modality: {job.modality}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Building2 className="size-3" />
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>Location:</span>
+                      <span className="font-medium text-foreground truncate max-w-[180px]">
                         {job.location || "Main Ward"}
                       </span>
                     </div>
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>Priority:</span>
+                      <span
+                        className={cn(
+                          "font-bold",
+                          job.jobPriority === "High"
+                            ? "text-rose-600"
+                            : "text-amber-600"
+                        )}
+                      >
+                        {job.jobPriority} Priority
+                      </span>
+                    </div>
                   </div>
 
+                  {/* Status Note */}
+                  <div className="pt-2">
+                    {isOnHold ? (
+                      <div className="p-2 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs flex items-center gap-1.5 text-amber-900 dark:text-amber-200">
+                        <AlertTriangle className="size-3.5 text-amber-600 shrink-0" />
+                        <span className="truncate">
+                          Reason: {job.holdReason || "Awaiting Part"}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="p-2 rounded-md bg-muted/30 border border-border/60 text-xs text-muted-foreground flex items-center gap-1.5">
+                        <Clock className="size-3.5 text-primary shrink-0" />
+                        <span className="truncate">
+                          {job.labour?.labourStartTime
+                            ? `Labour active (Started ${job.labour.labourStartTime})`
+                            : job.labour?.travelStartTime
+                            ? `Dispatched (Travel ${job.labour.travelStartTime})`
+                            : "Ready for service dispatch"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Primary Action Button */}
+                <div className="pt-2">
                   <Button
                     size="sm"
                     onClick={() => handleOpenWorkspace(job)}
-                    className="h-8 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs shrink-0"
+                    className="w-full h-8.5 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
                   >
-                    <span>{isOnHold ? "Resume Work" : "Continue Job"}</span>
+                    <span>
+                      {isOnHold ? "Resume Job" : isOpen ? "Start Job" : "Continue Work"}
+                    </span>
                     <ArrowRight className="size-3.5" />
                   </Button>
                 </div>
-
-                {/* Body Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                  <div>
-                    <span className="text-muted-foreground font-medium block">Job Type:</span>
-                    <span className="font-semibold text-foreground">{job.jobType}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground font-medium block">Assigned / Start:</span>
-                    <span className="font-mono text-foreground">{job.jobStartDate || job.startDate || "—"}</span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground font-medium block">Priority:</span>
-                    <span className={cn("font-bold", job.jobPriority === "High" ? "text-rose-600" : "text-amber-600")}>
-                      {job.jobPriority} Priority
-                    </span>
-                  </div>
-                </div>
-
-                {/* Reported Issue / Hold Notice */}
-                {isOnHold ? (
-                  <div className="p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs flex items-center gap-2">
-                    <AlertTriangle className="size-3.5 text-amber-600 shrink-0" />
-                    <span className="text-amber-900 dark:text-amber-200">
-                      <strong>Job On Hold:</strong> {job.holdReason || "Awaiting Part"}. Resume work and record parts/labour when ready.
-                    </span>
-                  </div>
-                ) : (
-                  <div className="p-2.5 rounded-md bg-muted/30 border border-border/60 text-xs text-foreground">
-                    <strong className="text-muted-foreground">Reported Issue: </strong>
-                    {job.reportedIssue || "Diagnostic service check required."}
-                  </div>
-                )}
               </div>
             );
           })}

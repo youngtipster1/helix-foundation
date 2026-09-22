@@ -25,6 +25,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -48,7 +55,9 @@ import {
   Save,
   PauseCircle,
   Play,
-  RotateCcw,
+  Edit2,
+  ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -134,18 +143,30 @@ function DebriefJobWorkspacePage() {
   const [equipmentStatus, setEquipmentStatus] = useState<EquipmentStatus>("UP");
   const [jobStatus, setJobStatus] = useState<JobStatus>("In Progress");
   const [holdReason, setHoldReason] = useState("Awaiting Part");
-  const [rootCause, setRootCause] = useState<RootCause>("");
-  const [resolution, setResolution] = useState<Resolution>("");
+  const [rootCause, setRootCause] = useState<RootCause>("Hardware");
+  const [resolution, setResolution] = useState<Resolution>("Calibration");
 
-  // Parts state
+  // Sub-items state
   const [partsUsed, setPartsUsed] = useState<DebriefPartUsed[]>([]);
+  const [expenses, setExpenses] = useState<DebriefExpense[]>([]);
+  const [documents, setDocuments] = useState<DebriefDocument[]>([]);
+  const [toolsUsed, setToolsUsed] = useState<DebriefToolUsed[]>([]);
+
+  // Modal Dialogs state
+  const [editWorkDoneOpen, setEditWorkDoneOpen] = useState(false);
+  const [addPartOpen, setAddPartOpen] = useState(false);
+  const [addExpenseOpen, setAddExpenseOpen] = useState(false);
+  const [addDocOpen, setAddDocOpen] = useState(false);
+  const [addToolOpen, setAddToolOpen] = useState(false);
+  const [holdDialogOpen, setHoldDialogOpen] = useState(false);
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+
+  // Form states for modals
   const [partNumber, setPartNumber] = useState("");
   const [partDescription, setPartDescription] = useState("");
   const [partUnitCost, setPartUnitCost] = useState("45000");
   const [partQtyUsed, setPartQtyUsed] = useState("1");
 
-  // Expenses state
-  const [expenses, setExpenses] = useState<DebriefExpense[]>([]);
   const [expenseDate, setExpenseDate] = useState(formatDateNow());
   const [expenseType, setExpenseType] = useState<ExpenseType>("Transport (taxi)");
   const [expenseAmount, setExpenseAmount] = useState("15000");
@@ -153,14 +174,10 @@ function DebriefJobWorkspacePage() {
   const [expenseReceiptFileName, setExpenseReceiptFileName] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
 
-  // Documents state
-  const [documents, setDocuments] = useState<DebriefDocument[]>([]);
   const [docType, setDocType] = useState<DebriefDocumentType>("Equipment checklist");
   const [docFileName, setDocFileName] = useState("");
   const [docComment, setDocComment] = useState("");
 
-  // Tools state
-  const [toolsUsed, setToolsUsed] = useState<DebriefToolUsed[]>([]);
   const [toolSearchQuery, setToolSearchQuery] = useState("");
   const [toolDateOfUse, setToolDateOfUse] = useState(formatDateNow());
 
@@ -203,33 +220,35 @@ function DebriefJobWorkspacePage() {
     loadJob();
   }, [jobId]);
 
-  // Step Action Triggers
+  // Stepper Action Handlers
   const handleStartTravel = () => {
     const timeNow = formatTimeNow();
     setTravelStartTime(timeNow);
-    toast.success(`Travel start time stamped at ${timeNow}`);
+    toast.success(`Travel started at ${timeNow}`);
   };
 
   const handleMarkOnSite = () => {
     const timeNow = formatTimeNow();
     if (!travelStartTime) {
-      setTravelStartTime("08:00");
+      setTravelStartTime(timeNow);
     }
     setTravelEndTime(timeNow);
     setLabourStartTime(timeNow);
-    toast.success(`Arrived on site stamped at ${timeNow}. Labour started.`);
+    toast.success(`Arrived on site at ${timeNow}. Labour active.`);
   };
 
-  const handleFinishWork = () => {
-    const timeNow = formatTimeNow();
-    if (!labourStartTime) {
-      setLabourStartTime("09:00");
-    }
-    setLabourEndTime(timeNow);
-    toast.success(`Labour end time stamped at ${timeNow}. Please complete work summary.`);
+  const handleConfirmHold = async () => {
+    setJobStatus("On Hold");
+    setHoldDialogOpen(false);
+    await handleSaveWorkspace("On Hold");
   };
 
-  // Parts Handlers
+  const handleResumeWork = async () => {
+    setJobStatus("In Progress");
+    await handleSaveWorkspace("In Progress");
+  };
+
+  // Add Item Handlers
   const handleAddPart = () => {
     if (!partNumber.trim() || !partDescription.trim()) {
       toast.error("Please enter Part Number and Description.");
@@ -255,14 +274,14 @@ function DebriefJobWorkspacePage() {
     setPartNumber("");
     setPartDescription("");
     setPartQtyUsed("1");
-    toast.success(`Part ${newPart.partNumber} added to parts list.`);
+    setAddPartOpen(false);
+    toast.success(`Part ${newPart.partNumber} added.`);
   };
 
   const handleRemovePart = (id: string) => {
     setPartsUsed((prev) => prev.filter((p) => p.id !== id));
   };
 
-  // Expenses Handlers
   const handleAddExpense = () => {
     if (!expenseAmount || parseFloat(expenseAmount) <= 0) {
       toast.error("Please enter a valid expense amount.");
@@ -275,7 +294,7 @@ function DebriefJobWorkspacePage() {
       typeOfExpense: expenseType,
       receiptAvailable: Boolean(expenseReceiptFileName.trim()),
       receiptFileName: expenseReceiptFileName.trim() || undefined,
-      note: expenseNote || "Site service expenses logged by engineer.",
+      note: expenseNote || "Service expense logged by engineer.",
       expenseCode: expenseCode || "FIN-EXP-2026-088",
       amount: parseFloat(expenseAmount) || 0,
     };
@@ -283,24 +302,24 @@ function DebriefJobWorkspacePage() {
     setExpenses((prev) => [...prev, newExpense]);
     setExpenseNote("");
     setExpenseReceiptFileName("");
-    toast.success("Expense logged successfully.");
+    setAddExpenseOpen(false);
+    toast.success("Expense logged.");
   };
 
   const handleRemoveExpense = (id: string) => {
     setExpenses((prev) => prev.filter((e) => e.id !== id));
   };
 
-  // Documents Handlers
   const handleAddDocument = () => {
     if (!docFileName.trim()) {
-      toast.error("Please specify a document file name.");
+      toast.error("Please enter a document file name.");
       return;
     }
 
     const newDoc: DebriefDocument = {
       id: `doc_${Date.now()}`,
       documentType: docType,
-      comment: docComment || "Service report attachment.",
+      comment: docComment || "Service attachment.",
       fileName: docFileName.trim(),
       fileUrl: "#",
       fileSize: "1.5 MB",
@@ -310,14 +329,14 @@ function DebriefJobWorkspacePage() {
     setDocuments((prev) => [...prev, newDoc]);
     setDocFileName("");
     setDocComment("");
-    toast.success("Document attached to service job.");
+    setAddDocOpen(false);
+    toast.success("Document attached.");
   };
 
   const handleRemoveDocument = (id: string) => {
     setDocuments((prev) => prev.filter((d) => d.id !== id));
   };
 
-  // Tools Handlers
   const handleAddTool = (tool: typeof TOOL_REGISTRY[0]) => {
     if (toolsUsed.some((t) => t.toolId === tool.toolId)) {
       toast.info("Tool is already linked to this job.");
@@ -337,22 +356,28 @@ function DebriefJobWorkspacePage() {
 
     setToolsUsed((prev) => [...prev, newTool]);
     setToolSearchQuery("");
-    toast.success(`Tool ${tool.toolId} verified and linked.`);
+    setAddToolOpen(false);
+    toast.success(`Tool ${tool.toolId} linked.`);
   };
 
   const handleRemoveTool = (id: string) => {
     setToolsUsed((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Save / Update Handler
+  // Save / Complete Handler
   const handleSaveWorkspace = async (targetJobStatus?: JobStatus) => {
     if (!job) return;
 
     const finalJobStatus = targetJobStatus || jobStatus;
 
-    if (finalJobStatus === "Completed" && !workDone.trim()) {
-      toast.error("Please enter a summary of Work Done before completing the job.");
-      return;
+    if (finalJobStatus === "Completed") {
+      if (!workDone.trim()) {
+        toast.error("Please describe the Work Done before completing the job.");
+        return;
+      }
+      if (!labourEndTime) {
+        setLabourEndTime(formatTimeNow());
+      }
     }
 
     setSaving(true);
@@ -371,7 +396,7 @@ function DebriefJobWorkspacePage() {
           travelStartTime,
           travelEndTime,
           labourStartTime,
-          labourEndTime,
+          labourEndTime: labourEndTime || (finalJobStatus === "Completed" ? formatTimeNow() : undefined),
           workDone,
           equipmentStatus,
           jobStatus: finalJobStatus,
@@ -390,12 +415,12 @@ function DebriefJobWorkspacePage() {
         setJob(result);
         setJobStatus(finalJobStatus);
         if (finalJobStatus === "Completed") {
-          toast.success(`Job ${job.jobNumber} marked as Completed!`);
+          toast.success(`Job ${job.jobNumber} submitted and completed!`);
           navigate({ to: "/app/debrief/my-work" });
         } else if (finalJobStatus === "On Hold") {
           toast.warning(`Job ${job.jobNumber} placed On Hold (${holdReason})`);
         } else {
-          toast.success("Job workspace records saved.");
+          toast.success("Job workspace draft saved.");
         }
       }
     } catch (err) {
@@ -403,6 +428,7 @@ function DebriefJobWorkspacePage() {
       toast.error("Failed to save workspace records.");
     } finally {
       setSaving(false);
+      setCompleteDialogOpen(false);
     }
   };
 
@@ -419,7 +445,7 @@ function DebriefJobWorkspacePage() {
       <div className="rounded-xl border border-border bg-card p-10 text-center space-y-3">
         <h3 className="text-sm font-bold text-foreground">Job Not Found</h3>
         <p className="text-xs text-muted-foreground">
-          The requested service job was not found or has been removed.
+          The requested service job was not found.
         </p>
         <Link to="/app/debrief/my-work">
           <Button variant="outline" size="sm" className="text-xs mt-2">
@@ -433,12 +459,16 @@ function DebriefJobWorkspacePage() {
   const partsTotalCost = partsUsed.reduce((acc, p) => acc + (p.totalCost || 0), 0);
   const expensesTotalAmount = expenses.reduce((acc, e) => acc + (e.amount || 0), 0);
 
+  const isTravelDone = Boolean(travelStartTime);
+  const isLabourStarted = Boolean(labourStartTime);
+  const isOnHold = jobStatus === "On Hold";
+
   return (
-    <div className="w-full space-y-6 max-w-5xl mx-auto pb-16">
+    <div className="w-full space-y-5 max-w-4xl mx-auto pb-16">
       {/* Top Header Bar */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <Link to="/app/debrief/my-work">
               <Button
                 variant="ghost"
@@ -450,26 +480,21 @@ function DebriefJobWorkspacePage() {
               </Button>
             </Link>
             <span className="text-muted-foreground">•</span>
-            <div className="flex items-center gap-2">
-              <span className="font-mono font-bold text-base text-primary">
-                {job.jobNumber}
-              </span>
-              <span
-                className={cn(
-                  "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
-                  jobStatus === "In Progress"
-                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
-                    : jobStatus === "On Hold"
-                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                    : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                )}
-              >
-                {jobStatus === "On Hold" ? `On Hold · ${holdReason}` : jobStatus}
-              </span>
-            </div>
+            <span className="font-mono font-bold text-base text-primary">
+              {job.jobNumber}
+            </span>
+            <span
+              className={cn(
+                "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
+                isOnHold
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                  : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+              )}
+            >
+              {isOnHold ? `On Hold · ${holdReason}` : jobStatus}
+            </span>
           </div>
 
-          {/* Top Actions */}
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -481,871 +506,455 @@ function DebriefJobWorkspacePage() {
               <Save className="size-3.5" />
               <span>Save Draft</span>
             </Button>
+          </div>
+        </div>
 
-            {jobStatus !== "On Hold" ? (
+        {/* Equipment Summary Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2.5 border-t border-border/50 text-xs">
+          <div>
+            <span className="text-muted-foreground block">Equipment:</span>
+            <span className="font-bold text-foreground">{job.model}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground block">Asset No:</span>
+            <span className="font-mono font-semibold text-foreground">{job.assetNumber}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground block">Location:</span>
+            <span className="font-medium text-foreground">{job.location || "Main Ward"}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground block">Priority:</span>
+            <span className={cn("font-bold", job.jobPriority === "High" ? "text-rose-600" : "text-amber-600")}>
+              {job.jobPriority} Priority
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= 1. SERVICE STAGE CONTROLLER ================= */}
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <Clock className="size-4 text-primary" />
+            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+              Service Stage Controller
+            </h3>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            Auto-stamped lifecycle events
+          </span>
+        </div>
+
+        {/* Stepper Progress Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <div
+            className={cn(
+              "p-3 rounded-lg border flex items-center gap-2.5",
+              isTravelDone
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-900 dark:text-emerald-200"
+                : "bg-muted/40 border-border text-muted-foreground"
+            )}
+          >
+            <div className={cn("size-5 rounded-full grid place-items-center text-xs font-bold shrink-0", isTravelDone ? "bg-emerald-600 text-white" : "bg-muted-foreground/30 text-muted-foreground")}>
+              {isTravelDone ? "✓" : "1"}
+            </div>
+            <div>
+              <span className="font-bold block">1. Travel / Dispatch</span>
+              <span className="text-xs opacity-90">
+                {travelStartTime ? `Started at ${travelStartTime}` : "Not started"}
+              </span>
+            </div>
+          </div>
+
+          <div
+            className={cn(
+              "p-3 rounded-lg border flex items-center gap-2.5",
+              isLabourStarted
+                ? "bg-blue-500/10 border-blue-500/30 text-blue-900 dark:text-blue-200"
+                : "bg-muted/40 border-border text-muted-foreground"
+            )}
+          >
+            <div className={cn("size-5 rounded-full grid place-items-center text-xs font-bold shrink-0", isLabourStarted ? "bg-blue-600 text-white" : "bg-muted-foreground/30 text-muted-foreground")}>
+              {isLabourStarted ? "✓" : "2"}
+            </div>
+            <div>
+              <span className="font-bold block">2. On-Site Labour</span>
+              <span className="text-xs opacity-90">
+                {labourStartTime ? `Active since ${labourStartTime}` : "Pending arrival"}
+              </span>
+            </div>
+          </div>
+
+          <div
+            className={cn(
+              "p-3 rounded-lg border flex items-center gap-2.5",
+              jobStatus === "Completed"
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-900 dark:text-emerald-200"
+                : "bg-muted/40 border-border text-muted-foreground"
+            )}
+          >
+            <div className={cn("size-5 rounded-full grid place-items-center text-xs font-bold shrink-0", jobStatus === "Completed" ? "bg-emerald-600 text-white" : "bg-muted-foreground/30 text-muted-foreground")}>
+              {jobStatus === "Completed" ? "✓" : "3"}
+            </div>
+            <div>
+              <span className="font-bold block">3. Final Submission</span>
+              <span className="text-xs opacity-90">
+                {jobStatus === "Completed" ? "Submitted & Closed" : "Ready for review"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Current Active Action Buttons */}
+        <div className="p-3.5 rounded-lg bg-muted/20 border border-border/60 flex flex-wrap items-center justify-between gap-3">
+          <div className="text-xs">
+            <span className="font-bold text-foreground block">
+              {isOnHold
+                ? "Job is currently On Hold"
+                : !isTravelDone
+                ? "Step 1: Start your travel to the hospital site"
+                : !isLabourStarted
+                ? "Step 2: Mark arrival at site to start labour"
+                : "Step 3: Service is active — record actions and submit when done"}
+            </span>
+            <span className="text-muted-foreground">
+              {isOnHold
+                ? `Hold Reason: ${holdReason}`
+                : "Timestamp will be recorded automatically."}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {isOnHold ? (
               <Button
-                variant="outline"
                 size="sm"
-                onClick={() => handleSaveWorkspace("On Hold")}
-                disabled={saving}
-                className="h-8 text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 gap-1.5 cursor-pointer"
-              >
-                <PauseCircle className="size-3.5" />
-                <span>Put On Hold</span>
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSaveWorkspace("In Progress")}
-                disabled={saving}
-                className="h-8 text-xs font-semibold text-blue-600 border-blue-500/30 hover:bg-blue-500/10 gap-1.5 cursor-pointer"
+                onClick={handleResumeWork}
+                className="h-8.5 text-xs font-bold gap-1.5 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Play className="size-3.5" />
                 <span>Resume Work</span>
               </Button>
-            )}
-
-            <Button
-              size="sm"
-              onClick={() => handleSaveWorkspace("Completed")}
-              disabled={saving}
-              className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 cursor-pointer shadow-xs"
-            >
-              <CheckCircle2 className="size-3.5" />
-              <span>Complete Job</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Equipment & Dispatch Quick Banner */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-border/60 text-xs">
-          <div>
-            <span className="text-muted-foreground block font-medium">Asset Number</span>
-            <span className="font-mono font-bold text-foreground">{job.assetNumber}</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground block font-medium">Equipment</span>
-            <span className="font-semibold text-foreground">{job.modality} · {job.oem} ({job.model})</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground block font-medium">Location</span>
-            <span className="text-foreground">{job.location || "Main Hospital Ward"}</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground block font-medium">Primary Engineer</span>
-            <span className="font-bold text-foreground">{job.assignedToName}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ================= SECTION 1: GENERAL (READ-ONLY) ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-        <div className="flex items-center gap-2 pb-2 border-b border-border/60">
-          <FileText className="size-4 text-primary" />
-          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-            1. General Equipment & Dispatch Info
-          </h3>
-        </div>
-
-        <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div>
-            <dt className="text-muted-foreground font-medium">Asset Number</dt>
-            <dd className="font-mono font-bold text-primary mt-0.5">{job.assetNumber}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Modality</dt>
-            <dd className="font-semibold text-foreground mt-0.5">{job.modality}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">OEM</dt>
-            <dd className="font-semibold text-foreground mt-0.5">{job.oem}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Model</dt>
-            <dd className="font-semibold text-foreground mt-0.5">{job.model}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Serial Number</dt>
-            <dd className="font-mono text-foreground mt-0.5">{job.serialNumber}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Year of Mfg</dt>
-            <dd className="text-foreground mt-0.5">{job.yearOfManufacture || "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Location</dt>
-            <dd className="text-foreground mt-0.5">{job.location || "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Facility Address</dt>
-            <dd className="text-foreground mt-0.5">{job.address || "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Job Type</dt>
-            <dd className="font-semibold text-foreground mt-0.5">{job.jobType}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Job Priority</dt>
-            <dd className="font-semibold text-foreground mt-0.5">{job.jobPriority}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Primary Engineer</dt>
-            <dd className="font-bold text-foreground mt-0.5">{job.assignedToName}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground font-medium">Assistant Engineer</dt>
-            <dd className="text-foreground mt-0.5">{job.assistedBy || "—"}</dd>
-          </div>
-        </dl>
-
-        <div className="pt-2 border-t border-border/50 space-y-1">
-          <span className="text-xs font-semibold text-muted-foreground block">
-            Reported Issue Description
-          </span>
-          <p className="text-xs text-foreground bg-muted/30 p-3 rounded-md border border-border/60 leading-relaxed">
-            {job.reportedIssue || "No initial fault description provided."}
-          </p>
-        </div>
-      </div>
-
-      {/* ================= SECTION 2: LABOUR ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <Clock className="size-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-              2. Labour & Time Tracking Steps
-            </h3>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            Click step buttons to stamp timestamps automatically
-          </span>
-        </div>
-
-        {/* 3 Step Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Step 1: Start Travel */}
-          <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-foreground">Step 1: Dispatch</span>
-              {travelStartTime && (
-                <span className="text-xs font-mono font-bold text-emerald-600 flex items-center gap-1">
-                  <Check className="size-3" /> Stamped
-                </span>
-              )}
-            </div>
-            <Button
-              type="button"
-              variant={travelStartTime ? "outline" : "default"}
-              size="sm"
-              onClick={handleStartTravel}
-              className="w-full text-xs font-semibold gap-1.5 cursor-pointer h-8"
-            >
-              <Navigation className="size-3.5" />
-              <span>{travelStartTime ? "Re-stamp Travel Start" : "Start Travel"}</span>
-            </Button>
-            <div className="flex items-center justify-between text-xs pt-1 border-t border-border/40">
-              <span className="text-muted-foreground">Travel Start:</span>
-              <Input
-                type="time"
-                value={travelStartTime}
-                onChange={(e) => setTravelStartTime(e.target.value)}
-                className="h-6 w-24 text-xs font-mono text-right p-1"
-              />
-            </div>
-          </div>
-
-          {/* Step 2: Mark On Site */}
-          <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-foreground">Step 2: On Site</span>
-              {labourStartTime && (
-                <span className="text-xs font-mono font-bold text-emerald-600 flex items-center gap-1">
-                  <Check className="size-3" /> Stamped
-                </span>
-              )}
-            </div>
-            <Button
-              type="button"
-              variant={labourStartTime ? "outline" : "default"}
-              size="sm"
-              onClick={handleMarkOnSite}
-              className="w-full text-xs font-semibold gap-1.5 cursor-pointer h-8"
-            >
-              <MapPin className="size-3.5" />
-              <span>{labourStartTime ? "Re-stamp On Site" : "Mark On Site"}</span>
-            </Button>
-            <div className="flex items-center justify-between text-xs pt-1 border-t border-border/40">
-              <span className="text-muted-foreground">Labour Start:</span>
-              <Input
-                type="time"
-                value={labourStartTime}
-                onChange={(e) => setLabourStartTime(e.target.value)}
-                className="h-6 w-24 text-xs font-mono text-right p-1"
-              />
-            </div>
-          </div>
-
-          {/* Step 3: Finish Work */}
-          <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-foreground">Step 3: Completion</span>
-              {labourEndTime && (
-                <span className="text-xs font-mono font-bold text-emerald-600 flex items-center gap-1">
-                  <Check className="size-3" /> Stamped
-                </span>
-              )}
-            </div>
-            <Button
-              type="button"
-              variant={labourEndTime ? "outline" : "default"}
-              size="sm"
-              onClick={handleFinishWork}
-              className="w-full text-xs font-semibold gap-1.5 cursor-pointer h-8"
-            >
-              <CheckCircle2 className="size-3.5" />
-              <span>{labourEndTime ? "Re-stamp Finish Work" : "Finish Work"}</span>
-            </Button>
-            <div className="flex items-center justify-between text-xs pt-1 border-t border-border/40">
-              <span className="text-muted-foreground">Labour End:</span>
-              <Input
-                type="time"
-                value={labourEndTime}
-                onChange={(e) => setLabourEndTime(e.target.value)}
-                className="h-6 w-24 text-xs font-mono text-right p-1"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Dates & Status Controls */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Start Date</Label>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">End Date</Label>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Equipment Status</Label>
-            <Select
-              value={equipmentStatus}
-              onValueChange={(val) => setEquipmentStatus(val as EquipmentStatus)}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Equipment Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="UP" className="text-xs">UP</SelectItem>
-                <SelectItem value="Partially UP" className="text-xs">Partially UP</SelectItem>
-                <SelectItem value="Down" className="text-xs">Down</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Job Status</Label>
-            <Select
-              value={jobStatus}
-              onValueChange={(val) => setJobStatus(val as JobStatus)}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Job Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="In Progress" className="text-xs">In Progress</SelectItem>
-                <SelectItem value="On Hold" className="text-xs">On Hold</SelectItem>
-                <SelectItem value="Completed" className="text-xs">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Hold Reason Banner (if status is On Hold) */}
-        {jobStatus === "On Hold" && (
-          <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="size-4 text-amber-600 shrink-0" />
-              <span className="text-xs font-bold text-amber-900 dark:text-amber-200">
-                Hold Reason:
-              </span>
-            </div>
-            <Select value={holdReason} onValueChange={setHoldReason}>
-              <SelectTrigger className="h-8 text-xs w-60 bg-background">
-                <SelectValue placeholder="Select Reason" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Awaiting Part" className="text-xs">Awaiting Part</SelectItem>
-                <SelectItem value="Awaiting Access to Site" className="text-xs">Awaiting Access to Site</SelectItem>
-                <SelectItem value="Awaiting Specialist Tool" className="text-xs">Awaiting Specialist Tool</SelectItem>
-                <SelectItem value="Client Decision Pending" className="text-xs">Client Decision Pending</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {/* Work Done Textarea */}
-        <div className="space-y-1.5 pt-1">
-          <Label htmlFor="workDone" className="text-xs font-bold uppercase tracking-wider">
-            Work Done / Actions Performed
-          </Label>
-          <Textarea
-            id="workDone"
-            rows={3}
-            placeholder="Record service actions performed, diagnostics executed, and tests verified..."
-            value={workDone}
-            onChange={(e) => setWorkDone(e.target.value)}
-            className="text-xs leading-relaxed"
-          />
-        </div>
-
-        {/* Root Cause & Resolution */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Root Cause</Label>
-            <Select value={rootCause} onValueChange={setRootCause}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select Root Cause" />
-              </SelectTrigger>
-              <SelectContent>
-                {ROOT_CAUSES.map((rc) => (
-                  <SelectItem key={rc} value={rc} className="text-xs">
-                    {rc}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Resolution</Label>
-            <Select value={resolution} onValueChange={setResolution}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select Resolution" />
-              </SelectTrigger>
-              <SelectContent>
-                {RESOLUTIONS.map((res) => (
-                  <SelectItem key={res} value={res} className="text-xs">
-                    {res}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      {/* ================= SECTION 3: PARTS ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <Boxes className="size-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-              3. Parts Used ({partsUsed.length})
-            </h3>
-          </div>
-          <span className="text-xs font-mono font-bold text-primary">
-            Total Parts Cost: NGN {partsTotalCost.toLocaleString()}
-          </span>
-        </div>
-
-        {/* Add Part Form */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <div className="space-y-1 sm:col-span-2">
-            <Label className="text-xs font-semibold">Part Number</Label>
-            <Input
-              placeholder="e.g. PRT-PWR-882"
-              value={partNumber}
-              onChange={(e) => setPartNumber(e.target.value)}
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1 sm:col-span-2">
-            <Label className="text-xs font-semibold">Description</Label>
-            <Input
-              placeholder="e.g. High Voltage Power Supply Module"
-              value={partDescription}
-              onChange={(e) => setPartDescription(e.target.value)}
-              className="h-8 text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Unit Cost (NGN)</Label>
-            <Input
-              type="number"
-              value={partUnitCost}
-              onChange={(e) => setPartUnitCost(e.target.value)}
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Quantity Used</Label>
-            <Input
-              type="number"
-              min="1"
-              value={partQtyUsed}
-              onChange={(e) => setPartQtyUsed(e.target.value)}
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1 sm:col-span-2 flex items-end">
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAddPart}
-              className="h-8 w-full text-xs font-bold gap-1.5 cursor-pointer bg-primary text-primary-foreground"
-            >
-              <Plus className="size-3.5" />
-              <span>Add Part to List</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Parts Table */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-border bg-muted/50 text-muted-foreground uppercase font-bold text-left">
-                  <th className="px-3 py-2">Part No</th>
-                  <th className="px-3 py-2">Description</th>
-                  <th className="px-3 py-2 text-right">Unit Cost</th>
-                  <th className="px-3 py-2 text-center">Qty</th>
-                  <th className="px-3 py-2 text-right">Total</th>
-                  <th className="px-3 py-2 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {partsUsed.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
-                      No replacement parts recorded for this job.
-                    </td>
-                  </tr>
-                ) : (
-                  partsUsed.map((p) => (
-                    <tr key={p.id} className="border-b border-border/50 last:border-0 hover:bg-accent/40">
-                      <td className="px-3 py-2.5 font-mono font-bold text-primary">{p.partNumber}</td>
-                      <td className="px-3 py-2.5 text-foreground">{p.description}</td>
-                      <td className="px-3 py-2.5 text-right font-mono">NGN {p.unitCost.toLocaleString()}</td>
-                      <td className="px-3 py-2.5 text-center font-bold">{p.quantityUsed}</td>
-                      <td className="px-3 py-2.5 text-right font-mono font-bold text-foreground">
-                        NGN {p.totalCost.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2.5 text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemovePart(p.id)}
-                          className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* ================= SECTION 4: EXPENSES ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <Receipt className="size-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-              4. Service Expenses ({expenses.length})
-            </h3>
-          </div>
-          <span className="text-xs font-mono font-bold text-primary">
-            Total Expenses: NGN {expensesTotalAmount.toLocaleString()}
-          </span>
-        </div>
-
-        {/* Add Expense Form */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Date of Expense</Label>
-            <Input
-              type="date"
-              value={expenseDate}
-              onChange={(e) => setExpenseDate(e.target.value)}
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Type of Expense</Label>
-            <Select
-              value={expenseType}
-              onValueChange={(val) => setExpenseType(val as ExpenseType)}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Expense Type" />
-              </SelectTrigger>
-              <SelectContent>
-                {EXPENSE_TYPES.map((t) => (
-                  <SelectItem key={t} value={t} className="text-xs">
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Amount (NGN)</Label>
-            <Input
-              type="number"
-              value={expenseAmount}
-              onChange={(e) => setExpenseAmount(e.target.value)}
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Finance Expense Code</Label>
-            <Input
-              value={expenseCode}
-              onChange={(e) => setExpenseCode(e.target.value)}
-              placeholder="e.g. FIN-EXP-2026-088"
-              className="h-8 text-xs font-mono"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Receipt File Name / Ref</Label>
-            <Input
-              placeholder="e.g. flight_ticket_ek.pdf"
-              value={expenseReceiptFileName}
-              onChange={(e) => setExpenseReceiptFileName(e.target.value)}
-              className="h-8 text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Note / Justification</Label>
-            <Input
-              placeholder="e.g. Emergency taxi transport to facility"
-              value={expenseNote}
-              onChange={(e) => setExpenseNote(e.target.value)}
-              className="h-8 text-xs"
-            />
-          </div>
-
-          <div className="space-y-1 sm:col-span-3 flex justify-end pt-1">
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAddExpense}
-              className="h-8 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-primary text-primary-foreground"
-            >
-              <Plus className="size-3.5" />
-              <span>Add Expense</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Expenses Table */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-border bg-muted/50 text-muted-foreground uppercase font-bold text-left">
-                  <th className="px-3 py-2">Date</th>
-                  <th className="px-3 py-2">Type</th>
-                  <th className="px-3 py-2">Finance Code</th>
-                  <th className="px-3 py-2">Receipt</th>
-                  <th className="px-3 py-2">Note</th>
-                  <th className="px-3 py-2 text-right">Amount</th>
-                  <th className="px-3 py-2 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expenses.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-6 text-center text-muted-foreground">
-                      No service expenses logged.
-                    </td>
-                  </tr>
-                ) : (
-                  expenses.map((exp) => (
-                    <tr key={exp.id} className="border-b border-border/50 last:border-0 hover:bg-accent/40">
-                      <td className="px-3 py-2.5 font-mono">{exp.dateOfExpense}</td>
-                      <td className="px-3 py-2.5 font-semibold text-foreground">{exp.typeOfExpense}</td>
-                      <td className="px-3 py-2.5 font-mono text-muted-foreground">{exp.expenseCode}</td>
-                      <td className="px-3 py-2.5 text-xs text-primary underline truncate max-w-[130px]">
-                        {exp.receiptFileName || "No Receipt"}
-                      </td>
-                      <td className="px-3 py-2.5 text-foreground truncate max-w-[160px]">{exp.note}</td>
-                      <td className="px-3 py-2.5 text-right font-mono font-bold text-foreground">
-                        NGN {(exp.amount || 0).toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2.5 text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveExpense(exp.id)}
-                          className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* ================= SECTION 5: DOCUMENTS ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <FileCheck className="size-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-              5. Service Documents ({documents.length})
-            </h3>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            Checklists, delivery notes, and service reports
-          </span>
-        </div>
-
-        {/* Add Document Form */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Document Type</Label>
-            <Select
-              value={docType}
-              onValueChange={(val) => setDocType(val as DebriefDocumentType)}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Document Type" />
-              </SelectTrigger>
-              <SelectContent>
-                {DOCUMENT_TYPES.map((d) => (
-                  <SelectItem key={d} value={d} className="text-xs">
-                    {d}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">File Name</Label>
-            <Input
-              placeholder="e.g. Pre_Service_Inspection_Signed.pdf"
-              value={docFileName}
-              onChange={(e) => setDocFileName(e.target.value)}
-              className="h-8 text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-semibold">Comment</Label>
-            <Input
-              placeholder="e.g. Signed checklist and delivery note"
-              value={docComment}
-              onChange={(e) => setDocComment(e.target.value)}
-              className="h-8 text-xs"
-            />
-          </div>
-
-          <div className="space-y-1 sm:col-span-3 flex justify-end pt-1">
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAddDocument}
-              className="h-8 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-primary text-primary-foreground"
-            >
-              <Upload className="size-3.5" />
-              <span>Attach Document</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Documents Table */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-border bg-muted/50 text-muted-foreground uppercase font-bold text-left">
-                  <th className="px-3 py-2">Document Type</th>
-                  <th className="px-3 py-2">File Name</th>
-                  <th className="px-3 py-2">Comment</th>
-                  <th className="px-3 py-2">Upload Date</th>
-                  <th className="px-3 py-2 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {documents.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
-                      No documents attached to this job.
-                    </td>
-                  </tr>
-                ) : (
-                  documents.map((doc) => (
-                    <tr key={doc.id} className="border-b border-border/50 last:border-0 hover:bg-accent/40">
-                      <td className="px-3 py-2.5 font-semibold text-foreground">{doc.documentType}</td>
-                      <td className="px-3 py-2.5 font-mono text-primary font-bold">{doc.fileName}</td>
-                      <td className="px-3 py-2.5 text-foreground">{doc.comment}</td>
-                      <td className="px-3 py-2.5 font-mono text-muted-foreground">{doc.uploadDate}</td>
-                      <td className="px-3 py-2.5 text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveDocument(doc.id)}
-                          className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* ================= SECTION 6: TOOLS ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-border/60">
-          <div className="flex items-center gap-2">
-            <Wrench className="size-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-              6. Calibrated Tools Used ({toolsUsed.length})
-            </h3>
-          </div>
-          <span className="text-xs text-muted-foreground">
-            Linked to Tools Module registry & calibration schedule
-          </span>
-        </div>
-
-        {/* Search tool */}
-        <div className="space-y-2">
-          <Label className="text-xs font-semibold">
-            Search Calibrated Tool by ID / OEM / Description
-          </Label>
-          <div className="relative">
-            <Search className="size-3.5 absolute left-2.5 top-2.5 text-muted-foreground" />
-            <Input
-              placeholder="Type to search (e.g. Fluke, Safety Analyzer, TL-CAL-001)..."
-              value={toolSearchQuery}
-              onChange={(e) => setToolSearchQuery(e.target.value)}
-              className="h-8 text-xs font-mono pl-8"
-            />
-          </div>
-
-          {toolSearchQuery.trim() && (
-            <div className="rounded-md border border-border bg-popover text-popover-foreground p-2 space-y-1.5 shadow-md">
-              {TOOL_REGISTRY.filter(
-                (t) =>
-                  t.toolId.toLowerCase().includes(toolSearchQuery.toLowerCase()) ||
-                  t.description.toLowerCase().includes(toolSearchQuery.toLowerCase()) ||
-                  t.oem.toLowerCase().includes(toolSearchQuery.toLowerCase())
-              ).map((tool) => (
-                <div
-                  key={tool.toolId}
-                  className="flex items-center justify-between p-2 rounded hover:bg-accent text-xs border border-border/40"
+            ) : !isTravelDone ? (
+              <Button
+                size="sm"
+                onClick={handleStartTravel}
+                className="h-8.5 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                <Navigation className="size-3.5" />
+                <span>Start Travel</span>
+              </Button>
+            ) : !isLabourStarted ? (
+              <Button
+                size="sm"
+                onClick={handleMarkOnSite}
+                className="h-8.5 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                <MapPin className="size-3.5" />
+                <span>Mark On Site</span>
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHoldDialogOpen(true)}
+                  className="h-8.5 text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 gap-1.5 cursor-pointer"
                 >
+                  <PauseCircle className="size-3.5" />
+                  <span>Put On Hold</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  onClick={() => setCompleteDialogOpen(true)}
+                  className="h-8.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <CheckCircle2 className="size-3.5" />
+                  <span>Finish Work & Submit Job</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ================= 2. RECORDED JOB SUMMARY & ACTIONS ================= */}
+      <div className="space-y-4">
+        {/* Section: Work Done & Diagnosis */}
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <FileText className="size-4 text-primary" />
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                Work Done & Diagnosis
+              </h3>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditWorkDoneOpen(true)}
+              className="h-7 text-xs font-semibold gap-1.5 cursor-pointer"
+            >
+              <Edit2 className="size-3" />
+              <span>Edit Diagnosis & Notes</span>
+            </Button>
+          </div>
+
+          <div className="space-y-2 text-xs">
+            <p className="p-3 rounded-md bg-muted/30 border border-border/60 text-foreground leading-relaxed">
+              {workDone || "No work description recorded yet. Click 'Edit Diagnosis & Notes' to log service actions performed."}
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+              <div>
+                <span className="text-muted-foreground block">Root Cause:</span>
+                <span className="font-semibold text-foreground">{rootCause}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground block">Resolution:</span>
+                <span className="font-semibold text-foreground">{resolution}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground block">Equipment Status:</span>
+                <span
+                  className={cn(
+                    "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border mt-0.5",
+                    equipmentStatus === "UP"
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                      : equipmentStatus === "Partially UP"
+                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                      : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                  )}
+                >
+                  {equipmentStatus}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section: Parts Used */}
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <Boxes className="size-4 text-primary" />
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                Parts Used ({partsUsed.length})
+              </h3>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono font-bold text-primary hidden sm:inline">
+                Total: NGN {partsTotalCost.toLocaleString()}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddPartOpen(true)}
+                className="h-7 text-xs font-semibold gap-1.5 cursor-pointer"
+              >
+                <Plus className="size-3" />
+                <span>Add Part</span>
+              </Button>
+            </div>
+          </div>
+
+          {partsUsed.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic py-1">
+              No parts recorded for this job.
+            </p>
+          ) : (
+            <div className="divide-y divide-border/40 text-xs">
+              {partsUsed.map((p) => (
+                <div key={p.id} className="py-2 flex items-center justify-between gap-3">
                   <div>
-                    <span className="font-mono font-bold text-primary">{tool.toolId}</span>
-                    <span className="mx-2">•</span>
-                    <span className="font-medium text-foreground">{tool.description}</span>
-                    <span className="text-xs text-muted-foreground block">
-                      Calibration Due: {tool.calibrationDueDate}
+                    <span className="font-mono font-bold text-primary mr-2">{p.partNumber}</span>
+                    <span className="font-medium text-foreground">{p.description}</span>
+                    <span className="text-muted-foreground block sm:inline sm:ml-2">
+                      (Qty: {p.quantityUsed} × NGN {p.unitCost.toLocaleString()})
                     </span>
                   </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => handleAddTool(tool)}
-                    className="h-7 text-xs px-2.5 font-semibold cursor-pointer"
-                  >
-                    Select Tool
-                  </Button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-mono font-bold text-foreground">
+                      NGN {p.totalCost.toLocaleString()}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemovePart(p.id)}
+                      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Tools Table */}
-        <div className="rounded-lg border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-border bg-muted/50 text-muted-foreground uppercase font-bold text-left">
-                  <th className="px-3 py-2">Tool ID</th>
-                  <th className="px-3 py-2">Serial Number</th>
-                  <th className="px-3 py-2">Description</th>
-                  <th className="px-3 py-2">Date of Use</th>
-                  <th className="px-3 py-2">Calibration Due</th>
-                  <th className="px-3 py-2 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {toolsUsed.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
-                      No calibrated tools linked to this job.
-                    </td>
-                  </tr>
-                ) : (
-                  toolsUsed.map((tool) => (
-                    <tr key={tool.id} className="border-b border-border/50 last:border-0 hover:bg-accent/40">
-                      <td className="px-3 py-2.5 font-mono font-bold text-primary">{tool.toolId}</td>
-                      <td className="px-3 py-2.5 font-mono text-muted-foreground">{tool.serialNumber}</td>
-                      <td className="px-3 py-2.5 text-foreground">{tool.description}</td>
-                      <td className="px-3 py-2.5 font-mono">{tool.dateOfUse}</td>
-                      <td className="px-3 py-2.5 font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                        {tool.calibrationDueDate}
-                      </td>
-                      <td className="px-3 py-2.5 text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveTool(tool.id)}
-                          className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        {/* Section: Service Expenses */}
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <Receipt className="size-4 text-primary" />
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                Service Expenses ({expenses.length})
+              </h3>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono font-bold text-primary hidden sm:inline">
+                Total: NGN {expensesTotalAmount.toLocaleString()}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddExpenseOpen(true)}
+                className="h-7 text-xs font-semibold gap-1.5 cursor-pointer"
+              >
+                <Plus className="size-3" />
+                <span>Log Expense</span>
+              </Button>
+            </div>
           </div>
+
+          {expenses.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic py-1">
+              No service expenses logged.
+            </p>
+          ) : (
+            <div className="divide-y divide-border/40 text-xs">
+              {expenses.map((exp) => (
+                <div key={exp.id} className="py-2 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="font-semibold text-foreground mr-2">{exp.typeOfExpense}</span>
+                    <span className="text-muted-foreground font-mono mr-2">[{exp.expenseCode}]</span>
+                    <span className="text-muted-foreground">{exp.note}</span>
+                    {exp.receiptFileName && (
+                      <span className="text-primary underline ml-2 block sm:inline">
+                        Receipt: {exp.receiptFileName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-mono font-bold text-foreground">
+                      NGN {(exp.amount || 0).toLocaleString()}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveExpense(exp.id)}
+                      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Section: Service Documents */}
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <FileCheck className="size-4 text-primary" />
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                Service Documents ({documents.length})
+              </h3>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAddDocOpen(true)}
+              className="h-7 text-xs font-semibold gap-1.5 cursor-pointer"
+            >
+              <Plus className="size-3" />
+              <span>Attach Document</span>
+            </Button>
+          </div>
+
+          {documents.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic py-1">
+              No documents attached.
+            </p>
+          ) : (
+            <div className="divide-y divide-border/40 text-xs">
+              {documents.map((doc) => (
+                <div key={doc.id} className="py-2 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="font-semibold text-foreground mr-2">{doc.documentType}</span>
+                    <span className="font-mono text-primary font-bold mr-2">{doc.fileName}</span>
+                    <span className="text-muted-foreground">{doc.comment}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-mono text-muted-foreground">{doc.uploadDate}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveDocument(doc.id)}
+                      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Section: Calibrated Tools */}
+        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <Wrench className="size-4 text-primary" />
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+                Calibrated Tools ({toolsUsed.length})
+              </h3>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAddToolOpen(true)}
+              className="h-7 text-xs font-semibold gap-1.5 cursor-pointer"
+            >
+              <Plus className="size-3" />
+              <span>Link Tool</span>
+            </Button>
+          </div>
+
+          {toolsUsed.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic py-1">
+              No calibrated tools linked to this job.
+            </p>
+          ) : (
+            <div className="divide-y divide-border/40 text-xs">
+              {toolsUsed.map((tool) => (
+                <div key={tool.id} className="py-2 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="font-mono font-bold text-primary mr-2">{tool.toolId}</span>
+                    <span className="font-medium text-foreground mr-2">{tool.description}</span>
+                    <span className="text-muted-foreground font-mono">({tool.serialNumber})</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                      Due: {tool.calibrationDueDate}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveTool(tool.id)}
+                      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                    >
+                      <Trash2 className="size-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -1375,15 +984,484 @@ function DebriefJobWorkspacePage() {
 
           <Button
             size="sm"
-            onClick={() => handleSaveWorkspace("Completed")}
+            onClick={() => setCompleteDialogOpen(true)}
             disabled={saving}
             className="h-9 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 cursor-pointer shadow-sm px-5"
           >
             <CheckCircle2 className="size-4" />
-            <span>Complete Job</span>
+            <span>Finish Work & Submit Job</span>
           </Button>
         </div>
       </div>
+
+      {/* ================= MODAL: EDIT WORK DONE & DIAGNOSIS ================= */}
+      <Dialog open={editWorkDoneOpen} onOpenChange={setEditWorkDoneOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold text-foreground">
+              Edit Work Done & Diagnosis
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3.5 py-2 text-xs">
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Work Done Description</Label>
+              <Textarea
+                rows={4}
+                value={workDone}
+                onChange={(e) => setWorkDone(e.target.value)}
+                placeholder="Describe actions performed, diagnostics executed, and tests verified..."
+                className="text-xs leading-relaxed"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Root Cause</Label>
+                <Select value={rootCause} onValueChange={setRootCause}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Root Cause" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROOT_CAUSES.map((rc) => (
+                      <SelectItem key={rc} value={rc} className="text-xs">
+                        {rc}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Resolution</Label>
+                <Select value={resolution} onValueChange={setResolution}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Resolution" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {RESOLUTIONS.map((res) => (
+                      <SelectItem key={res} value={res} className="text-xs">
+                        {res}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Final Equipment Status</Label>
+              <Select
+                value={equipmentStatus}
+                onValueChange={(val) => setEquipmentStatus(val as EquipmentStatus)}
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Equipment Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="UP" className="text-xs">UP</SelectItem>
+                  <SelectItem value="Partially UP" className="text-xs">Partially UP</SelectItem>
+                  <SelectItem value="Down" className="text-xs">Down</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setEditWorkDoneOpen(false);
+                toast.success("Diagnosis updated.");
+              }}
+              className="h-8 text-xs font-bold"
+            >
+              Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ================= MODAL: ADD PART ================= */}
+      <Dialog open={addPartOpen} onOpenChange={setAddPartOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold text-foreground">
+              Add Part Used
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-xs">
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Part Number</Label>
+              <Input
+                placeholder="e.g. PRT-PWR-882"
+                value={partNumber}
+                onChange={(e) => setPartNumber(e.target.value)}
+                className="h-8 text-xs font-mono"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Description</Label>
+              <Input
+                placeholder="e.g. High Voltage Power Module"
+                value={partDescription}
+                onChange={(e) => setPartDescription(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Unit Cost (NGN)</Label>
+                <Input
+                  type="number"
+                  value={partUnitCost}
+                  onChange={(e) => setPartUnitCost(e.target.value)}
+                  className="h-8 text-xs font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Quantity</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={partQtyUsed}
+                  onChange={(e) => setPartQtyUsed(e.target.value)}
+                  className="h-8 text-xs font-mono"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAddPart}
+              className="h-8 text-xs font-bold"
+            >
+              Add Part to List
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ================= MODAL: LOG EXPENSE ================= */}
+      <Dialog open={addExpenseOpen} onOpenChange={setAddExpenseOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold text-foreground">
+              Log Service Expense
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-xs">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Date</Label>
+                <Input
+                  type="date"
+                  value={expenseDate}
+                  onChange={(e) => setExpenseDate(e.target.value)}
+                  className="h-8 text-xs font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Type</Label>
+                <Select
+                  value={expenseType}
+                  onValueChange={(val) => setExpenseType(val as ExpenseType)}
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Expense Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EXPENSE_TYPES.map((t) => (
+                      <SelectItem key={t} value={t} className="text-xs">
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Amount (NGN)</Label>
+                <Input
+                  type="number"
+                  value={expenseAmount}
+                  onChange={(e) => setExpenseAmount(e.target.value)}
+                  className="h-8 text-xs font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-semibold">Finance Code</Label>
+                <Input
+                  value={expenseCode}
+                  onChange={(e) => setExpenseCode(e.target.value)}
+                  className="h-8 text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Receipt File Name / Ref</Label>
+              <Input
+                placeholder="e.g. uber_receipt.pdf"
+                value={expenseReceiptFileName}
+                onChange={(e) => setExpenseReceiptFileName(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Note</Label>
+              <Input
+                placeholder="e.g. Travel to hospital site"
+                value={expenseNote}
+                onChange={(e) => setExpenseNote(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAddExpense}
+              className="h-8 text-xs font-bold"
+            >
+              Log Expense
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ================= MODAL: ATTACH DOCUMENT ================= */}
+      <Dialog open={addDocOpen} onOpenChange={setAddDocOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold text-foreground">
+              Attach Service Document
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-xs">
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Document Type</Label>
+              <Select
+                value={docType}
+                onValueChange={(val) => setDocType(val as DebriefDocumentType)}
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Document Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DOCUMENT_TYPES.map((d) => (
+                    <SelectItem key={d} value={d} className="text-xs">
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">File Name</Label>
+              <Input
+                placeholder="e.g. Service_Checklist_Signed.pdf"
+                value={docFileName}
+                onChange={(e) => setDocFileName(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Comment / Note</Label>
+              <Input
+                placeholder="e.g. Signed checklist and delivery note"
+                value={docComment}
+                onChange={(e) => setDocComment(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAddDocument}
+              className="h-8 text-xs font-bold"
+            >
+              Attach Document
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ================= MODAL: LINK TOOL ================= */}
+      <Dialog open={addToolOpen} onOpenChange={setAddToolOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold text-foreground">
+              Link Calibrated Tool
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-xs">
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold">Search Tool Registry</Label>
+              <Input
+                placeholder="Type tool name or ID (e.g. Fluke, Safety Analyzer)..."
+                value={toolSearchQuery}
+                onChange={(e) => setToolSearchQuery(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {TOOL_REGISTRY.filter(
+                (t) =>
+                  !toolSearchQuery.trim() ||
+                  t.toolId.toLowerCase().includes(toolSearchQuery.toLowerCase()) ||
+                  t.description.toLowerCase().includes(toolSearchQuery.toLowerCase()) ||
+                  t.oem.toLowerCase().includes(toolSearchQuery.toLowerCase())
+              ).map((tool) => (
+                <div
+                  key={tool.toolId}
+                  className="flex items-center justify-between p-2 rounded-md border border-border bg-muted/20 text-xs hover:bg-accent cursor-pointer"
+                  onClick={() => handleAddTool(tool)}
+                >
+                  <div>
+                    <span className="font-mono font-bold text-primary mr-2">{tool.toolId}</span>
+                    <span className="font-medium text-foreground">{tool.description}</span>
+                    <span className="text-muted-foreground block text-xs">
+                      Cal Due: {tool.calibrationDueDate}
+                    </span>
+                  </div>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs font-bold text-primary">
+                    Select
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ================= MODAL: PUT ON HOLD ================= */}
+      <Dialog open={holdDialogOpen} onOpenChange={setHoldDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold text-amber-600 flex items-center gap-2">
+              <AlertTriangle className="size-4" />
+              Put Job On Hold
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-xs">
+            <p className="text-muted-foreground">
+              Select the primary hold reason preventing further work on this job:
+            </p>
+            <Select value={holdReason} onValueChange={setHoldReason}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select Reason" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Awaiting Part" className="text-xs">Awaiting Part</SelectItem>
+                <SelectItem value="Awaiting Access to Site" className="text-xs">Awaiting Access to Site</SelectItem>
+                <SelectItem value="Awaiting Specialist Tool" className="text-xs">Awaiting Specialist Tool</SelectItem>
+                <SelectItem value="Client Decision Pending" className="text-xs">Client Decision Pending</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setHoldDialogOpen(false)}
+              className="h-8 text-xs"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleConfirmHold}
+              className="h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              Confirm Hold
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ================= MODAL: CONFIRM FINISH & SUBMIT ================= */}
+      <Dialog open={completeDialogOpen} onOpenChange={setCompleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-sm font-bold text-emerald-600 flex items-center gap-2">
+              <CheckCircle2 className="size-4" />
+              Finish Work & Submit Job
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-xs">
+            <p className="text-muted-foreground">
+              Review and confirm the completion of service job <strong>{job.jobNumber}</strong>:
+            </p>
+
+            <div className="p-3 rounded-md bg-muted/40 border border-border/60 space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Parts Used:</span>
+                <span className="font-bold text-foreground">{partsUsed.length} item(s)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Expenses Logged:</span>
+                <span className="font-bold text-foreground">{expenses.length} item(s)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Documents Attached:</span>
+                <span className="font-bold text-foreground">{documents.length} file(s)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Calibrated Tools:</span>
+                <span className="font-bold text-foreground">{toolsUsed.length} tool(s)</span>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-border/40">
+                <span className="text-muted-foreground">Equipment Status:</span>
+                <span className="font-bold text-emerald-600">{equipmentStatus}</span>
+              </div>
+            </div>
+
+            {!workDone.trim() && (
+              <div className="p-2 rounded bg-rose-500/10 border border-rose-500/20 text-rose-600 text-xs">
+                ⚠️ Work Done notes are required before submitting.
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setCompleteDialogOpen(false)}
+              className="h-8 text-xs"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => handleSaveWorkspace("Completed")}
+              disabled={!workDone.trim() || saving}
+              className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+            >
+              Submit & Complete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
