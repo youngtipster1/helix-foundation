@@ -20,6 +20,8 @@ import {
   List,
   Lock,
   Eye,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -94,6 +96,7 @@ function DebriefMyWorkPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"active" | "scheduled" | "completed">("active");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const today = formatDateNow();
 
@@ -171,6 +174,25 @@ function DebriefMyWorkPage() {
     return completedJobs;
   }, [activeTab, activeJobs, scheduledJobs, completedJobs]);
 
+  const handleTabChange = (tab: "active" | "scheduled" | "completed") => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handleViewModeChange = (mode: "grid" | "list") => {
+    setViewMode(mode);
+    setCurrentPage(1);
+  };
+
+  // Pagination Configuration: 6 for Grid View, 25 for List View
+  const pageSize = viewMode === "grid" ? 6 : 25;
+  const totalPages = Math.max(1, Math.ceil(displayedJobs.length / pageSize));
+
+  const paginatedJobs = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return displayedJobs.slice(startIndex, startIndex + pageSize);
+  }, [displayedJobs, currentPage, pageSize]);
+
   const handleOpenWorkspace = (job: DebriefJob) => {
     navigate({
       to: "/app/debrief/workspace/$jobId",
@@ -193,7 +215,7 @@ function DebriefMyWorkPage() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setActiveTab("active")}
+            onClick={() => handleTabChange("active")}
             className={cn(
               "px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2",
               activeTab === "active"
@@ -215,7 +237,7 @@ function DebriefMyWorkPage() {
 
           <button
             type="button"
-            onClick={() => setActiveTab("scheduled")}
+            onClick={() => handleTabChange("scheduled")}
             className={cn(
               "px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2",
               activeTab === "scheduled"
@@ -237,7 +259,7 @@ function DebriefMyWorkPage() {
 
           <button
             type="button"
-            onClick={() => setActiveTab("completed")}
+            onClick={() => handleTabChange("completed")}
             className={cn(
               "px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2",
               activeTab === "completed"
@@ -262,7 +284,7 @@ function DebriefMyWorkPage() {
         <div className="flex items-center gap-1 self-end sm:self-auto bg-muted/40 p-1 rounded-lg border border-border/60">
           <button
             type="button"
-            onClick={() => setViewMode("grid")}
+            onClick={() => handleViewModeChange("grid")}
             aria-label="Grid view"
             className={cn(
               "p-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer",
@@ -272,12 +294,12 @@ function DebriefMyWorkPage() {
             )}
           >
             <LayoutGrid className="size-4" />
-            <span className="hidden xs:inline">Grid</span>
+            <span className="hidden xs:inline">Grid (6)</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setViewMode("list")}
+            onClick={() => handleViewModeChange("list")}
             aria-label="List view"
             className={cn(
               "p-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer",
@@ -287,9 +309,8 @@ function DebriefMyWorkPage() {
             )}
           >
             <List className="size-4" />
-            <span className="hidden xs:inline">List</span>
+            <span className="hidden xs:inline">List (25)</span>
           </button>
-        </div>
       </div>
 
       {/* Queue Content: Loading / Empty State */}
@@ -318,7 +339,7 @@ function DebriefMyWorkPage() {
       ) : viewMode === "grid" ? (
         /* GRID VIEW (Default) */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4.5">
-          {displayedJobs.map((job) => {
+          {paginatedJobs.map((job) => {
             const isScheduledTab = activeTab === "scheduled";
             const stageInfo = getJobStageLabel(job, isScheduledTab);
             const isCompleted = job.jobStatus === "Completed";
@@ -500,7 +521,7 @@ function DebriefMyWorkPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40">
-                {displayedJobs.map((job) => {
+                {paginatedJobs.map((job) => {
                   const isScheduledTab = activeTab === "scheduled";
                   const stageInfo = getJobStageLabel(job, isScheduledTab);
                   const isCompleted = job.jobStatus === "Completed";
@@ -598,6 +619,52 @@ function DebriefMyWorkPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Pagination Bar */}
+      {!loading && displayedJobs.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 text-xs text-muted-foreground border-t border-border/80">
+          <div>
+            Showing <span className="font-semibold text-foreground">{(currentPage - 1) * pageSize + 1}</span> to{" "}
+            <span className="font-semibold text-foreground">
+              {Math.min(currentPage * pageSize, displayedJobs.length)}
+            </span>{" "}
+            of <span className="font-semibold text-foreground">{displayedJobs.length}</span> jobs
+            <span className="ml-2 font-mono text-[11px]">
+              ({viewMode === "grid" ? "6 per page" : "25 per page"})
+            </span>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5 self-center sm:self-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="h-8 px-2.5 text-xs font-semibold gap-1 cursor-pointer"
+              >
+                <ChevronLeft className="size-3.5" />
+                <span>Previous</span>
+              </Button>
+
+              <div className="flex items-center gap-1 px-2 font-mono font-bold text-foreground text-xs">
+                Page {currentPage} of {totalPages}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="h-8 px-2.5 text-xs font-semibold gap-1 cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight className="size-3.5" />
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

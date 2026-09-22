@@ -73,6 +73,8 @@ import {
   Mail,
   ExternalLink,
   SlidersHorizontal,
+  Eye,
+  Paperclip,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -214,7 +216,10 @@ function DebriefJobWorkspacePage() {
   const [expenseAmount, setExpenseAmount] = useState("45000");
   const [expenseCode, setExpenseCode] = useState("FIN-EXP-2026-088");
   const [expenseReceiptFileName, setExpenseReceiptFileName] = useState("");
+  const [uploadedReceiptName, setUploadedReceiptName] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
+  const [receiptPreviewOpen, setReceiptPreviewOpen] = useState(false);
+  const [previewExpense, setPreviewExpense] = useState<DebriefExpense | null>(null);
 
   // Form states for Document modal
   const [docType, setDocType] = useState<DebriefDocumentType>("Equipment checklist");
@@ -516,12 +521,14 @@ function DebriefJobWorkspacePage() {
     }
 
     const cost = parseFloat(expenseAmount) || 0;
+    const finalReceiptName = uploadedReceiptName.trim() || expenseReceiptFileName.trim();
+
     const newExpense: DebriefExpense = {
       id: `exp_${Date.now()}`,
       dateOfExpense: expenseDate || formatDateNow(),
       typeOfExpense: expenseType,
-      receiptAvailable: Boolean(expenseReceiptFileName.trim()),
-      receiptFileName: expenseReceiptFileName.trim() || undefined,
+      receiptAvailable: Boolean(finalReceiptName),
+      receiptFileName: finalReceiptName || undefined,
       note: expenseNote || "Service expense logged by engineer.",
       expenseCode: expenseCode || "FIN-EXP-2026-088",
       amount: cost,
@@ -531,9 +538,15 @@ function DebriefJobWorkspacePage() {
     setExpenses(updated);
     setExpenseNote("");
     setExpenseReceiptFileName("");
+    setUploadedReceiptName("");
     setAddExpenseOpen(false);
     await debriefService.update(jobId, { expenses: updated });
     toast.success(`Expense logged (${formatNaira(cost)}).`);
+  };
+
+  const handleViewReceipt = (expense: DebriefExpense) => {
+    setPreviewExpense(expense);
+    setReceiptPreviewOpen(true);
   };
 
   const handleRemoveExpense = async (id: string) => {
@@ -708,35 +721,36 @@ function DebriefJobWorkspacePage() {
   return (
     <div className="w-full space-y-5 pb-12">
       {/* Top Breadcrumb & Job Summary Bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-4">
+      <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-4">
         <div className="space-y-2">
-          {/* Prominent Visible Back Button */}
-          <div className="flex items-center gap-2.5">
+          {/* Prominent Visible Back Button & Job Status Row */}
+          <div className="flex items-center justify-between sm:justify-start gap-2.5 flex-wrap">
             <Link
               to="/app/debrief/my-work"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-accent text-foreground text-xs font-bold shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-accent text-foreground text-xs font-bold shadow-2xs transition-all cursor-pointer shrink-0"
             >
               <ArrowLeft className="size-4 text-primary" />
               <span>Back to My Work</span>
             </Link>
 
-            <span className="text-muted-foreground/40">•</span>
-            <span className="font-mono text-sm font-bold text-primary">{job.jobNumber}</span>
-            <span
-              className={cn(
-                "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
-                job.equipmentStatus === "UP"
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                  : job.equipmentStatus === "Partially UP"
-                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                  : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-              )}
-            >
-              Equip: {job.equipmentStatus}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-sm font-bold text-primary">{job.jobNumber}</span>
+              <span
+                className={cn(
+                  "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border shrink-0",
+                  job.equipmentStatus === "UP"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                    : job.equipmentStatus === "Partially UP"
+                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                    : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                )}
+              >
+                Equip: {job.equipmentStatus}
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs">
             <span className="font-bold text-foreground text-sm">{job.model}</span>
             <span className="font-mono text-muted-foreground">({job.assetNumber})</span>
             <span className="text-muted-foreground">• {job.modality} ({job.oem})</span>
@@ -747,28 +761,28 @@ function DebriefJobWorkspacePage() {
         </div>
 
         {/* Live Cumulative Spend Pill & Header Specs Trigger */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setSpecsModalOpen(true)}
-            className="h-10 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-accent text-foreground cursor-pointer shadow-2xs"
+            className="h-9 sm:h-10 px-3 text-xs font-bold gap-1.5 border-border hover:bg-accent text-foreground cursor-pointer shadow-2xs"
           >
             <Info className="size-3.5 text-primary" />
             <span>View Job Specs</span>
           </Button>
 
-          <div className="flex items-center gap-2 bg-muted/40 border border-border/70 rounded-xl px-3.5 py-2 shrink-0">
+          <div className="flex items-center gap-2 bg-muted/40 border border-border/70 rounded-xl px-3 py-1.5 sm:py-2 shrink-0">
             <div className="space-y-0.5 text-right">
-              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Total Job Spend
+              <div className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Total Spend
               </div>
-              <div className="font-mono font-bold text-sm text-foreground">
+              <div className="font-mono font-bold text-xs sm:text-sm text-foreground">
                 {formatNaira(totalJobCost)}
               </div>
             </div>
-            <div className="h-7 w-px bg-border/80 mx-1" />
-            <div className="text-xs text-muted-foreground space-y-0.5">
+            <div className="h-6 sm:h-7 w-px bg-border/80 mx-1" />
+            <div className="text-[11px] sm:text-xs text-muted-foreground space-y-0.5">
               <div>Parts: <span className="font-mono font-semibold text-foreground">{formatNaira(totalPartsCost)}</span></div>
               <div>Exp: <span className="font-mono font-semibold text-foreground">{formatNaira(totalExpensesCost)}</span></div>
             </div>
@@ -1001,13 +1015,13 @@ function DebriefJobWorkspacePage() {
         <div className="space-y-5">
           {/* Action Bar & Quick Action Triggers */}
           {!isCompleted && !isOnHold && (
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl border border-border/80 bg-card shadow-2xs">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-3.5 rounded-xl border border-border/80 bg-card shadow-2xs">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setAddPartOpen(true)}
-                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer justify-start sm:justify-center"
                 >
                   <Plus className="size-3.5 text-primary" />
                   <span>Log Part Used</span>
@@ -1017,7 +1031,7 @@ function DebriefJobWorkspacePage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setAddExpenseOpen(true)}
-                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer justify-start sm:justify-center"
                 >
                   <Plus className="size-3.5 text-primary" />
                   <span>Log Expense</span>
@@ -1027,7 +1041,7 @@ function DebriefJobWorkspacePage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setAddToolOpen(true)}
-                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer justify-start sm:justify-center"
                 >
                   <Plus className="size-3.5 text-primary" />
                   <span>Link Tool</span>
@@ -1037,7 +1051,7 @@ function DebriefJobWorkspacePage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setAddDocOpen(true)}
-                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer justify-start sm:justify-center"
                 >
                   <Plus className="size-3.5 text-primary" />
                   <span>Attach Document</span>
@@ -1047,7 +1061,7 @@ function DebriefJobWorkspacePage() {
                   size="sm"
                   variant="ghost"
                   onClick={() => setHoldDialogOpen(true)}
-                  className="h-9 px-3 text-xs font-semibold gap-1.5 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 cursor-pointer"
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 cursor-pointer col-span-2 sm:col-span-1 justify-center"
                 >
                   <PauseCircle className="size-3.5" />
                   <span>Hold</span>
@@ -1058,9 +1072,9 @@ function DebriefJobWorkspacePage() {
               <Button
                 size="sm"
                 onClick={() => setCompleteDialogOpen(true)}
-                className="h-9 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
+                className="h-9 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm w-full sm:w-auto justify-center"
               >
-                <CheckCircle2 className="size-3.5" />
+                <CheckCircle2 className="size-4" />
                 <span>Finish Work &amp; Submit Debrief</span>
               </Button>
             </div>
@@ -1271,20 +1285,27 @@ function DebriefJobWorkspacePage() {
                     <table className="w-full text-xs text-left">
                       <thead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 bg-muted/20">
                         <tr>
-                          <th className="py-2 px-3">Type</th>
-                          <th className="py-2 px-3">Details / Note</th>
-                          <th className="py-2 px-3">Receipt</th>
-                          <th className="py-2 px-3 text-right">Amount</th>
-                          {!isCompleted && <th className="py-2 px-2 text-center w-8"></th>}
+                          <th className="py-2.5 px-3">Date of expense</th>
+                          <th className="py-2.5 px-3">Type of expenses</th>
+                          <th className="py-2.5 px-3">Note / comment</th>
+                          <th className="py-2.5 px-3">Attached receipt</th>
+                          <th className="py-2.5 px-3 text-right">Amount</th>
+                          <th className="py-2.5 px-3 text-center">View receipt</th>
+                          {!isCompleted && <th className="py-2.5 px-2 text-center w-8"></th>}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border/40">
                         {expenses.map((e) => (
                           <tr key={e.id} className="hover:bg-muted/10">
-                            <td className="py-2.5 px-3 font-semibold text-foreground">{e.typeOfExpense}</td>
-                            <td className="py-2.5 px-3 text-muted-foreground max-w-[200px] truncate">{e.note}</td>
-                            <td className="py-2.5 px-3">
-                              {e.receiptAvailable ? (
+                            <td className="py-2.5 px-3 font-mono text-foreground whitespace-nowrap">{e.dateOfExpense || formatDateNow()}</td>
+                            <td className="py-2.5 px-3 font-semibold text-foreground whitespace-nowrap">{e.typeOfExpense}</td>
+                            <td className="py-2.5 px-3 text-muted-foreground max-w-[180px] truncate">{e.note || "—"}</td>
+                            <td className="py-2.5 px-3 whitespace-nowrap">
+                              {e.receiptFileName ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-primary font-medium truncate max-w-[150px]">
+                                  <Paperclip className="size-3 shrink-0" /> {e.receiptFileName}
+                                </span>
+                              ) : e.receiptAvailable ? (
                                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
                                   <FileCheck className="size-3" /> Attached
                                 </span>
@@ -1292,7 +1313,22 @@ function DebriefJobWorkspacePage() {
                                 <span className="text-[11px] text-muted-foreground">No receipt</span>
                               )}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">{formatNaira(e.amount || 0)}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground whitespace-nowrap">{formatNaira(e.amount || 0)}</td>
+                            <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                              {e.receiptAvailable || e.receiptFileName ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleViewReceipt(e)}
+                                  className="h-7 px-2.5 text-xs font-semibold gap-1 text-primary border-primary/30 bg-primary/5 hover:bg-primary/15 cursor-pointer"
+                                >
+                                  <Eye className="size-3" />
+                                  <span>View</span>
+                                </Button>
+                              ) : (
+                                <span className="text-muted-foreground text-xs">—</span>
+                              )}
+                            </td>
                             {!isCompleted && (
                               <td className="py-2.5 px-2 text-center">
                                 <button
@@ -1631,25 +1667,30 @@ function DebriefJobWorkspacePage() {
 
       {/* MODAL 2: Log Expense */}
       <Dialog open={addExpenseOpen} onOpenChange={setAddExpenseOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold">Log Travel &amp; Field Expense</DialogTitle>
+            <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <Receipt className="size-5 text-primary" />
+              <span>Log Travel &amp; Field Expense</span>
+            </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Add travel fares, lodging, or subsistence incurred during this job.
+              Add travel fares, lodging, or field expenses incurred during this job.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3.5 py-2">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Expense Type</Label>
+                <Label className="text-xs font-semibold">Expense Type *</Label>
                 <Select value={expenseType} onValueChange={(v) => setExpenseType(v as ExpenseType)}>
-                  <SelectTrigger className="text-xs">
+                  <SelectTrigger className="h-10 text-sm font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {EXPENSE_TYPES.map((t) => (
-                      <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>
+                      <SelectItem key={t} value={t} className="text-sm py-2">
+                        {t}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -1663,36 +1704,89 @@ function DebriefJobWorkspacePage() {
                   step="100"
                   value={expenseAmount}
                   onChange={(e) => setExpenseAmount(e.target.value)}
-                  className="text-xs font-mono"
+                  className="h-10 text-sm font-mono font-bold"
+                  placeholder="0.00"
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Receipt File Name / Ref</Label>
+              <Label className="text-xs font-semibold">Date of Expense</Label>
               <Input
-                placeholder="e.g. uber_receipt_airport.pdf"
-                value={expenseReceiptFileName}
-                onChange={(e) => setExpenseReceiptFileName(e.target.value)}
-                className="text-xs"
+                type="date"
+                value={expenseDate}
+                onChange={(e) => setExpenseDate(e.target.value)}
+                className="h-10 text-sm font-mono"
               />
+            </div>
+
+            {/* Receipt Upload Dropzone & File State */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold flex items-center justify-between">
+                <span>Upload Receipt (PDF / Image)</span>
+                {uploadedReceiptName && (
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    Receipt selected
+                  </span>
+                )}
+              </Label>
+
+              <div className="relative border-2 border-dashed border-border/80 hover:border-primary/50 rounded-xl p-4 transition-colors bg-muted/20 flex flex-col items-center justify-center text-center gap-2 cursor-pointer group">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setUploadedReceiptName(file.name);
+                      setExpenseReceiptFileName(file.name);
+                      toast.success(`Receipt "${file.name}" ready to attach.`);
+                    }
+                  }}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                />
+                <div className="p-2.5 rounded-full bg-primary/10 text-primary group-hover:scale-105 transition-transform">
+                  <Upload className="size-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">
+                    {uploadedReceiptName || expenseReceiptFileName || "Click or drag to upload receipt"}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Supports PNG, JPG, PDF (Max 10MB)
+                  </p>
+                </div>
+              </div>
+
+              {/* Optional Manual Reference Name */}
+              <div className="pt-1">
+                <Input
+                  placeholder="Or enter receipt file reference (e.g. uber_receipt_2026.pdf)"
+                  value={expenseReceiptFileName}
+                  onChange={(e) => {
+                    setExpenseReceiptFileName(e.target.value);
+                    if (!uploadedReceiptName) setUploadedReceiptName(e.target.value);
+                  }}
+                  className="h-9 text-xs"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Expense Note / Purpose</Label>
               <Textarea
                 rows={2}
-                placeholder="Describe transportation or expense context..."
+                placeholder="Describe expense details (e.g. Interstate taxi to site)..."
                 value={expenseNote}
                 onChange={(e) => setExpenseNote(e.target.value)}
-                className="text-xs resize-none"
+                className="text-sm resize-none"
               />
             </div>
           </div>
 
           <DialogFooter className="gap-2">
             <Button variant="outline" size="sm" onClick={() => setAddExpenseOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={handleAddExpense} className="bg-primary text-primary-foreground">Save Expense</Button>
+            <Button size="sm" onClick={handleAddExpense} className="bg-primary text-primary-foreground font-bold">Save Expense</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2100,6 +2194,69 @@ function DebriefJobWorkspacePage() {
             >
               <CheckCircle2 className="size-4" />
               <span>{saving ? "Submitting..." : "Confirm & Submit Debrief"}</span>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL 7: Receipt Viewer / Preview Dialog */}
+      <Dialog open={receiptPreviewOpen} onOpenChange={setReceiptPreviewOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <Receipt className="size-5 text-primary" />
+              <span>Expense Receipt Preview</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Verified expense voucher and payment proof attachment.
+            </DialogDescription>
+          </DialogHeader>
+
+          {previewExpense && (
+            <div className="space-y-4 py-2 text-xs">
+              <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-muted-foreground">Type of Expense:</span>
+                  <span className="font-bold text-foreground">{previewExpense.typeOfExpense}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-muted-foreground">Date of Expense:</span>
+                  <span className="font-mono text-foreground">{previewExpense.dateOfExpense}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-muted-foreground">Amount:</span>
+                  <span className="font-mono font-bold text-sm text-primary">{formatNaira(previewExpense.amount || 0)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-muted-foreground">Attached Receipt:</span>
+                  <span className="font-mono text-primary font-bold">{previewExpense.receiptFileName || "receipt_doc.pdf"}</span>
+                </div>
+              </div>
+
+              {/* Receipt Visual Preview Placeholder / Voucher Box */}
+              <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-6 flex flex-col items-center justify-center text-center gap-2">
+                <div className="p-3 rounded-full bg-primary/10 text-primary">
+                  <FileText className="size-8" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-foreground text-sm">
+                    {previewExpense.receiptFileName || "Verified Service Receipt"}
+                  </h4>
+                  <p className="text-muted-foreground text-[11px] mt-0.5">
+                    {previewExpense.note || "Field service operational expenditure receipt"}
+                  </p>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] border border-emerald-500/20 mt-1">
+                  <CheckCircle2 className="size-3" />
+                  <span>Valid Voucher Verified</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setReceiptPreviewOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
