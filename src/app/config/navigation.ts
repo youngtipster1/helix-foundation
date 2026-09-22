@@ -18,6 +18,7 @@ import {
   FileCheck,
   ArrowLeftRight,
   Stethoscope,
+  CalendarRange,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -121,5 +122,6 @@ export const ASSETS_NAV: NavItem[] = [
 ========================================================================= */
 export const DEBRIEF_NAV: NavItem[] = [
   { label: "Jobs", to: "/app/debrief", icon: ClipboardCheck },
+  { label: "Schedule", to: "/app/debrief/schedule", icon: CalendarRange },
   { label: "My Work", to: "/app/debrief/my-work", icon: Wrench },
 ];
