@@ -119,6 +119,10 @@ export class AssetService {
     return includeArchived ? this.assets : this.assets.filter((a) => !a.isArchived);
   }
 
+  public list(includeArchived = false): Asset[] {
+    return this.getAssets(includeArchived);
+  }
+
   public getAssetById(id: string): Asset | undefined {
     return this.assets.find((a) => a.id === id);
   }

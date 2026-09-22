@@ -140,12 +140,19 @@ export function CreateJobModal({
       setJobStartDate(todayStr);
 
       // Load personnel & assets
-      Promise.all([personnelService.list(), assetService.list()])
-        .then(([personnel, assets]) => {
+      try {
+        const assets = typeof assetService.getAssets === "function" ? assetService.getAssets() : [];
+        setAllAssets(assets);
+      } catch (err) {
+        console.error("Error loading assets", err);
+      }
+
+      personnelService
+        .list()
+        .then((personnel) => {
           setPersonnelList(personnel.filter((p) => p.status === "active"));
-          setAllAssets(assets);
         })
-        .catch((err) => console.error("Error loading resources", err));
+        .catch((err) => console.error("Error loading personnel", err));
     }
   }, [open]);
 
