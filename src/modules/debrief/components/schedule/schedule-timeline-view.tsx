@@ -5,7 +5,6 @@ import type { EngineerAvailability } from "../../mocks/workforce-availability";
 import {
   getJobTypeStyle,
   JOB_TYPE_COLORS,
-  WORKFORCE_LEGEND_ITEMS,
   type DragJobPayload,
 } from "./schedule-types";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,7 @@ import {
   GripVertical,
   GraduationCap,
   CalendarOff,
-  Info,
+  User,
 } from "lucide-react";
 
 interface ScheduleTimelineViewProps {
@@ -34,7 +33,7 @@ interface ScheduleTimelineViewProps {
 
 function getWeekDates(centerDate: Date): Date[] {
   const current = new Date(centerDate);
-  const dayOfWeek = current.getDay(); // 0 is Sunday, 1 is Monday...
+  const dayOfWeek = current.getDay();
   const diff = current.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
   const monday = new Date(current.setDate(diff));
 
@@ -54,8 +53,7 @@ function formatDateKey(d: Date): string {
 function formatDisplayDate(d: Date): string {
   const day = String(d.getDate()).padStart(2, "0");
   const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
+  return `${day}/${month}`;
 }
 
 export function ScheduleTimelineView({
@@ -73,9 +71,6 @@ export function ScheduleTimelineView({
 
   const todayKey = formatDateKey(new Date());
 
-  // Calculate total workdays (5 workdays Mon-Fri per engineer) & days worked across all engineers
-  const totalWorkdays = engineers.length * 5;
-  
   const engineerWorkedDaysMap = useMemo(() => {
     const map: Record<string, number> = {};
     const weekDateKeys = new Set(weekDays.slice(0, 5).map(formatDateKey));
@@ -104,8 +99,6 @@ export function ScheduleTimelineView({
     });
     return map;
   }, [engineers, jobs, weekDays]);
-
-  const totalDaysWorked = Object.values(engineerWorkedDaysMap).reduce((a, b) => a + b, 0);
 
   const handleDragOver = (e: React.DragEvent, key: string) => {
     if (!isAdmin) return;
@@ -156,49 +149,17 @@ export function ScheduleTimelineView({
 
   return (
     <div className="flex flex-col xl:flex-row items-start gap-5 w-full">
-      {/* Main Slide 18 Table Section */}
-      <div className="flex-1 w-full space-y-2.5 overflow-hidden">
-        {/* Yellow Format Header Banner (Slide 18) */}
-        <div className="bg-amber-100 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-amber-950 dark:text-amber-200 px-4 py-2 rounded-lg text-xs font-mono font-bold flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="bg-amber-400 text-amber-950 px-2 py-0.5 rounded text-[11px] font-black uppercase">
-              FORMAT
-            </span>
-            <span>Hospital Name, Equipment Type, Job number</span>
-          </div>
-          <span className="hidden sm:inline-block text-[11px] font-semibold text-amber-800 dark:text-amber-300">
-            Slide 18 Schedule Spec
-          </span>
-        </div>
-
-        {/* The Grid Table */}
-        <div className="rounded-xl border border-border bg-card shadow-2xs overflow-hidden">
+      {/* Main Board Container */}
+      <div className="flex-1 w-full space-y-3 overflow-hidden">
+        {/* Timeline Grid Table */}
+        <div className="rounded-2xl border border-border bg-card shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-xs min-w-[1050px]">
-              {/* Top Week Header Row */}
+            <table className="w-full border-collapse text-xs min-w-[1000px]">
+              {/* Header: Days of the week & Capacity */}
               <thead>
-                <tr className="bg-slate-900 text-slate-100 dark:bg-slate-950 text-[11px] font-bold">
-                  <th className="py-2.5 px-3 text-left w-48 border-r border-slate-700 uppercase tracking-wider">
-                    ENGINEER
-                  </th>
-                  <th
-                    colSpan={7}
-                    className="py-2 px-3 text-center border-r border-slate-700 uppercase tracking-widest text-xs font-mono text-amber-400"
-                  >
-                    WEEK {weekNumber}
-                  </th>
-                  <th className="py-2 px-2 text-center w-24 border-r border-slate-700 bg-rose-950/80 text-rose-300 font-mono text-xs">
-                    {totalWorkdays}
-                  </th>
-                  <th className="py-2 px-2 text-center w-24 bg-rose-950/80 text-rose-300 font-mono text-xs">
-                    {totalDaysWorked}
-                  </th>
-                </tr>
-
-                {/* Sub-header: Weekday Names & Date Values */}
-                <tr className="border-b border-border bg-muted/40 text-[11px] font-bold text-muted-foreground">
-                  <th className="py-2.5 px-3 text-left border-r border-border/60">
-                    Staff Name
+                <tr className="border-b border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+                  <th className="py-3 px-4 text-left w-56 border-r border-border/50">
+                    Biomedical Engineer
                   </th>
                   {weekDays.map((day, idx) => {
                     const isWeekend = idx >= 5;
@@ -209,37 +170,39 @@ export function ScheduleTimelineView({
                       <th
                         key={dateKey}
                         className={cn(
-                          "py-2 px-2 text-center border-r border-border/40 min-w-[110px]",
-                          isWeekend && "bg-muted/70 text-muted-foreground",
-                          isToday && "bg-primary/10 text-primary font-bold"
+                          "py-2.5 px-2 text-center border-r border-border/40 min-w-[115px]",
+                          isWeekend && "bg-muted/40 text-muted-foreground",
+                          isToday && "bg-primary/5 text-primary"
                         )}
                       >
-                        <div className="uppercase text-[10px] tracking-wider">
-                          {day.toLocaleDateString("en-US", { weekday: "long" })}
+                        <div className="uppercase text-[10px] tracking-wider font-bold">
+                          {day.toLocaleDateString("en-US", { weekday: "short" })}
                         </div>
-                        <div className="font-mono text-[11px] text-foreground font-semibold mt-0.5">
+                        <div
+                          className={cn(
+                            "font-mono text-xs mt-0.5 inline-block px-1.5 py-0.2 rounded-full",
+                            isToday
+                              ? "bg-primary text-primary-foreground font-bold"
+                              : "text-foreground font-semibold"
+                          )}
+                        >
                           {formatDisplayDate(day)}
                         </div>
                       </th>
                     );
                   })}
-                  <th className="py-2 px-2 text-center border-r border-border/60 text-[10px] leading-tight text-foreground bg-muted/20">
-                    Number of<br />workdays
-                  </th>
-                  <th className="py-2 px-2 text-center text-[10px] leading-tight text-foreground bg-muted/20">
-                    Number of<br />days worked
+                  <th className="py-3 px-3 text-center text-[10px] leading-tight text-foreground bg-muted/15 w-24">
+                    Workload<br />(5 Days)
                   </th>
                 </tr>
               </thead>
 
-              {/* Body: One Row Per Engineer (ENGR A, ENGR B, etc.) */}
-              <tbody className="divide-y divide-border/60">
-                {engineers.map((engineer, idx) => {
-                  const engCode = `ENGR ${String.fromCharCode(65 + idx)}`;
+              {/* Body: One Row Per Engineer */}
+              <tbody className="divide-y divide-border/50">
+                {engineers.map((engineer) => {
                   const engFullName = `${engineer.firstName} ${engineer.lastName}`.trim().toLowerCase();
                   const engFirstName = engineer.firstName.toLowerCase();
 
-                  // Filter jobs assigned to this engineer
                   const engineerJobs = jobs.filter((j) => {
                     if (j.jobStatus === "Completed") return false;
                     const matchId = j.assignedToId === engineer.id;
@@ -251,23 +214,32 @@ export function ScheduleTimelineView({
                   });
 
                   const daysWorked = engineerWorkedDaysMap[engineer.id] || 0;
+                  const workloadPercent = Math.min(100, Math.round((daysWorked / 5) * 100));
 
                   return (
                     <tr key={engineer.id} className="hover:bg-muted/10 transition-colors">
-                      {/* Engineer Label Column (ENGR A - John Doe) */}
-                      <td className="py-2.5 px-3 border-r border-border/60 bg-muted/15 align-top">
-                        <div className="font-mono font-bold text-xs text-foreground">
-                          {engCode}
-                        </div>
-                        <div className="text-[11px] font-semibold text-muted-foreground truncate max-w-[170px]">
-                          {engineer.firstName} {engineer.lastName}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground/80 truncate">
-                          {engineer.jobTitle}
+                      {/* Engineer Profile Column */}
+                      <td className="py-3 px-4 border-r border-border/50 bg-muted/10 align-top">
+                        <div className="flex items-center gap-2.5">
+                          <div className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                            {engineer.firstName[0]}
+                            {engineer.lastName[0]}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-foreground text-xs leading-tight truncate">
+                              {engineer.firstName} {engineer.lastName}
+                            </h4>
+                            <span className="text-[11px] text-muted-foreground truncate block">
+                              {engineer.jobTitle}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground/70 truncate block">
+                              {engineer.department}
+                            </span>
+                          </div>
                         </div>
                       </td>
 
-                      {/* 7 Day Slots */}
+                      {/* 7 Days Slots */}
                       {weekDays.map((day, dIdx) => {
                         const isWeekend = dIdx >= 5;
                         const dateKey = formatDateKey(day);
@@ -275,7 +247,6 @@ export function ScheduleTimelineView({
                         const isOver = dragOverKey === cellKey;
                         const isToday = dateKey === todayKey;
 
-                        // Check workforce availability record
                         const avail = availabilities.find(
                           (a) =>
                             (a.personnelId === engineer.id ||
@@ -283,20 +254,19 @@ export function ScheduleTimelineView({
                             a.date === dateKey
                         );
 
-                        // Check jobs scheduled for this engineer on this date
                         const dayJobs = engineerJobs.filter((j) => {
                           const jDate = j.jobStartDate || j.startDate || "";
                           return jDate === dateKey;
                         });
 
-                        // Weekend Column Styling (Slide 18)
+                        // Weekend column
                         if (isWeekend) {
                           return (
                             <td
                               key={dateKey}
-                              className="py-2 px-2 border-r border-border/40 bg-muted/40 text-center align-middle text-[11px] font-mono font-bold text-muted-foreground/70 select-none"
+                              className="py-2 px-2 border-r border-border/40 bg-muted/20 text-center align-middle text-[11px] font-mono font-medium text-muted-foreground/50 select-none"
                             >
-                              WEEKEND
+                              Weekend
                             </td>
                           );
                         }
@@ -308,40 +278,39 @@ export function ScheduleTimelineView({
                             onDragLeave={handleDragLeave}
                             onDrop={(e) => handleDrop(e, engineer, dateKey)}
                             className={cn(
-                              "py-1.5 px-1.5 border-r border-border/40 align-top transition-colors min-h-[75px] h-[85px] max-w-[140px]",
+                              "py-1.5 px-1.5 border-r border-border/40 align-top transition-colors min-h-[80px] h-[90px] max-w-[145px]",
                               isToday && "bg-primary/2",
-                              isOver && "bg-primary/20 ring-2 ring-inset ring-primary"
+                              isOver && "bg-primary/15 ring-2 ring-inset ring-primary"
                             )}
                           >
-                            <div className="space-y-1 min-h-full">
-                              {/* Workforce availability chip (e.g. TRAINING, AL, SICK) */}
+                            <div className="space-y-1.5 min-h-full">
+                              {/* Borderless Workforce Availability Block */}
                               {avail && avail.status !== "available" && (
                                 <div
                                   className={cn(
-                                    "p-1.5 rounded text-[10px] font-bold border space-y-0.5",
+                                    "p-2 rounded-lg text-[10px] font-bold space-y-0.5 shadow-2xs border-0",
                                     avail.status === "training"
-                                      ? "bg-amber-400 text-amber-950 border-amber-500"
+                                      ? "bg-amber-100 dark:bg-amber-950/70 text-amber-950 dark:text-amber-200"
                                       : avail.status === "leave"
-                                      ? "bg-sky-400 text-sky-950 border-sky-500"
-                                      : "bg-rose-400 text-rose-950 border-rose-500"
+                                      ? "bg-sky-100 dark:bg-sky-950/70 text-sky-950 dark:text-sky-200"
+                                      : "bg-rose-100 dark:bg-rose-950/70 text-rose-950 dark:text-rose-200"
                                   )}
                                 >
                                   <div className="flex items-center gap-1 uppercase tracking-wider text-[9px] font-black">
                                     {avail.status === "training" ? (
-                                      <GraduationCap className="size-3 shrink-0" />
+                                      <GraduationCap className="size-3 shrink-0 text-amber-600 dark:text-amber-400" />
                                     ) : (
-                                      <CalendarOff className="size-3 shrink-0" />
+                                      <CalendarOff className="size-3 shrink-0 text-rose-600 dark:text-rose-400" />
                                     )}
-                                    <span>{avail.status === "training" ? "TRAINING" : "AL"}</span>
+                                    <span>{avail.status === "training" ? "Training" : "Leave"}</span>
                                   </div>
-                                  <p className="text-[10px] leading-tight line-clamp-1">
+                                  <p className="text-[10px] font-medium leading-tight line-clamp-2">
                                     {avail.title}
                                   </p>
                                 </div>
                               )}
 
-                              {/* Scheduled Job Card in Slide 18 format:
-                                  "Hospital Name, Equipment Type, Job number" */}
+                              {/* Borderless Scheduled Job Card with prominent Left Color Bar */}
                               {dayJobs.map((job) => {
                                 const style = getJobTypeStyle(job.jobType);
 
@@ -352,33 +321,40 @@ export function ScheduleTimelineView({
                                     onDragStart={(e) => handleDragStart(e, job, engineer.id)}
                                     onClick={() => onSelectJob(job)}
                                     className={cn(
-                                      "p-2 rounded border shadow-2xs transition-all space-y-0.5 group select-none text-[11px]",
+                                      "relative overflow-hidden p-2.5 rounded-xl transition-all space-y-1 group select-none text-[11px] border-0",
                                       style.bg,
-                                      style.border,
                                       style.text,
+                                      style.border,
                                       isAdmin
-                                        ? "cursor-grab active:cursor-grabbing hover:shadow-xs hover:border-foreground/40"
-                                        : "cursor-pointer hover:border-foreground/30"
+                                        ? "cursor-grab active:cursor-grabbing hover:shadow-xs"
+                                        : "cursor-pointer"
                                     )}
                                   >
-                                    <div className="flex items-center justify-between gap-1 pb-0.5 border-b border-current/20">
-                                      <div className="flex items-center gap-1 truncate font-mono text-[10px]">
-                                        {isAdmin && (
-                                          <GripVertical className="size-2.5 opacity-60 group-hover:opacity-100 shrink-0" />
-                                        )}
-                                        <span className="truncate">{job.jobNumber}</span>
+                                    {/* Left Accent Color Strip */}
+                                    <div className={cn("absolute left-0 top-0 bottom-0 w-1 rounded-l", style.accentBar)} />
+
+                                    <div className="pl-1 space-y-1">
+                                      <div className="flex items-center justify-between gap-1">
+                                        <div className="flex items-center gap-1 font-mono text-[10px] font-bold">
+                                          {isAdmin && (
+                                            <GripVertical className="size-2.5 opacity-50 group-hover:opacity-100 shrink-0" />
+                                          )}
+                                          <span>{job.jobNumber}</span>
+                                        </div>
+                                        <span className={cn("px-1.5 py-0.2 rounded text-[9px] font-bold", style.badgeClass)}>
+                                          {style.label}
+                                        </span>
                                       </div>
-                                      <span className={cn("size-2 rounded-full shrink-0", style.dotColor)} />
-                                    </div>
 
-                                    {/* Line 1: Hospital Name / Location */}
-                                    <div className="font-bold text-[11px] leading-snug line-clamp-1">
-                                      {job.location || "Medicare Hospital Lagos"}
-                                    </div>
+                                      {/* Facility / Hospital Name */}
+                                      <div className="font-bold text-xs leading-snug line-clamp-1">
+                                        {job.location || "Medicare Hospital Lagos"}
+                                      </div>
 
-                                    {/* Line 2: Equipment Type */}
-                                    <div className="text-[10px] opacity-90 truncate">
-                                      {job.model || job.modality || "X-ray"}
+                                      {/* Equipment Name & Modality */}
+                                      <div className="text-[10px] opacity-80 truncate">
+                                        {job.model} · {job.modality}
+                                      </div>
                                     </div>
                                   </div>
                                 );
@@ -388,10 +364,10 @@ export function ScheduleTimelineView({
                               {!avail && dayJobs.length === 0 && (
                                 <div
                                   className={cn(
-                                    "h-12 rounded border border-dashed border-transparent flex items-center justify-center transition-all",
+                                    "h-12 rounded-lg border border-dashed border-transparent flex items-center justify-center transition-all",
                                     isOver
                                       ? "border-primary bg-primary/10 text-primary font-bold text-[10px]"
-                                      : "hover:border-border/60 hover:bg-muted/20"
+                                      : "hover:border-border/60 hover:bg-muted/15"
                                   )}
                                 >
                                   {isOver && <span>Drop to Assign</span>}
@@ -402,19 +378,27 @@ export function ScheduleTimelineView({
                         );
                       })}
 
-                      {/* Number of workdays Column (5 Mon-Fri) */}
-                      <td className="py-2.5 px-2 text-center border-r border-border/60 font-mono font-bold text-xs text-foreground bg-muted/10 align-middle">
-                        5
-                      </td>
-
-                      {/* Number of days worked Column */}
-                      <td
-                        className={cn(
-                          "py-2.5 px-2 text-center font-mono font-bold text-xs align-middle bg-muted/10",
-                          daysWorked > 0 ? "text-primary" : "text-muted-foreground"
-                        )}
-                      >
-                        {daysWorked > 0 ? daysWorked : "—"}
+                      {/* Workload / Utilization Column */}
+                      <td className="py-3 px-3 text-center bg-muted/5 align-middle">
+                        <div className="space-y-1">
+                          <span
+                            className={cn(
+                              "font-mono font-bold text-xs",
+                              daysWorked > 0 ? "text-foreground" : "text-muted-foreground"
+                            )}
+                          >
+                            {daysWorked} / 5
+                          </span>
+                          <div className="w-16 mx-auto h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary rounded-full transition-all"
+                              style={{ width: `${workloadPercent}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            {workloadPercent}%
+                          </span>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -425,88 +409,70 @@ export function ScheduleTimelineView({
         </div>
       </div>
 
-      {/* Exact Slide 18 Legend Table on Right */}
-      <div className="w-full xl:w-72 shrink-0 rounded-xl border border-border bg-card p-4 shadow-2xs space-y-4">
+      {/* Borderless Modern Legend Card on Right */}
+      <div className="w-full xl:w-72 shrink-0 rounded-2xl border border-border bg-card p-4 shadow-2xs space-y-4">
         <div className="border-b border-border pb-2.5">
-          <h4 className="font-mono font-black text-xs uppercase tracking-wider text-foreground">
-            LEGEND (Slide 18)
+          <h4 className="font-bold text-xs uppercase tracking-wider text-foreground">
+            Calendar Legend
           </h4>
           <p className="text-[11px] text-muted-foreground">
-            Color coding &amp; workforce codes
+            Job type colors &amp; workforce status
           </p>
         </div>
 
-        {/* Job Type Color Codes */}
-        <div className="space-y-1.5 text-xs">
-          <span className="text-[11px] font-bold text-muted-foreground uppercase">
+        {/* Job Types */}
+        <div className="space-y-2 text-xs">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
             Job Types
           </span>
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 p-1.5 rounded border border-amber-400/50 bg-amber-400/20">
-              <span className="size-3.5 rounded bg-yellow-400 border border-yellow-500 shrink-0" />
-              <span className="text-foreground font-semibold text-[11px]">
-                Planned Preventive Maintenance
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 p-1.5 rounded border border-rose-500/50 bg-rose-500/20">
-              <span className="size-3.5 rounded bg-red-600 border border-red-700 shrink-0" />
-              <span className="text-foreground font-semibold text-[11px]">
-                Corrective
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 p-1.5 rounded border border-cyan-500/50 bg-cyan-500/20">
-              <span className="size-3.5 rounded bg-cyan-500 border border-cyan-600 shrink-0" />
-              <span className="text-foreground font-semibold text-[11px]">
-                Project
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 p-1.5 rounded border border-emerald-500/50 bg-emerald-500/20">
-              <span className="size-3.5 rounded bg-emerald-500 border border-emerald-600 shrink-0" />
-              <span className="text-foreground font-semibold text-[11px]">
-                Installation
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 p-1.5 rounded border border-slate-500/40 bg-slate-500/15">
-              <span className="size-3.5 rounded bg-slate-500 border border-slate-600 shrink-0" />
-              <span className="text-foreground font-semibold text-[11px]">
-                Audit
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 p-1.5 rounded border border-indigo-500/40 bg-indigo-500/20">
-              <span className="size-3.5 rounded bg-indigo-500 border border-indigo-600 shrink-0" />
-              <span className="text-foreground font-semibold text-[11px]">
-                Upgrade
-              </span>
-            </div>
+          <div className="space-y-1.5">
+            {Object.entries(JOB_TYPE_COLORS).slice(0, 7).map(([key, style]) => (
+              <div
+                key={key}
+                className={cn(
+                  "flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border-0",
+                  style.bg,
+                  style.text
+                )}
+              >
+                <span className={cn("size-2 rounded-full shrink-0", style.dotColor)} />
+                <span className="truncate">{key}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Workforce Availability Codes */}
-        <div className="space-y-1.5 text-xs pt-2 border-t border-border">
-          <span className="text-[11px] font-bold text-muted-foreground uppercase">
-            Workforce Status
+        {/* Workforce Status */}
+        <div className="space-y-2 text-xs pt-2 border-t border-border">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+            Workforce Events
           </span>
 
-          <div className="space-y-1 font-mono text-[11px]">
-            {WORKFORCE_LEGEND_ITEMS.map((item) => (
-              <div
-                key={item.code}
-                className="flex items-center justify-between p-1.5 rounded bg-muted/40 border border-border/60"
-              >
-                <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-bold", item.color)}>
-                  {item.code}
-                </span>
-                <span className="text-foreground font-medium text-[11px]">
-                  {item.label}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-100 dark:bg-amber-950/70 text-amber-950 dark:text-amber-200 text-[11px] font-bold">
+              <span className="flex items-center gap-1.5">
+                <GraduationCap className="size-3.5 text-amber-600 dark:text-amber-400" />
+                <span>Training</span>
+              </span>
+              <span className="text-[10px] opacity-80">Unavailable</span>
+            </div>
+
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-sky-100 dark:bg-sky-950/70 text-sky-950 dark:text-sky-200 text-[11px] font-bold">
+              <span className="flex items-center gap-1.5">
+                <CalendarOff className="size-3.5 text-sky-600 dark:text-sky-400" />
+                <span>Annual Leave</span>
+              </span>
+              <span className="text-[10px] opacity-80">On Leave</span>
+            </div>
+
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rose-950 dark:text-rose-200 text-[11px] font-bold">
+              <span className="flex items-center gap-1.5">
+                <CalendarOff className="size-3.5 text-rose-600 dark:text-rose-400" />
+                <span>Sick Leave</span>
+              </span>
+              <span className="text-[10px] opacity-80">Off Duty</span>
+            </div>
           </div>
         </div>
       </div>

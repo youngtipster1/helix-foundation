@@ -6,157 +6,138 @@ export interface JobTypeStyle {
   bg: string;
   text: string;
   border: string;
+  accentBar: string;
   badgeClass: string;
   dotColor: string;
-  hex: string;
 }
 
 /**
- * Job Type colour-coding strictly adhering to client PowerPoint Slide 18:
- * - Planned Preventive Maintenance: Yellow (#eab308 / #facc15)
- * - Corrective: Red (#ef4444 / #dc2626)
- * - Project: Cyan/Blue (#06b6d4 / #0284c7)
- * - Installation: Green (#22c55e / #16a34a)
- * - Audit: Gray/Slate
- * - Upgrade: Purple/Indigo
+ * Modern borderless Job Type styling matching the Debrief specification.
  */
 export const JOB_TYPE_COLORS: Record<string, JobTypeStyle> = {
   "Planned Preventive Maintenance": {
-    label: "Planned Preventive Maintenance",
-    bg: "bg-amber-400/20 dark:bg-amber-500/25",
-    text: "text-amber-950 dark:text-amber-200 font-bold",
-    border: "border-amber-500/50",
-    badgeClass: "bg-amber-400/25 text-amber-900 dark:text-amber-200 border-amber-500/40",
-    dotColor: "bg-yellow-400",
-    hex: "#eab308",
+    label: "Planned PPM",
+    bg: "bg-amber-100/90 dark:bg-amber-950/60 hover:bg-amber-200/90 dark:hover:bg-amber-900/70",
+    text: "text-amber-950 dark:text-amber-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-amber-500",
+    badgeClass: "bg-amber-200/80 text-amber-950 dark:bg-amber-900/60 dark:text-amber-200 border-0",
+    dotColor: "bg-amber-500",
   },
   "Preventive Maintenance": {
-    label: "Planned Preventive Maintenance",
-    bg: "bg-amber-400/20 dark:bg-amber-500/25",
-    text: "text-amber-950 dark:text-amber-200 font-bold",
-    border: "border-amber-500/50",
-    badgeClass: "bg-amber-400/25 text-amber-900 dark:text-amber-200 border-amber-500/40",
-    dotColor: "bg-yellow-400",
-    hex: "#eab308",
+    label: "Planned PPM",
+    bg: "bg-amber-100/90 dark:bg-amber-950/60 hover:bg-amber-200/90 dark:hover:bg-amber-900/70",
+    text: "text-amber-950 dark:text-amber-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-amber-500",
+    badgeClass: "bg-amber-200/80 text-amber-950 dark:bg-amber-900/60 dark:text-amber-200 border-0",
+    dotColor: "bg-amber-500",
   },
   Corrective: {
     label: "Corrective",
-    bg: "bg-rose-500/20 dark:bg-rose-500/30",
-    text: "text-rose-950 dark:text-rose-200 font-bold",
-    border: "border-rose-500/60",
-    badgeClass: "bg-rose-500/25 text-rose-900 dark:text-rose-200 border-rose-500/50",
-    dotColor: "bg-rose-600",
-    hex: "#ef4444",
+    bg: "bg-rose-100/90 dark:bg-rose-950/60 hover:bg-rose-200/90 dark:hover:bg-rose-900/70",
+    text: "text-rose-950 dark:text-rose-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-rose-500",
+    badgeClass: "bg-rose-200/80 text-rose-950 dark:bg-rose-900/60 dark:text-rose-200 border-0",
+    dotColor: "bg-rose-500",
   },
   "Corrective Maintenance": {
     label: "Corrective",
-    bg: "bg-rose-500/20 dark:bg-rose-500/30",
-    text: "text-rose-950 dark:text-rose-200 font-bold",
-    border: "border-rose-500/60",
-    badgeClass: "bg-rose-500/25 text-rose-900 dark:text-rose-200 border-rose-500/50",
-    dotColor: "bg-rose-600",
-    hex: "#ef4444",
+    bg: "bg-rose-100/90 dark:bg-rose-950/60 hover:bg-rose-200/90 dark:hover:bg-rose-900/70",
+    text: "text-rose-950 dark:text-rose-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-rose-500",
+    badgeClass: "bg-rose-200/80 text-rose-950 dark:bg-rose-900/60 dark:text-rose-200 border-0",
+    dotColor: "bg-rose-500",
   },
   "Emergency Breakdown": {
-    label: "Corrective (Emergency)",
-    bg: "bg-red-500/25 dark:bg-red-500/35",
-    text: "text-red-950 dark:text-red-200 font-extrabold",
-    border: "border-red-600/70",
-    badgeClass: "bg-red-500/30 text-red-950 dark:text-red-200 border-red-600/60",
+    label: "Emergency Breakdown",
+    bg: "bg-red-100 dark:bg-red-950/70 hover:bg-red-200 dark:hover:bg-red-900/80",
+    text: "text-red-950 dark:text-red-100 font-bold",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-red-600",
+    badgeClass: "bg-red-200 text-red-950 dark:bg-red-900/70 dark:text-red-200 border-0",
     dotColor: "bg-red-600",
-    hex: "#dc2626",
   },
   Project: {
     label: "Project",
-    bg: "bg-cyan-500/20 dark:bg-cyan-500/30",
-    text: "text-cyan-950 dark:text-cyan-200 font-bold",
-    border: "border-cyan-500/60",
-    badgeClass: "bg-cyan-500/25 text-cyan-900 dark:text-cyan-200 border-cyan-500/50",
-    dotColor: "bg-cyan-500",
-    hex: "#06b6d4",
+    bg: "bg-sky-100/90 dark:bg-sky-950/60 hover:bg-sky-200/90 dark:hover:bg-sky-900/70",
+    text: "text-sky-950 dark:text-sky-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-sky-500",
+    badgeClass: "bg-sky-200/80 text-sky-950 dark:bg-sky-900/60 dark:text-sky-200 border-0",
+    dotColor: "bg-sky-500",
   },
   Installation: {
     label: "Installation",
-    bg: "bg-emerald-500/20 dark:bg-emerald-500/30",
-    text: "text-emerald-950 dark:text-emerald-200 font-bold",
-    border: "border-emerald-500/60",
-    badgeClass: "bg-emerald-500/25 text-emerald-900 dark:text-emerald-200 border-emerald-500/50",
+    bg: "bg-emerald-100/90 dark:bg-emerald-950/60 hover:bg-emerald-200/90 dark:hover:bg-emerald-900/70",
+    text: "text-emerald-950 dark:text-emerald-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-emerald-500",
+    badgeClass: "bg-emerald-200/80 text-emerald-950 dark:bg-emerald-900/60 dark:text-emerald-200 border-0",
     dotColor: "bg-emerald-500",
-    hex: "#22c55e",
   },
   Audit: {
     label: "Audit",
-    bg: "bg-slate-500/15 dark:bg-slate-500/25",
-    text: "text-slate-900 dark:text-slate-200 font-bold",
-    border: "border-slate-500/40",
-    badgeClass: "bg-slate-500/20 text-slate-800 dark:text-slate-200 border-slate-500/40",
+    bg: "bg-slate-100/90 dark:bg-slate-900/80 hover:bg-slate-200/90 dark:hover:bg-slate-800/80",
+    text: "text-slate-950 dark:text-slate-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-slate-500",
+    badgeClass: "bg-slate-200/80 text-slate-950 dark:bg-slate-800 dark:text-slate-200 border-0",
     dotColor: "bg-slate-500",
-    hex: "#64748b",
   },
   Upgrade: {
     label: "Upgrade",
-    bg: "bg-indigo-500/20 dark:bg-indigo-500/30",
-    text: "text-indigo-950 dark:text-indigo-200 font-bold",
-    border: "border-indigo-500/50",
-    badgeClass: "bg-indigo-500/25 text-indigo-900 dark:text-indigo-200 border-indigo-500/40",
+    bg: "bg-indigo-100/90 dark:bg-indigo-950/60 hover:bg-indigo-200/90 dark:hover:bg-indigo-900/70",
+    text: "text-indigo-950 dark:text-indigo-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-indigo-500",
+    badgeClass: "bg-indigo-200/80 text-indigo-950 dark:bg-indigo-900/60 dark:text-indigo-200 border-0",
     dotColor: "bg-indigo-500",
-    hex: "#6366f1",
   },
   Calibration: {
     label: "Calibration",
-    bg: "bg-orange-500/20 dark:bg-orange-500/30",
-    text: "text-orange-950 dark:text-orange-200 font-bold",
-    border: "border-orange-500/50",
-    badgeClass: "bg-orange-500/25 text-orange-900 dark:text-orange-200 border-orange-500/40",
+    bg: "bg-orange-100/90 dark:bg-orange-950/60 hover:bg-orange-200/90 dark:hover:bg-orange-900/70",
+    text: "text-orange-950 dark:text-orange-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-orange-500",
+    badgeClass: "bg-orange-200/80 text-orange-950 dark:bg-orange-900/60 dark:text-orange-200 border-0",
     dotColor: "bg-orange-500",
-    hex: "#f97316",
   },
   Inspection: {
     label: "Inspection",
-    bg: "bg-purple-500/20 dark:bg-purple-500/30",
-    text: "text-purple-950 dark:text-purple-200 font-bold",
-    border: "border-purple-500/50",
-    badgeClass: "bg-purple-500/25 text-purple-900 dark:text-purple-200 border-purple-500/40",
+    bg: "bg-purple-100/90 dark:bg-purple-950/60 hover:bg-purple-200/90 dark:hover:bg-purple-900/70",
+    text: "text-purple-950 dark:text-purple-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-purple-500",
+    badgeClass: "bg-purple-200/80 text-purple-950 dark:bg-purple-900/60 dark:text-purple-200 border-0",
     dotColor: "bg-purple-500",
-    hex: "#a855f7",
   },
   Decommissioning: {
     label: "Decommissioning",
-    bg: "bg-slate-500/15 dark:bg-slate-500/25",
-    text: "text-slate-900 dark:text-slate-200 font-bold",
-    border: "border-slate-500/40",
-    badgeClass: "bg-slate-500/20 text-slate-800 dark:text-slate-200 border-slate-500/40",
+    bg: "bg-slate-100/90 dark:bg-slate-900/80 hover:bg-slate-200/90 dark:hover:bg-slate-800/80",
+    text: "text-slate-950 dark:text-slate-100",
+    border: "border-0 shadow-2xs",
+    accentBar: "bg-slate-500",
+    badgeClass: "bg-slate-200/80 text-slate-950 dark:bg-slate-800 dark:text-slate-200 border-0",
     dotColor: "bg-slate-500",
-    hex: "#475569",
   },
 };
 
 export function getJobTypeStyle(jobType: string): JobTypeStyle {
   return (
     JOB_TYPE_COLORS[jobType] || {
-      label: jobType || "Standard Job",
-      bg: "bg-primary/15",
+      label: jobType || "Service Job",
+      bg: "bg-primary/10 hover:bg-primary/15",
       text: "text-primary font-bold",
-      border: "border-primary/40",
-      badgeClass: "bg-primary/15 text-primary border-primary/30",
+      border: "border-0 shadow-2xs",
+      accentBar: "bg-primary",
+      badgeClass: "bg-primary/15 text-primary border-0",
       dotColor: "bg-primary",
-      hex: "#0ea5e9",
     }
   );
 }
-
-/**
- * Slide 18 Workforce Activity & Availability Legend items
- */
-export const WORKFORCE_LEGEND_ITEMS = [
-  { code: "TRAINING", label: "Training", color: "bg-amber-400 text-amber-950" },
-  { code: "ADMIN", label: "Other Reasons", color: "bg-slate-300 text-slate-900" },
-  { code: "AL", label: "Annual Leave", color: "bg-sky-400 text-sky-950" },
-  { code: "SICK", label: "Sick Leave", color: "bg-rose-400 text-rose-950" },
-  { code: "DAY OFF", label: "Day off for working on a weekend", color: "bg-emerald-300 text-emerald-950" },
-  { code: "WEEKEND", label: "Weekend", color: "bg-muted text-muted-foreground" },
-  { code: "HOLIDAY", label: "Public Holiday", color: "bg-purple-300 text-purple-950" },
-];
 
 export interface SchedulingConflict {
   hasConflict: boolean;

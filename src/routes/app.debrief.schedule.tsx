@@ -29,10 +29,8 @@ import {
   CalendarRange,
   ChevronLeft,
   ChevronRight,
-  ClipboardList,
-  Wrench,
   Inbox,
-  Percent,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -74,11 +72,10 @@ function getWeekDates(centerDate: Date): Date[] {
   return days;
 }
 
-function formatDisplayDate(d: Date): string {
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
+function formatMonthDay(d: Date): string {
+  const month = d.toLocaleDateString("en-US", { month: "short" });
+  const day = d.getDate();
+  return `${month} ${day}`;
 }
 
 function DebriefSchedulePage() {
@@ -89,7 +86,6 @@ function DebriefSchedulePage() {
   const [availabilities, setAvailabilities] = useState<EngineerAvailability[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Set default calendar to mid-February 2026 (matching Slide 18: Week 7, 16/02/2026) or September 2026
   const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 8, 14));
   const [unscheduledOpen, setUnscheduledOpen] = useState(false);
 
@@ -131,8 +127,9 @@ function DebriefSchedulePage() {
   const weekDays = useMemo(() => getWeekDates(currentDate), [currentDate]);
   const weekNumber = useMemo(() => getWeekNumber(currentDate), [currentDate]);
 
-  const startDateLabel = formatDisplayDate(weekDays[0]);
-  const endDateLabel = formatDisplayDate(weekDays[6]);
+  const startDateLabel = formatMonthDay(weekDays[0]);
+  const endDateLabel = formatMonthDay(weekDays[6]);
+  const yearLabel = weekDays[0].getFullYear();
 
   const totalWorkdays = engineers.length * 5;
 
@@ -164,7 +161,7 @@ function DebriefSchedulePage() {
     return count;
   }, [engineers, jobs, weekDays]);
 
-  const utilizationRate = totalWorkdays > 0 ? ((totalDaysWorked / totalWorkdays) * 100).toFixed(1) : "0.0";
+  const utilizationRate = totalWorkdays > 0 ? ((totalDaysWorked / totalWorkdays) * 100).toFixed(0) : "0";
 
   // Navigation Handlers
   const handlePrevWeek = () => {
@@ -318,156 +315,104 @@ function DebriefSchedulePage() {
         title="Service Calendar"
         subtitle={
           isAdmin
-            ? "Admin service planning calendar: assign biomedical engineers, schedule week dispatches, inspect workforce availability, and manage workload utilization."
-            : "Service calendar: view your upcoming weekly assigned service dispatches."
+            ? "Weekly biomedical engineer dispatch calendar, hospital service assignments, workforce availability, and capacity utilization."
+            : "Weekly service calendar: view your scheduled hospital visits and equipment debriefs."
         }
         icon={CalendarRange}
       />
 
-      {/* Module Navigation Tabs — Designed identical to My Work screen */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Tab 1: Job List */}
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/app/debrief" })}
-            className="px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-          >
-            <ClipboardList className="size-3.5" />
-            <span>Job List</span>
-            <span className="px-1.5 py-0.5 rounded-full text-xs font-bold leading-none bg-muted text-muted-foreground">
-              {jobs.length}
-            </span>
-          </button>
+      {/* Top Header Controls with Centered Date Picker */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-3.5 rounded-2xl border border-border bg-card shadow-2xs">
+        {/* Left Side: Summary Badges */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/40 text-xs font-semibold text-foreground">
+            <span>{engineers.length} Engineers</span>
+            <span className="text-muted-foreground">·</span>
+            <span>{jobs.length} Active Jobs</span>
+          </div>
 
-          {/* Tab 2: Service Calendar (Active) */}
-          <button
-            type="button"
-            className="px-4 py-2 rounded-lg text-[13px] font-bold transition-all cursor-pointer border flex items-center gap-2 bg-primary text-primary-foreground border-primary shadow-xs"
-          >
-            <CalendarRange className="size-3.5" />
-            <span>Service Calendar</span>
-            <span className="px-1.5 py-0.5 rounded-full text-xs font-bold leading-none bg-primary-foreground/20 text-primary-foreground">
-              Week {weekNumber}
-            </span>
-          </button>
-
-          {/* Tab 3: My Work */}
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/app/debrief/my-work" })}
-            className="px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-          >
-            <Wrench className="size-3.5" />
-            <span>My Work</span>
-          </button>
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold">
+            <span>{utilizationRate}% Utilization</span>
+          </div>
         </div>
 
-        {/* Right side: Unscheduled Queue Toggle for Admin */}
-        {isAdmin && (
-          <Button
-            variant={unscheduledOpen ? "default" : "outline"}
-            size="sm"
-            onClick={() => setUnscheduledOpen((prev) => !prev)}
-            className={cn(
-              "h-9 text-xs font-bold gap-1.5 cursor-pointer shadow-2xs self-start sm:self-auto",
-              unscheduledOpen
-                ? "bg-primary text-primary-foreground"
-                : "border-border text-foreground hover:bg-muted"
-            )}
-          >
-            <Inbox className="size-3.5" />
-            <span>Unscheduled Queue</span>
-            {unscheduledJobs.length > 0 && (
-              <span
-                className={cn(
-                  "px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none",
-                  unscheduledOpen
-                    ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "bg-primary text-primary-foreground"
-                )}
-              >
-                {unscheduledJobs.length}
-              </span>
-            )}
-          </Button>
-        )}
-      </div>
-
-      {/* Week Timeline Navigation & Workload Metrics Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-4 rounded-xl border border-border bg-card shadow-2xs">
-        {/* Week Stepper */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center rounded-lg border border-border bg-muted/30 p-0.5">
+        {/* Center: Date Picker & Week Stepper */}
+        <div className="flex items-center justify-center gap-2 self-center">
+          <div className="flex items-center rounded-xl bg-muted/40 p-1 border border-border/50 shadow-2xs">
             <Button
               variant="ghost"
               size="icon"
               onClick={handlePrevWeek}
               aria-label="Previous week"
-              className="h-8 w-8 cursor-pointer text-muted-foreground hover:text-foreground"
+              className="h-8 w-8 rounded-lg cursor-pointer text-muted-foreground hover:text-foreground hover:bg-background"
             >
               <ChevronLeft className="size-4" />
             </Button>
+
             <Button
               variant="ghost"
               size="sm"
               onClick={handleCurrentWeek}
-              className="h-8 px-3 text-xs font-bold cursor-pointer hover:bg-muted"
+              className="h-8 px-3 rounded-lg text-xs font-bold cursor-pointer hover:bg-background flex items-center gap-1.5"
             >
-              Current Week
+              <Calendar className="size-3.5 text-primary" />
+              <span>Week {weekNumber}</span>
+              <span className="text-muted-foreground font-normal">
+                ({startDateLabel} – {endDateLabel}, {yearLabel})
+              </span>
             </Button>
+
             <Button
               variant="ghost"
               size="icon"
               onClick={handleNextWeek}
               aria-label="Next week"
-              className="h-8 w-8 cursor-pointer text-muted-foreground hover:text-foreground"
+              className="h-8 w-8 rounded-lg cursor-pointer text-muted-foreground hover:text-foreground hover:bg-background"
             >
               <ChevronRight className="size-4" />
             </Button>
           </div>
-
-          <div>
-            <h3 className="font-mono font-bold text-sm sm:text-base text-foreground">
-              WEEK {weekNumber} · {startDateLabel} – {endDateLabel}
-            </h3>
-            <span className="text-[11px] text-muted-foreground">
-              Biomedical Engineering Service Timeline
-            </span>
-          </div>
         </div>
 
-        {/* Utilization & Workdays Stats (Slide 18) */}
-        <div className="flex flex-wrap items-center gap-3 pt-2 lg:pt-0 border-t lg:border-t-0 border-border/60 text-xs">
-          <div className="px-3 py-1.5 rounded-lg bg-muted/40 border border-border/60">
-            <span className="text-muted-foreground text-[11px] block">Total Workdays:</span>
-            <span className="font-mono font-bold text-foreground text-sm">
-              {totalWorkdays}
-            </span>
-          </div>
-
-          <div className="px-3 py-1.5 rounded-lg bg-muted/40 border border-border/60">
-            <span className="text-muted-foreground text-[11px] block">Days Worked:</span>
-            <span className="font-mono font-bold text-primary text-sm">
-              {totalDaysWorked}
-            </span>
-          </div>
-
-          <div className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary">
-            <span className="text-[11px] block font-semibold">Utilization Rate:</span>
-            <span className="font-mono font-black text-sm">
-              {utilizationRate}%
-            </span>
-          </div>
+        {/* Right Side: Unscheduled Queue Toggle for Admin */}
+        <div className="flex items-center justify-end gap-2">
+          {isAdmin && (
+            <Button
+              variant={unscheduledOpen ? "default" : "outline"}
+              size="sm"
+              onClick={() => setUnscheduledOpen((prev) => !prev)}
+              className={cn(
+                "h-9 text-xs font-bold gap-1.5 cursor-pointer shadow-2xs rounded-xl",
+                unscheduledOpen
+                  ? "bg-primary text-primary-foreground"
+                  : "border-border text-foreground hover:bg-muted"
+              )}
+            >
+              <Inbox className="size-3.5" />
+              <span>Unscheduled Queue</span>
+              {unscheduledJobs.length > 0 && (
+                <span
+                  className={cn(
+                    "px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none",
+                    unscheduledOpen
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-primary text-primary-foreground"
+                  )}
+                >
+                  {unscheduledJobs.length}
+                </span>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Main Interactive Week Timeline Grid */}
+      {/* Main Board & Optional Unscheduled Queue Tray */}
       <div className="flex flex-col xl:flex-row items-start gap-5">
         <div className="flex-1 w-full overflow-hidden">
           {loading ? (
             <div className="p-16 text-center text-xs text-muted-foreground font-semibold">
-              Loading service calendar and engineer schedules...
+              Loading service calendar...
             </div>
           ) : (
             <ScheduleTimelineView
