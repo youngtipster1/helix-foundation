@@ -37,6 +37,7 @@ import type { Personnel, ConfigRecord } from "@/modules/settings/types";
 import type { EquipmentChecklist, ChecklistItem } from "@/modules/quality/types";
 
 import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const Route = createFileRoute("/app/quality/checklists")({
   head: () => ({
@@ -1002,15 +1003,12 @@ function EquipmentChecklistsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <ClipboardCheck className="size-6 text-primary" />
-          Equipment Checklists
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Configure, view, and assign diagnostic structured check protocols or file-based lists to medical device profiles.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Quality Standards"
+        title="Equipment Checklists"
+        subtitle="Configure, view, and assign diagnostic structured check protocols or file-based lists to medical device profiles."
+        icon={ClipboardCheck}
+      />
 
       <DataTable
         columns={columns}

@@ -41,6 +41,7 @@ import { toolsJobService } from "@/modules/tools/services/tools-job-service";
 import { toolsExpenseService } from "@/modules/tools/services/tools-expense-service";
 import type { Tool, ToolJob } from "@/modules/tools/types";
 import { JobDetailModal } from "@/modules/tools/components/job-detail-modal";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const Route = createFileRoute("/app/tools/dashboard")({
   head: () => ({
@@ -132,47 +133,32 @@ function ToolsDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome & Action Header */}
-      <div className="surface-panel p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
-                Operations Hub
-              </span>
-              <span className="text-xs text-muted-foreground">&bull; Real-Time Metrology & Equipment Fleet</span>
-            </div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-              Tools Management Dashboard
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              Monitor test tool calibration compliance index, active job throughput, and maintenance readiness.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {isAdmin && (
-              <Button
-                size="sm"
-                onClick={() => navigate({ to: "/app/tools/jobs/create" })}
-                className="h-9 text-xs gap-1.5"
-              >
-                <Plus className="size-3.5" />
-                <span>Create Tools Job</span>
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/app/tools" })}
-              className="h-9 text-xs gap-1.5"
-            >
-              <Wrench className="size-3.5" />
-              <span>Tools Registry</span>
-            </Button>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Operations Hub • Real-Time Metrology & Equipment Fleet"
+        title="Tools Management Dashboard"
+        subtitle="Monitor test tool calibration compliance index, active job throughput, and maintenance readiness."
+        icon={Wrench}
+      >
+        {isAdmin && (
+          <Button
+            size="sm"
+            onClick={() => navigate({ to: "/app/tools/jobs/create" })}
+            className="h-9 text-xs gap-1.5"
+          >
+            <Plus className="size-3.5" />
+            <span>Create Tools Job</span>
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate({ to: "/app/tools" })}
+          className="h-9 text-xs gap-1.5"
+        >
+          <Wrench className="size-3.5" />
+          <span>Tools Registry</span>
+        </Button>
+      </PageHeader>
 
       {/* Top 4 Key Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Activity } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { AssetDashboardView } from "@/modules/assets/components/asset-dashboard-view";
@@ -47,15 +49,12 @@ function AssetDashboardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Title Lockup */}
-      <div className="border-b border-border/60 pb-3">
-        <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-          Assets & Devices Dashboard
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          Clinical engineering asset lifecycle overview, operational status, and manufacturer distribution.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Asset Management"
+        title="Assets & Devices Dashboard"
+        subtitle="Clinical engineering asset lifecycle overview, operational status, and manufacturer distribution."
+        icon={Activity}
+      />
 
       {/* Dashboard Metrics Content */}
       <AssetDashboardView metrics={metrics} />

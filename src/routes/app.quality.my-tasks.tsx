@@ -34,6 +34,7 @@ import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { qualityService } from "@/modules/quality/services/quality-service";
 import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
+import { PageHeader } from "@/components/layout/page-header";
 import type { ChecklistItem } from "@/modules/quality/types";
 
 export const Route = createFileRoute("/app/quality/my-tasks")({
@@ -388,15 +389,12 @@ function MyTasksPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <Clock className="size-6 text-primary animate-pulse" />
-          My Tasks
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Execute and tick assigned equipment checklists, monitor validation status, and revise tasks returned with admin notes.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Quality Assurance"
+        title="My Tasks"
+        subtitle="Execute and tick assigned equipment checklists, monitor validation status, and revise tasks returned with admin notes."
+        icon={Clock}
+      />
 
       <DataTable
         columns={columns}

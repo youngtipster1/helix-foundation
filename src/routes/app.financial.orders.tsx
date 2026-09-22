@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { ShoppingCart } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { Loading } from "@/components/ui/loading";
 import { financialService } from "@/modules/financial/services/financial-service";
 import { OrdersTable } from "@/modules/financial/components/orders-table";
@@ -109,17 +111,12 @@ function FinancialOrdersPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Title Lockup */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
-        <div>
-          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-            Purchase Orders Directory
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Manage purchase requisitions, approval revisions, vendor split allocations, and fulfillment states.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Procurement & Finance"
+        title="Purchase Orders Directory"
+        subtitle="Manage purchase requisitions, approval revisions, vendor split allocations, and fulfillment states."
+        icon={ShoppingCart}
+      />
 
       <OrdersTable
         orders={orders}

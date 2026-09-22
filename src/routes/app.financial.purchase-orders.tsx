@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { FileSpreadsheet } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { Loading } from "@/components/ui/loading";
 import { financialService } from "@/modules/financial/services/financial-service";
 import { PurchaseOrdersTable } from "@/modules/financial/components/purchase-orders-table";
@@ -97,17 +99,12 @@ function FinancialPurchaseOrdersPage() {
 
   return (
     <div className="space-y-4">
-      {/* Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
-        <div>
-          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-            Purchase Orders (POs)
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Supplier-specific commercial procurement orders generated from approved internal requisitions.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Procurement & Finance"
+        title="Purchase Orders (POs)"
+        subtitle="Supplier-specific commercial procurement orders generated from approved internal requisitions."
+        icon={FileSpreadsheet}
+      />
 
       <PurchaseOrdersTable
         purchaseOrders={purchaseOrders}

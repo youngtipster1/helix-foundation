@@ -24,6 +24,7 @@ import { personnelService } from "@/modules/settings/services/personnel-service"
 import type { Tool, JobType, ToolStatus } from "@/modules/tools/types";
 import type { Personnel } from "@/modules/settings/types";
 import { CalibrationStatusBadge } from "@/modules/tools/components/calibration-status-badge";
+import { PageHeader } from "@/components/layout/page-header";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/tools/jobs/create")({
@@ -184,14 +185,11 @@ function CreateToolsJobPage() {
         </Link>
       </div>
 
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          Create Tools Job
-        </h1>
-        <p className="text-xs text-muted-foreground">
-          Step-by-step equipment job registration, calibration verification, and technician assignment.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Equipment Fleet"
+        title="Create Tools Job"
+        subtitle="Step-by-step equipment job registration, calibration verification, and technician assignment."
+      />
 
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         {/* STEP 1: SELECT TOOL */}

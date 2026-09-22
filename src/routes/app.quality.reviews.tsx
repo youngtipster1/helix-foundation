@@ -14,6 +14,7 @@ import { qualityService } from "@/modules/quality/services/quality-service";
 import { isModuleAdmin } from "@/features/auth/permissions";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
+import { PageHeader } from "@/components/layout/page-header";
 import type { ChecklistItem } from "@/modules/quality/types";
 
 export const Route = createFileRoute("/app/quality/reviews")({
@@ -230,15 +231,12 @@ function QualityReviewsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <CheckSquare className="size-6 text-primary" />
-          Pending Reviews
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Perform administrative quality review. Directly approve verified standards or reject with feedback notes for user revision.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Quality Assurance"
+        title="Pending Reviews"
+        subtitle="Perform administrative quality review. Directly approve verified standards or reject with feedback notes for user revision."
+        icon={CheckSquare}
+      />
 
       <DataTable
         columns={columns}

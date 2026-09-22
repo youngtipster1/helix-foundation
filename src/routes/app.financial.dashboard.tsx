@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Receipt } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { Loading } from "@/components/ui/loading";
 import { financialService } from "@/modules/financial/services/financial-service";
 import { FinancialDashboardView } from "@/modules/financial/components/financial-dashboard-view";
@@ -76,17 +78,12 @@ function FinancialDashboardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Title Lockup */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
-        <div>
-          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-            Financial & Procurement Dashboard
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Procurement key performance indicators, fulfillment velocity, and multi-supplier financial analytics.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Procurement & Finance"
+        title="Financial & Procurement Dashboard"
+        subtitle="Procurement key performance indicators, fulfillment velocity, and multi-supplier financial analytics."
+        icon={Receipt}
+      />
 
       <FinancialDashboardView
         metrics={metrics}

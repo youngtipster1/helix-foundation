@@ -7,7 +7,7 @@ import { DataTable, RowActionsMenu } from "@/components/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { qualityService } from "@/modules/quality/services/quality-service";
-import { isModuleAdmin } from "@/features/auth/permissions";
+import { PageHeader } from "@/components/layout/page-header";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
 
@@ -151,15 +151,12 @@ function QualityApprovalsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <ShieldCheck className="size-6 text-primary" />
-          Pending Approvals
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Perform administrative sign-off to authorize guidelines and publish active checklist forms.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Quality Assurance"
+        title="Pending Approvals"
+        subtitle="Perform administrative sign-off to authorize guidelines and publish active checklist forms."
+        icon={ShieldCheck}
+      />
 
       <DataTable
         columns={columns}

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
+import { PageHeader } from "@/components/layout/page-header";
 import { qualityService } from "@/modules/quality/services/quality-service";
 import { isModuleAdmin } from "@/features/auth/permissions";
 import { Loading } from "@/components/ui/loading";
@@ -79,16 +80,12 @@ function QualityDashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-          Welcome back, {user?.firstName}
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-          Quality Operations &bull; Manage quality documents, checklists and outstanding actions.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Quality Operations"
+        title={`Welcome back, ${user?.firstName || "User"}`}
+        subtitle="Manage quality guidelines, compliance documents, inspection checklists, and outstanding actions."
+      />
 
       {/* Compact summary area */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">

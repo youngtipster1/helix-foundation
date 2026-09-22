@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { qualityService } from "@/modules/quality/services/quality-service";
 import { Loading } from "@/components/ui/loading";
+import { PageHeader } from "@/components/layout/page-header";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/quality/archive")({
@@ -190,15 +191,12 @@ function QualityArchivePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <Archive className="size-6 text-primary" />
-          Quality Archive
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Historical repository of archived policies and retired equipment checklists.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Quality Records"
+        title="Quality Archive"
+        subtitle="Historical repository of archived policies and retired equipment checklists."
+        icon={Archive}
+      />
 
       <DataTable
         columns={columns}

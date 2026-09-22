@@ -365,7 +365,7 @@ function JobDetailsPage() {
               <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
                 {job.jobNumber}
               </span>
-              <h1 className="text-xl font-bold text-foreground sm:text-2xl">
+              <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
                 {job.jobType}
               </h1>
               <StatusBadge status={job.jobStatus} />

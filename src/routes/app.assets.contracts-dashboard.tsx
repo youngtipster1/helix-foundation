@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { FileText } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { ContractDashboardView } from "@/modules/assets/components/contract-dashboard-view";
@@ -47,15 +49,12 @@ function ContractsDashboardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Title Lockup */}
-      <div className="border-b border-border/60 pb-3">
-        <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-          Service Contracts Overview
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          Financial analytics for service agreements, verified settlements, and outstanding payable balances.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Asset Contracts"
+        title="Service Contracts Overview"
+        subtitle="Financial analytics for service agreements, verified settlements, and outstanding payable balances."
+        icon={FileText}
+      />
 
       {/* Dashboard Metrics View */}
       <ContractDashboardView metrics={metrics} />

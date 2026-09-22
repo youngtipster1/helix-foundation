@@ -19,6 +19,7 @@ import { qualityService, type PolicyDocumentInput } from "@/modules/quality/serv
 import type { Personnel, ConfigRecord } from "@/modules/settings/types";
 import type { PolicyDocument } from "@/modules/quality/types";
 import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const Route = createFileRoute("/app/quality/policy-documents")({
   head: () => ({
@@ -446,15 +447,12 @@ function PolicyDocumentsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <FileText className="size-6 text-primary" />
-          Policy Documents
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review, distribute, and manage quality guidelines and standard operating procedures.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Quality Standards"
+        title="Policy Documents"
+        subtitle="Review, distribute, and manage quality guidelines and standard operating procedures."
+        icon={FileText}
+      />
 
       <DataTable
         columns={columns}

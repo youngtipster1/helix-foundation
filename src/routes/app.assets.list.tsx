@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Boxes } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { Loading } from "@/components/ui/loading";
 import { assetService } from "@/modules/assets/services/asset-service";
 import { AssetTable } from "@/modules/assets/components/asset-table";
@@ -103,17 +105,12 @@ function AssetListPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Title Lockup */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
-        <div>
-          <h2 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-            Asset List & Inventory
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            Biomedical equipment inventory, operational status, warranty lifecycle, and supplier contracts.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Asset Management"
+        title="Asset List & Inventory"
+        subtitle="Biomedical equipment inventory, operational status, warranty lifecycle, and supplier contracts."
+        icon={Boxes}
+      />
 
       {/* Table Section */}
       <AssetTable

@@ -21,6 +21,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/page-header";
 import { Loading } from "@/components/ui/loading";
 import {
   Dialog,
@@ -285,18 +286,11 @@ function WelcomePortalPage() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
-        {/* Welcome Header */}
-        <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Workspace Portal
-          </p>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Welcome back, {user.firstName}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Select an authorized workspace below to access your operations and tasks.
-          </p>
-        </div>
+        <PageHeader
+          eyebrow="Workspace Portal"
+          title={`Welcome back, ${user.firstName}`}
+          subtitle="Select an authorized workspace below to access your operations and tasks."
+        />
 
         {/* Attention Summary (Only if tasks pending) */}
         {notificationSummary.totalAttentionRequired > 0 && (
