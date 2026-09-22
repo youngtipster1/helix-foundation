@@ -66,9 +66,9 @@ function HeaderNavLink({
       activeOptions={{
         exact: exact ?? (item.to === "/app/tools" || item.to === "/app/tools/jobs" || item.to === "/app/quality" || item.to === "/app/settings"),
       }}
-      className="group relative inline-flex items-center gap-2 rounded-md px-3.5 py-1.5 text-sm font-semibold text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground data-[status=active]:bg-primary/10 data-[status=active]:text-primary data-[status=active]:font-bold"
+      className="group relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-semibold text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground data-[status=active]:bg-primary/10 data-[status=active]:text-primary data-[status=active]:font-bold whitespace-nowrap shrink-0"
     >
-      <item.icon className="size-4 shrink-0 transition-colors group-data-[status=active]:text-primary" />
+      <item.icon className="size-3.5 shrink-0 transition-colors group-data-[status=active]:text-primary" />
       <span className="truncate">{item.label}</span>
       {typeof badgeCount === "number" && badgeCount > 0 && (
         <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground leading-none">
@@ -225,14 +225,14 @@ export function Topbar({ user }: { user: User }) {
           <div className="flex md:hidden items-center ml-0.5">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold bg-muted/80 text-foreground hover:bg-accent border border-border/80 max-w-[135px] xs:max-w-[170px] truncate transition-colors cursor-pointer">
+                <button className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold bg-muted/80 text-foreground hover:bg-accent border border-border/80 max-w-[145px] truncate transition-colors cursor-pointer">
                   <CurrentModuleIcon className="size-3.5 shrink-0 text-primary" />
                   <span className="truncate">{currentModule ? currentModule.label : "Modules"}</span>
                   <ChevronDown className="size-3 shrink-0 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+                <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
                   Switch Module
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -243,7 +243,7 @@ export function Topbar({ user }: { user: User }) {
                       key={mod.id}
                       onSelect={() => navigate({ to: mod.to })}
                       className={cn(
-                        "flex items-center gap-2 text-xs font-medium cursor-pointer",
+                        "flex items-center gap-2 text-[13px] font-medium cursor-pointer",
                         mod.isActive && "bg-primary/10 text-primary font-bold"
                       )}
                     >
@@ -260,7 +260,7 @@ export function Topbar({ user }: { user: User }) {
           <div className="h-4 w-px bg-border/80 mx-1 shrink-0 hidden md:block" />
 
           {/* Desktop & Laptop Nav with Smart Overflow (>= md) */}
-          <nav className="hidden md:flex items-center gap-2 flex-nowrap min-w-0">
+          <nav className="hidden md:flex items-center gap-1.5 flex-nowrap min-w-0">
             {visibleModules.map((mod) => {
               const Icon = mod.icon;
               return (
@@ -268,16 +268,16 @@ export function Topbar({ user }: { user: User }) {
                   key={mod.id}
                   to={mod.to}
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold transition-all whitespace-nowrap border shrink-0",
+                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all whitespace-nowrap border shrink-0",
                     mod.isActive
                       ? "bg-primary/10 text-primary border-primary/40 font-bold shadow-2xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent/60 border-border/40 hover:border-border"
                   )}
                 >
                   {mod.isActive ? (
-                    <span className="inline-block size-2 rounded-full bg-primary shrink-0" />
+                    <span className="inline-block size-1.5 rounded-full bg-primary shrink-0" />
                   ) : (
-                    <Icon className="size-4 shrink-0 text-muted-foreground" />
+                    <Icon className="size-3.5 shrink-0 text-muted-foreground" />
                   )}
                   <span>{mod.label}</span>
                 </Link>
@@ -289,14 +289,14 @@ export function Topbar({ user }: { user: User }) {
                 <DropdownMenuTrigger asChild>
                   <button
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-all whitespace-nowrap border shrink-0 cursor-pointer",
+                      "inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all whitespace-nowrap border shrink-0 cursor-pointer",
                       isOverflowActive
                         ? "bg-primary/10 text-primary border-primary/40 font-bold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent/60 border-border/40 hover:border-border"
                     )}
                   >
                     <span>More Module</span>
-                    <ChevronDown className="size-3.5 text-muted-foreground" />
+                    <ChevronDown className="size-3 text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
@@ -311,13 +311,13 @@ export function Topbar({ user }: { user: User }) {
                         key={mod.id}
                         onSelect={() => navigate({ to: mod.to })}
                         className={cn(
-                          "flex items-center gap-2.5 text-sm font-semibold cursor-pointer py-2",
+                          "flex items-center gap-2 text-[13px] font-medium cursor-pointer py-1.5",
                           mod.isActive && "bg-primary/10 text-primary font-bold"
                         )}
                       >
                         <Icon className="size-4 shrink-0" />
                         <span className="flex-1">{mod.label}</span>
-                        {mod.isActive && <span className="size-2 rounded-full bg-primary" />}
+                        {mod.isActive && <span className="size-1.5 rounded-full bg-primary" />}
                       </DropdownMenuItem>
                     );
                   })}
@@ -389,8 +389,8 @@ export function Topbar({ user }: { user: User }) {
         </div>
       </div>
 
-      {/* Tier 2: Desktop Contextual Module Sub-Navigation (Hidden on Mobile) */}
-      <div className="hidden lg:flex h-11 items-center gap-1 border-t border-border/60 bg-muted/20 px-6 overflow-x-auto scrollbar-none">
+      {/* Tier 2: Contextual Module Sub-Navigation (Accessible on all viewports) */}
+      <div className="flex h-9.5 sm:h-10 items-center gap-1 border-t border-border/60 bg-muted/20 px-2.5 sm:px-6 overflow-x-auto scrollbar-none">
         {isTools && (
           <>
             {isToolsAdmin ? (
@@ -408,9 +408,9 @@ export function Topbar({ user }: { user: User }) {
                   <DropdownMenuTrigger asChild>
                     <button
                       className={cn(
-                        "group relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground cursor-pointer",
+                        "group relative inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[13px] font-semibold text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground cursor-pointer whitespace-nowrap shrink-0",
                         pathname.startsWith("/app/tools/archived") &&
-                          "bg-primary/10 text-primary font-semibold",
+                          "bg-primary/10 text-primary font-bold",
                       )}
                     >
                       <Archive className="size-3.5" />
@@ -506,9 +506,9 @@ export function Topbar({ user }: { user: User }) {
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    "group relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground cursor-pointer",
+                    "group relative inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[13px] font-semibold text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground cursor-pointer whitespace-nowrap shrink-0",
                     SETTINGS_SYSTEM_NAV.some((s) => pathname.startsWith(s.to)) &&
-                      "bg-primary/10 text-primary font-semibold",
+                      "bg-primary/10 text-primary font-bold",
                   )}
                 >
                   <Layers className="size-3.5" />
