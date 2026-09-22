@@ -399,8 +399,8 @@ export function Topbar({ user }: { user: User }) {
         </div>
       </div>
 
-      {/* Tier 2: Contextual Module Sub-Navigation (Accessible on all viewports) */}
-      <div className="flex h-9.5 sm:h-10 items-center gap-1 border-t border-border/60 bg-muted/20 px-2.5 sm:px-6 overflow-x-auto scrollbar-none">
+      {/* Tier 2: Contextual Module Sub-Navigation (Hidden on mobile where bottom nav is used) */}
+      <div className="hidden md:flex h-9.5 sm:h-10 items-center gap-1 border-t border-border/60 bg-muted/20 px-2.5 sm:px-6 overflow-x-auto scrollbar-none">
         {isTools && (
           <>
             {isToolsAdmin ? (

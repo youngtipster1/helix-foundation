@@ -64,6 +64,7 @@ export function MobileBottomNav() {
   const canAccessTools = hasModuleAccess(user, "tools");
   const canAccessQuality = hasModuleAccess(user, "quality");
   const canAccessSettings = hasModuleAccess(user, "settings");
+  const canAccessDebrief = hasModuleAccess(user, "debrief");
 
   const isToolsAdmin = isModuleAdmin(user, "tools");
   const isQualityAdmin = isModuleAdmin(user, "quality");
@@ -76,6 +77,7 @@ export function MobileBottomNav() {
   const isFinancial = pathname.startsWith("/app/financial");
   const isAssets = pathname.startsWith("/app/assets");
   const isSettings = pathname.startsWith("/app/settings");
+  const isDebrief = pathname.startsWith("/app/debrief");
 
   // Authorized modules for dynamic switcher
   const authorizedModules = [
@@ -118,6 +120,14 @@ export function MobileBottomNav() {
       icon: ShieldCheck,
       hasAccess: canAccessQuality,
       isCurrent: isQuality,
+    },
+    {
+      id: "debrief",
+      label: "Debrief",
+      to: "/app/debrief",
+      icon: MessageSquareCode,
+      hasAccess: canAccessDebrief,
+      isCurrent: isDebrief,
     },
     {
       id: "settings",
@@ -191,6 +201,11 @@ export function MobileBottomNav() {
       { label: "Parts List", to: "/app/parts/list", icon: Boxes },
       { label: "Movements", to: "/app/parts/movements", icon: ArrowLeftRight },
       { label: "Audit", to: "/app/parts/audit", icon: ClipboardCheck },
+    ];
+  } else if (isDebrief) {
+    tabs = [
+      { label: "Jobs", to: "/app/debrief", icon: ClipboardCheck, exact: true },
+      { label: "My Work", to: "/app/debrief/my-work", icon: Wrench, exact: true },
     ];
   } else if (isSettings) {
     tabs = [
