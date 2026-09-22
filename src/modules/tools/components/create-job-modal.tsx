@@ -1,17 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { StepperModal } from "@/components/ui/stepper-modal";
+import { type StepItem } from "@/components/ui/stepper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Stepper, type StepItem } from "@/components/ui/stepper";
 import { CalibrationStatusBadge } from "@/modules/tools/components/calibration-status-badge";
 import { toolsService } from "@/modules/tools/services/tools-service";
 import { toolsJobService } from "@/modules/tools/services/tools-job-service";
@@ -27,8 +21,6 @@ import {
   Wrench,
   UserCheck,
   ClipboardCheck,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
 interface CreateJobModalProps {
@@ -227,37 +219,27 @@ export function CreateJobModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        onPointerDownOutside={(e) => e.preventDefault()}
-        className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden"
-      >
-        {/* Modal Header with Stepper */}
-        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle className="text-base font-bold text-foreground sm:text-lg">
-                Create Tools Job
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
-                Register maintenance, warranty, or calibration job
-              </DialogDescription>
-            </div>
-          </div>
-
-          <Stepper
-            steps={STEPS}
-            currentStep={currentStep}
-            onStepClick={(idx) => {
-              if (idx === 0) setCurrentStep(0);
-              else if (idx === 1 && canProceedFromStep0) setCurrentStep(1);
-              else if (idx === 2 && canProceedFromStep1) setCurrentStep(2);
-            }}
-          />
-        </DialogHeader>
-
-        {/* Modal Body - Step Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+    <StepperModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Create Tools Job"
+      description="Register maintenance, warranty, or calibration job"
+      steps={STEPS}
+      currentStep={currentStep}
+      onStepClick={(idx) => {
+        if (idx === 0) setCurrentStep(0);
+        else if (idx === 1 && canProceedFromStep0) setCurrentStep(1);
+        else if (idx === 2 && canProceedFromStep1) setCurrentStep(2);
+      }}
+      onBack={handleBack}
+      onNext={handleNext}
+      onSubmit={handleSubmit}
+      isSubmitting={creating}
+      canProceed={currentStep === 0 ? canProceedFromStep0 : canProceedFromStep1}
+      canSubmit={!isCalibrationRestricted && Boolean(issue.trim())}
+      submitLabel="Create Job"
+      submitIcon={ClipboardCheck}
+    >
           {/* STEP 1: SELECT EQUIPMENT */}
           {currentStep === 0 && (
             <div className="space-y-3.5 animate-fade-in">
@@ -561,60 +543,6 @@ export function CreateJobModal({
               </div>
             </div>
           )}
-        </div>
-
-        {/* Modal Footer with Step Navigation */}
-        <div className="flex items-center justify-between p-3.5 sm:p-4 border-t border-border bg-card/60">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-            className="text-xs"
-          >
-            Cancel
-          </Button>
-
-          <div className="flex items-center gap-2">
-            {currentStep > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleBack}
-                className="text-xs gap-1"
-              >
-                <ChevronLeft className="size-3.5" />
-                <span>Back</span>
-              </Button>
-            )}
-
-            {currentStep < STEPS.length - 1 ? (
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleNext}
-                disabled={currentStep === 0 ? !canProceedFromStep0 : !canProceedFromStep1}
-                className="text-xs gap-1"
-              >
-                <span>Continue</span>
-                <ChevronRight className="size-3.5" />
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleSubmit}
-                disabled={creating || isCalibrationRestricted || !issue.trim()}
-                className="text-xs gap-1.5"
-              >
-                <ClipboardCheck className="size-3.5" />
-                <span>{creating ? "Creating..." : "Create Job"}</span>
-              </Button>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+    </StepperModal>
   );
 }

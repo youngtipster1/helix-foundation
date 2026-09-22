@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useRef } from "react";
+import { StepperModal } from "@/components/ui/stepper-modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Stepper, type StepItem } from "@/components/ui/stepper";
+import { type StepItem } from "@/components/ui/stepper";
 import { toolsSettingsService } from "../services/tools-settings-service";
 import type { Tool, ToolInput, WarrantyStatus } from "../types";
-import { FileUp, Wrench, Shield, DollarSign, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { FileUp, Wrench, Shield, DollarSign, Check } from "lucide-react";
 
 interface ToolFormModalProps {
   open: boolean;
@@ -193,32 +192,27 @@ export function ToolFormModal({ open, onOpenChange, tool, onSubmit }: ToolFormMo
     }
   };
 
+  const formRef = useRef<HTMLFormElement>(null);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        onPointerDownOutside={(e) => e.preventDefault()}
-        className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden"
-      >
-        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 space-y-3">
-          <div>
-            <DialogTitle className="text-base font-bold text-foreground sm:text-lg">
-              {tool ? `Edit Tool — ${tool.id}` : "Add New Tool"}
-            </DialogTitle>
-            <p className="text-xs text-muted-foreground">
-              Register and manage physical test equipment, calibration validity, and procurement records.
-            </p>
-          </div>
-
-          <Stepper
-            steps={TOOL_STEPS}
-            currentStep={stepIndex}
-            onStepClick={setStepIndex}
-          />
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <StepperModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={tool ? `Edit Tool — ${tool.id}` : "Add New Tool"}
+      description="Register and manage physical test equipment, calibration validity, and procurement records."
+      steps={TOOL_STEPS}
+      currentStep={stepIndex}
+      onStepClick={setStepIndex}
+      onBack={() => setStepIndex(stepIndex - 1)}
+      onNext={() => setStepIndex(stepIndex + 1)}
+      onSubmit={() => formRef.current?.requestSubmit()}
+      isSubmitting={saving}
+      canSubmit={Boolean(serialNumber.trim())}
+      submitLabel={tool ? "Save Changes" : "Register Tool"}
+      submitIcon={Check}
+    >
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
             {/* TAB 1: GENERAL */}
             <TabsContent value="general" className="space-y-4">
@@ -557,58 +551,7 @@ export function ToolFormModal({ open, onOpenChange, tool, onSubmit }: ToolFormMo
               </div>
             </TabsContent>
           </Tabs>
-        </div>
-
-        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 flex items-center justify-between sm:justify-between">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-            className="text-xs"
-          >
-            Cancel
-          </Button>
-
-          <div className="flex items-center gap-2">
-            {stepIndex > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setStepIndex(stepIndex - 1)}
-                className="text-xs gap-1"
-              >
-                <ChevronLeft className="size-3.5" />
-                <span>Back</span>
-              </Button>
-            )}
-
-            {stepIndex < 2 ? (
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => setStepIndex(stepIndex + 1)}
-                className="text-xs gap-1"
-              >
-                <span>Continue</span>
-                <ChevronRight className="size-3.5" />
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                size="sm"
-                disabled={saving || !serialNumber.trim()}
-                className="text-xs gap-1.5"
-              >
-                <Check className="size-3.5" />
-                <span>{saving ? "Saving..." : tool ? "Save Changes" : "Register Tool"}</span>
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
       </form>
-    </DialogContent>
-    </Dialog>
+    </StepperModal>
   );
 }

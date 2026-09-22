@@ -17,20 +17,13 @@ import {
   DollarSign,
   Phone,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { StepperModal } from "@/components/ui/stepper-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Stepper, StepItem } from "@/components/ui/stepper";
+import { type StepItem } from "@/components/ui/stepper";
 import { Part, Supplier, PartDocument } from "../types";
 import { partsService } from "../services/parts-service";
 import { cn } from "@/lib/utils";
@@ -325,38 +318,27 @@ export function PartFormModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden bg-card border-border">
-        {/* Modal Header */}
-        <DialogHeader className="p-4 sm:p-6 border-b border-border bg-muted/20 shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                <Wrench className="size-5 text-primary" />
-                <span>{partToEdit ? "Edit Spare Part" : "Add New Spare Part"}</span>
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
-                Step-by-step biomedical spare part registry, supplier contracts, and bin storage allocation.
-              </DialogDescription>
-            </div>
-          </div>
-
-          {/* Stepper Wizard Bar */}
-          <div className="pt-3">
-            <Stepper
-              steps={STEPS}
-              currentStep={currentStep}
-              onStepClick={(step) => {
-                if (step < currentStep || validateStep(currentStep)) {
-                  setCurrentStep(step);
-                }
-              }}
-            />
-          </div>
-        </DialogHeader>
-
-        {/* Modal Body: Step Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+    <StepperModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={partToEdit ? "Edit Spare Part" : "Add New Spare Part"}
+      description="Step-by-step biomedical spare part registry, supplier contracts, and bin storage allocation."
+      steps={STEPS}
+      currentStep={currentStep}
+      onStepClick={(step) => {
+        if (step < currentStep || validateStep(currentStep)) {
+          setCurrentStep(step);
+        }
+      }}
+      onBack={handleBack}
+      onNext={handleNext}
+      onSubmit={handleSubmit}
+      isSubmitting={saving}
+      canProceed={validateStep(currentStep)}
+      canSubmit={validateStep(0) && validateStep(1) && validateStep(2)}
+      submitLabel={partToEdit ? "Save Changes" : "Create Part"}
+      submitIcon={CheckCircle2}
+    >
           {/* ═══════════════════════════════════════════════════════════════════
               STEP 1: GENERAL DETAILS ("TOOLS DETAILS" / Part Info)
               ═══════════════════════════════════════════════════════════════════ */}
@@ -1033,61 +1015,6 @@ export function PartFormModal({
           )}
         </div>
 
-        {/* Modal Footer Controls */}
-        <DialogFooter className="p-4 sm:p-5 border-t border-border bg-muted/20 shrink-0 flex items-center justify-between sm:justify-between gap-2">
-          <div>
-            {currentStep > 0 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleBack}
-                disabled={saving}
-                className="gap-1.5 text-xs cursor-pointer"
-              >
-                <ArrowLeft className="size-3.5" />
-                <span>Back</span>
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              disabled={saving}
-              className="text-xs cursor-pointer"
-            >
-              Cancel
-            </Button>
-
-            {currentStep < STEPS.length - 1 ? (
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleNext}
-                className="gap-1.5 text-xs font-semibold cursor-pointer"
-              >
-                <span>Next: {STEPS[currentStep + 1].title}</span>
-                <ArrowRight className="size-3.5" />
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleSubmit}
-                disabled={saving}
-                className="gap-1.5 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs"
-              >
-                <CheckCircle2 className="size-4" />
-                <span>{saving ? "Saving..." : partToEdit ? "Save Changes" : "Create Part"}</span>
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </StepperModal>
   );
 }

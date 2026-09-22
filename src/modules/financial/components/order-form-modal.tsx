@@ -15,14 +15,7 @@ import {
   HelpCircle,
   Package,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { StepperModal } from "@/components/ui/stepper-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Stepper, StepItem } from "@/components/ui/stepper";
+import { type StepItem } from "@/components/ui/stepper";
 import {
   Order,
   OrderCategory,
@@ -475,46 +468,50 @@ export function OrderFormModal({
   }, 0);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
-        {/* Modal Header */}
-        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/80 bg-muted/20 shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <DialogTitle className="text-lg xl:text-xl font-semibold text-foreground">
-                  {orderToEdit ? `Edit Order — ${orderToEdit.orderNumber}` : "Create Purchase Order Request"}
-                </DialogTitle>
-                {orderToEdit && <OrderStatusBadge status={orderToEdit.status} />}
-              </div>
-              <DialogDescription className="text-xs xl:text-[13px] text-muted-foreground">
-                Healthcare procurement requisition, vendor pricing breakdown & multi-supplier PO routing.
-              </DialogDescription>
-            </div>
-            <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-md border border-border">
-              <span>Date:</span>
-              <span className="font-semibold text-foreground">
-                {orderToEdit ? new Date(orderToEdit.dateRaised).toLocaleDateString() : new Date().toLocaleDateString()}
-              </span>
-            </div>
+    <StepperModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={orderToEdit ? `Edit Order — ${orderToEdit.orderNumber}` : "Create Purchase Order Request"}
+      description="Healthcare procurement requisition, vendor pricing breakdown & multi-supplier PO routing."
+      steps={STEPS}
+      currentStep={currentStep}
+      onStepClick={(step) => {
+        if (step < currentStep) setCurrentStep(step);
+        else if (validateCurrentStep()) setCurrentStep(step);
+      }}
+      onBack={() => setCurrentStep((s) => s - 1)}
+      onNext={() => {
+        if (validateCurrentStep()) setCurrentStep((s) => s + 1);
+      }}
+      onSubmit={() => handleSave(false)}
+      isSubmitting={saving}
+      canSubmit={items.length > 0}
+      submitLabel={orderToEdit ? "Update Order" : "Create Order"}
+      headerContent={
+        <div className="flex items-center gap-2">
+          {orderToEdit && <OrderStatusBadge status={orderToEdit.status} />}
+          <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-md border border-border">
+            <span>Date:</span>
+            <span className="font-semibold text-foreground">
+              {orderToEdit ? new Date(orderToEdit.dateRaised).toLocaleDateString() : new Date().toLocaleDateString()}
+            </span>
           </div>
-
-          {/* Stepper Navigation (Strictly 3 Steps) */}
-          <div className="pt-3">
-            <Stepper
-              steps={STEPS}
-              currentStep={currentStep}
-              onStepClick={(step) => {
-                if (step < currentStep) setCurrentStep(step);
-                else if (validateCurrentStep()) setCurrentStep(step);
-              }}
-              allowStepClick={true}
-            />
-          </div>
-        </DialogHeader>
-
-        {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+        </div>
+      }
+      footerLeadingContent={
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => handleSave(true)}
+          disabled={saving}
+          className="text-xs gap-1.5"
+        >
+          <Save className="size-3.5" />
+          <span>Save as Draft</span>
+        </Button>
+      }
+    >
           {/* Sent Back Alert Banner */}
           {orderToEdit?.status === "SENT_BACK" && orderToEdit.sendBackReason && (
             <div className="rounded-xl border border-rose-300 dark:border-rose-800/80 bg-rose-50 dark:bg-rose-950/30 p-4 text-xs space-y-1.5">
@@ -1137,76 +1134,6 @@ export function OrderFormModal({
           )}
         </div>
 
-        {/* Modal Footer Controls */}
-        <div className="px-6 py-4 border-t border-border/80 bg-muted/20 flex items-center justify-between w-full shrink-0">
-          <div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              disabled={saving}
-              className="h-8.5 text-xs cursor-pointer hover:bg-muted text-muted-foreground hover:text-foreground"
-            >
-              Cancel
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleSave(true)}
-              disabled={saving}
-              className="h-8.5 text-xs gap-1.5 cursor-pointer"
-            >
-              <Save className="size-3.5" />
-              <span>Save as Draft</span>
-            </Button>
-
-            {/* Merged Navigation Buttons (Back & Next) */}
-            <div className="flex items-center gap-1.5">
-              {currentStep > 0 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentStep((s) => s - 1)}
-                  disabled={saving}
-                  className="h-8.5 text-xs cursor-pointer"
-                >
-                  Back
-                </Button>
-              )}
-
-              {currentStep < 2 ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => {
-                    if (validateCurrentStep()) setCurrentStep((s) => s + 1);
-                  }}
-                  disabled={saving}
-                  className="h-8.5 text-xs font-semibold cursor-pointer px-4"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => handleSave(false)}
-                  disabled={saving || items.length === 0}
-                  className="h-9 text-sm font-semibold cursor-pointer bg-primary text-primary-foreground shadow-xs px-4"
-                >
-                  {saving ? "Saving..." : orderToEdit ? "Update Order" : "Create Order"}
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </StepperModal>
   );
 }
