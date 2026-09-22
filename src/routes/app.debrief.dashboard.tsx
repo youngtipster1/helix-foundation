@@ -1,23 +1,24 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState, useCallback } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
-import { debriefService } from "@/modules/debrief/services/debrief-service";
 import { kpiService } from "@/modules/debrief/services/kpi-service";
-import type { DebriefJob } from "@/modules/debrief/types";
 import type { EngineerKPIRecord, TeamKPISummary } from "@/modules/debrief/services/kpi-service";
-import { EngineerKPIBarCharts } from "@/modules/debrief/components/dashboard/engineer-kpi-bar-charts";
-import { OperationalAttentionCard } from "@/modules/debrief/components/dashboard/operational-attention-card";
+import {
+  EngineerKPIBarCharts,
+  type KPIType,
+} from "@/modules/debrief/components/dashboard/engineer-kpi-bar-charts";
 import {
   LayoutDashboard,
-  ClipboardList,
-  Play,
-  PauseCircle,
   CheckCircle2,
-  Inbox,
-  ArrowUpRight,
+  Clock,
+  Activity,
+  Navigation,
+  CheckSquare,
+  BarChart2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/debrief/dashboard")({
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/app/debrief/dashboard")({
       {
         name: "description",
         content:
-          "High-level operational overview of Debrief jobs, engineer performance KPI bar charts, and operational attention alerts.",
+          "Operational overview of Debrief engineer performance KPI bar charts and comparative metrics.",
       },
     ],
   }),
@@ -36,9 +37,10 @@ export const Route = createFileRoute("/app/debrief/dashboard")({
 
 function DebriefDashboardPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
-  const [jobs, setJobs] = useState<DebriefJob[]>([]);
+  // Active KPI selected from top stat cards (defaults to FTFR)
+  const [activeKPI, setActiveKPI] = useState<KPIType>("ftfr");
+
   const [kpiData, setKpiData] = useState<{
     records: EngineerKPIRecord[];
     summary: TeamKPISummary;
@@ -49,8 +51,8 @@ function DebriefDashboardPage() {
       avgMTTR: 0,
       avgUtilization: 0,
       avgTravelTimeHours: 0,
-      avgTravelDistanceKm: 0,
       totalJobsCompleted: 0,
+      avgJobsCompleted: 0,
     },
   });
   const [loading, setLoading] = useState(true);
@@ -64,11 +66,7 @@ function DebriefDashboardPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [jobsList, kpis] = await Promise.all([
-        debriefService.list(user),
-        kpiService.getEngineerKPIs(),
-      ]);
-      setJobs(jobsList);
+      const kpis = await kpiService.getEngineerKPIs();
       setKpiData(kpis);
     } catch (err) {
       console.error("Failed to load dashboard operational data", err);
@@ -76,42 +74,11 @@ function DebriefDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  // Section 1: Job status counts
-  const totalJobsCount = jobs.length;
-  const openJobsCount = useMemo(() => {
-    return jobs.filter(
-      (j) =>
-        (j.jobStatus === "Open" || j.stage === "assigned") &&
-        !j.labour?.travelStartTime &&
-        j.jobStatus !== "In Progress" &&
-        j.jobStatus !== "On Hold"
-    ).length;
-  }, [jobs]);
-
-  const inProgressJobsCount = useMemo(() => {
-    return jobs.filter(
-      (j) =>
-        j.jobStatus === "In Progress" ||
-        j.stage === "traveling" ||
-        j.stage === "working"
-    ).length;
-  }, [jobs]);
-
-  const onHoldJobs = useMemo(() => {
-    return jobs.filter((j) => j.jobStatus === "On Hold" || j.stage === "on_hold");
-  }, [jobs]);
-
-  const completedJobsCount = useMemo(() => {
-    return jobs.filter(
-      (j) => j.jobStatus === "Completed" || j.stage === "completed"
-    ).length;
-  }, [jobs]);
 
   return (
     <div className="w-full space-y-6 pb-12">
@@ -120,120 +87,221 @@ function DebriefDashboardPage() {
         title="Debrief Dashboard"
         subtitle={
           isAdmin
-            ? "High-level operational overview across job statuses, per-engineer KPI comparative bar charts, and operational attention escalations."
-            : "Operational overview of active jobs, personal performance benchmarks, and status alerts."
+            ? "High-level operational overview: select any performance KPI card to inspect comparative lean bar charts across biomedical engineers."
+            : "Operational overview of personal and team performance benchmarks."
         }
         icon={LayoutDashboard}
       />
 
-      {/* SECTION 1: JOB STATUS OVERVIEW (5 Standard Full-Size Clickable Cards) */}
+      {/* TOP KPI STAT CARDS (Clicking any card immediately displays the corresponding bar chart data below) */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <ClipboardList className="size-3.5 text-primary" />
-            <span>Job Status Overview (Click to Navigate to Jobs)</span>
+            <BarChart2 className="size-3.5 text-primary" />
+            <span>Operational KPI Metrics (Select a Metric to View Breakdown)</span>
           </h3>
-          <span className="text-xs text-muted-foreground font-mono">Live Roster Sync</span>
+          <span className="text-xs text-muted-foreground font-mono">11 Biomedical Engineers</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Card 1: Total Jobs */}
+          {/* Card 1: FTFR */}
           <div
-            onClick={() => navigate({ to: "/app/debrief" })}
-            className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2 cursor-pointer hover:border-primary/60 hover:shadow-xs transition-all group"
+            onClick={() => setActiveKPI("ftfr")}
+            className={cn(
+              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              activeKPI === "ftfr"
+                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
+                : "border-border hover:border-border/80 hover:bg-muted/10"
+            )}
           >
             <div className="flex items-center justify-between text-muted-foreground text-xs">
-              <span className="font-semibold uppercase tracking-wider text-xs">Total Jobs</span>
-              <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Inbox className="size-4" />
-              </div>
-            </div>
-            <div className="font-mono font-bold text-2xl text-foreground flex items-baseline justify-between">
-              <span>{totalJobsCount}</span>
-              <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
-            <p className="text-xs text-muted-foreground">All active &amp; historical jobs</p>
-          </div>
-
-          {/* Card 2: Open Jobs */}
-          <div
-            onClick={() => navigate({ to: "/app/debrief" })}
-            className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2 cursor-pointer hover:border-sky-500/60 hover:shadow-xs transition-all group"
-          >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
-              <span className="font-semibold uppercase tracking-wider text-xs">Open Jobs</span>
-              <div className="p-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 group-hover:bg-sky-500 group-hover:text-white transition-colors">
-                <ClipboardList className="size-4" />
-              </div>
-            </div>
-            <div className="font-mono font-bold text-2xl text-foreground flex items-baseline justify-between">
-              <span>{openJobsCount}</span>
-              <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-sky-500 transition-colors" />
-            </div>
-            <p className="text-xs text-muted-foreground">Assigned &amp; scheduled visits</p>
-          </div>
-
-          {/* Card 3: In Progress */}
-          <div
-            onClick={() => navigate({ to: "/app/debrief" })}
-            className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2 cursor-pointer hover:border-primary/60 hover:shadow-xs transition-all group"
-          >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
-              <span className="font-semibold uppercase tracking-wider text-xs">In Progress</span>
-              <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Play className="size-4" />
-              </div>
-            </div>
-            <div className="font-mono font-bold text-2xl text-foreground flex items-baseline justify-between">
-              <span>{inProgressJobsCount}</span>
-              <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
-            <p className="text-xs text-muted-foreground">Active traveling or field labour</p>
-          </div>
-
-          {/* Card 4: On Hold */}
-          <div
-            onClick={() => navigate({ to: "/app/debrief" })}
-            className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2 cursor-pointer hover:border-amber-500/60 hover:shadow-xs transition-all group"
-          >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
-              <span className="font-semibold uppercase tracking-wider text-xs">On Hold</span>
-              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                <PauseCircle className="size-4" />
-              </div>
-            </div>
-            <div className="font-mono font-bold text-2xl text-foreground flex items-baseline justify-between">
-              <span>{onHoldJobs.length}</span>
-              <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-amber-500 transition-colors" />
-            </div>
-            <p className="text-xs text-muted-foreground">Pending spare parts or PO quote</p>
-          </div>
-
-          {/* Card 5: Completed */}
-          <div
-            onClick={() => navigate({ to: "/app/debrief" })}
-            className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2 cursor-pointer hover:border-emerald-500/60 hover:shadow-xs transition-all group"
-          >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
-              <span className="font-semibold uppercase tracking-wider text-xs">Completed</span>
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+              <span
+                className={cn(
+                  "font-bold uppercase tracking-wider text-xs",
+                  activeKPI === "ftfr" ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                1. FTFR (%)
+              </span>
+              <div
+                className={cn(
+                  "p-2 rounded-xl",
+                  activeKPI === "ftfr"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                )}
+              >
                 <CheckCircle2 className="size-4" />
               </div>
             </div>
-            <div className="font-mono font-bold text-2xl text-foreground flex items-baseline justify-between">
-              <span>{completedJobsCount}</span>
-              <ArrowUpRight className="size-4 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
+            <div className="font-mono font-bold text-2xl text-foreground">
+              {kpiData.summary.avgFTFR}%
             </div>
-            <p className="text-xs text-muted-foreground">Signed off and debriefed</p>
+            <p className="text-xs text-muted-foreground">
+              First-Time Fix Rate (Target: &ge; 85%)
+            </p>
+          </div>
+
+          {/* Card 2: MTTR */}
+          <div
+            onClick={() => setActiveKPI("mttr")}
+            className={cn(
+              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              activeKPI === "mttr"
+                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
+                : "border-border hover:border-border/80 hover:bg-muted/10"
+            )}
+          >
+            <div className="flex items-center justify-between text-muted-foreground text-xs">
+              <span
+                className={cn(
+                  "font-bold uppercase tracking-wider text-xs",
+                  activeKPI === "mttr" ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                2. MTTR (Hours)
+              </span>
+              <div
+                className={cn(
+                  "p-2 rounded-xl",
+                  activeKPI === "mttr"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                )}
+              >
+                <Clock className="size-4" />
+              </div>
+            </div>
+            <div className="font-mono font-bold text-2xl text-foreground">
+              {kpiData.summary.avgMTTR}h
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Mean Time to Repair (Goal: &le; 3.5h)
+            </p>
+          </div>
+
+          {/* Card 3: Utilization */}
+          <div
+            onClick={() => setActiveKPI("utilization")}
+            className={cn(
+              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              activeKPI === "utilization"
+                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
+                : "border-border hover:border-border/80 hover:bg-muted/10"
+            )}
+          >
+            <div className="flex items-center justify-between text-muted-foreground text-xs">
+              <span
+                className={cn(
+                  "font-bold uppercase tracking-wider text-xs",
+                  activeKPI === "utilization" ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                3. Utilization (%)
+              </span>
+              <div
+                className={cn(
+                  "p-2 rounded-xl",
+                  activeKPI === "utilization"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-primary/10 text-primary"
+                )}
+              >
+                <Activity className="size-4" />
+              </div>
+            </div>
+            <div className="font-mono font-bold text-2xl text-foreground">
+              {kpiData.summary.avgUtilization}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Working Days Share (Target: &ge; 75%)
+            </p>
+          </div>
+
+          {/* Card 4: Average Travel Time */}
+          <div
+            onClick={() => setActiveKPI("travel")}
+            className={cn(
+              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              activeKPI === "travel"
+                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
+                : "border-border hover:border-border/80 hover:bg-muted/10"
+            )}
+          >
+            <div className="flex items-center justify-between text-muted-foreground text-xs">
+              <span
+                className={cn(
+                  "font-bold uppercase tracking-wider text-xs",
+                  activeKPI === "travel" ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                4. Avg Travel Time
+              </span>
+              <div
+                className={cn(
+                  "p-2 rounded-xl",
+                  activeKPI === "travel"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                )}
+              >
+                <Navigation className="size-4" />
+              </div>
+            </div>
+            <div className="font-mono font-bold text-2xl text-foreground">
+              {kpiData.summary.avgTravelTimeHours}h
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Average Travel Time per Service Call
+            </p>
+          </div>
+
+          {/* Card 5: Volume Done */}
+          <div
+            onClick={() => setActiveKPI("volume")}
+            className={cn(
+              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              activeKPI === "volume"
+                ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
+                : "border-border hover:border-border/80 hover:bg-muted/10"
+            )}
+          >
+            <div className="flex items-center justify-between text-muted-foreground text-xs">
+              <span
+                className={cn(
+                  "font-bold uppercase tracking-wider text-xs",
+                  activeKPI === "volume" ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                5. Jobs Completed
+              </span>
+              <div
+                className={cn(
+                  "p-2 rounded-xl",
+                  activeKPI === "volume"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                )}
+              >
+                <CheckSquare className="size-4" />
+              </div>
+            </div>
+            <div className="font-mono font-bold text-2xl text-foreground">
+              {kpiData.summary.totalJobsCompleted}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Avg {kpiData.summary.avgJobsCompleted} jobs per technician
+            </p>
           </div>
         </div>
       </div>
 
-      {/* SECTION 3: ENGINEER KPI BAR CHARTS (Source-Mandated Per Engineer Bar Charts) */}
-      <EngineerKPIBarCharts records={kpiData.records} summary={kpiData.summary} />
-
-      {/* SECTION 4: OPERATIONAL ATTENTION AREA */}
-      <OperationalAttentionCard onHoldJobs={onHoldJobs} isAdmin={isAdmin} />
+      {/* LEAN ENGINEER KPI BAR CHARTS (Source-Mandated Per Engineer Bar Charts) */}
+      <EngineerKPIBarCharts
+        records={kpiData.records}
+        summary={kpiData.summary}
+        activeKPI={activeKPI}
+      />
     </div>
   );
 }

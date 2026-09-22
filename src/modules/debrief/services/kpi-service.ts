@@ -1,4 +1,3 @@
-import type { Personnel } from "@/modules/settings/types";
 import { scheduleService } from "./schedule-service";
 import { debriefService } from "./debrief-service";
 
@@ -11,7 +10,6 @@ export interface EngineerKPIRecord {
   mttr: number; // Mean Time to Repair (hours)
   utilizationRate: number; // Technician Utilization Rate (%)
   avgTravelTimeHours: number; // Average Travel Time (hours)
-  avgTravelDistanceKm: number; // Average Travel Distance (km)
   jobsCompletedCount: number; // Jobs Completed per Technician (volume count)
 }
 
@@ -20,8 +18,8 @@ export interface TeamKPISummary {
   avgMTTR: number;
   avgUtilization: number;
   avgTravelTimeHours: number;
-  avgTravelDistanceKm: number;
   totalJobsCompleted: number;
+  avgJobsCompleted: number;
 }
 
 // Deterministic baseline stats for biomedical roster to ensure consistent, realistic system KPIs
@@ -32,23 +30,22 @@ const BASELINE_ENGINEER_KPIS: Record<
     mttr: number;
     utilizationRate: number;
     avgTravelTimeHours: number;
-    avgTravelDistanceKm: number;
     jobsCompletedCount: number;
   }
 > = {
-  per_001: { ftfr: 92, mttr: 2.8, utilizationRate: 80, avgTravelTimeHours: 1.2, avgTravelDistanceKm: 34, jobsCompletedCount: 6 },
-  per_002: { ftfr: 88, mttr: 3.4, utilizationRate: 100, avgTravelTimeHours: 0.8, avgTravelDistanceKm: 22, jobsCompletedCount: 5 },
-  per_003: { ftfr: 95, mttr: 2.1, utilizationRate: 80, avgTravelTimeHours: 1.8, avgTravelDistanceKm: 48, jobsCompletedCount: 7 },
-  per_004: { ftfr: 78, mttr: 4.6, utilizationRate: 60, avgTravelTimeHours: 0.6, avgTravelDistanceKm: 15, jobsCompletedCount: 4 },
-  per_005: { ftfr: 84, mttr: 3.1, utilizationRate: 80, avgTravelTimeHours: 1.4, avgTravelDistanceKm: 38, jobsCompletedCount: 5 },
-  per_006: { ftfr: 91, mttr: 2.5, utilizationRate: 80, avgTravelTimeHours: 1.0, avgTravelDistanceKm: 28, jobsCompletedCount: 6 },
-  per_007: { ftfr: 86, mttr: 3.6, utilizationRate: 100, avgTravelTimeHours: 2.2, avgTravelDistanceKm: 56, jobsCompletedCount: 4 },
-  per_008: { ftfr: 89, mttr: 2.9, utilizationRate: 80, avgTravelTimeHours: 1.1, avgTravelDistanceKm: 31, jobsCompletedCount: 6 },
-  per_009: { ftfr: 94, mttr: 2.2, utilizationRate: 80, avgTravelTimeHours: 0.9, avgTravelDistanceKm: 25, jobsCompletedCount: 7 },
-  per_010: { ftfr: 82, mttr: 4.0, utilizationRate: 60, avgTravelTimeHours: 1.5, avgTravelDistanceKm: 42, jobsCompletedCount: 3 },
-  per_011: { ftfr: 87, mttr: 3.2, utilizationRate: 80, avgTravelTimeHours: 1.3, avgTravelDistanceKm: 36, jobsCompletedCount: 5 },
-  per_012: { ftfr: 90, mttr: 2.7, utilizationRate: 80, avgTravelTimeHours: 1.6, avgTravelDistanceKm: 44, jobsCompletedCount: 6 },
-  per_013: { ftfr: 93, mttr: 2.4, utilizationRate: 80, avgTravelTimeHours: 1.7, avgTravelDistanceKm: 46, jobsCompletedCount: 6 },
+  per_001: { ftfr: 92, mttr: 2.8, utilizationRate: 80, avgTravelTimeHours: 1.2, jobsCompletedCount: 6 },
+  per_002: { ftfr: 88, mttr: 3.4, utilizationRate: 100, avgTravelTimeHours: 0.8, jobsCompletedCount: 5 },
+  per_003: { ftfr: 95, mttr: 2.1, utilizationRate: 80, avgTravelTimeHours: 1.8, jobsCompletedCount: 7 },
+  per_004: { ftfr: 78, mttr: 4.6, utilizationRate: 60, avgTravelTimeHours: 0.6, jobsCompletedCount: 4 },
+  per_005: { ftfr: 84, mttr: 3.1, utilizationRate: 80, avgTravelTimeHours: 1.4, jobsCompletedCount: 5 },
+  per_006: { ftfr: 91, mttr: 2.5, utilizationRate: 80, avgTravelTimeHours: 1.0, jobsCompletedCount: 6 },
+  per_007: { ftfr: 86, mttr: 3.6, utilizationRate: 100, avgTravelTimeHours: 2.2, jobsCompletedCount: 4 },
+  per_008: { ftfr: 89, mttr: 2.9, utilizationRate: 80, avgTravelTimeHours: 1.1, jobsCompletedCount: 6 },
+  per_009: { ftfr: 94, mttr: 2.2, utilizationRate: 80, avgTravelTimeHours: 0.9, jobsCompletedCount: 7 },
+  per_010: { ftfr: 82, mttr: 4.0, utilizationRate: 60, avgTravelTimeHours: 1.5, jobsCompletedCount: 3 },
+  per_011: { ftfr: 87, mttr: 3.2, utilizationRate: 80, avgTravelTimeHours: 1.3, jobsCompletedCount: 5 },
+  per_012: { ftfr: 90, mttr: 2.7, utilizationRate: 80, avgTravelTimeHours: 1.6, jobsCompletedCount: 6 },
+  per_013: { ftfr: 93, mttr: 2.4, utilizationRate: 80, avgTravelTimeHours: 1.7, jobsCompletedCount: 6 },
 };
 
 class KPIService {
@@ -63,7 +60,6 @@ class KPIService {
         mttr: 2.5 + (idx % 5) * 0.4,
         utilizationRate: 80,
         avgTravelTimeHours: 1.0 + (idx % 4) * 0.3,
-        avgTravelDistanceKm: 25 + (idx % 6) * 6,
         jobsCompletedCount: 5 + (idx % 3),
       };
 
@@ -85,7 +81,6 @@ class KPIService {
         mttr: base.mttr,
         utilizationRate: base.utilizationRate,
         avgTravelTimeHours: base.avgTravelTimeHours,
-        avgTravelDistanceKm: base.avgTravelDistanceKm,
         jobsCompletedCount: totalCompleted,
       };
     });
@@ -102,10 +97,8 @@ class KPIService {
     const avgTravelTimeHours = Number(
       (records.reduce((acc, r) => acc + r.avgTravelTimeHours, 0) / totalEng).toFixed(1)
     );
-    const avgTravelDistanceKm = Math.round(
-      records.reduce((acc, r) => acc + r.avgTravelDistanceKm, 0) / totalEng
-    );
     const totalJobsCompleted = records.reduce((acc, r) => acc + r.jobsCompletedCount, 0);
+    const avgJobsCompleted = Number((totalJobsCompleted / totalEng).toFixed(1));
 
     return {
       records,
@@ -114,8 +107,8 @@ class KPIService {
         avgMTTR,
         avgUtilization,
         avgTravelTimeHours,
-        avgTravelDistanceKm,
         totalJobsCompleted,
+        avgJobsCompleted,
       },
     };
   }
