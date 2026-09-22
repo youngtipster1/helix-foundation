@@ -29,37 +29,34 @@ export interface AssetDashboardViewProps {
 export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
   return (
     <div className="space-y-4">
-      {/* Top Row: Left KPI Cards (Total Equipment, Total Value, Total OEMs) + Center Warranty Donut + Right Equipment Status Donut */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
-        {/* Left Column: 3 Metric Cards Stacked */}
-        <div className="lg:col-span-4 flex flex-col justify-between gap-3.5">
-          <StatCard
-            title="Total Equipment"
-            value={metrics.totalEquipment}
-            unit="units"
-            description="Registered biomedical inventory devices"
-            icon={Stethoscope}
-            className="flex-1"
-          />
-          <StatCard
-            title="Total Value of Equipment"
-            value={`₦${metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
-            description="Active service & maintenance valuation"
-            icon={Banknote}
-            className="flex-1"
-          />
-          <StatCard
-            title="Total Number of OEMs"
-            value={metrics.totalOems}
-            unit="brands"
-            description="Equipment manufacturers under management"
-            icon={Building2}
-            className="flex-1"
-          />
-        </div>
+      {/* Top Row: 3 Primary KPI Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <StatCard
+          title="Total Equipment"
+          value={metrics.totalEquipment}
+          unit="units"
+          description="Registered biomedical inventory devices"
+          icon={Stethoscope}
+        />
+        <StatCard
+          title="Total Value of Equipment"
+          value={`₦${metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
+          description="Active service & maintenance valuation"
+          icon={Banknote}
+        />
+        <StatCard
+          title="Total Number of OEMs"
+          value={metrics.totalOems}
+          unit="brands"
+          description="Equipment manufacturers under management"
+          icon={Building2}
+        />
+      </div>
 
-        {/* Center Column: Warranty Status Donut */}
-        <div className="lg:col-span-4 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+      {/* Middle Row: 2 Donut Charts (Warranty Status & Equipment Status) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+        {/* Left Donut: Warranty Status */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="size-4 text-foreground" />
