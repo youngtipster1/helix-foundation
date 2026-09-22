@@ -2,8 +2,7 @@ import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
-import type { DebriefJob } from "../types";
-import { Eye, Plus } from "lucide-react";
+import { Eye } from "lucide-react";
 
 interface JobsTableProps {
   jobs: DebriefJob[];

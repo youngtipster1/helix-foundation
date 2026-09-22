@@ -8,8 +8,7 @@ import { debriefService } from "@/modules/debrief/services/debrief-service";
 import { JobsTable } from "@/modules/debrief/components/jobs-table";
 import { CreateJobModal } from "@/modules/debrief/components/create-job-modal";
 import { JobDetailsModal } from "@/modules/debrief/components/job-details-modal";
-import type { DebriefJob } from "@/modules/debrief/types";
-import { ClipboardList, Plus, RefreshCw } from "lucide-react";
+import { ClipboardList, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/app/debrief/")({
   head: () => ({
