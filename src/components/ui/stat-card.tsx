@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   value: string | number | React.ReactNode;
-  subtext?: string | React.ReactNode;
   description?: string | React.ReactNode;
   icon?: LucideIcon | React.ComponentType<{ className?: string }>;
   active?: boolean;
@@ -19,7 +18,6 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
     {
       title,
       value,
-      subtext,
       description,
       icon: Icon,
       active = false,
@@ -68,8 +66,8 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
           )}
         </div>
 
-        {/* Middle Row: Primary Value & Subtext/Pill */}
-        <div className="mt-4 flex items-baseline justify-between gap-2">
+        {/* Middle Row: Primary Value */}
+        <div className="mt-4 flex items-baseline">
           <div className="text-2xl font-bold font-mono text-foreground tracking-tight">
             {value}
             {unit && (
@@ -78,11 +76,6 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
               </span>
             )}
           </div>
-          {subtext && (
-            <span className="text-xs text-muted-foreground font-mono shrink-0">
-              {subtext}
-            </span>
-          )}
         </div>
 
         {/* Bottom Row: Context Description */}

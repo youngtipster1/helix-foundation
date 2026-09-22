@@ -225,7 +225,6 @@ function MyExpensesPage() {
         <StatCard
           title="Pending Claims"
           value={pendingList.length}
-          subtext="Awaiting Review"
           description={`Totaling ${new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(pendingTotal)}`}
           icon={Clock}
           active={activeFilter === "pending"}
@@ -234,7 +233,6 @@ function MyExpensesPage() {
         <StatCard
           title="Approved Claims"
           value={approvedList.length}
-          subtext="Ready for Payout"
           description={`Totaling ${new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(approvedTotal)}`}
           icon={CheckCircle2}
           active={activeFilter === "approved"}
@@ -243,7 +241,6 @@ function MyExpensesPage() {
         <StatCard
           title="Rejected Claims"
           value={rejectedList.length}
-          subtext="Requires Update"
           description="Check job workspace for rejection notes"
           icon={XCircle}
           active={activeFilter === "rejected"}

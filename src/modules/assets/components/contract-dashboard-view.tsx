@@ -20,6 +20,7 @@ import {
   CartesianGrid,
   LabelList,
 } from "recharts";
+import { StatCard } from "@/components/ui/stat-card";
 import { ContractDashboardMetrics } from "../types";
 
 export interface ContractDashboardViewProps {
@@ -29,117 +30,57 @@ export interface ContractDashboardViewProps {
 export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
   return (
     <div className="space-y-4">
-      {/* 1. Restored 6 KPI Summary Cards (All neutral black numbers, no colored values) */}
+      {/* 1. Restored 6 KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {/* Card 1: Total Contract Value */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Contract Value
-            </span>
-            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-              <Banknote className="size-3.5" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
-            ₦{metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
-            Combined value of active service agreements ({metrics.totalContracts} contracts)
-          </p>
-        </div>
+        <StatCard
+          title="Total Contract Value"
+          value={`₦${metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
+          icon={Banknote}
+          description={`Combined value of active service agreements (${metrics.totalContracts} contracts)`}
+        />
 
         {/* Card 2: Total Amount Paid */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Amount Paid
-            </span>
-            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-              <CheckCircle2 className="size-3.5" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
-            ₦{metrics.totalAmountPaid.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
-            Verified settlement payments ({((metrics.totalAmountPaid / (metrics.totalValue || 1)) * 100).toFixed(0)}% fulfilled)
-          </p>
-        </div>
+        <StatCard
+          title="Total Amount Paid"
+          value={`₦${metrics.totalAmountPaid.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
+          icon={CheckCircle2}
+          description={`Verified settlement payments (${((metrics.totalAmountPaid / (metrics.totalValue || 1)) * 100).toFixed(0)}% fulfilled)`}
+        />
 
         {/* Card 3: Outstanding Payable */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Outstanding Payable
-            </span>
-            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-              <AlertCircle className="size-3.5" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
-            ₦{metrics.totalAmountOutstanding.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
-            Remaining balance payable on agreements
-          </p>
-        </div>
+        <StatCard
+          title="Outstanding Payable"
+          value={`₦${metrics.totalAmountOutstanding.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
+          icon={AlertCircle}
+          description="Remaining balance payable on agreements"
+        />
 
         {/* Card 4: Covered Equipment */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Covered Equipment
-            </span>
-            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-              <FileSpreadsheet className="size-3.5" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
-            {metrics.equipmentUnderContract}{" "}
-            <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
-            Devices protected under vendor maintenance agreements
-          </p>
-        </div>
+        <StatCard
+          title="Covered Equipment"
+          value={metrics.equipmentUnderContract}
+          unit="units"
+          icon={FileSpreadsheet}
+          description="Devices protected under vendor maintenance agreements"
+        />
 
         {/* Card 5: Payable Next Month */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Payable Next Month
-            </span>
-            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-              <Calendar className="size-3.5" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
-            ₦{metrics.amountPayableNextMonth.toLocaleString("en-US", { minimumFractionDigits: 0 })}
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
-            Contract amount payable next month
-          </p>
-        </div>
+        <StatCard
+          title="Payable Next Month"
+          value={`₦${metrics.amountPayableNextMonth.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
+          icon={Calendar}
+          description="Contract amount payable next month"
+        />
 
         {/* Card 6: Service Contracts */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Service Contracts
-            </span>
-            <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-              <ShieldAlert className="size-3.5" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-mono font-bold text-foreground">
-            {metrics.totalContracts}{" "}
-            <span className="text-xs font-sans font-medium text-muted-foreground">active</span>
-          </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
-            Active OEM and 3rd-party vendor service agreements
-          </p>
-        </div>
+        <StatCard
+          title="Service Contracts"
+          value={metrics.totalContracts}
+          unit="active"
+          icon={ShieldAlert}
+          description="Active OEM and 3rd-party vendor service agreements"
+        />
       </div>
 
       {/* 2. Middle Row: 2 Donut Charts (Contract Status + Service Contract Types) */}

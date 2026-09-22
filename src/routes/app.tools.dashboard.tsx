@@ -179,7 +179,6 @@ function ToolsDashboardPage() {
         <StatCard
           title="Total Equipment Fleet"
           value={totalTools}
-          subtext="100% Tracked"
           description="Registered biomedical diagnostic tools"
           icon={Wrench}
           onClick={() => navigate({ to: "/app/tools" })}
@@ -187,7 +186,6 @@ function ToolsDashboardPage() {
         <StatCard
           title="Calibrated & Valid"
           value={calibratedCount}
-          subtext={`${complianceRate}% Compliance`}
           description="Valid calibration certificates active"
           icon={ShieldCheck}
           onClick={() => navigate({ to: "/app/tools" })}
@@ -195,7 +193,6 @@ function ToolsDashboardPage() {
         <StatCard
           title="Due Within 30 Days"
           value={dueSoonCount}
-          subtext="Action Required"
           description="Calibration slots scheduled with vendors"
           icon={AlertTriangle}
           onClick={() => navigate({ to: "/app/tools" })}
@@ -203,7 +200,6 @@ function ToolsDashboardPage() {
         <StatCard
           title="Out of Calibration"
           value={expiredCount}
-          subtext="Restricted"
           description="Quarantined & blocked from operational use"
           icon={XCircle}
           onClick={() => navigate({ to: "/app/tools" })}

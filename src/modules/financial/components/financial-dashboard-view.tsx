@@ -57,14 +57,12 @@ export function FinancialDashboardView({
         <StatCard
           title="Total Order Value"
           value={`₦${metrics.totalOrderValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-          subtext="100% Valuation"
           description="Active approved & ongoing procurement valuation"
           icon={DollarSign}
         />
         <StatCard
           title="OTIF Rate"
           value={`${metrics.otifRate}%`}
-          subtext="On-Time & In-Full"
           description="Orders fully fulfilled on or before target delivery date"
           icon={CheckCircle2}
         />
@@ -72,14 +70,12 @@ export function FinancialDashboardView({
           title="Order Cycle Time"
           value={metrics.orderCycleTimeDays}
           unit="days"
-          subtext="Avg Turnaround"
           description="Average duration from request creation to complete fulfillment"
           icon={Clock}
         />
         <StatCard
           title="Order Accuracy Rate"
           value={`${metrics.orderAccuracyRate}%`}
-          subtext="Quality Verified"
           description="Accurate orders divided by total fulfilled orders"
           icon={Percent}
         />

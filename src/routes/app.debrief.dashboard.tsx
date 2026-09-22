@@ -107,7 +107,6 @@ function DebriefDashboardPage() {
           <StatCard
             title="1. FTFR (%)"
             value={`${kpiData.summary.avgFTFR}%`}
-            subtext="≥ 85% Target"
             description="First-Time Fix Rate benchmark"
             icon={CheckCircle2}
             active={activeKPI === "ftfr"}
@@ -116,7 +115,6 @@ function DebriefDashboardPage() {
           <StatCard
             title="2. MTTR (Hours)"
             value={`${kpiData.summary.avgMTTR}h`}
-            subtext="≤ 3.5h Target"
             description="Mean Time to Repair resolution"
             icon={Clock}
             active={activeKPI === "mttr"}
@@ -125,7 +123,6 @@ function DebriefDashboardPage() {
           <StatCard
             title="3. Utilization (%)"
             value={`${kpiData.summary.avgUtilization}%`}
-            subtext="≥ 75% Target"
             description="Working Days Active Share"
             icon={Activity}
             active={activeKPI === "utilization"}
@@ -134,7 +131,6 @@ function DebriefDashboardPage() {
           <StatCard
             title="4. Avg Travel Time"
             value={`${kpiData.summary.avgTravelTimeHours}h`}
-            subtext="Transit Velocity"
             description="Average Travel per Service Call"
             icon={Navigation}
             active={activeKPI === "travel"}
@@ -143,7 +139,6 @@ function DebriefDashboardPage() {
           <StatCard
             title="5. Total Jobs Done"
             value={kpiData.summary.totalVolumeDone}
-            subtext="100% Closed"
             description="Total debriefs executed & verified"
             icon={TrendingUp}
             active={activeKPI === "volume"}

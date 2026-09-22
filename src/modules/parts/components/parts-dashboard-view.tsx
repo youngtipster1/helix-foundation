@@ -53,7 +53,6 @@ export function PartsDashboardView({ metrics }: PartsDashboardViewProps) {
         <StatCard
           title="Total Inventory Value"
           value={`₦${metrics.totalInventoryValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-          subtext="100% Tracked"
           description="Current replacement valuation across all depots"
           icon={DollarSign}
         />
@@ -61,14 +60,12 @@ export function PartsDashboardView({ metrics }: PartsDashboardViewProps) {
           title="Total Inventory Quantity"
           value={metrics.totalInventoryQuantity.toLocaleString()}
           unit="units"
-          subtext="In-Stock Fleet"
           description="Total active spare parts stock recorded in system"
           icon={Boxes}
         />
         <StatCard
           title="Shrinkage Value"
           value={`₦${metrics.shrinkageValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-          subtext="Audit Variance"
           description="Cumulative financial variance identified in physical audits"
           icon={TrendingDown}
         />
@@ -76,7 +73,6 @@ export function PartsDashboardView({ metrics }: PartsDashboardViewProps) {
           title="Shrinkage Quantity"
           value={metrics.shrinkageQuantity.toLocaleString()}
           unit="units"
-          subtext="Discrepancies"
           description="Missing inventory units from stock reconciliation cycles"
           icon={AlertOctagon}
         />

@@ -266,7 +266,6 @@ function ExpenseApprovalsPage() {
           title="Awaiting Approval"
           value={pendingList.length}
           unit="claims"
-          subtext="Action Required"
           description={`Totaling ${new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(pendingAmountTotal)}`}
           icon={Clock}
           active={activeFilter === "pending"}
@@ -276,7 +275,6 @@ function ExpenseApprovalsPage() {
           title="Approved Claims"
           value={approvedList.length}
           unit="claims"
-          subtext="Verified"
           description="Processed for finance reimbursement"
           icon={CheckCircle2}
           active={activeFilter === "approved"}
@@ -286,7 +284,6 @@ function ExpenseApprovalsPage() {
           title="Rejected Claims"
           value={rejectedList.length}
           unit="claims"
-          subtext="Declined"
           description="Returned to engineer with audit notes"
           icon={XCircle}
           active={activeFilter === "rejected"}

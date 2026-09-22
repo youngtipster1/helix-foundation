@@ -329,7 +329,6 @@ function ToolsListPage() {
         <StatCard
           title="Total Equipment"
           value={toolsList.length}
-          subtext="100% Tracked"
           description="Registered biomedical diagnostic tools"
           icon={Wrench}
           active={activeFilter === "all"}
@@ -338,7 +337,6 @@ function ToolsListPage() {
         <StatCard
           title="Calibrated & Valid"
           value={validCount}
-          subtext="Valid Active"
           description="Valid calibration certificates active"
           icon={CheckCircle2}
           active={activeFilter === "valid"}
@@ -347,7 +345,6 @@ function ToolsListPage() {
         <StatCard
           title="Due Within 30 Days"
           value={dueSoonCount}
-          subtext="Action Required"
           description="Calibration slots scheduled with vendors"
           icon={AlertTriangle}
           active={activeFilter === "due_soon"}
@@ -356,7 +353,6 @@ function ToolsListPage() {
         <StatCard
           title="Out of Calibration"
           value={expiredCount}
-          subtext="Restricted"
           description="Quarantined & blocked from operational use"
           icon={ShieldAlert}
           active={activeFilter === "expired"}

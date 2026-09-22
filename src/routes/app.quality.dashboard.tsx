@@ -95,7 +95,6 @@ function QualityDashboardPage() {
         <StatCard
           title="Policy Documents"
           value={metrics.policyDocuments}
-          subtext="100% Active"
           description="Active & approved policy documentation"
           icon={FileText}
           onClick={() => navigate({ to: "/app/quality/policy-documents" })}
@@ -103,7 +102,6 @@ function QualityDashboardPage() {
         <StatCard
           title="Equipment Checklists"
           value={metrics.equipmentChecklists}
-          subtext="Verified"
           description="Standardized operational inspection checklists"
           icon={ClipboardCheck}
           onClick={() => navigate({ to: "/app/quality/checklists" })}
@@ -111,7 +109,6 @@ function QualityDashboardPage() {
         <StatCard
           title="Pending Reviews"
           value={metrics.pendingReviews}
-          subtext="In Queue"
           description="Awaiting peer evaluation & QA review"
           icon={Clock}
           onClick={() => navigate({ to: "/app/quality/reviews" })}
@@ -119,7 +116,6 @@ function QualityDashboardPage() {
         <StatCard
           title="Pending Approvals"
           value={metrics.pendingApprovals}
-          subtext="Sign-Off"
           description="Awaiting administrative authorization"
           icon={ShieldCheck}
           onClick={() => navigate({ to: "/app/quality/approvals" })}

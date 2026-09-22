@@ -354,28 +354,24 @@ function QualityTrainingPage() {
         <StatCard
           title={isAdmin ? "Total Dispatched" : "My Assigned"}
           value={totalCount}
-          subtext="100% Tracked"
           description={isAdmin ? "All team assignments" : "Assigned to your workbench"}
           icon={GraduationCap}
         />
         <StatCard
           title={isAdmin ? "Completed" : "My Completed"}
           value={completedCount}
-          subtext="Compliant"
           description="Acknowledged & compliant"
           icon={CheckCircle2}
         />
         <StatCard
           title={isAdmin ? "Pending" : "Action Required"}
           value={pendingCount}
-          subtext="In Queue"
           description={isAdmin ? "Awaiting technician review" : "Pending your signature"}
           icon={Clock}
         />
         <StatCard
           title={isAdmin ? "Team Compliance" : "Compliance Rate"}
           value={`${complianceRate}%`}
-          subtext="Target ≥ 90%"
           description={isAdmin ? "Overall team rate" : "Your personal compliance"}
           icon={Award}
         />

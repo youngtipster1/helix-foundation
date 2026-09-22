@@ -37,7 +37,6 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
             title="Total Equipment"
             value={metrics.totalEquipment}
             unit="units"
-            subtext="100% Tracked"
             description="Registered biomedical inventory devices"
             icon={Stethoscope}
             className="flex-1"
@@ -45,7 +44,6 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
           <StatCard
             title="Total Value of Equipment"
             value={`₦${metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}`}
-            subtext="Asset Valuation"
             description="Active service & maintenance valuation"
             icon={Banknote}
             className="flex-1"
@@ -54,7 +52,6 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
             title="Total Number of OEMs"
             value={metrics.totalOems}
             unit="brands"
-            subtext="Manufacturers"
             description="Equipment manufacturers under management"
             icon={Building2}
             className="flex-1"

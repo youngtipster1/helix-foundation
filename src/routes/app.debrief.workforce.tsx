@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
 import { scheduleService } from "@/modules/debrief/services/schedule-service";
@@ -242,59 +243,34 @@ function DebriefWorkforcePage() {
 
       {/* Standard Telemetry KPI Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
-          <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Active Roster</span>
-            <div className="p-2 rounded-xl bg-primary/10 text-primary">
-              <Users className="size-4" />
-            </div>
-          </div>
-          <div className="font-mono font-bold text-2xl text-foreground">
-            {engineers.length} Engineers
-          </div>
-          <p className="text-xs text-muted-foreground">Clinical &amp; workshop specialists</p>
-        </div>
-
-        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
-          <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Available Capacity</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
-              <Clock className="size-4" />
-            </div>
-          </div>
-          <div className="font-mono font-bold text-2xl text-foreground">
-            {weekMetrics.totalAvailableHours.toFixed(0)} Hours
-          </div>
-          <p className="text-xs text-muted-foreground">
-            of {weekMetrics.totalStandardHours.toFixed(0)}h standard potential
-          </p>
-        </div>
-
-        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
-          <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">In Training</span>
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
-              <GraduationCap className="size-4" />
-            </div>
-          </div>
-          <div className="font-mono font-bold text-2xl text-foreground">
-            {weekMetrics.trainingCount} Scheduled
-          </div>
-          <p className="text-xs text-muted-foreground">QA &amp; OEM certification seminars</p>
-        </div>
-
-        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
-          <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Leave &amp; Off Periods</span>
-            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-500">
-              <CalendarOff className="size-4" />
-            </div>
-          </div>
-          <div className="font-mono font-bold text-2xl text-foreground">
-            {weekMetrics.leaveCount} Periods
-          </div>
-          <p className="text-xs text-muted-foreground">Approved leave &amp; roster rest days</p>
-        </div>
+        <StatCard
+          title="Active Roster"
+          value={engineers.length}
+          unit="Engineers"
+          description="Clinical & workshop specialists"
+          icon={Users}
+        />
+        <StatCard
+          title="Available Capacity"
+          value={weekMetrics.totalAvailableHours.toFixed(0)}
+          unit="Hours"
+          description={`of ${weekMetrics.totalStandardHours.toFixed(0)}h standard potential`}
+          icon={Clock}
+        />
+        <StatCard
+          title="In Training"
+          value={weekMetrics.trainingCount}
+          unit="Scheduled"
+          description="QA & OEM certification seminars"
+          icon={GraduationCap}
+        />
+        <StatCard
+          title="Leave & Off Periods"
+          value={weekMetrics.leaveCount}
+          unit="Periods"
+          description="Approved leave & roster rest days"
+          icon={CalendarOff}
+        />
       </div>
 
       {/* Horizontal Bar Legend with Dots */}

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { StatCard } from "@/components/ui/stat-card";
 import { useAuth } from "@/features/auth/auth-context";
 import { personnelService } from "@/modules/settings/services/personnel-service";
 import { userAccountService } from "@/modules/settings/services/user-account-service";
@@ -143,54 +144,32 @@ function DashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="surface-panel p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Personnel</span>
-            <Users className="size-4 text-muted-foreground" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-foreground tracking-tight">
-              {loading ? "..." : stats.totalPersonnel}
-            </span>
-          </div>
-        </div>
-
-        <div className="surface-panel p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Users</span>
-            <ShieldCheck className="size-4 text-muted-foreground" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-foreground tracking-tight">
-              {loading ? "..." : stats.activeUsers}
-            </span>
-          </div>
-        </div>
-
-        <div className="surface-panel p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Modules</span>
-            <LayoutGrid className="size-4 text-muted-foreground" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-foreground tracking-tight">
-              {loading ? "..." : stats.activeModules}
-            </span>
-          </div>
-        </div>
-
-        <div className="surface-panel p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Attention Required</span>
-            <AlertCircle className="size-4 text-amber-500" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-foreground tracking-tight">
-              {loading ? "..." : stats.itemsAttention}
-            </span>
-            <span className="text-xs text-muted-foreground font-normal">Inactive Accounts</span>
-          </div>
-        </div>
+        <StatCard
+          title="Total Personnel"
+          value={loading ? "..." : stats.totalPersonnel}
+          description="Registered personnel records"
+          icon={Users}
+          onClick={() => navigate({ to: "/app/settings/personnel" })}
+        />
+        <StatCard
+          title="Active Users"
+          value={loading ? "..." : stats.activeUsers}
+          description="Enabled user accounts"
+          icon={ShieldCheck}
+          onClick={() => navigate({ to: "/app/settings/user-accounts" })}
+        />
+        <StatCard
+          title="Active Modules"
+          value={loading ? "..." : stats.activeModules}
+          description="Operational system features"
+          icon={LayoutGrid}
+        />
+        <StatCard
+          title="Attention Required"
+          value={loading ? "..." : stats.itemsAttention}
+          description="Inactive accounts / pending items"
+          icon={AlertCircle}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
