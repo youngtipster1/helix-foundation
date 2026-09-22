@@ -15,14 +15,7 @@ import {
   Clock,
   MapPin,
   User,
-  Activity,
   FileText,
-  Calendar,
-  Shield,
-  Phone,
-  Mail,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -158,7 +151,7 @@ function DebriefMyWorkPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredJobs.map((job) => {
             const isOnHold = job.jobStatus === "On Hold";
             const isOpen = job.jobStatus === "Open";
@@ -166,10 +159,10 @@ function DebriefMyWorkPage() {
             return (
               <div
                 key={job.id}
-                className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-4 transition-colors hover:border-primary/50"
+                className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-3.5 transition-colors hover:border-primary/50"
               >
-                <div className="space-y-4">
-                  {/* Card Top: Job Number & Badges */}
+                <div className="space-y-3">
+                  {/* Header: Job Number & Badges */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-border/50">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-bold text-sm text-primary">
@@ -207,130 +200,74 @@ function DebriefMyWorkPage() {
                     </span>
                   </div>
 
-                  {/* 1. EQUIPMENT DETAILS (Slide 6 Spec) */}
-                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
-                    <span className="text-xs font-bold text-foreground uppercase tracking-wider block border-b border-border/40 pb-1">
-                      Equipment Details
+                  {/* Equipment Header Info */}
+                  <div>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h4 className="font-bold text-foreground text-sm leading-snug">
+                        {job.model}
+                      </h4>
+                      <span className="font-mono font-semibold text-xs text-primary shrink-0">
+                        {job.assetNumber}
+                      </span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {job.modality} · {job.oem}
                     </span>
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Asset Number:</span>
-                        <span className="font-mono font-bold text-primary">{job.assetNumber}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Model:</span>
-                        <span className="font-bold text-foreground truncate block">{job.model}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Modality:</span>
-                        <span className="text-foreground">{job.modality}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">OEM:</span>
-                        <span className="text-foreground">{job.oem}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Serial Number:</span>
-                        <span className="font-mono text-foreground">{job.serialNumber || "—"}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Year of Mfg:</span>
-                        <span className="text-foreground">{job.yearOfManufacture || "—"}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Location:</span>
-                        <span className="text-foreground truncate block">{job.location || "Main Ward"}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Address:</span>
-                        <span className="text-foreground truncate block">{job.address || "Hospital Complex"}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Warranty End:</span>
-                        <span className="font-mono text-foreground">{job.warrantyEndDate || "—"}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Contract End:</span>
-                        <span className="font-mono text-foreground">{job.contractEndDate || "—"}</span>
-                      </div>
+                  {/* Compact Job Details Summary */}
+                  <div className="p-2.5 rounded-lg bg-muted/25 border border-border/50 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Job Type:</span>
+                      <span className="font-semibold text-foreground">{job.jobType}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Priority:</span>
+                      <span
+                        className={cn(
+                          "font-bold",
+                          job.jobPriority === "High"
+                            ? "text-rose-600"
+                            : job.jobPriority === "Mid"
+                            ? "text-amber-600"
+                            : "text-blue-600"
+                        )}
+                      >
+                        {job.jobPriority} Priority
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Start Date:</span>
+                      <span className="font-mono text-foreground">{job.jobStartDate || job.startDate || "—"}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Location:</span>
+                      <span className="text-foreground truncate max-w-[170px]">
+                        {job.location || "Main Ward"}
+                      </span>
                     </div>
                   </div>
 
-                  {/* 2. JOB DETAILS (Slide 6 Spec) */}
-                  <div className="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
-                    <span className="text-xs font-bold text-foreground uppercase tracking-wider block border-b border-border/40 pb-1">
-                      Job Details
-                    </span>
-
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Job Type:</span>
-                        <span className="font-semibold text-foreground">{job.jobType}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Job Priority:</span>
-                        <span
-                          className={cn(
-                            "font-bold",
-                            job.jobPriority === "High"
-                              ? "text-rose-600"
-                              : job.jobPriority === "Mid"
-                              ? "text-amber-600"
-                              : "text-blue-600"
-                          )}
-                        >
-                          {job.jobPriority} Priority
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Job Open Date:</span>
-                        <span className="font-mono text-foreground">{job.jobOpenDate || "—"}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Job Start Date:</span>
-                        <span className="font-mono text-foreground">{job.jobStartDate || job.startDate || "—"}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Complaint Date/Time:</span>
-                        <span className="font-mono text-foreground">
-                          {job.complaintDate ? `${job.complaintDate} ${job.complaintTime || ""}` : "—"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Contact Person:</span>
-                        <span className="text-foreground truncate block">
-                          {job.contactName || "Facility Officer"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Assign To:</span>
-                        <span className="font-bold text-foreground truncate block">{job.assignedToName}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground block font-medium">Assisted By:</span>
-                        <span className="text-foreground truncate block">{job.assistedBy || "—"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. REPORTED ISSUE (Slide 6 Spec) */}
+                  {/* Reported Issue (Compact preview) */}
                   <div className="space-y-1 text-xs">
-                    <span className="font-bold text-foreground text-xs flex items-center gap-1 text-muted-foreground">
+                    <span className="font-medium text-muted-foreground flex items-center gap-1">
                       <FileText className="size-3" /> Reported Issue:
                     </span>
-                    <p className="p-2.5 rounded-md bg-background border border-border/70 text-foreground leading-relaxed text-xs">
-                      {job.reportedIssue || "Diagnostic service and maintenance inspection required."}
+                    <p className="p-2 rounded-md bg-muted/20 border border-border/60 text-foreground leading-relaxed text-xs line-clamp-2">
+                      {job.reportedIssue || "Diagnostic service inspection required."}
                     </p>
                   </div>
                 </div>
 
                 {/* Primary Action Button */}
-                <div className="pt-2">
+                <div className="pt-1">
                   <Button
                     size="sm"
                     onClick={() => handleOpenWorkspace(job)}
-                    className="w-full h-9 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
+                    className="w-full h-8.5 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
                   >
                     <span>
                       {isOnHold ? "Resume Job" : isOpen ? "Start Job" : "Continue Work"}
