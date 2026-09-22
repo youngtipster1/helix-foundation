@@ -27,6 +27,7 @@ import { Route as AppAssetsListRouteImport } from './routes/app.assets.list'
 import { Route as AppDebriefIndexRouteImport } from './routes/app.debrief.index'
 import { Route as AppDebriefMyWorkRouteImport } from './routes/app.debrief.my-work'
 import { Route as AppDebriefScheduleRouteImport } from './routes/app.debrief.schedule'
+import { Route as AppDebriefWorkforceRouteImport } from './routes/app.debrief.workforce'
 import { Route as AppFinancialIndexRouteImport } from './routes/app.financial.index'
 import { Route as AppFinancialDashboardRouteImport } from './routes/app.financial.dashboard'
 import { Route as AppFinancialOrdersRouteImport } from './routes/app.financial.orders'
@@ -161,6 +162,11 @@ const AppDebriefMyWorkRoute = AppDebriefMyWorkRouteImport.update({
 const AppDebriefScheduleRoute = AppDebriefScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
+  getParentRoute: () => AppDebriefRoute,
+} as any)
+const AppDebriefWorkforceRoute = AppDebriefWorkforceRouteImport.update({
+  id: '/workforce',
+  path: '/workforce',
   getParentRoute: () => AppDebriefRoute,
 } as any)
 const AppFinancialIndexRoute = AppFinancialIndexRouteImport.update({
@@ -407,6 +413,7 @@ export interface FileRoutesByFullPath {
   '/app/assets/list': typeof AppAssetsListRoute
   '/app/debrief/my-work': typeof AppDebriefMyWorkRoute
   '/app/debrief/schedule': typeof AppDebriefScheduleRoute
+  '/app/debrief/workforce': typeof AppDebriefWorkforceRoute
   '/app/financial/dashboard': typeof AppFinancialDashboardRoute
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
@@ -464,6 +471,7 @@ export interface FileRoutesByTo {
   '/app/assets/list': typeof AppAssetsListRoute
   '/app/debrief/my-work': typeof AppDebriefMyWorkRoute
   '/app/debrief/schedule': typeof AppDebriefScheduleRoute
+  '/app/debrief/workforce': typeof AppDebriefWorkforceRoute
   '/app/financial/dashboard': typeof AppFinancialDashboardRoute
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
@@ -529,6 +537,7 @@ export interface FileRoutesById {
   '/app/assets/list': typeof AppAssetsListRoute
   '/app/debrief/my-work': typeof AppDebriefMyWorkRoute
   '/app/debrief/schedule': typeof AppDebriefScheduleRoute
+  '/app/debrief/workforce': typeof AppDebriefWorkforceRoute
   '/app/financial/dashboard': typeof AppFinancialDashboardRoute
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
@@ -595,6 +604,7 @@ export interface FileRouteTypes {
     | '/app/assets/list'
     | '/app/debrief/my-work'
     | '/app/debrief/schedule'
+    | '/app/debrief/workforce'
     | '/app/financial/dashboard'
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
@@ -652,6 +662,7 @@ export interface FileRouteTypes {
     | '/app/assets/list'
     | '/app/debrief/my-work'
     | '/app/debrief/schedule'
+    | '/app/debrief/workforce'
     | '/app/financial/dashboard'
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
@@ -716,6 +727,7 @@ export interface FileRouteTypes {
     | '/app/assets/list'
     | '/app/debrief/my-work'
     | '/app/debrief/schedule'
+    | '/app/debrief/workforce'
     | '/app/financial/dashboard'
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
@@ -896,6 +908,13 @@ declare module '@tanstack/react-router' {
       path: '/schedule'
       fullPath: '/app/debrief/schedule'
       preLoaderRoute: typeof AppDebriefScheduleRouteImport
+      parentRoute: typeof AppDebriefRoute
+    }
+    '/app/debrief/workforce': {
+      id: '/app/debrief/workforce'
+      path: '/workforce'
+      fullPath: '/app/debrief/workforce'
+      preLoaderRoute: typeof AppDebriefWorkforceRouteImport
       parentRoute: typeof AppDebriefRoute
     }
     '/app/financial/': {
@@ -1212,6 +1231,7 @@ declare module '@tanstack/react-router' {
 interface AppDebriefRouteChildren {
   AppDebriefMyWorkRoute: typeof AppDebriefMyWorkRoute
   AppDebriefScheduleRoute: typeof AppDebriefScheduleRoute
+  AppDebriefWorkforceRoute: typeof AppDebriefWorkforceRoute
   AppDebriefIndexRoute: typeof AppDebriefIndexRoute
   AppDebriefWorkspaceJobIdRoute: typeof AppDebriefWorkspaceJobIdRoute
 }
@@ -1219,6 +1239,7 @@ interface AppDebriefRouteChildren {
 const AppDebriefRouteChildren: AppDebriefRouteChildren = {
   AppDebriefMyWorkRoute: AppDebriefMyWorkRoute,
   AppDebriefScheduleRoute: AppDebriefScheduleRoute,
+  AppDebriefWorkforceRoute: AppDebriefWorkforceRoute,
   AppDebriefIndexRoute: AppDebriefIndexRoute,
   AppDebriefWorkspaceJobIdRoute: AppDebriefWorkspaceJobIdRoute,
 }

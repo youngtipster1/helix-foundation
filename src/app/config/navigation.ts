@@ -123,5 +123,6 @@ export const ASSETS_NAV: NavItem[] = [
 export const DEBRIEF_NAV: NavItem[] = [
   { label: "Jobs", to: "/app/debrief", icon: ClipboardCheck },
   { label: "Schedule Calendar", to: "/app/debrief/schedule", icon: CalendarRange },
+  { label: "Workforce", to: "/app/debrief/workforce", icon: Users },
   { label: "My Work", to: "/app/debrief/my-work", icon: Wrench },
 ];
