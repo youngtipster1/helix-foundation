@@ -25,6 +25,7 @@ import { Route as AppAssetsContractsDashboardRouteImport } from './routes/app.as
 import { Route as AppAssetsDashboardRouteImport } from './routes/app.assets.dashboard'
 import { Route as AppAssetsListRouteImport } from './routes/app.assets.list'
 import { Route as AppDebriefIndexRouteImport } from './routes/app.debrief.index'
+import { Route as AppDebriefDashboardRouteImport } from './routes/app.debrief.dashboard'
 import { Route as AppDebriefMyWorkRouteImport } from './routes/app.debrief.my-work'
 import { Route as AppDebriefScheduleRouteImport } from './routes/app.debrief.schedule'
 import { Route as AppDebriefWorkforceRouteImport } from './routes/app.debrief.workforce'
@@ -152,6 +153,11 @@ const AppAssetsListRoute = AppAssetsListRouteImport.update({
 const AppDebriefIndexRoute = AppDebriefIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppDebriefRoute,
+} as any)
+const AppDebriefDashboardRoute = AppDebriefDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AppDebriefRoute,
 } as any)
 const AppDebriefMyWorkRoute = AppDebriefMyWorkRouteImport.update({
@@ -411,6 +417,7 @@ export interface FileRoutesByFullPath {
   '/app/assets/contracts-dashboard': typeof AppAssetsContractsDashboardRoute
   '/app/assets/dashboard': typeof AppAssetsDashboardRoute
   '/app/assets/list': typeof AppAssetsListRoute
+  '/app/debrief/dashboard': typeof AppDebriefDashboardRoute
   '/app/debrief/my-work': typeof AppDebriefMyWorkRoute
   '/app/debrief/schedule': typeof AppDebriefScheduleRoute
   '/app/debrief/workforce': typeof AppDebriefWorkforceRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/app/assets/contracts-dashboard': typeof AppAssetsContractsDashboardRoute
   '/app/assets/dashboard': typeof AppAssetsDashboardRoute
   '/app/assets/list': typeof AppAssetsListRoute
+  '/app/debrief/dashboard': typeof AppDebriefDashboardRoute
   '/app/debrief/my-work': typeof AppDebriefMyWorkRoute
   '/app/debrief/schedule': typeof AppDebriefScheduleRoute
   '/app/debrief/workforce': typeof AppDebriefWorkforceRoute
@@ -535,6 +543,7 @@ export interface FileRoutesById {
   '/app/assets/contracts-dashboard': typeof AppAssetsContractsDashboardRoute
   '/app/assets/dashboard': typeof AppAssetsDashboardRoute
   '/app/assets/list': typeof AppAssetsListRoute
+  '/app/debrief/dashboard': typeof AppDebriefDashboardRoute
   '/app/debrief/my-work': typeof AppDebriefMyWorkRoute
   '/app/debrief/schedule': typeof AppDebriefScheduleRoute
   '/app/debrief/workforce': typeof AppDebriefWorkforceRoute
@@ -602,6 +611,7 @@ export interface FileRouteTypes {
     | '/app/assets/contracts-dashboard'
     | '/app/assets/dashboard'
     | '/app/assets/list'
+    | '/app/debrief/dashboard'
     | '/app/debrief/my-work'
     | '/app/debrief/schedule'
     | '/app/debrief/workforce'
@@ -660,6 +670,7 @@ export interface FileRouteTypes {
     | '/app/assets/contracts-dashboard'
     | '/app/assets/dashboard'
     | '/app/assets/list'
+    | '/app/debrief/dashboard'
     | '/app/debrief/my-work'
     | '/app/debrief/schedule'
     | '/app/debrief/workforce'
@@ -725,6 +736,7 @@ export interface FileRouteTypes {
     | '/app/assets/contracts-dashboard'
     | '/app/assets/dashboard'
     | '/app/assets/list'
+    | '/app/debrief/dashboard'
     | '/app/debrief/my-work'
     | '/app/debrief/schedule'
     | '/app/debrief/workforce'
@@ -894,6 +906,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/debrief/'
       preLoaderRoute: typeof AppDebriefIndexRouteImport
+      parentRoute: typeof AppDebriefRoute
+    }
+    '/app/debrief/dashboard': {
+      id: '/app/debrief/dashboard'
+      path: '/dashboard'
+      fullPath: '/app/debrief/dashboard'
+      preLoaderRoute: typeof AppDebriefDashboardRouteImport
       parentRoute: typeof AppDebriefRoute
     }
     '/app/debrief/my-work': {
@@ -1229,6 +1248,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppDebriefRouteChildren {
+  AppDebriefDashboardRoute: typeof AppDebriefDashboardRoute
   AppDebriefMyWorkRoute: typeof AppDebriefMyWorkRoute
   AppDebriefScheduleRoute: typeof AppDebriefScheduleRoute
   AppDebriefWorkforceRoute: typeof AppDebriefWorkforceRoute
@@ -1237,6 +1257,7 @@ interface AppDebriefRouteChildren {
 }
 
 const AppDebriefRouteChildren: AppDebriefRouteChildren = {
+  AppDebriefDashboardRoute: AppDebriefDashboardRoute,
   AppDebriefMyWorkRoute: AppDebriefMyWorkRoute,
   AppDebriefScheduleRoute: AppDebriefScheduleRoute,
   AppDebriefWorkforceRoute: AppDebriefWorkforceRoute,

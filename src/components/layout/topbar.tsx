@@ -169,7 +169,7 @@ export function Topbar({ user }: { user: User }) {
     {
       id: "debrief",
       label: "Debrief",
-      to: "/app/debrief",
+      to: "/app/debrief/dashboard",
       icon: Activity,
       isActive: isDebrief,
       hasAccess: hasModuleAccess(user, "debrief"),
