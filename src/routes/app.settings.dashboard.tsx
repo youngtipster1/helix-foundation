@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Users,
@@ -40,6 +40,7 @@ export const Route = createFileRoute("/app/settings/dashboard")({
 
 function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalPersonnel: 0,
     activeUsers: 0,
