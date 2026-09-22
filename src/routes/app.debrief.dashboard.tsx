@@ -89,7 +89,6 @@ function DebriefDashboardPage() {
             ? "High-level operational overview: select any performance KPI card to inspect comparative lean bar charts across biomedical engineers."
             : "Operational overview of personal and team performance benchmarks."
         }
-        icon={LayoutDashboard}
       />
 
       {/* TOP KPI STAT CARDS (Clicking any card immediately displays the corresponding bar chart data below) */}

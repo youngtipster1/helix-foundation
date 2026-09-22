@@ -99,7 +99,6 @@ function DebriefJobsPage() {
             ? "Central organization job management table, biomedical equipment assignments, live cost rollups, and post-service records."
             : "Your assigned biomedical service jobs and active task assignments."
         }
-        icon={ClipboardList}
       >
         {isAdmin && (
           <Button

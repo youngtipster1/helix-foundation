@@ -625,7 +625,6 @@ function DebriefSchedulePage() {
             ? "Weekly biomedical engineer dispatch calendar, hospital service assignments, workforce availability, and capacity utilization."
             : "Weekly schedule calendar: view your scheduled hospital visits and equipment debriefs."
         }
-        icon={CalendarRange}
       />
 
       {/* Top Header Controls with Centered Date Picker */}

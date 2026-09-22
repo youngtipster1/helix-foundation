@@ -201,7 +201,6 @@ function DebriefMyWorkPage() {
       <PageHeader
         title="My Work"
         subtitle="Manage active job executions, view your upcoming scheduled dispatches, and review completed service debriefs."
-        icon={Wrench}
       />
 
       {/* Filter Tabs & Grid/List View Mode Controls */}

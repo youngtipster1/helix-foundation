@@ -183,7 +183,6 @@ function DebriefWorkforcePage() {
             ? "Manage engineer working schedules, record training and leave periods, inspect capacity, and define calendar legend rules."
             : "Workforce directory and weekly working capacity schedule."
         }
-        icon={Users}
       />
 
       {/* Top Header Controls with Centered Date Navigator Bar */}
