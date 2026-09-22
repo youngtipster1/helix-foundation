@@ -1013,8 +1013,6 @@ export function PartFormModal({
               </div>
             </div>
           )}
-        </div>
-
     </StepperModal>
   );
 }
