@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { debriefService, computeJobCosts } from "@/modules/debrief/services/debrief-service";
+import { MOCK_PARTS } from "@/modules/parts/services/parts-service";
 import type {
   DebriefJob,
   EquipmentStatus,
@@ -59,7 +60,6 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
-  DollarSign,
   ShieldCheck,
   Lock,
   UserCheck,
@@ -68,6 +68,7 @@ import {
   Phone,
   Mail,
   ExternalLink,
+  SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -138,7 +139,7 @@ function formatDateNow(): string {
   return new Date().toISOString().split("T")[0];
 }
 
-function formatCurrency(amount: number): string {
+function formatNaira(amount: number): string {
   return `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
@@ -150,7 +151,7 @@ function DebriefJobWorkspacePage() {
   const [job, setJob] = useState<DebriefJob | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showFullSpecs, setShowFullSpecs] = useState(false);
+  const [specsModalOpen, setSpecsModalOpen] = useState(false);
 
   // Labour & Timestamps state
   const [travelStartTime, setTravelStartTime] = useState("");
@@ -184,9 +185,14 @@ function DebriefJobWorkspacePage() {
   const [holdDialogOpen, setHoldDialogOpen] = useState(false);
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
 
-  // Form states for modals
+  // Form states for Part modal with Live Inventory Search
+  const [partSearchQuery, setPartSearchQuery] = useState("");
   const [partNumber, setPartNumber] = useState("");
+  const [partSerialNumber, setPartSerialNumber] = useState("");
   const [partDescription, setPartDescription] = useState("");
+  const [partModality, setPartModality] = useState("");
+  const [partOem, setPartOem] = useState("");
+  const [partModel, setPartModel] = useState("");
   const [partUnitCost, setPartUnitCost] = useState("150000");
   const [partQtyUsed, setPartQtyUsed] = useState("1");
 
@@ -201,7 +207,6 @@ function DebriefJobWorkspacePage() {
   const [docFileName, setDocFileName] = useState("");
   const [docComment, setDocComment] = useState("");
 
-  const [toolSearchQuery, setToolSearchQuery] = useState("");
   const [toolDateOfUse, setToolDateOfUse] = useState(formatDateNow());
 
   useEffect(() => {
@@ -218,7 +223,18 @@ function DebriefJobWorkspacePage() {
           setWorkDone(found.labour?.workDone || found.reportedIssue || "");
           setEquipmentStatus(found.equipmentStatus || "UP");
           setJobStatus(found.jobStatus || "Open");
-          setStage(found.stage || (found.jobStatus === "Completed" ? "completed" : found.jobStatus === "On Hold" ? "on_hold" : found.labour?.labourStartTime ? "working" : found.labour?.travelStartTime ? "traveling" : "assigned"));
+          setStage(
+            found.stage ||
+              (found.jobStatus === "Completed"
+                ? "completed"
+                : found.jobStatus === "On Hold"
+                ? "on_hold"
+                : found.labour?.labourStartTime
+                ? "working"
+                : found.labour?.travelStartTime
+                ? "traveling"
+                : "assigned")
+          );
           setHoldReason(found.holdReason || "Awaiting Part");
           setRootCause(found.rootCause && found.rootCause !== "—" ? found.rootCause : "Hardware");
           setResolution(found.resolution && found.resolution !== "—" ? found.resolution : "Component replacement");
@@ -243,6 +259,29 @@ function DebriefJobWorkspacePage() {
 
     loadJob();
   }, [jobId]);
+
+  // Inventory Search Suggestions
+  const filteredInventoryParts = useMemo(() => {
+    if (!partSearchQuery.trim()) return [];
+    const q = partSearchQuery.toLowerCase().trim();
+    return MOCK_PARTS.filter(
+      (p) =>
+        p.partNumber.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.model.toLowerCase().includes(q) ||
+        p.oem.toLowerCase().includes(q)
+    ).slice(0, 5);
+  }, [partSearchQuery]);
+
+  const handleSelectInventoryPart = (inventoryPart: typeof MOCK_PARTS[0]) => {
+    setPartNumber(inventoryPart.partNumber);
+    setPartDescription(inventoryPart.description);
+    setPartModality(inventoryPart.modality);
+    setPartOem(inventoryPart.oem);
+    setPartModel(inventoryPart.model);
+    setPartUnitCost(String(inventoryPart.unitPrice * 1000)); // Scale to realistic Naira amount
+    setPartSearchQuery("");
+  };
 
   // Real-time Cost Rollup calculations
   const { totalPartsCost, totalExpensesCost, totalJobCost } = useMemo(() => {
@@ -361,11 +400,11 @@ function DebriefJobWorkspacePage() {
     const newPart: DebriefPartUsed = {
       id: `part_${Date.now()}`,
       partNumber: partNumber.trim(),
-      serialNumber: `SN-${Date.now().toString().slice(-6)}`,
+      serialNumber: partSerialNumber.trim() || `SN-${Date.now().toString().slice(-6)}`,
       description: partDescription.trim(),
-      modality: job?.modality,
-      oem: job?.oem,
-      model: job?.model,
+      modality: partModality.trim() || job?.modality,
+      oem: partOem.trim() || job?.oem,
+      model: partModel.trim() || job?.model,
       unitCost: cost,
       quantityUsed: qty,
       totalCost: cost * qty,
@@ -374,11 +413,15 @@ function DebriefJobWorkspacePage() {
     const updated = [...partsUsed, newPart];
     setPartsUsed(updated);
     setPartNumber("");
+    setPartSerialNumber("");
     setPartDescription("");
+    setPartModality("");
+    setPartOem("");
+    setPartModel("");
     setPartQtyUsed("1");
     setAddPartOpen(false);
     await debriefService.update(jobId, { partsUsed: updated });
-    toast.success(`Part ${newPart.partNumber} added (${formatCurrency(newPart.totalCost)}).`);
+    toast.success(`Part ${newPart.partNumber} recorded (${formatNaira(newPart.totalCost)}).`);
   };
 
   const handleRemovePart = async (id: string) => {
@@ -412,7 +455,7 @@ function DebriefJobWorkspacePage() {
     setExpenseReceiptFileName("");
     setAddExpenseOpen(false);
     await debriefService.update(jobId, { expenses: updated });
-    toast.success(`Expense logged (${formatCurrency(cost)}).`);
+    toast.success(`Expense logged (${formatNaira(cost)}).`);
   };
 
   const handleRemoveExpense = async (id: string) => {
@@ -473,7 +516,6 @@ function DebriefJobWorkspacePage() {
 
     const updated = [...toolsUsed, newTool];
     setToolsUsed(updated);
-    setToolSearchQuery("");
     setAddToolOpen(false);
     await debriefService.update(jobId, { toolsUsed: updated });
     toast.success(`Tool ${tool.toolId} linked.`);
@@ -583,15 +625,17 @@ function DebriefJobWorkspacePage() {
     <div className="w-full space-y-5 pb-12">
       {/* Top Breadcrumb & Job Summary Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
+        <div className="space-y-2">
+          {/* Prominent Visible Back Button */}
+          <div className="flex items-center gap-2.5">
             <Link
               to="/app/debrief/my-work"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors p-1 -ml-1 rounded-md hover:bg-accent/60"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-accent text-foreground text-xs font-bold shadow-2xs transition-all cursor-pointer"
             >
-              <ArrowLeft className="size-3.5" />
-              <span>My Work</span>
+              <ArrowLeft className="size-4 text-primary" />
+              <span>Back to My Work</span>
             </Link>
+
             <span className="text-muted-foreground/40">•</span>
             <span className="font-mono text-sm font-bold text-primary">{job.jobNumber}</span>
             <span
@@ -618,20 +662,32 @@ function DebriefJobWorkspacePage() {
           </div>
         </div>
 
-        {/* Live Cumulative Spend Pill */}
-        <div className="flex items-center gap-2 bg-muted/40 border border-border/70 rounded-xl px-3.5 py-2 shrink-0">
-          <div className="space-y-0.5 text-right">
-            <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Job Spend
+        {/* Live Cumulative Spend Pill & Header Specs Trigger */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSpecsModalOpen(true)}
+            className="h-10 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-accent text-foreground cursor-pointer shadow-2xs"
+          >
+            <Info className="size-3.5 text-primary" />
+            <span>View Job Specs</span>
+          </Button>
+
+          <div className="flex items-center gap-2 bg-muted/40 border border-border/70 rounded-xl px-3.5 py-2 shrink-0">
+            <div className="space-y-0.5 text-right">
+              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Total Job Spend
+              </div>
+              <div className="font-mono font-bold text-sm text-foreground">
+                {formatNaira(totalJobCost)}
+              </div>
             </div>
-            <div className="font-mono font-bold text-sm text-foreground">
-              {formatCurrency(totalJobCost)}
+            <div className="h-7 w-px bg-border/80 mx-1" />
+            <div className="text-xs text-muted-foreground space-y-0.5">
+              <div>Parts: <span className="font-mono font-semibold text-foreground">{formatNaira(totalPartsCost)}</span></div>
+              <div>Exp: <span className="font-mono font-semibold text-foreground">{formatNaira(totalExpensesCost)}</span></div>
             </div>
-          </div>
-          <div className="h-7 w-px bg-border/80 mx-1" />
-          <div className="text-xs text-muted-foreground space-y-0.5">
-            <div>Parts: <span className="font-mono font-semibold text-foreground">{formatCurrency(totalPartsCost)}</span></div>
-            <div>Exp: <span className="font-mono font-semibold text-foreground">{formatCurrency(totalExpensesCost)}</span></div>
           </div>
         </div>
       </div>
@@ -730,24 +786,37 @@ function DebriefJobWorkspacePage() {
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
                 Address: <span className="font-semibold text-foreground">{job.address || "Main Site"}</span>.
-                When you are ready to depart, click <strong>Start Travel</strong> to record your departure timestamp.
+                Review the equipment and job specifications, then click <strong>Start Travel</strong> when departing.
               </p>
             </div>
 
-            <Button
-              size="lg"
-              onClick={handleStartTravel}
-              className="h-10 px-5 text-[13px] font-bold gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shrink-0"
-            >
-              <Navigation className="size-4" />
-              <span>Start Travel</span>
-            </Button>
+            {/* Start Travel + View Full Specifications Button next to it */}
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setSpecsModalOpen(true)}
+                className="h-10 px-4 text-xs font-bold gap-2 cursor-pointer border-border hover:bg-accent text-foreground shadow-2xs"
+              >
+                <Info className="size-4 text-primary" />
+                <span>View Job Specs</span>
+              </Button>
+
+              <Button
+                size="lg"
+                onClick={handleStartTravel}
+                className="h-10 px-5 text-[13px] font-bold gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+              >
+                <Navigation className="size-4" />
+                <span>Start Travel</span>
+              </Button>
+            </div>
           </div>
 
           {/* Reported Problem Overview */}
           <div className="p-3 rounded-lg bg-background/80 border border-border/60 text-xs space-y-1">
             <span className="text-muted-foreground font-semibold flex items-center gap-1.5">
-              <FileText className="size-3.5 text-primary" /> Reported Issue & Fault Symptoms:
+              <FileText className="size-3.5 text-primary" /> Reported Issue &amp; Fault Symptoms:
             </span>
             <p className="text-foreground leading-relaxed pl-5">
               {job.reportedIssue || "Diagnostic service inspection required on equipment."}
@@ -774,6 +843,16 @@ function DebriefJobWorkspacePage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSpecsModalOpen(true)}
+                className="h-10 px-3 text-xs font-semibold gap-1.5 border-border hover:bg-accent cursor-pointer"
+              >
+                <Info className="size-3.5 text-primary" />
+                <span>Specs</span>
+              </Button>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -898,7 +977,7 @@ function DebriefJobWorkspacePage() {
                 className="h-9 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
               >
                 <CheckCircle2 className="size-3.5" />
-                <span>Finish Work & Submit Debrief</span>
+                <span>Finish Work &amp; Submit Debrief</span>
               </Button>
             </div>
           )}
@@ -912,7 +991,7 @@ function DebriefJobWorkspacePage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                     <FileText className="size-4 text-primary" />
-                    <span>Work Done & Diagnostic Findings</span>
+                    <span>Work Done &amp; Diagnostic Findings</span>
                   </h3>
                   {isCompleted && (
                     <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
@@ -934,61 +1013,82 @@ function DebriefJobWorkspacePage() {
                       placeholder="Describe the corrective or preventive maintenance actions performed, faulty components inspected, test results, and final operating condition..."
                       className="text-xs resize-none"
                     />
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                      <span>Include observations, tests conducted, and verified calibrations.</span>
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[11px] text-muted-foreground">
+                        Include observations, tests conducted, and verified calibrations.
+                      </span>
+                      {/* Prominent Visible Quick Save Button */}
                       <Button
-                        size="xs"
-                        variant="ghost"
+                        size="sm"
+                        variant="outline"
                         onClick={async () => {
-                          await debriefService.update(jobId, { labour: { ...job.labour, workDone, startDate: job.jobStartDate || formatDateNow(), endDate: "—", equipmentStatus, jobStatus } });
+                          await debriefService.update(jobId, {
+                            labour: {
+                              ...job.labour,
+                              workDone,
+                              startDate: job.jobStartDate || formatDateNow(),
+                              endDate: "—",
+                              equipmentStatus,
+                              jobStatus,
+                            },
+                          });
                           toast.success("Work notes saved.");
                         }}
-                        className="h-6 text-[11px] text-primary"
+                        className="h-8 px-3 text-xs font-bold text-primary border-primary/30 bg-primary/5 hover:bg-primary/15 gap-1.5 cursor-pointer shadow-2xs"
                       >
-                        <Save className="size-3 mr-1" /> Quick Save
+                        <Save className="size-3.5" />
+                        <span>Quick Save Notes</span>
                       </Button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Logged Parts Section */}
+              {/* Logged Parts Section with Updated Requested Table Columns */}
               <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                     <Boxes className="size-4 text-primary" />
-                    <span>Parts & Components Used ({partsUsed.length})</span>
+                    <span>Parts &amp; Components Used ({partsUsed.length})</span>
                   </h3>
                   <span className="font-mono text-xs font-bold text-primary">
-                    Subtotal: {formatCurrency(totalPartsCost)}
+                    Subtotal: {formatNaira(totalPartsCost)}
                   </span>
                 </div>
 
                 {partsUsed.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border/80 p-5 text-center text-xs text-muted-foreground">
-                    No replacement parts logged yet. Click &quot;Log Part Used&quot; to record spare parts.
+                    No replacement parts logged yet. Click &quot;Log Part Used&quot; to search and record inventory parts.
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
                       <thead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 bg-muted/20">
                         <tr>
-                          <th className="py-2 px-3">Part #</th>
-                          <th className="py-2 px-3">Description</th>
-                          <th className="py-2 px-3 text-center">Qty</th>
-                          <th className="py-2 px-3 text-right">Unit Cost</th>
-                          <th className="py-2 px-3 text-right">Total</th>
-                          {!isCompleted && <th className="py-2 px-2 text-center w-8"></th>}
+                          <th className="py-2.5 px-3">Part number</th>
+                          <th className="py-2.5 px-3">Serial number</th>
+                          <th className="py-2.5 px-3">Description</th>
+                          <th className="py-2.5 px-3">Modality</th>
+                          <th className="py-2.5 px-3">OEM</th>
+                          <th className="py-2.5 px-3">Model</th>
+                          <th className="py-2.5 px-3 text-right">Cost</th>
+                          <th className="py-2.5 px-3 text-center">Quantity Used</th>
+                          <th className="py-2.5 px-3 text-right">Total cost</th>
+                          {!isCompleted && <th className="py-2.5 px-2 text-center w-8"></th>}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border/40">
                         {partsUsed.map((p) => (
                           <tr key={p.id} className="hover:bg-muted/10">
-                            <td className="py-2.5 px-3 font-mono font-bold text-primary">{p.partNumber}</td>
-                            <td className="py-2.5 px-3 font-medium text-foreground">{p.description}</td>
+                            <td className="py-2.5 px-3 font-mono font-bold text-primary whitespace-nowrap">{p.partNumber}</td>
+                            <td className="py-2.5 px-3 font-mono text-muted-foreground whitespace-nowrap">{p.serialNumber || "—"}</td>
+                            <td className="py-2.5 px-3 font-medium text-foreground max-w-[180px] truncate">{p.description}</td>
+                            <td className="py-2.5 px-3 text-muted-foreground whitespace-nowrap">{p.modality || "—"}</td>
+                            <td className="py-2.5 px-3 text-muted-foreground whitespace-nowrap">{p.oem || "—"}</td>
+                            <td className="py-2.5 px-3 text-foreground whitespace-nowrap">{p.model || "—"}</td>
+                            <td className="py-2.5 px-3 text-right font-mono text-muted-foreground whitespace-nowrap">{formatNaira(p.unitCost)}</td>
                             <td className="py-2.5 px-3 text-center font-bold">{p.quantityUsed}</td>
-                            <td className="py-2.5 px-3 text-right font-mono text-muted-foreground">{formatCurrency(p.unitCost)}</td>
-                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(p.totalCost)}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground whitespace-nowrap">{formatNaira(p.totalCost)}</td>
                             {!isCompleted && (
                               <td className="py-2.5 px-2 text-center">
                                 <button
@@ -1013,10 +1113,10 @@ function DebriefJobWorkspacePage() {
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                     <Receipt className="size-4 text-primary" />
-                    <span>Travel & Job Expenses ({expenses.length})</span>
+                    <span>Travel &amp; Job Expenses ({expenses.length})</span>
                   </h3>
                   <span className="font-mono text-xs font-bold text-primary">
-                    Subtotal: {formatCurrency(totalExpensesCost)}
+                    Subtotal: {formatNaira(totalExpensesCost)}
                   </span>
                 </div>
 
@@ -1050,7 +1150,7 @@ function DebriefJobWorkspacePage() {
                                 <span className="text-[11px] text-muted-foreground">No receipt</span>
                               )}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(e.amount || 0)}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">{formatNaira(e.amount || 0)}</td>
                             {!isCompleted && (
                               <td className="py-2.5 px-2 text-center">
                                 <button
@@ -1163,61 +1263,172 @@ function DebriefJobWorkspacePage() {
         </div>
       )}
 
-      {/* Collapsible Technical Specs Drawer */}
-      <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-3">
-        <button
-          type="button"
-          onClick={() => setShowFullSpecs(!showFullSpecs)}
-          className="w-full flex items-center justify-between text-xs font-bold text-foreground hover:text-primary transition-colors cursor-pointer"
-        >
-          <span className="flex items-center gap-2">
-            <Info className="size-3.5 text-primary" />
-            <span>Complete Equipment & Dispatch Specifications (26 Fields)</span>
-          </span>
-          {showFullSpecs ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-        </button>
-
-        {showFullSpecs && (
-          <div className="pt-3 border-t border-border/60 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Asset Number:</span><div className="font-mono font-bold text-foreground">{job.assetNumber}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Modality:</span><div className="font-semibold text-foreground">{job.modality}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">OEM:</span><div className="font-semibold text-foreground">{job.oem}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Model:</span><div className="font-semibold text-foreground">{job.model}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Serial Number:</span><div className="font-mono text-foreground">{job.serialNumber}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Year of Mfr:</span><div className="font-mono text-foreground">{job.yearOfManufacture}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Warranty Start:</span><div className="font-mono text-foreground">{job.warrantyStartDate || "—"}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Warranty End:</span><div className="font-mono text-foreground">{job.warrantyEndDate || "—"}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contract Type:</span><div className="font-semibold text-foreground">{job.contractType || "—"}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contract End:</span><div className="font-mono text-foreground">{job.contractEndDate || "—"}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contact Person:</span><div className="font-semibold text-foreground">{job.contactName || "—"}</div></div>
-            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contact Email:</span><div className="font-mono text-foreground truncate">{job.contactEmail || "—"}</div></div>
+      {/* Bottom Full Specifications Trigger Button */}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-2xs flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <Info className="size-4 text-primary" />
+          <div>
+            <h4 className="text-xs font-bold text-foreground">Equipment &amp; Job Specifications</h4>
+            <p className="text-[11px] text-muted-foreground">Review full 26-field contract and biomedical equipment details.</p>
           </div>
-        )}
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSpecsModalOpen(true)}
+          className="h-8.5 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-accent text-foreground cursor-pointer"
+        >
+          <SlidersHorizontal className="size-3.5" />
+          <span>View Full Specifications</span>
+        </Button>
       </div>
 
-      {/* MODAL 1: Log Part Used */}
+      {/* MODAL: Full Equipment & Job Specifications Modal */}
+      <Dialog open={specsModalOpen} onOpenChange={setSpecsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <Info className="size-5 text-primary" />
+              <span>Full Equipment &amp; Job Specifications</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Complete dispatch, warranty, contract, and biomedical equipment parameters for {job.jobNumber}.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2 text-xs">
+            {/* 1. Equipment Identification */}
+            <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-2.5">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                1. Biomedical Equipment Parameters
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Asset Number:</span><div className="font-mono font-bold text-foreground">{job.assetNumber}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Modality:</span><div className="font-semibold text-foreground">{job.modality}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">OEM / Manufacturer:</span><div className="font-semibold text-foreground">{job.oem}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Model:</span><div className="font-semibold text-foreground">{job.model}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Serial Number:</span><div className="font-mono text-foreground">{job.serialNumber}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Year of Mfr:</span><div className="font-mono text-foreground">{job.yearOfManufacture}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Equipment Status:</span><div className="font-bold text-foreground">{job.equipmentStatus}</div></div>
+              </div>
+            </div>
+
+            {/* 2. Warranty & Contract */}
+            <div className="p-3.5 rounded-xl border border-border bg-card space-y-2.5">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                2. Warranty &amp; Service Contract Details
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Warranty Start:</span><div className="font-mono text-foreground">{job.warrantyStartDate || "—"}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Warranty End:</span><div className="font-mono text-foreground">{job.warrantyEndDate || "—"}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contract Type:</span><div className="font-semibold text-foreground">{job.contractType || "—"}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contract Start:</span><div className="font-mono text-foreground">{job.contractStartDate || "—"}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contract End:</span><div className="font-mono text-foreground">{job.contractEndDate || "—"}</div></div>
+              </div>
+            </div>
+
+            {/* 3. Dispatch & Hospital Location */}
+            <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-2.5">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                3. Dispatch, Facility &amp; Contact Details
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Job Type:</span><div className="font-semibold text-foreground">{job.jobType}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Job Priority:</span><div className="font-bold text-foreground">{job.jobPriority}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Job Open Date:</span><div className="font-mono text-foreground">{job.jobOpenDate}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Job Start Date:</span><div className="font-mono text-foreground">{job.jobStartDate}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Assigned Engineer:</span><div className="font-bold text-foreground">{job.assignedToName}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Assisted By:</span><div className="text-muted-foreground">{job.assistedBy || "—"}</div></div>
+                <div className="space-y-0.5 sm:col-span-2"><span className="text-muted-foreground font-medium">Facility Location:</span><div className="font-semibold text-foreground">{job.location || "Main Ward"}</div></div>
+                <div className="space-y-0.5 sm:col-span-3"><span className="text-muted-foreground font-medium">Address:</span><div className="font-medium text-foreground">{job.address || "—"}</div></div>
+                <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contact Person:</span><div className="font-semibold text-foreground">{job.contactName || "—"}</div></div>
+                <div className="space-y-0.5 sm:col-span-2"><span className="text-muted-foreground font-medium">Contact Email:</span><div className="font-mono text-foreground">{job.contactEmail || "—"}</div></div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setSpecsModalOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL 1: Log Part Used with Live Inventory Search */}
       <Dialog open={addPartOpen} onOpenChange={setAddPartOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-bold">Log Spare Part Used</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Record replacement parts or consumables installed on {job.model}.
+              Search the central parts inventory or enter replacement details.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3.5 py-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Part Number *</Label>
+            {/* Inventory Live Search Bar */}
+            <div className="space-y-1.5 p-3 rounded-lg border border-primary/30 bg-primary/5">
+              <Label className="text-xs font-bold text-primary flex items-center gap-1.5">
+                <Search className="size-3.5" />
+                <span>Search Parts Inventory</span>
+              </Label>
               <Input
-                placeholder="e.g. PRT-GE-CT-881"
-                value={partNumber}
-                onChange={(e) => setPartNumber(e.target.value)}
-                className="text-xs font-mono"
+                placeholder="Search by part #, description, model or OEM..."
+                value={partSearchQuery}
+                onChange={(e) => setPartSearchQuery(e.target.value)}
+                className="text-xs bg-background"
               />
+
+              {filteredInventoryParts.length > 0 && (
+                <div className="mt-2 border border-border rounded-lg bg-background divide-y divide-border/60 shadow-md">
+                  {filteredInventoryParts.map((inv) => (
+                    <button
+                      key={inv.id}
+                      type="button"
+                      onClick={() => handleSelectInventoryPart(inv)}
+                      className="w-full text-left p-2.5 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-2 cursor-pointer"
+                    >
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-primary">{inv.partNumber}</span>
+                          <span className="text-muted-foreground font-medium">• {inv.model} ({inv.oem})</span>
+                        </div>
+                        <p className="text-foreground truncate max-w-sm">{inv.description}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="font-mono font-bold text-foreground">{formatNaira(inv.unitPrice * 1000)}</span>
+                        <div className="text-[10px] text-emerald-600 font-semibold">{inv.quantityInStock} in stock</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Input Fields: Part number, Serial number, Description, Modality, OEM, Model, Cost, Qty */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Part number *</Label>
+                <Input
+                  placeholder="e.g. PRT-GE-CT-881"
+                  value={partNumber}
+                  onChange={(e) => setPartNumber(e.target.value)}
+                  className="text-xs font-mono"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Serial number</Label>
+                <Input
+                  placeholder="e.g. SN-882190"
+                  value={partSerialNumber}
+                  onChange={(e) => setPartSerialNumber(e.target.value)}
+                  className="text-xs font-mono"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Part Description *</Label>
+              <Label className="text-xs font-semibold">Description *</Label>
               <Input
                 placeholder="e.g. Slip Ring Carbon Brush Kit"
                 value={partDescription}
@@ -1226,20 +1437,41 @@ function DebriefJobWorkspacePage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Quantity Used</Label>
+                <Label className="text-xs font-semibold">Modality</Label>
                 <Input
-                  type="number"
-                  min="1"
-                  value={partQtyUsed}
-                  onChange={(e) => setPartQtyUsed(e.target.value)}
+                  placeholder="e.g. CT"
+                  value={partModality}
+                  onChange={(e) => setPartModality(e.target.value)}
                   className="text-xs"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Unit Cost (₦)</Label>
+                <Label className="text-xs font-semibold">OEM</Label>
+                <Input
+                  placeholder="e.g. GE Healthcare"
+                  value={partOem}
+                  onChange={(e) => setPartOem(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Model</Label>
+                <Input
+                  placeholder="e.g. Optima CT660"
+                  value={partModel}
+                  onChange={(e) => setPartModel(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Cost (₦) *</Label>
                 <Input
                   type="number"
                   min="0"
@@ -1249,6 +1481,25 @@ function DebriefJobWorkspacePage() {
                   className="text-xs font-mono"
                 />
               </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Quantity Used *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={partQtyUsed}
+                  onChange={(e) => setPartQtyUsed(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+            </div>
+
+            {/* Total Cost preview */}
+            <div className="p-2.5 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs">
+              <span className="text-muted-foreground font-medium">Calculated Total Cost:</span>
+              <span className="font-mono font-bold text-sm text-foreground">
+                {formatNaira((parseFloat(partUnitCost) || 0) * (parseInt(partQtyUsed) || 1))}
+              </span>
             </div>
           </div>
 
@@ -1263,7 +1514,7 @@ function DebriefJobWorkspacePage() {
       <Dialog open={addExpenseOpen} onOpenChange={setAddExpenseOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold">Log Travel & Field Expense</DialogTitle>
+            <DialogTitle className="text-base font-bold">Log Travel &amp; Field Expense</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               Add travel fares, lodging, or subsistence incurred during this job.
             </DialogDescription>
@@ -1473,7 +1724,7 @@ function DebriefJobWorkspacePage() {
           <DialogHeader>
             <DialogTitle className="text-base font-bold flex items-center gap-2">
               <CheckCircle2 className="size-5 text-emerald-500" />
-              <span>Debrief Summary & Official Sign-Off</span>
+              <span>Debrief Summary &amp; Official Sign-Off</span>
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               Review all logged actions, itemized expenses, and client acknowledgement before closing {job.jobNumber}.
@@ -1484,7 +1735,7 @@ function DebriefJobWorkspacePage() {
             {/* 1. Final Equipment Condition & Diagnostics */}
             <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-3 text-xs">
               <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
-                1. Final Equipment Condition & Diagnostics
+                1. Final Equipment Condition &amp; Diagnostics
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1536,10 +1787,10 @@ function DebriefJobWorkspacePage() {
             <div className="p-3.5 rounded-xl border border-border bg-card space-y-3 text-xs">
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
-                  2. Itemized Cost & Operations Summary
+                  2. Itemized Cost &amp; Operations Summary
                 </h4>
                 <span className="font-mono text-sm font-bold text-primary">
-                  Total: {formatCurrency(totalJobCost)}
+                  Total: {formatNaira(totalJobCost)}
                 </span>
               </div>
 
@@ -1557,19 +1808,19 @@ function DebriefJobWorkspacePage() {
                     <tr>
                       <td className="py-2 px-3 font-semibold text-foreground">Spare Parts ({partsUsed.length})</td>
                       <td className="py-2 px-3 text-muted-foreground">{partsUsed.map(p => `${p.partNumber} (x${p.quantityUsed})`).join(", ") || "None"}</td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(totalPartsCost)}</td>
+                      <td className="py-2 px-3 text-right font-mono font-bold text-foreground">{formatNaira(totalPartsCost)}</td>
                     </tr>
                     <tr>
                       <td className="py-2 px-3 font-semibold text-foreground">Field Expenses ({expenses.length})</td>
                       <td className="py-2 px-3 text-muted-foreground">{expenses.map(e => `${e.typeOfExpense}`).join(", ") || "None"}</td>
-                      <td className="py-2 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(totalExpensesCost)}</td>
+                      <td className="py-2 px-3 text-right font-mono font-bold text-foreground">{formatNaira(totalExpensesCost)}</td>
                     </tr>
                     <tr>
                       <td className="py-2 px-3 font-semibold text-foreground">Tools Validated</td>
                       <td className="py-2 px-3 text-muted-foreground" colSpan={2}>{toolsUsed.map(t => t.toolId).join(", ") || "Standard Toolset"}</td>
                     </tr>
                     <tr>
-                      <td className="py-2 px-3 font-semibold text-foreground">Travel & Labour</td>
+                      <td className="py-2 px-3 font-semibold text-foreground">Travel &amp; Labour</td>
                       <td className="py-2 px-3 text-muted-foreground" colSpan={2}>
                         Depart: {travelStartTime || "—"} • Arrived: {travelEndTime || "—"} • Finish: {formatTimeNow()}
                       </td>
@@ -1583,7 +1834,7 @@ function DebriefJobWorkspacePage() {
             <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-3 text-xs">
               <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                 <UserCheck className="size-3.5 text-primary" />
-                <span>3. Dual Debrief Sign-Off & Client Acknowledgement</span>
+                <span>3. Dual Debrief Sign-Off &amp; Client Acknowledgement</span>
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
