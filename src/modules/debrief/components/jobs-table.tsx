@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
+import type { DebriefJob } from "../types";
 import { Eye } from "lucide-react";
 
 interface JobsTableProps {
@@ -36,6 +37,8 @@ export function JobsTable({
             </span>
           );
         },
+        className: "w-14 min-w-[56px] text-center",
+        headerClassName: "w-14 min-w-[56px] text-center",
         filterable: false,
         reorderable: true,
       },
@@ -52,6 +55,8 @@ export function JobsTable({
             {row.jobNumber}
           </button>
         ),
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
         filterable: true,
         priority: true,
       },
@@ -64,6 +69,8 @@ export function JobsTable({
             {row.assetNumber}
           </span>
         ),
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
         filterable: true,
         priority: true,
       },
@@ -71,7 +78,9 @@ export function JobsTable({
         key: "modality",
         header: "MODALITY",
         value: (row) => row.modality,
-        cell: (row) => <span className="text-xs text-foreground">{row.modality}</span>,
+        cell: (row) => <span className="text-xs text-foreground font-medium">{row.modality}</span>,
+        className: "min-w-[130px]",
+        headerClassName: "min-w-[130px]",
         filterable: true,
       },
       {
@@ -79,6 +88,8 @@ export function JobsTable({
         header: "OEM",
         value: (row) => row.oem,
         cell: (row) => <span className="text-xs font-medium text-foreground">{row.oem}</span>,
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
         filterable: true,
       },
       {
@@ -86,6 +97,8 @@ export function JobsTable({
         header: "MODEL",
         value: (row) => row.model,
         cell: (row) => <span className="text-xs font-semibold text-foreground">{row.model}</span>,
+        className: "min-w-[160px]",
+        headerClassName: "min-w-[160px]",
         filterable: true,
       },
       {
@@ -95,6 +108,8 @@ export function JobsTable({
         cell: (row) => (
           <span className="font-mono text-xs text-muted-foreground">{row.serialNumber}</span>
         ),
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
         filterable: true,
       },
       {
@@ -106,6 +121,8 @@ export function JobsTable({
             {row.warrantyEndDate || "—"}
           </span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
       },
       {
@@ -117,6 +134,8 @@ export function JobsTable({
             {row.warrantyStartDate || "—"}
           </span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
       },
       {
@@ -128,6 +147,8 @@ export function JobsTable({
             {row.contractStartDate || "—"}
           </span>
         ),
+        className: "min-w-[160px]",
+        headerClassName: "min-w-[160px]",
         filterable: true,
       },
       {
@@ -139,6 +160,8 @@ export function JobsTable({
             {row.contractEndDate || "—"}
           </span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
       },
       {
@@ -146,10 +169,12 @@ export function JobsTable({
         header: "YEAR OF MANUFACTURE",
         value: (row) => row.yearOfManufacture,
         cell: (row) => (
-          <span className="text-xs text-center block text-foreground">
+          <span className="text-xs font-mono text-muted-foreground">
             {row.yearOfManufacture}
           </span>
         ),
+        className: "min-w-[160px]",
+        headerClassName: "min-w-[160px]",
         filterable: true,
       },
       {
@@ -161,6 +186,8 @@ export function JobsTable({
             {row.jobType}
           </span>
         ),
+        className: "min-w-[160px]",
+        headerClassName: "min-w-[160px]",
         filterable: true,
         priority: true,
       },
@@ -171,6 +198,8 @@ export function JobsTable({
         cell: (row) => (
           <span className="text-xs font-mono text-foreground">{row.jobOpenDate}</span>
         ),
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
         filterable: true,
       },
       {
@@ -180,6 +209,8 @@ export function JobsTable({
         cell: (row) => (
           <span className="text-xs font-mono text-foreground">{row.jobStartDate}</span>
         ),
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
         filterable: true,
       },
       {
@@ -190,24 +221,26 @@ export function JobsTable({
           const val = row.equipmentStatus;
           if (val === "UP") {
             return (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 UP
               </span>
             );
           }
           if (val === "Partially UP") {
             return (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 Partially UP
               </span>
             );
           }
           return (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
               Down
             </span>
           );
         },
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
         priority: true,
       },
@@ -219,24 +252,26 @@ export function JobsTable({
           const val = row.jobPriority;
           if (val === "High") {
             return (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                 High
               </span>
             );
           }
           if (val === "Mid") {
             return (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 Mid
               </span>
             );
           }
           return (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               Low
             </span>
           );
         },
+        className: "min-w-[130px]",
+        headerClassName: "min-w-[130px]",
         filterable: true,
         priority: true,
       },
@@ -247,8 +282,9 @@ export function JobsTable({
         cell: (row) => (
           <span className="text-xs font-bold text-foreground">{row.assignedToName}</span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
-        priority: true,
       },
       {
         key: "assistedBy",
@@ -257,17 +293,19 @@ export function JobsTable({
         cell: (row) => (
           <span className="text-xs text-muted-foreground">{row.assistedBy || "—"}</span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
       },
       {
-        key: "startDate",
-        header: "START DATE",
-        value: (row) => row.startDate || "—",
+        key: "location",
+        header: "LOCATION",
+        value: (row) => row.location,
         cell: (row) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {row.startDate || "—"}
-          </span>
+          <span className="text-xs text-foreground truncate">{row.location}</span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
       },
       {
@@ -279,6 +317,8 @@ export function JobsTable({
             {row.endDate || "—"}
           </span>
         ),
+        className: "min-w-[130px]",
+        headerClassName: "min-w-[130px]",
         filterable: true,
       },
       {
@@ -288,6 +328,8 @@ export function JobsTable({
         cell: (row) => (
           <span className="text-xs text-foreground font-medium">{row.rootCause || "—"}</span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
       },
       {
@@ -297,6 +339,8 @@ export function JobsTable({
         cell: (row) => (
           <span className="text-xs text-foreground font-medium">{row.resolution || "—"}</span>
         ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
         filterable: true,
       },
     ],

@@ -322,30 +322,97 @@ export function DataTable<T extends { id: string }>({
           />
         </div>
       ) : mobileStrategy === "scroll" ? (
-        /* Legacy horizontal scroll container if explicitly requested */
-        <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse text-sm min-w-[36rem]">
+        /* Full horizontal scrollable table for all viewports */
+        <div className="w-full overflow-x-auto rounded-lg border border-border bg-card shadow-2xs">
+          <table className="w-full border-collapse text-xs">
             <thead>
-              <tr className="border-b border-border bg-muted/50">
+              <tr className="border-b border-border bg-muted/60">
                 {orderedRenderColumns.map((item) => {
                   if (item.type === "actions") {
+                    const isBeingDragged = draggedKey === ACTIONS_COLUMN_KEY;
+                    const isDropLeft = dropTarget?.key === ACTIONS_COLUMN_KEY && dropTarget.position === "left";
+                    const isDropRight = dropTarget?.key === ACTIONS_COLUMN_KEY && dropTarget.position === "right";
+                    const canReorder = enableColumnReordering;
+
                     return (
                       <th
                         key={ACTIONS_COLUMN_KEY}
                         scope="col"
-                        className="px-4 py-2.5 text-right text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10"
+                        draggable={canReorder}
+                        onDragStart={(e) => handleDragStart(e, ACTIONS_COLUMN_KEY)}
+                        onDragOver={(e) => handleDragOver(e, ACTIONS_COLUMN_KEY)}
+                        onDragLeave={(e) => handleDragLeave(e, ACTIONS_COLUMN_KEY)}
+                        onDrop={(e) => handleDrop(e, ACTIONS_COLUMN_KEY)}
+                        onDragEnd={handleDragEnd}
+                        title={canReorder ? "Drag Actions column to reorder" : undefined}
+                        className={cn(
+                          "group/th relative px-4 py-3 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase select-none whitespace-nowrap transition-colors sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10",
+                          canReorder && "cursor-grab active:cursor-grabbing",
+                          isBeingDragged && "opacity-40 bg-accent/30",
+                          isDropLeft && "border-l-2 border-primary bg-primary/5",
+                          isDropRight && "border-r-2 border-primary bg-primary/5",
+                        )}
                       >
-                        Actions
+                        <div className="flex items-center justify-end gap-1.5">
+                          {canReorder && (
+                            <GripVertical className="size-3.5 text-muted-foreground/40 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
+                          )}
+                          <span>Actions</span>
+                        </div>
                       </th>
                     );
                   }
+
+                  const { column } = item;
+                  const isBeingDragged = draggedKey === column.key;
+                  const isDropLeft = dropTarget?.key === column.key && dropTarget.position === "left";
+                  const isDropRight = dropTarget?.key === column.key && dropTarget.position === "right";
+                  const canReorder = enableColumnReordering && column.reorderable !== false;
+
                   return (
                     <th
-                      key={item.column.key}
+                      key={column.key}
                       scope="col"
-                      className="px-4 py-2.5 text-left text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none"
+                      draggable={canReorder}
+                      onDragStart={(e) => handleDragStart(e, column.key)}
+                      onDragOver={(e) => handleDragOver(e, column.key)}
+                      onDragLeave={(e) => handleDragLeave(e, column.key)}
+                      onDrop={(e) => handleDrop(e, column.key)}
+                      onDragEnd={handleDragEnd}
+                      title={canReorder ? "Drag column header to reorder" : undefined}
+                      className={cn(
+                        "group/th relative px-4 py-3 text-left text-xs font-bold tracking-wider text-muted-foreground uppercase select-none whitespace-nowrap transition-colors",
+                        canReorder && "cursor-grab active:cursor-grabbing",
+                        isBeingDragged && "opacity-40 bg-accent/30",
+                        isDropLeft && "border-l-2 border-primary bg-primary/5",
+                        isDropRight && "border-r-2 border-primary bg-primary/5",
+                        column.headerClassName,
+                      )}
                     >
-                      {item.column.header}
+                      <div className="flex items-center gap-1.5">
+                        {canReorder && (
+                          <GripVertical className="size-3.5 text-muted-foreground/40 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
+                        )}
+                        <div className="flex-1 whitespace-nowrap">
+                          {column.filterable ? (
+                            <ColumnFilter
+                              label={column.header}
+                              values={uniqueValues[column.key] ?? []}
+                              selected={filters[column.key]}
+                              onChange={(next) =>
+                                setFilters((prev) => {
+                                  const draft = { ...prev };
+                                  if (next === undefined) delete draft[column.key];
+                                  else draft[column.key] = next;
+                                  return draft;
+                                })
+                              }
+                            />
+                          ) : (
+                            <span>{column.header}</span>
+                          )}
+                        </div>
+                      </div>
                     </th>
                   );
                 })}
@@ -371,9 +438,17 @@ export function DataTable<T extends { id: string }>({
                         </td>
                       );
                     }
+
+                    const { column } = item;
                     return (
-                      <td key={item.column.key} className="px-4 py-3 align-middle text-foreground">
-                        {item.column.cell ? item.column.cell(row) : item.column.value(row)}
+                      <td
+                        key={column.key}
+                        className={cn(
+                          "px-4 py-3 align-middle text-foreground whitespace-nowrap text-xs",
+                          column.className,
+                        )}
+                      >
+                        {column.cell ? column.cell(row) : column.value(row)}
                       </td>
                     );
                   })}
@@ -400,7 +475,7 @@ export function DataTable<T extends { id: string }>({
                     <div className="min-w-0 flex-1">
                       {primaryCol && (
                         <>
-                          <span className="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase block">
+                          <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase block">
                             {primaryCol.header}
                           </span>
                           <div className="mt-0.5 text-sm font-bold text-foreground">
@@ -439,7 +514,7 @@ export function DataTable<T extends { id: string }>({
                             key={col.key}
                             className={cn("flex flex-col gap-0.5", isWide && "col-span-2")}
                           >
-                            <span className="text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+                            <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                               {col.header}
                             </span>
                             <div className="text-xs font-medium text-foreground break-words">
@@ -456,10 +531,10 @@ export function DataTable<T extends { id: string }>({
           </div>
 
           {/* Desktop Table View (hidden on mobile, visible on md+ screens) */}
-          <div className="hidden md:block w-full overflow-x-auto">
-            <table className={cn("w-full border-collapse text-sm")}>
+          <div className="hidden md:block w-full overflow-x-auto rounded-lg border border-border bg-card shadow-2xs">
+            <table className={cn("w-full border-collapse text-xs")}>
               <thead>
-                <tr className="border-b border-border bg-muted/50">
+                <tr className="border-b border-border bg-muted/60">
                   {orderedRenderColumns.map((item) => {
                     if (item.type === "actions") {
                       const isBeingDragged = draggedKey === ACTIONS_COLUMN_KEY;
@@ -479,7 +554,7 @@ export function DataTable<T extends { id: string }>({
                           onDragEnd={handleDragEnd}
                           title={canReorder ? "Drag Actions column to reorder" : undefined}
                           className={cn(
-                            "group/th relative px-4 py-2.5 text-right text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none whitespace-nowrap transition-colors sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10",
+                            "group/th relative px-4 py-3 text-right text-xs font-bold tracking-wider text-muted-foreground uppercase select-none whitespace-nowrap transition-colors sticky right-0 bg-muted/95 backdrop-blur-xs shadow-xs z-10",
                             canReorder && "cursor-grab active:cursor-grabbing",
                             isBeingDragged && "opacity-40 bg-accent/30",
                             isDropLeft && "border-l-2 border-primary bg-primary/5",
@@ -488,7 +563,7 @@ export function DataTable<T extends { id: string }>({
                         >
                           <div className="flex items-center justify-end gap-1.5">
                             {canReorder && (
-                              <GripVertical className="size-3 text-muted-foreground/30 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
+                              <GripVertical className="size-3.5 text-muted-foreground/40 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
                             )}
                             <span>Actions</span>
                           </div>
@@ -514,7 +589,7 @@ export function DataTable<T extends { id: string }>({
                         onDragEnd={handleDragEnd}
                         title={canReorder ? "Drag column header to reorder" : undefined}
                         className={cn(
-                          "group/th relative px-4 py-2.5 text-left text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase select-none transition-colors",
+                          "group/th relative px-4 py-3 text-left text-xs font-bold tracking-wider text-muted-foreground uppercase select-none whitespace-nowrap transition-colors",
                           canReorder && "cursor-grab active:cursor-grabbing",
                           isBeingDragged && "opacity-40 bg-accent/30",
                           isDropLeft && "border-l-2 border-primary bg-primary/5",
@@ -524,9 +599,9 @@ export function DataTable<T extends { id: string }>({
                       >
                         <div className="flex items-center gap-1.5">
                           {canReorder && (
-                            <GripVertical className="size-3 text-muted-foreground/30 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
+                            <GripVertical className="size-3.5 text-muted-foreground/40 opacity-0 transition-opacity group-hover/th:opacity-100 shrink-0" />
                           )}
-                          <div className="flex-1 truncate">
+                          <div className="flex-1 whitespace-nowrap">
                             {column.filterable ? (
                               <ColumnFilter
                                 label={column.header}
@@ -542,7 +617,7 @@ export function DataTable<T extends { id: string }>({
                                 }
                               />
                             ) : (
-                              column.header
+                              <span>{column.header}</span>
                             )}
                           </div>
                         </div>
@@ -577,7 +652,7 @@ export function DataTable<T extends { id: string }>({
                         <td
                           key={column.key}
                           className={cn(
-                            "px-4 py-3 align-middle text-foreground",
+                            "px-4 py-3 align-middle text-foreground whitespace-nowrap text-xs",
                             column.className,
                           )}
                         >
