@@ -679,7 +679,138 @@ function DebriefJobWorkspacePage() {
         </div>
       </div>
 
-      {/* ================= 2. RECORDED JOB SUMMARY & ACTIONS ================= */}
+      {/* ================= 2. EQUIPMENT & JOB DETAILS (SLIDE 6 SPEC) ================= */}
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <FileText className="size-4 text-primary" />
+            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
+              General: Equipment & Job Details
+            </h3>
+          </div>
+          <span className="text-xs text-muted-foreground font-mono">
+            {job.jobNumber}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Equipment Details Panel */}
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2.5">
+            <span className="text-xs font-bold text-foreground uppercase tracking-wider block border-b border-border/40 pb-1">
+              Equipment Details
+            </span>
+
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+              <div>
+                <dt className="text-muted-foreground font-medium">Asset Number</dt>
+                <dd className="font-mono font-bold text-primary mt-0.5">{job.assetNumber}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Model</dt>
+                <dd className="font-semibold text-foreground mt-0.5">{job.model}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Modality</dt>
+                <dd className="text-foreground mt-0.5">{job.modality}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">OEM</dt>
+                <dd className="text-foreground mt-0.5">{job.oem}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Serial Number</dt>
+                <dd className="font-mono text-foreground mt-0.5">{job.serialNumber || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Year of Mfg</dt>
+                <dd className="text-foreground mt-0.5">{job.yearOfManufacture || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Location</dt>
+                <dd className="text-foreground mt-0.5">{job.location || "Main Ward"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Address</dt>
+                <dd className="text-foreground mt-0.5">{job.address || "Hospital Site"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Warranty Start / End</dt>
+                <dd className="font-mono text-foreground mt-0.5">
+                  {job.warrantyStartDate || "—"} to {job.warrantyEndDate || "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Contract Type / End</dt>
+                <dd className="font-mono text-foreground mt-0.5">
+                  {job.contractType || "Comprehensive"} ({job.contractEndDate || "—"})
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Job Details Panel */}
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2.5">
+            <span className="text-xs font-bold text-foreground uppercase tracking-wider block border-b border-border/40 pb-1">
+              Job Dispatch Details
+            </span>
+
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+              <div>
+                <dt className="text-muted-foreground font-medium">Job Type</dt>
+                <dd className="font-semibold text-foreground mt-0.5">{job.jobType}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Job Priority</dt>
+                <dd className="font-bold text-foreground mt-0.5">
+                  <span className={job.jobPriority === "High" ? "text-rose-600" : "text-amber-600"}>
+                    {job.jobPriority} Priority
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Job Open Date</dt>
+                <dd className="font-mono text-foreground mt-0.5">{job.jobOpenDate || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Job Start Date</dt>
+                <dd className="font-mono text-foreground mt-0.5">{job.jobStartDate || job.startDate || "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Complaint Date/Time</dt>
+                <dd className="font-mono text-foreground mt-0.5">
+                  {job.complaintDate ? `${job.complaintDate} ${job.complaintTime || ""}` : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Site Contact</dt>
+                <dd className="text-foreground mt-0.5">
+                  {job.contactName || "Facility Officer"} {job.contactEmail ? `(${job.contactEmail})` : ""}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Assign To</dt>
+                <dd className="font-bold text-foreground mt-0.5">{job.assignedToName}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground font-medium">Assisted By</dt>
+                <dd className="text-foreground mt-0.5">{job.assistedBy || "—"}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        {/* Reported Issue Display */}
+        <div className="pt-2 border-t border-border/40 space-y-1 text-xs">
+          <span className="font-bold text-muted-foreground block">
+            Reported Issue:
+          </span>
+          <p className="p-3 rounded-md bg-muted/30 border border-border/60 text-foreground leading-relaxed text-xs">
+            {job.reportedIssue || "Diagnostic service and maintenance inspection required."}
+          </p>
+        </div>
+      </div>
+
+      {/* ================= 3. RECORDED JOB SUMMARY & ACTIONS ================= */}
       <div className="space-y-4">
         {/* Section: Work Done & Diagnosis */}
         <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
