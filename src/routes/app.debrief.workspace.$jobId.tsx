@@ -139,11 +139,7 @@ function formatDateNow(): string {
 }
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(amount);
+  return `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function DebriefJobWorkspacePage() {
@@ -191,12 +187,12 @@ function DebriefJobWorkspacePage() {
   // Form states for modals
   const [partNumber, setPartNumber] = useState("");
   const [partDescription, setPartDescription] = useState("");
-  const [partUnitCost, setPartUnitCost] = useState("150");
+  const [partUnitCost, setPartUnitCost] = useState("150000");
   const [partQtyUsed, setPartQtyUsed] = useState("1");
 
   const [expenseDate, setExpenseDate] = useState(formatDateNow());
   const [expenseType, setExpenseType] = useState<ExpenseType>("Transport (taxi)");
-  const [expenseAmount, setExpenseAmount] = useState("45");
+  const [expenseAmount, setExpenseAmount] = useState("45000");
   const [expenseCode, setExpenseCode] = useState("FIN-EXP-2026-088");
   const [expenseReceiptFileName, setExpenseReceiptFileName] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
@@ -744,7 +740,7 @@ function DebriefJobWorkspacePage() {
               className="h-10 px-5 text-[13px] font-bold gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shrink-0"
             >
               <Navigation className="size-4" />
-              <span>Start Travel 🚗</span>
+              <span>Start Travel</span>
             </Button>
           </div>
 
@@ -794,7 +790,7 @@ function DebriefJobWorkspacePage() {
                 className="h-10 px-5 text-[13px] font-bold gap-2 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
               >
                 <MapPin className="size-4" />
-                <span>Arrived On Site 📍</span>
+                <span>Arrived On Site</span>
               </Button>
             </div>
           </div>
@@ -902,7 +898,7 @@ function DebriefJobWorkspacePage() {
                 className="h-9 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
               >
                 <CheckCircle2 className="size-3.5" />
-                <span>Finish Work & Submit Debrief 📝</span>
+                <span>Finish Work & Submit Debrief</span>
               </Button>
             </div>
           )}
@@ -1243,11 +1239,11 @@ function DebriefJobWorkspacePage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Unit Cost ($)</Label>
+                <Label className="text-xs font-semibold">Unit Cost (₦)</Label>
                 <Input
                   type="number"
                   min="0"
-                  step="0.01"
+                  step="100"
                   value={partUnitCost}
                   onChange={(e) => setPartUnitCost(e.target.value)}
                   className="text-xs font-mono"
@@ -1290,11 +1286,11 @@ function DebriefJobWorkspacePage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Amount ($) *</Label>
+                <Label className="text-xs font-semibold">Amount (₦) *</Label>
                 <Input
                   type="number"
                   min="0"
-                  step="0.01"
+                  step="100"
                   value={expenseAmount}
                   onChange={(e) => setExpenseAmount(e.target.value)}
                   className="text-xs font-mono"

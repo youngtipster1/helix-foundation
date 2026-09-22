@@ -13,6 +13,10 @@ interface JobsTableProps {
   onOpenJob?: (job: DebriefJob) => void;
 }
 
+function formatNaira(amount: number): string {
+  return `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 export function JobsTable({
   jobs,
   loading = false,
@@ -61,6 +65,150 @@ export function JobsTable({
         priority: true,
       },
       {
+        key: "jobType",
+        header: "JOB TYPE",
+        value: (row) => row.jobType,
+        cell: (row) => (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-foreground border border-border/60">
+            {row.jobType}
+          </span>
+        ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
+        filterable: true,
+        priority: true,
+      },
+      {
+        key: "jobOpenDate",
+        header: "JOB OPEN DATE",
+        value: (row) => row.jobOpenDate,
+        cell: (row) => (
+          <span className="text-xs font-mono text-foreground">{row.jobOpenDate}</span>
+        ),
+        className: "min-w-[130px]",
+        headerClassName: "min-w-[130px]",
+        filterable: true,
+        priority: true,
+      },
+      {
+        key: "assignTo",
+        header: "ASSIGN TO",
+        value: (row) => row.assignedToName,
+        cell: (row) => (
+          <span className="text-xs font-bold text-foreground">{row.assignedToName}</span>
+        ),
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
+        filterable: true,
+        priority: true,
+      },
+      {
+        key: "assistedBy",
+        header: "ASSISTED BY",
+        value: (row) => row.assistedBy || "—",
+        cell: (row) => (
+          <span className="text-xs text-muted-foreground">{row.assistedBy || "—"}</span>
+        ),
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
+        filterable: true,
+        priority: true,
+      },
+      {
+        key: "equipmentStatus",
+        header: "EQUIPMENT STATUS",
+        value: (row) => row.equipmentStatus,
+        cell: (row) => {
+          const val = row.equipmentStatus;
+          if (val === "UP") {
+            return (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                UP
+              </span>
+            );
+          }
+          if (val === "Partially UP") {
+            return (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                Partially UP
+              </span>
+            );
+          }
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+              Down
+            </span>
+          );
+        },
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
+        filterable: true,
+        priority: true,
+      },
+      {
+        key: "jobPriority",
+        header: "JOB PRIORITY",
+        value: (row) => row.jobPriority,
+        cell: (row) => {
+          const val = row.jobPriority;
+          if (val === "High") {
+            return (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                High
+              </span>
+            );
+          }
+          if (val === "Mid") {
+            return (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                Mid
+              </span>
+            );
+          }
+          return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+              Low
+            </span>
+          );
+        },
+        className: "min-w-[130px]",
+        headerClassName: "min-w-[130px]",
+        filterable: true,
+        priority: true,
+      },
+      {
+        key: "totalJobCost",
+        header: "TOTAL SPEND",
+        value: (row) => {
+          const total = row.totalJobCost || ((row.totalPartsCost || 0) + (row.totalExpensesCost || 0));
+          return formatNaira(total);
+        },
+        cell: (row) => {
+          const total = row.totalJobCost || ((row.totalPartsCost || 0) + (row.totalExpensesCost || 0));
+          return (
+            <span className="font-mono text-xs font-bold text-foreground">
+              {formatNaira(total)}
+            </span>
+          );
+        },
+        className: "min-w-[130px]",
+        headerClassName: "min-w-[130px]",
+        filterable: true,
+        priority: true,
+      },
+      {
+        key: "location",
+        header: "LOCATION",
+        value: (row) => row.location,
+        cell: (row) => (
+          <span className="text-xs text-foreground truncate">{row.location}</span>
+        ),
+        className: "min-w-[160px]",
+        headerClassName: "min-w-[160px]",
+        filterable: true,
+        priority: true,
+      },
+      {
         key: "assetNumber",
         header: "ASSET NUMBER",
         value: (row) => row.assetNumber,
@@ -72,7 +220,6 @@ export function JobsTable({
         className: "min-w-[140px]",
         headerClassName: "min-w-[140px]",
         filterable: true,
-        priority: true,
       },
       {
         key: "modality",
@@ -113,96 +260,6 @@ export function JobsTable({
         filterable: true,
       },
       {
-        key: "warrantyEndDate",
-        header: "WARRANTY END DATE",
-        value: (row) => row.warrantyEndDate || "—",
-        cell: (row) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {row.warrantyEndDate || "—"}
-          </span>
-        ),
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
-        filterable: true,
-      },
-      {
-        key: "warrantyStartDate",
-        header: "WARRANTY START DATE",
-        value: (row) => row.warrantyStartDate || "—",
-        cell: (row) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {row.warrantyStartDate || "—"}
-          </span>
-        ),
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
-        filterable: true,
-      },
-      {
-        key: "contractStartDate",
-        header: "CONTRACT START DATE",
-        value: (row) => row.contractStartDate || "—",
-        cell: (row) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {row.contractStartDate || "—"}
-          </span>
-        ),
-        className: "min-w-[160px]",
-        headerClassName: "min-w-[160px]",
-        filterable: true,
-      },
-      {
-        key: "contractEndDate",
-        header: "CONTRACT END DATE",
-        value: (row) => row.contractEndDate || "—",
-        cell: (row) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {row.contractEndDate || "—"}
-          </span>
-        ),
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
-        filterable: true,
-      },
-      {
-        key: "yearOfManufacture",
-        header: "YEAR OF MANUFACTURE",
-        value: (row) => row.yearOfManufacture,
-        cell: (row) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {row.yearOfManufacture}
-          </span>
-        ),
-        className: "min-w-[160px]",
-        headerClassName: "min-w-[160px]",
-        filterable: true,
-      },
-      {
-        key: "jobType",
-        header: "JOB TYPE",
-        value: (row) => row.jobType,
-        cell: (row) => (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-foreground border border-border/60">
-            {row.jobType}
-          </span>
-        ),
-        className: "min-w-[160px]",
-        headerClassName: "min-w-[160px]",
-        filterable: true,
-        priority: true,
-      },
-      {
-        key: "jobOpenDate",
-        header: "JOB OPEN DATE",
-        value: (row) => row.jobOpenDate,
-        cell: (row) => (
-          <span className="text-xs font-mono text-foreground">{row.jobOpenDate}</span>
-        ),
-        className: "min-w-[140px]",
-        headerClassName: "min-w-[140px]",
-        filterable: true,
-      },
-      {
         key: "jobStartDate",
         header: "JOB START DATE",
         value: (row) => row.jobStartDate,
@@ -211,121 +268,6 @@ export function JobsTable({
         ),
         className: "min-w-[140px]",
         headerClassName: "min-w-[140px]",
-        filterable: true,
-      },
-      {
-        key: "equipmentStatus",
-        header: "EQUIPMENT STATUS",
-        value: (row) => row.equipmentStatus,
-        cell: (row) => {
-          const val = row.equipmentStatus;
-          if (val === "UP") {
-            return (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                UP
-              </span>
-            );
-          }
-          if (val === "Partially UP") {
-            return (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                Partially UP
-              </span>
-            );
-          }
-          return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-              Down
-            </span>
-          );
-        },
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
-        filterable: true,
-        priority: true,
-      },
-      {
-        key: "totalJobCost",
-        header: "TOTAL SPEND",
-        value: (row) => {
-          const total = row.totalJobCost || ((row.totalPartsCost || 0) + (row.totalExpensesCost || 0));
-          return `$${total.toFixed(2)}`;
-        },
-        cell: (row) => {
-          const total = row.totalJobCost || ((row.totalPartsCost || 0) + (row.totalExpensesCost || 0));
-          return (
-            <span className="font-mono text-xs font-bold text-foreground">
-              ${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          );
-        },
-        className: "min-w-[130px] text-right",
-        headerClassName: "min-w-[130px] text-right",
-        filterable: true,
-        priority: true,
-      },
-      {
-        key: "jobPriority",
-        header: "JOB PRIORITY",
-        value: (row) => row.jobPriority,
-        cell: (row) => {
-          const val = row.jobPriority;
-          if (val === "High") {
-            return (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                High
-              </span>
-            );
-          }
-          if (val === "Mid") {
-            return (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                Mid
-              </span>
-            );
-          }
-          return (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              Low
-            </span>
-          );
-        },
-        className: "min-w-[130px]",
-        headerClassName: "min-w-[130px]",
-        filterable: true,
-        priority: true,
-      },
-      {
-        key: "assignTo",
-        header: "ASSIGN TO",
-        value: (row) => row.assignedToName,
-        cell: (row) => (
-          <span className="text-xs font-bold text-foreground">{row.assignedToName}</span>
-        ),
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
-        filterable: true,
-      },
-      {
-        key: "assistedBy",
-        header: "ASSISTED BY",
-        value: (row) => row.assistedBy || "—",
-        cell: (row) => (
-          <span className="text-xs text-muted-foreground">{row.assistedBy || "—"}</span>
-        ),
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
-        filterable: true,
-      },
-      {
-        key: "location",
-        header: "LOCATION",
-        value: (row) => row.location,
-        cell: (row) => (
-          <span className="text-xs text-foreground truncate">{row.location}</span>
-        ),
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
         filterable: true,
       },
       {
@@ -348,8 +290,8 @@ export function JobsTable({
         cell: (row) => (
           <span className="text-xs text-foreground font-medium">{row.rootCause || "—"}</span>
         ),
-        className: "min-w-[150px]",
-        headerClassName: "min-w-[150px]",
+        className: "min-w-[140px]",
+        headerClassName: "min-w-[140px]",
         filterable: true,
       },
       {
@@ -358,6 +300,32 @@ export function JobsTable({
         value: (row) => row.resolution || "—",
         cell: (row) => (
           <span className="text-xs text-foreground font-medium">{row.resolution || "—"}</span>
+        ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
+        filterable: true,
+      },
+      {
+        key: "warrantyEndDate",
+        header: "WARRANTY END DATE",
+        value: (row) => row.warrantyEndDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.warrantyEndDate || "—"}
+          </span>
+        ),
+        className: "min-w-[150px]",
+        headerClassName: "min-w-[150px]",
+        filterable: true,
+      },
+      {
+        key: "contractEndDate",
+        header: "CONTRACT END DATE",
+        value: (row) => row.contractEndDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.contractEndDate || "—"}
+          </span>
         ),
         className: "min-w-[150px]",
         headerClassName: "min-w-[150px]",
