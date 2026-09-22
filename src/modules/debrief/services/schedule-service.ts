@@ -5,6 +5,7 @@ import {
 } from "../mocks/workforce-availability";
 import type { DebriefJob } from "../types";
 import type { SchedulingConflict } from "../components/schedule/schedule-types";
+import { MOCK_PERSONNEL } from "@/modules/settings/mocks/personnel";
 import { personnelService } from "@/modules/settings/services/personnel-service";
 import type { Personnel } from "@/modules/settings/types";
 
@@ -38,14 +39,13 @@ class ScheduleService {
     targetDate: string
   ): Promise<SchedulingConflict> {
     // 1. Check Workforce Availability (Training, Leave, Off Day)
-    const availRecord = this.getEngineerAvailabilityForDate(
-      targetEngineerId,
-      targetDate
-    ) || this.availability.find(
-      (a) =>
-        a.personnelName.toLowerCase() === targetEngineerName.toLowerCase() &&
-        a.date === targetDate
-    );
+    const availRecord =
+      this.getEngineerAvailabilityForDate(targetEngineerId, targetDate) ||
+      this.availability.find(
+        (a) =>
+          a.personnelName.toLowerCase() === targetEngineerName.toLowerCase() &&
+          a.date === targetDate
+      );
 
     if (availRecord && availRecord.status !== "available") {
       let conflictType: "leave" | "training" | "off" = "training";
@@ -68,7 +68,7 @@ class ScheduleService {
     // 2. Check Overlapping Scheduled Jobs on that date
     const allJobs = await debriefService.list();
     const existingJob = allJobs.find((j) => {
-      if (j.id === job.id) return false; // Ignore self
+      if (j.id === job.id) return false;
       if (j.jobStatus === "Completed") return false;
 
       const sameEngineer =
@@ -108,9 +108,6 @@ class ScheduleService {
     };
   }
 
-  /**
-   * Reschedules an existing job's start date and updates it in debriefService.
-   */
   async rescheduleJob(
     jobId: string,
     newDate: string,
@@ -131,9 +128,6 @@ class ScheduleService {
     return await debriefService.update(job.id, updates);
   }
 
-  /**
-   * Reassigns an existing job to another engineer and optionally moves date.
-   */
   async reassignJob(
     jobId: string,
     newEngineerId: string,
@@ -157,24 +151,18 @@ class ScheduleService {
   }
 
   /**
-   * Retrieves list of available engineers for reassignment dropdowns.
+   * Retrieves list of biomedical engineers.
    */
   async getBiomedicalEngineers(): Promise<Personnel[]> {
     try {
-      const allPersonnel = await personnelService.getPersonnel();
-      const filtered = allPersonnel.filter(
-        (p) =>
-          p.status === "active" &&
-          (p.department.toLowerCase().includes("clinical") ||
-            p.department.toLowerCase().includes("workshop") ||
-            p.jobTitle.toLowerCase().includes("engineer") ||
-            p.jobTitle.toLowerCase().includes("specialist") ||
-            p.jobTitle.toLowerCase().includes("technician"))
-      );
-      return filtered.length > 0 ? filtered : allPersonnel.slice(0, 6);
+      const response = await personnelService.list();
+      if (response && response.length > 0) {
+        return response;
+      }
     } catch {
-      return [];
+      // fallback
     }
+    return [...MOCK_PERSONNEL];
   }
 }
 

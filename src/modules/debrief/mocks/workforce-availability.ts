@@ -11,6 +11,7 @@ export interface EngineerAvailability {
 }
 
 export const MOCK_ENGINEER_AVAILABILITY: EngineerAvailability[] = [
+  // Week 38 (Sep 14 - Sep 20, 2026)
   {
     id: "avail_001",
     personnelId: "per_001", // John Doe
@@ -19,15 +20,6 @@ export const MOCK_ENGINEER_AVAILABILITY: EngineerAvailability[] = [
     status: "training",
     title: "Radiation Safety & CT Compliance Training",
     notes: "Mandatory QA certification seminar (09:00 - 16:00)",
-  },
-  {
-    id: "avail_002",
-    personnelId: "per_001", // John Doe
-    personnelName: "John Doe",
-    date: "2026-09-25",
-    status: "leave",
-    title: "Approved Annual Leave",
-    notes: "Family leave approved by HR",
   },
   {
     id: "avail_003",
@@ -39,15 +31,6 @@ export const MOCK_ENGINEER_AVAILABILITY: EngineerAvailability[] = [
     notes: "OEM training session at GE Medical Campus",
   },
   {
-    id: "avail_004",
-    personnelId: "per_002", // Amara Okoye
-    personnelName: "Amara Okoye",
-    date: "2026-09-24",
-    status: "off",
-    title: "Roster Off Day",
-    notes: "Shift rotation compensation day",
-  },
-  {
     id: "avail_005",
     personnelId: "per_005", // Marcus Vance
     personnelName: "Marcus Vance",
@@ -56,6 +39,8 @@ export const MOCK_ENGINEER_AVAILABILITY: EngineerAvailability[] = [
     title: "High-Voltage Generator Safety",
     notes: "Siemens & Philips diagnostic workshop",
   },
+
+  // Week 39 (Sep 21 - Sep 27, 2026)
   {
     id: "avail_006",
     personnelId: "per_005", // Marcus Vance
@@ -66,21 +51,68 @@ export const MOCK_ENGINEER_AVAILABILITY: EngineerAvailability[] = [
     notes: "Medical certificate lodged",
   },
   {
+    id: "avail_004",
+    personnelId: "per_002", // Amara Okoye
+    personnelName: "Amara Okoye",
+    date: "2026-09-24",
+    status: "off",
+    title: "Roster Off Day",
+    notes: "Shift rotation compensation day",
+  },
+  {
+    id: "avail_002",
+    personnelId: "per_001", // John Doe
+    personnelName: "John Doe",
+    date: "2026-09-25",
+    status: "leave",
+    title: "Approved Annual Leave",
+    notes: "Family leave approved by HR",
+  },
+  {
     id: "avail_007",
     personnelId: "per_013", // Zainab Sani
     personnelName: "Zainab Sani",
-    date: "2026-09-19",
+    date: "2026-09-23",
     status: "training",
     title: "MRI Cryogen Handling Safety",
     notes: "Advanced superconducting magnet seminar",
   },
+
+  // Week 41 (Oct 5 - Oct 11, 2026)
   {
-    id: "avail_008",
+    id: "avail_010",
+    personnelId: "per_001", // John Doe
+    personnelName: "John Doe",
+    date: "2026-10-06",
+    status: "training",
+    title: "Linear Accelerator Calibration & Dosimetry",
+    notes: "Elekta advanced physics workshop",
+  },
+  {
+    id: "avail_011",
+    personnelId: "per_002", // Amara Okoye
+    personnelName: "Amara Okoye",
+    date: "2026-10-08",
+    status: "leave",
+    title: "Annual Leave",
+    notes: "Approved leave period",
+  },
+  {
+    id: "avail_012",
+    personnelId: "per_005", // Marcus Vance
+    personnelName: "Marcus Vance",
+    date: "2026-10-07",
+    status: "training",
+    title: "Biomedical Electrical Safety & ISO 13485",
+    notes: "Quality assurance certification",
+  },
+  {
+    id: "avail_013",
     personnelId: "per_013", // Zainab Sani
     personnelName: "Zainab Sani",
-    date: "2026-09-30",
+    date: "2026-10-09",
     status: "off",
-    title: "Scheduled Rest Day",
-    notes: "Monthly downtime rotation",
+    title: "Compensatory Rest Day",
+    notes: "Post-on-call rest day",
   },
 ];

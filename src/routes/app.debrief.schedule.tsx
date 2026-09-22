@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,10 @@ import {
 import {
   ScheduleDetailDrawer,
 } from "@/modules/debrief/components/schedule/schedule-detail-drawer";
-import type {
-  SchedulingConflict,
-  DragJobPayload,
+import {
+  JOB_TYPE_COLORS,
+  type SchedulingConflict,
+  type DragJobPayload,
 } from "@/modules/debrief/components/schedule/schedule-types";
 import {
   CalendarRange,
@@ -31,6 +32,7 @@ import {
   ChevronRight,
   Inbox,
   Calendar,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -80,13 +82,13 @@ function formatMonthDay(d: Date): string {
 
 function DebriefSchedulePage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [jobs, setJobs] = useState<DebriefJob[]>([]);
   const [engineers, setEngineers] = useState<Personnel[]>([]);
   const [availabilities, setAvailabilities] = useState<EngineerAvailability[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 8, 14));
+  // Default to mid-September 2026 week where all rich demo jobs & trainings are scheduled
+  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 8, 21));
   const [unscheduledOpen, setUnscheduledOpen] = useState(false);
 
   // Modals & Drawers
@@ -181,7 +183,7 @@ function DebriefSchedulePage() {
   };
 
   const handleCurrentWeek = () => {
-    setCurrentDate(new Date(2026, 8, 14));
+    setCurrentDate(new Date(2026, 8, 21));
   };
 
   // Backlog / Unscheduled Jobs
@@ -309,7 +311,7 @@ function DebriefSchedulePage() {
   };
 
   return (
-    <div className="w-full space-y-6 pb-12">
+    <div className="w-full space-y-5 pb-12">
       <PageHeader
         eyebrow="Debrief Module"
         title="Service Calendar"
@@ -407,8 +409,48 @@ function DebriefSchedulePage() {
         </div>
       </div>
 
-      {/* Main Board & Optional Unscheduled Queue Tray */}
-      <div className="flex flex-col xl:flex-row items-start gap-5">
+      {/* Horizontal Bar Legend with Dots */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-card border border-border shadow-2xs text-xs">
+        {/* Job Types with colored dots */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="font-bold text-muted-foreground flex items-center gap-1 text-[11px] uppercase tracking-wider">
+            <Layers className="size-3.5 text-primary" />
+            Job Types:
+          </span>
+          {Object.entries(JOB_TYPE_COLORS).slice(0, 7).map(([key, style]) => (
+            <div key={key} className="flex items-center gap-1.5">
+              <span className={cn("size-2 rounded-full shrink-0", style.dotColor)} />
+              <span className="text-foreground font-medium text-[11px]">
+                {key}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Workforce Status Dots */}
+        <div className="flex flex-wrap items-center gap-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-border/40">
+          <span className="text-muted-foreground text-[11px] font-medium uppercase tracking-wider">Workforce:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-emerald-500" />
+            <span className="text-muted-foreground text-[11px]">Available</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-amber-500" />
+            <span className="text-muted-foreground text-[11px]">Training</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-sky-500" />
+            <span className="text-muted-foreground text-[11px]">Annual Leave</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-rose-500" />
+            <span className="text-muted-foreground text-[11px]">Sick Leave / Off</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Full-Width Board & Optional Unscheduled Queue Tray */}
+      <div className="flex flex-col xl:flex-row items-start gap-5 w-full">
         <div className="flex-1 w-full overflow-hidden">
           {loading ? (
             <div className="p-16 text-center text-xs text-muted-foreground font-semibold">
