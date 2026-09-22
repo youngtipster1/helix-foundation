@@ -35,7 +35,7 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
         ref={ref}
         onClick={onClick}
         className={cn(
-          "surface-panel p-3.5 sm:p-4 flex flex-col justify-start gap-1.5 transition-all text-left",
+          "surface-panel p-4 sm:p-4.5 flex flex-col justify-between transition-all text-left",
           isInteractive && "cursor-pointer hover:border-border/80 hover:bg-muted/10",
           active && "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5",
           className
@@ -46,7 +46,7 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
         <div className="flex items-center justify-between gap-2">
           <span
             className={cn(
-              "text-xs font-semibold uppercase tracking-wider truncate",
+              "text-xs font-semibold uppercase tracking-wider line-clamp-1",
               active ? "text-primary" : "text-muted-foreground"
             )}
           >
@@ -55,20 +55,20 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
           {Icon && (
             <div
               className={cn(
-                "size-7 sm:size-8 rounded-lg grid place-items-center shrink-0 transition-colors",
+                "size-8 rounded-lg grid place-items-center shrink-0 transition-colors",
                 active
                   ? "bg-primary text-primary-foreground"
                   : "bg-primary/10 text-primary"
               )}
             >
-              <Icon className="size-3.5 sm:size-4" />
+              <Icon className="size-4" />
             </div>
           )}
         </div>
 
         {/* Middle Row: Primary Value */}
-        <div className="flex items-baseline">
-          <div className="text-xl sm:text-2xl font-bold font-mono text-foreground tracking-tight">
+        <div className="mt-2.5 flex items-baseline">
+          <div className="text-2xl font-bold font-mono text-foreground tracking-tight">
             {value}
             {unit && (
               <span className="ml-1 text-xs font-sans font-medium text-muted-foreground">
@@ -80,7 +80,7 @@ export const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
 
         {/* Bottom Row: Context Description */}
         {description && (
-          <p className="text-xs text-muted-foreground leading-snug line-clamp-2">
+          <p className="text-xs text-muted-foreground mt-1 leading-normal line-clamp-2">
             {description}
           </p>
         )}

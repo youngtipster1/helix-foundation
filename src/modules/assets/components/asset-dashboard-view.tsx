@@ -29,7 +29,7 @@ export interface AssetDashboardViewProps {
 export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
   return (
     <div className="space-y-4">
-      {/* Top Row: 3 Primary KPI Metric Cards */}
+      {/* 1. Top Row: 3 KPI Cards across full width */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <StatCard
           title="Total Equipment"
@@ -53,7 +53,7 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
         />
       </div>
 
-      {/* Middle Row: 2 Donut Charts (Warranty Status & Equipment Status) */}
+      {/* 2. Middle Row: 2 Donut Charts (Warranty Status & Equipment Status) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
         {/* Left Donut: Warranty Status */}
         <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
@@ -116,8 +116,8 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
           </div>
         </div>
 
-        {/* Right Column: Equipment Status Donut */}
-        <div className="lg:col-span-4 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+        {/* Right Donut: Equipment Status */}
+        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-1.5">
               <Activity className="size-4 text-foreground" />
@@ -186,7 +186,7 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
         </div>
       </div>
 
-      {/* Bottom Row: 3 Bar Charts matching slide (ASSET BY LOCATION, ASSET BY MODALITY, ASSET BY OEM) */}
+      {/* 3. Bottom Row: 3 Bar Charts matching slide (ASSET BY LOCATION, ASSET BY MODALITY, ASSET BY OEM) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {/* 1. ASSET BY LOCATION */}
         <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
@@ -224,7 +224,7 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                <Bar dataKey="count" maxBarSize={28} radius={[4, 4, 0, 0]}>
                   {metrics.assetsByLocation.map((entry, index) => (
                     <Cell key={`loc-cell-${index}`} fill={entry.color || "#10b981"} />
                   ))}
@@ -273,7 +273,7 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                <Bar dataKey="count" maxBarSize={28} radius={[4, 4, 0, 0]}>
                   {metrics.assetsByModality.map((entry, index) => (
                     <Cell key={`mod-cell-${index}`} fill={entry.color || "#3b82f6"} />
                   ))}
@@ -332,7 +332,7 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                <Bar dataKey="count" maxBarSize={28} radius={[4, 4, 0, 0]}>
                   {metrics.assetsByOem.map((entry, index) => (
                     <Cell key={`oem-cell-${index}`} fill={entry.color || "#3b82f6"} />
                   ))}

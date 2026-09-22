@@ -254,7 +254,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                <Bar dataKey="count" maxBarSize={28} radius={[4, 4, 0, 0]}>
                   {metrics.contractsByLocation.map((entry, index) => (
                     <Cell key={`loc-cell-${index}`} fill={entry.color || "#10b981"} />
                   ))}
@@ -303,7 +303,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                <Bar dataKey="count" maxBarSize={28} radius={[4, 4, 0, 0]}>
                   {metrics.contractsByModality.map((entry, index) => (
                     <Cell key={`mod-cell-${index}`} fill={entry.color || "#3b82f6"} />
                   ))}
@@ -362,7 +362,7 @@ export function ContractDashboardView({ metrics }: ContractDashboardViewProps) {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                <Bar dataKey="count" maxBarSize={28} radius={[4, 4, 0, 0]}>
                   {metrics.contractsByOem.map((entry, index) => (
                     <Cell key={`oem-cell-${index}`} fill={entry.color || "#3b82f6"} />
                   ))}
