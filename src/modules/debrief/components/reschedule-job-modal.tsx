@@ -20,7 +20,7 @@ import {
 import { debriefService } from "../services/debrief-service";
 import type { DebriefJob, JobPriority } from "../types";
 import { toast } from "sonner";
-import { Calendar, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Calendar, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RescheduleJobModalProps {
@@ -39,7 +39,6 @@ export function RescheduleJobModal({
   onJobUpdated,
 }: RescheduleJobModalProps) {
   const [jobStartDate, setJobStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [jobPriority, setJobPriority] = useState<JobPriority>("High");
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -48,7 +47,6 @@ export function RescheduleJobModal({
   useEffect(() => {
     if (job && open) {
       setJobStartDate(job.jobStartDate || job.startDate || "");
-      setEndDate(job.endDate && job.endDate !== "—" ? job.endDate : "");
       setJobPriority(job.jobPriority || "Mid");
       setReason("");
       setErrors({});
@@ -69,7 +67,6 @@ export function RescheduleJobModal({
       const updates: Partial<DebriefJob> = {
         jobStartDate,
         startDate: jobStartDate,
-        endDate: endDate.trim() || "—",
         jobPriority,
       };
 
@@ -91,10 +88,11 @@ export function RescheduleJobModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border bg-card">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-md bg-primary/10 text-primary">
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border bg-card shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
               <Calendar className="size-4" />
             </div>
             <div>
@@ -108,23 +106,26 @@ export function RescheduleJobModal({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSave} className="p-4 sm:p-5 space-y-4">
-          <div className="rounded-md border border-border bg-muted/20 p-3 text-xs space-y-1.5">
-            <div className="flex justify-between">
+        {/* Form Body */}
+        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+          {/* Job summary card */}
+          <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs space-y-1.5 shadow-2xs">
+            <div className="flex justify-between items-center">
               <span className="text-muted-foreground font-medium">Assigned Engineer:</span>
               <span className="font-semibold text-foreground">{job.assignedToName}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-muted-foreground font-medium">Current Schedule:</span>
-              <span className="font-mono text-foreground">{job.jobStartDate || "Not scheduled"}</span>
+              <span className="font-mono font-medium text-foreground">{job.jobStartDate || "Not scheduled"}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span className="text-muted-foreground font-medium">Facility / Location:</span>
               <span className="text-foreground truncate max-w-[200px]">{job.location}</span>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3.5">
+            {/* New Start Date */}
             <div className="space-y-1">
               <Label htmlFor="jobStartDate" className="text-xs font-semibold text-primary">
                 New Start Date <span className="text-destructive">*</span>
@@ -137,7 +138,7 @@ export function RescheduleJobModal({
                   setJobStartDate(e.target.value);
                   if (errors.jobStartDate) setErrors({});
                 }}
-                className={cn("h-9 text-xs font-mono", errors.jobStartDate && "border-destructive")}
+                className={cn("h-9 text-xs font-mono bg-background", errors.jobStartDate && "border-destructive")}
               />
               {errors.jobStartDate && (
                 <p className="text-xs text-destructive flex items-center gap-1 mt-1">
@@ -146,19 +147,7 @@ export function RescheduleJobModal({
               )}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="endDate" className="text-xs font-semibold">
-                Estimated End Date (Optional)
-              </Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="h-9 text-xs font-mono"
-              />
-            </div>
-
+            {/* Job Priority */}
             <div className="space-y-1">
               <Label htmlFor="jobPriority" className="text-xs font-semibold">
                 Job Priority
@@ -167,7 +156,7 @@ export function RescheduleJobModal({
                 value={jobPriority}
                 onValueChange={(val) => setJobPriority(val as JobPriority)}
               >
-                <SelectTrigger id="jobPriority" className="h-9 text-xs">
+                <SelectTrigger id="jobPriority" className="h-9 text-xs bg-background">
                   <SelectValue placeholder="Priority" />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,6 +169,7 @@ export function RescheduleJobModal({
               </Select>
             </div>
 
+            {/* Reschedule Reason */}
             <div className="space-y-1">
               <Label htmlFor="rescheduleReason" className="text-xs font-semibold">
                 Reason / Scheduling Notes (Optional)
@@ -190,12 +180,13 @@ export function RescheduleJobModal({
                 placeholder="e.g. Customer requested date change, awaiting replacement parts..."
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="text-xs resize-none"
+                className="text-xs resize-none bg-background"
               />
             </div>
           </div>
 
-          <div className="pt-3 border-t border-border flex items-center justify-between">
+          {/* Action Buttons Footer */}
+          <div className="pt-3 border-t border-border flex items-center justify-between mt-4 shrink-0">
             <Button
               type="button"
               variant="outline"
@@ -213,7 +204,7 @@ export function RescheduleJobModal({
               className="text-xs h-9 font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 cursor-pointer shadow-sm px-4"
             >
               <CheckCircle2 className="size-4" />
-              <span>{submitting ? "Saving..." : "Save Reschedule"}</span>
+              <span>{submitting ? "Rescheduling..." : "Confirm Reschedule"}</span>
             </Button>
           </div>
         </form>

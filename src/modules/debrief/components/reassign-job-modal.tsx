@@ -116,10 +116,10 @@ export function ReassignJobModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border bg-card">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-md bg-primary/10 text-primary">
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border bg-card shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
               <UserCheck className="size-4" />
             </div>
             <div>
@@ -133,7 +133,7 @@ export function ReassignJobModal({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSave} className="p-4 sm:p-5 space-y-4">
+        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           <div className="rounded-md border border-border bg-muted/20 p-3 text-xs space-y-1.5">
             <div className="flex justify-between">
               <span className="text-muted-foreground font-medium">Currently Assigned:</span>
