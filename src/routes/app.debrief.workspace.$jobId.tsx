@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { debriefService } from "@/modules/debrief/services/debrief-service";
+import { debriefService, computeJobCosts } from "@/modules/debrief/services/debrief-service";
 import type {
   DebriefJob,
   EquipmentStatus,
   JobStatus,
+  JobStage,
   RootCause,
   Resolution,
   DebriefPartUsed,
@@ -14,6 +15,7 @@ import type {
   DebriefDocumentType,
   DebriefToolUsed,
 } from "@/modules/debrief/types";
+import { useAuth } from "@/features/auth/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +33,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
@@ -56,6 +59,15 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
+  DollarSign,
+  ShieldCheck,
+  Lock,
+  UserCheck,
+  Calendar,
+  Building2,
+  Phone,
+  Mail,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -65,7 +77,7 @@ export const Route = createFileRoute("/app/debrief/workspace/$jobId")({
       { title: "Job Workspace — Debrief | HEMP" },
       {
         name: "description",
-        content: "Event-driven engineer execution workspace for active service jobs.",
+        content: "Guided engineer execution journey for active biomedical service jobs.",
       },
     ],
   }),
@@ -73,26 +85,30 @@ export const Route = createFileRoute("/app/debrief/workspace/$jobId")({
 });
 
 const ROOT_CAUSES: RootCause[] = [
-  "User error",
-  "Power supply",
-  "Software",
   "Hardware",
+  "Software",
   "Consumable",
+  "Power supply",
+  "User error",
+  "Calibration drift",
+  "Environmental",
 ];
 
 const RESOLUTIONS: Resolution[] = [
+  "Component replacement",
   "Calibration",
   "Software reload",
   "Hardware error",
-  "Accessory",
+  "Accessory replacement",
   "End user training",
-  "Consumable",
+  "Consumable replenishment",
+  "Preventive maintenance protocol",
 ];
 
 const EXPENSE_TYPES: ExpenseType[] = [
-  "Lodging",
-  "Transport (flight)",
   "Transport (taxi)",
+  "Transport (flight)",
+  "Lodging",
   "Feeding",
 ];
 
@@ -122,16 +138,17 @@ function formatDateNow(): string {
   return new Date().toISOString().split("T")[0];
 }
 
-interface TimelineEvent {
-  id: string;
-  time?: string;
-  title: string;
-  subtitle?: string;
-  type: "travel" | "labour" | "part" | "expense" | "doc" | "tool" | "hold" | "complete";
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  }).format(amount);
 }
 
 function DebriefJobWorkspacePage() {
   const { jobId } = Route.useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [job, setJob] = useState<DebriefJob | null>(null);
@@ -146,16 +163,22 @@ function DebriefJobWorkspacePage() {
   const [labourEndTime, setLabourEndTime] = useState("");
   const [workDone, setWorkDone] = useState("");
   const [equipmentStatus, setEquipmentStatus] = useState<EquipmentStatus>("UP");
-  const [jobStatus, setJobStatus] = useState<JobStatus>("In Progress");
+  const [jobStatus, setJobStatus] = useState<JobStatus>("Open");
+  const [stage, setStage] = useState<JobStage>("assigned");
   const [holdReason, setHoldReason] = useState("Awaiting Part");
   const [rootCause, setRootCause] = useState<RootCause>("Hardware");
-  const [resolution, setResolution] = useState<Resolution>("Calibration");
+  const [resolution, setResolution] = useState<Resolution>("Component replacement");
 
   // Supporting items state
   const [partsUsed, setPartsUsed] = useState<DebriefPartUsed[]>([]);
   const [expenses, setExpenses] = useState<DebriefExpense[]>([]);
   const [documents, setDocuments] = useState<DebriefDocument[]>([]);
   const [toolsUsed, setToolsUsed] = useState<DebriefToolUsed[]>([]);
+
+  // Sign-off State
+  const [clientSignoffName, setClientSignoffName] = useState("");
+  const [clientSignoffDesignation, setClientSignoffDesignation] = useState("");
+  const [signoffConfirmed, setSignoffConfirmed] = useState(false);
 
   // Modal Dialogs state
   const [addPartOpen, setAddPartOpen] = useState(false);
@@ -168,12 +191,12 @@ function DebriefJobWorkspacePage() {
   // Form states for modals
   const [partNumber, setPartNumber] = useState("");
   const [partDescription, setPartDescription] = useState("");
-  const [partUnitCost, setPartUnitCost] = useState("45000");
+  const [partUnitCost, setPartUnitCost] = useState("150");
   const [partQtyUsed, setPartQtyUsed] = useState("1");
 
   const [expenseDate, setExpenseDate] = useState(formatDateNow());
   const [expenseType, setExpenseType] = useState<ExpenseType>("Transport (taxi)");
-  const [expenseAmount, setExpenseAmount] = useState("15000");
+  const [expenseAmount, setExpenseAmount] = useState("45");
   const [expenseCode, setExpenseCode] = useState("FIN-EXP-2026-088");
   const [expenseReceiptFileName, setExpenseReceiptFileName] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
@@ -198,15 +221,19 @@ function DebriefJobWorkspacePage() {
           setLabourEndTime(found.labour?.labourEndTime || "");
           setWorkDone(found.labour?.workDone || found.reportedIssue || "");
           setEquipmentStatus(found.equipmentStatus || "UP");
-          setJobStatus(found.jobStatus || "In Progress");
+          setJobStatus(found.jobStatus || "Open");
+          setStage(found.stage || (found.jobStatus === "Completed" ? "completed" : found.jobStatus === "On Hold" ? "on_hold" : found.labour?.labourStartTime ? "working" : found.labour?.travelStartTime ? "traveling" : "assigned"));
           setHoldReason(found.holdReason || "Awaiting Part");
           setRootCause(found.rootCause && found.rootCause !== "—" ? found.rootCause : "Hardware");
-          setResolution(found.resolution && found.resolution !== "—" ? found.resolution : "Calibration");
+          setResolution(found.resolution && found.resolution !== "—" ? found.resolution : "Component replacement");
 
           setPartsUsed(found.partsUsed || []);
           setExpenses(found.expenses || []);
           setDocuments(found.documents || []);
           setToolsUsed(found.toolsUsed || []);
+
+          setClientSignoffName(found.clientSignoffName || found.contactName || "");
+          setClientSignoffDesignation(found.clientSignoffDesignation || "Facility In-Charge");
         } else {
           toast.error("Job record not found.");
         }
@@ -221,31 +248,32 @@ function DebriefJobWorkspacePage() {
     loadJob();
   }, [jobId]);
 
-  // Derive Current Lifecycle Stage
-  const currentStage = useMemo<"assigned" | "travel" | "working" | "on_hold" | "completed">(() => {
-    if (jobStatus === "Completed") return "completed";
-    if (jobStatus === "On Hold") return "on_hold";
-    if (labourStartTime) return "working";
-    if (travelStartTime) return "travel";
-    return "assigned";
-  }, [jobStatus, labourStartTime, travelStartTime]);
+  // Real-time Cost Rollup calculations
+  const { totalPartsCost, totalExpensesCost, totalJobCost } = useMemo(() => {
+    return computeJobCosts({ partsUsed, expenses });
+  }, [partsUsed, expenses]);
 
-  // Event Stamping Actions
+  // Stage Handlers
   const handleStartTravel = async () => {
     const timeNow = formatTimeNow();
     setTravelStartTime(timeNow);
+    setStage("traveling");
+    setJobStatus("In Progress");
+
     await debriefService.update(jobId, {
       jobStatus: "In Progress",
+      stage: "traveling",
       labour: {
         startDate: job?.jobStartDate || formatDateNow(),
-        endDate: formatDateNow(),
+        endDate: "—",
         travelStartTime: timeNow,
         workDone,
         equipmentStatus,
         jobStatus: "In Progress",
+        stage: "traveling",
       },
     });
-    toast.success(`Travel started at ${timeNow}`);
+    toast.success(`Travel started at ${timeNow}. Safe journey!`);
   };
 
   const handleArrivedOnSite = async () => {
@@ -253,33 +281,76 @@ function DebriefJobWorkspacePage() {
     const travelStart = travelStartTime || "08:00";
     setTravelEndTime(timeNow);
     setLabourStartTime(timeNow);
+    setStage("working");
+    setJobStatus("In Progress");
+
     await debriefService.update(jobId, {
       jobStatus: "In Progress",
+      stage: "working",
       labour: {
         startDate: job?.jobStartDate || formatDateNow(),
-        endDate: formatDateNow(),
+        endDate: "—",
         travelStartTime: travelStart,
         travelEndTime: timeNow,
         labourStartTime: timeNow,
         workDone,
         equipmentStatus,
         jobStatus: "In Progress",
+        stage: "working",
       },
     });
-    toast.success(`Arrived on site at ${timeNow}. Labour started.`);
+    toast.success(`Arrived on site at ${timeNow}. Full workspace unlocked!`);
   };
 
   const handleConfirmHold = async () => {
     setJobStatus("On Hold");
+    setStage("on_hold");
     setHoldDialogOpen(false);
-    await handleSaveAll("On Hold");
+
+    await debriefService.update(jobId, {
+      jobStatus: "On Hold",
+      stage: "on_hold",
+      holdReason,
+      labour: {
+        startDate: job?.jobStartDate || formatDateNow(),
+        endDate: "—",
+        travelStartTime,
+        travelEndTime,
+        labourStartTime,
+        workDone,
+        equipmentStatus,
+        jobStatus: "On Hold",
+        stage: "on_hold",
+        holdReason,
+      },
+      partsUsed,
+      expenses,
+      documents,
+      toolsUsed,
+    });
     toast.warning(`Job placed On Hold (${holdReason})`);
   };
 
   const handleResumeWork = async () => {
     setJobStatus("In Progress");
-    await handleSaveAll("In Progress");
-    toast.success("Job resumed. Work in progress.");
+    setStage("working");
+
+    await debriefService.update(jobId, {
+      jobStatus: "In Progress",
+      stage: "working",
+      labour: {
+        startDate: job?.jobStartDate || formatDateNow(),
+        endDate: "—",
+        travelStartTime,
+        travelEndTime,
+        labourStartTime: labourStartTime || formatTimeNow(),
+        workDone,
+        equipmentStatus,
+        jobStatus: "In Progress",
+        stage: "working",
+      },
+    });
+    toast.success("Job resumed. Active workspace unlocked.");
   };
 
   // Add Item Handlers
@@ -311,13 +382,14 @@ function DebriefJobWorkspacePage() {
     setPartQtyUsed("1");
     setAddPartOpen(false);
     await debriefService.update(jobId, { partsUsed: updated });
-    toast.success(`Part ${newPart.partNumber} recorded.`);
+    toast.success(`Part ${newPart.partNumber} added (${formatCurrency(newPart.totalCost)}).`);
   };
 
   const handleRemovePart = async (id: string) => {
     const updated = partsUsed.filter((p) => p.id !== id);
     setPartsUsed(updated);
     await debriefService.update(jobId, { partsUsed: updated });
+    toast.info("Part removed.");
   };
 
   const handleAddExpense = async () => {
@@ -326,6 +398,7 @@ function DebriefJobWorkspacePage() {
       return;
     }
 
+    const cost = parseFloat(expenseAmount) || 0;
     const newExpense: DebriefExpense = {
       id: `exp_${Date.now()}`,
       dateOfExpense: expenseDate || formatDateNow(),
@@ -334,7 +407,7 @@ function DebriefJobWorkspacePage() {
       receiptFileName: expenseReceiptFileName.trim() || undefined,
       note: expenseNote || "Service expense logged by engineer.",
       expenseCode: expenseCode || "FIN-EXP-2026-088",
-      amount: parseFloat(expenseAmount) || 0,
+      amount: cost,
     };
 
     const updated = [...expenses, newExpense];
@@ -343,13 +416,14 @@ function DebriefJobWorkspacePage() {
     setExpenseReceiptFileName("");
     setAddExpenseOpen(false);
     await debriefService.update(jobId, { expenses: updated });
-    toast.success("Expense logged.");
+    toast.success(`Expense logged (${formatCurrency(cost)}).`);
   };
 
   const handleRemoveExpense = async (id: string) => {
     const updated = expenses.filter((e) => e.id !== id);
     setExpenses(updated);
     await debriefService.update(jobId, { expenses: updated });
+    toast.info("Expense removed.");
   };
 
   const handleAddDocument = async () => {
@@ -381,6 +455,7 @@ function DebriefJobWorkspacePage() {
     const updated = documents.filter((d) => d.id !== id);
     setDocuments(updated);
     await debriefService.update(jobId, { documents: updated });
+    toast.info("Document removed.");
   };
 
   const handleAddTool = async (tool: typeof TOOL_REGISTRY[0]) => {
@@ -412,162 +487,77 @@ function DebriefJobWorkspacePage() {
     const updated = toolsUsed.filter((t) => t.id !== id);
     setToolsUsed(updated);
     await debriefService.update(jobId, { toolsUsed: updated });
+    toast.info("Tool removed.");
   };
 
-  // General Save
-  const handleSaveAll = async (targetJobStatus?: JobStatus) => {
-    if (!job) return;
+  // Submit & Final Debrief Completion
+  const handleFinalSubmitDebrief = async () => {
+    if (!workDone.trim()) {
+      toast.error("Please enter a summary of the work performed.");
+      return;
+    }
+    if (!clientSignoffName.trim()) {
+      toast.error("Please enter the Client / Hospital Representative Name for sign-off.");
+      return;
+    }
 
-    const finalStatus = targetJobStatus || jobStatus;
     setSaving(true);
     try {
-      const finishTime = finalStatus === "Completed" ? (labourEndTime || formatTimeNow()) : labourEndTime;
+      const nowTime = formatTimeNow();
+      const nowDate = formatDateNow();
+      const fullTimestamp = `${nowDate} ${nowTime}`;
 
-      const updatedJob: Partial<DebriefJob> = {
+      await debriefService.update(jobId, {
+        jobStatus: "Completed",
+        stage: "completed",
         equipmentStatus,
-        jobStatus: finalStatus,
-        holdReason: finalStatus === "On Hold" ? holdReason : undefined,
-        rootCause: finalStatus === "Completed" ? rootCause : rootCause || "—",
-        resolution: finalStatus === "Completed" ? resolution : resolution || "—",
-        endDate: finalStatus === "Completed" ? formatDateNow() : "—",
+        rootCause,
+        resolution,
+        endDate: nowDate,
+        clientSignoffName: clientSignoffName.trim(),
+        clientSignoffDesignation: clientSignoffDesignation.trim() || "Hospital In-Charge",
+        clientSignoffDate: fullTimestamp,
+        engineerSignoffDate: fullTimestamp,
         labour: {
-          startDate: job.jobStartDate || formatDateNow(),
-          endDate: formatDateNow(),
+          startDate: job?.jobStartDate || nowDate,
+          endDate: nowDate,
           travelStartTime,
           travelEndTime,
           labourStartTime,
-          labourEndTime: finishTime,
-          workDone,
+          labourEndTime: nowTime,
+          workDone: workDone.trim(),
           equipmentStatus,
-          jobStatus: finalStatus,
-          holdReason: finalStatus === "On Hold" ? holdReason : undefined,
+          jobStatus: "Completed",
+          stage: "completed",
           rootCause,
           resolution,
+          clientSignoffName: clientSignoffName.trim(),
+          clientSignoffDesignation: clientSignoffDesignation.trim() || "Hospital In-Charge",
+          clientSignoffDate: fullTimestamp,
+          engineerSignoffDate: fullTimestamp,
         },
         partsUsed,
         expenses,
         documents,
         toolsUsed,
-      };
+      });
 
-      const result = await debriefService.update(job.id, updatedJob);
-      if (result) {
-        setJob(result);
-        setJobStatus(finalStatus);
-        if (finalStatus === "Completed") {
-          toast.success(`Job ${job.jobNumber} completed!`);
-          navigate({ to: "/app/debrief/my-work" });
-        }
-      }
+      setJobStatus("Completed");
+      setStage("completed");
+      setCompleteDialogOpen(false);
+      toast.success("Job debrief submitted and signed off successfully! Moved to Completed.");
+      navigate({ to: "/app/debrief/my-work" });
     } catch (err) {
-      console.error("Failed to save workspace", err);
-      toast.error("Failed to update job records.");
+      console.error("Failed to complete job", err);
+      toast.error("Failed to submit debrief.");
     } finally {
       setSaving(false);
-      setCompleteDialogOpen(false);
     }
   };
 
-  // Construct Chronological Timeline Events
-  const timelineEvents = useMemo<TimelineEvent[]>(() => {
-    const list: TimelineEvent[] = [];
-
-    if (travelStartTime) {
-      list.push({
-        id: "ev_travel",
-        time: travelStartTime,
-        title: "Travel Dispatched",
-        subtitle: `Travel started towards customer site (${job?.location || "Facility"})`,
-        type: "travel",
-      });
-    }
-
-    if (labourStartTime) {
-      list.push({
-        id: "ev_arrive",
-        time: labourStartTime,
-        title: "Arrived On Site & Labour Started",
-        subtitle: "Diagnostic checks and service execution initiated",
-        type: "labour",
-      });
-    }
-
-    partsUsed.forEach((p) => {
-      list.push({
-        id: p.id,
-        title: `Part Logged: ${p.partNumber}`,
-        subtitle: `${p.description} (Qty: ${p.quantityUsed} · NGN ${p.totalCost.toLocaleString()})`,
-        type: "part",
-      });
-    });
-
-    expenses.forEach((e) => {
-      list.push({
-        id: e.id,
-        time: e.dateOfExpense,
-        title: `Expense: ${e.typeOfExpense}`,
-        subtitle: `NGN ${(e.amount || 0).toLocaleString()} · [${e.expenseCode}] ${e.note}`,
-        type: "expense",
-      });
-    });
-
-    toolsUsed.forEach((t) => {
-      list.push({
-        id: t.id,
-        title: `Tool Linked: ${t.toolId}`,
-        subtitle: `${t.description} (Cal Due: ${t.calibrationDueDate})`,
-        type: "tool",
-      });
-    });
-
-    documents.forEach((d) => {
-      list.push({
-        id: d.id,
-        time: d.uploadDate,
-        title: `Doc Attached: ${d.documentType}`,
-        subtitle: `${d.fileName} — ${d.comment}`,
-        type: "doc",
-      });
-    });
-
-    if (jobStatus === "On Hold") {
-      list.push({
-        id: "ev_hold",
-        title: "Job Placed On Hold",
-        subtitle: `Reason: ${holdReason}`,
-        type: "hold",
-      });
-    }
-
-    if (jobStatus === "Completed") {
-      list.push({
-        id: "ev_done",
-        time: labourEndTime || formatTimeNow(),
-        title: "Job Completed & Closed",
-        subtitle: `Equipment Status: ${equipmentStatus} · Root Cause: ${rootCause}`,
-        type: "complete",
-      });
-    }
-
-    return list;
-  }, [
-    travelStartTime,
-    labourStartTime,
-    labourEndTime,
-    partsUsed,
-    expenses,
-    toolsUsed,
-    documents,
-    jobStatus,
-    holdReason,
-    equipmentStatus,
-    rootCause,
-    job?.location,
-  ]);
-
   if (loading) {
     return (
-      <div className="p-12 text-center text-xs text-muted-foreground">
+      <div className="flex h-64 items-center justify-center text-muted-foreground text-xs font-semibold">
         Loading Job Workspace...
       </div>
     );
@@ -575,911 +565,1089 @@ function DebriefJobWorkspacePage() {
 
   if (!job) {
     return (
-      <div className="rounded-xl border border-border bg-card p-10 text-center space-y-3">
-        <h3 className="text-sm font-bold text-foreground">Job Not Found</h3>
-        <p className="text-xs text-muted-foreground">
-          The requested service job was not found.
-        </p>
-        <Link to="/app/debrief/my-work">
-          <Button variant="outline" size="sm" className="text-xs mt-2">
-            Back to My Work
-          </Button>
-        </Link>
+      <div className="p-8 text-center space-y-3">
+        <AlertTriangle className="size-10 text-amber-500 mx-auto" />
+        <h2 className="text-base font-bold text-foreground">Job Not Found</h2>
+        <p className="text-xs text-muted-foreground">The requested job could not be located.</p>
+        <Button size="sm" onClick={() => navigate({ to: "/app/debrief/my-work" })}>
+          Back to My Work
+        </Button>
       </div>
     );
   }
 
+  const isAssigned = stage === "assigned";
+  const isTraveling = stage === "traveling";
+  const isWorking = stage === "working";
+  const isOnHold = stage === "on_hold";
+  const isCompleted = stage === "completed" || jobStatus === "Completed";
+  const isLocked = isAssigned || isTraveling;
+
   return (
-    <div className="w-full space-y-5 max-w-4xl mx-auto pb-16">
-      {/* Top Header Bar */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <Link to="/app/debrief/my-work">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2.5 text-xs font-semibold gap-1.5 cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <ArrowLeft className="size-3.5" />
-                <span>My Work</span>
-              </Button>
+    <div className="w-full space-y-5 pb-12">
+      {/* Top Breadcrumb & Job Summary Bar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Link
+              to="/app/debrief/my-work"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors p-1 -ml-1 rounded-md hover:bg-accent/60"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>My Work</span>
             </Link>
-            <span className="text-muted-foreground">•</span>
-            <span className="font-mono font-bold text-base text-primary">
-              {job.jobNumber}
-            </span>
+            <span className="text-muted-foreground/40">•</span>
+            <span className="font-mono text-sm font-bold text-primary">{job.jobNumber}</span>
             <span
               className={cn(
                 "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
-                currentStage === "on_hold"
-                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                  : currentStage === "completed"
+                job.equipmentStatus === "UP"
                   ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                  : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                  : job.equipmentStatus === "Partially UP"
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                  : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
               )}
             >
-              {currentStage === "on_hold"
-                ? `On Hold · ${holdReason}`
-                : currentStage === "completed"
-                ? "Completed"
-                : currentStage === "working"
-                ? "Working On Site"
-                : currentStage === "travel"
-                ? "In Transit"
-                : "Assigned"}
+              Equip: {job.equipmentStatus}
             </span>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFullSpecs(!showFullSpecs)}
-            className="h-8 text-xs font-semibold gap-1.5 cursor-pointer"
-          >
-            <Info className="size-3.5" />
-            <span>{showFullSpecs ? "Hide Job Specs" : "View Job Specs"}</span>
-            {showFullSpecs ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-          </Button>
-        </div>
-
-        {/* Compact Equipment Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2.5 border-t border-border/50 text-xs">
-          <div>
-            <span className="text-muted-foreground block">Equipment:</span>
-            <span className="font-bold text-foreground">{job.model}</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground block">Asset No:</span>
-            <span className="font-mono font-semibold text-foreground">{job.assetNumber}</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground block">Location:</span>
-            <span className="font-medium text-foreground">{job.location || "Main Ward"}</span>
-          </div>
-          <div>
-            <span className="text-muted-foreground block">Job Type:</span>
-            <span className="font-semibold text-foreground">{job.jobType}</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            <span className="font-bold text-foreground text-sm">{job.model}</span>
+            <span className="font-mono text-muted-foreground">({job.assetNumber})</span>
+            <span className="text-muted-foreground">• {job.modality} ({job.oem})</span>
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              <MapPin className="size-3 text-primary" /> {job.location || "Facility"}
+            </span>
           </div>
         </div>
 
-        {/* Collapsible Full Job & Asset Specification (Slide 6 Spec) */}
-        {showFullSpecs && (
-          <div className="pt-3 border-t border-border/60 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-muted/20 p-3 rounded-lg">
-            <div className="space-y-1">
-              <span className="font-bold text-foreground uppercase tracking-wider block text-xs">
-                Equipment Info
-              </span>
-              <div className="grid grid-cols-2 gap-1 text-muted-foreground">
-                <span>Modality: <strong className="text-foreground">{job.modality}</strong></span>
-                <span>OEM: <strong className="text-foreground">{job.oem}</strong></span>
-                <span>Serial No: <strong className="text-foreground font-mono">{job.serialNumber || "—"}</strong></span>
-                <span>Year of Mfg: <strong className="text-foreground">{job.yearOfManufacture || "—"}</strong></span>
-                <span>Warranty: <strong className="text-foreground font-mono">{job.warrantyEndDate || "—"}</strong></span>
-                <span>Contract: <strong className="text-foreground font-mono">{job.contractEndDate || "—"}</strong></span>
-              </div>
+        {/* Live Cumulative Spend Pill */}
+        <div className="flex items-center gap-2 bg-muted/40 border border-border/70 rounded-xl px-3.5 py-2 shrink-0">
+          <div className="space-y-0.5 text-right">
+            <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Total Job Spend
             </div>
-
-            <div className="space-y-1">
-              <span className="font-bold text-foreground uppercase tracking-wider block text-xs">
-                Dispatch Info
-              </span>
-              <div className="grid grid-cols-2 gap-1 text-muted-foreground">
-                <span>Priority: <strong className="text-rose-600">{job.jobPriority}</strong></span>
-                <span>Start Date: <strong className="text-foreground font-mono">{job.jobStartDate || "—"}</strong></span>
-                <span>Site Contact: <strong className="text-foreground">{job.contactName || "—"}</strong></span>
-                <span>Assigned To: <strong className="text-foreground">{job.assignedToName}</strong></span>
-                <span className="col-span-2">Address: <strong className="text-foreground">{job.address || "—"}</strong></span>
-              </div>
+            <div className="font-mono font-bold text-sm text-foreground">
+              {formatCurrency(totalJobCost)}
             </div>
           </div>
-        )}
+          <div className="h-7 w-px bg-border/80 mx-1" />
+          <div className="text-xs text-muted-foreground space-y-0.5">
+            <div>Parts: <span className="font-mono font-semibold text-foreground">{formatCurrency(totalPartsCost)}</span></div>
+            <div>Exp: <span className="font-mono font-semibold text-foreground">{formatCurrency(totalExpensesCost)}</span></div>
+          </div>
+        </div>
       </div>
 
-      {/* ================= 1. LIVE STAGE TRACKER ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-          Job Lifecycle Progress
-        </span>
-
-        <div className="grid grid-cols-4 gap-2 text-xs">
+      {/* 4-Stage Interactive Journey Tracker */}
+      <div className="rounded-xl border border-border/80 bg-card p-3 sm:p-4 shadow-2xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs font-semibold">
+          {/* Stage 1: Assigned */}
           <div
             className={cn(
-              "p-2.5 rounded-lg border text-center space-y-0.5",
-              currentStage === "assigned"
-                ? "bg-primary/10 border-primary text-primary font-bold"
-                : "bg-muted/30 border-border text-foreground"
+              "p-2.5 rounded-lg border transition-all flex flex-col items-center gap-1",
+              isAssigned
+                ? "bg-primary/10 border-primary/40 text-primary font-bold shadow-2xs"
+                : "bg-muted/20 border-border/50 text-muted-foreground"
             )}
           >
-            <span className="block text-xs uppercase tracking-wider">1. Assigned</span>
-            <span className="text-xs opacity-75">{travelStartTime ? "✓ Dispatched" : "Ready"}</span>
+            <div className="flex items-center gap-1.5">
+              <Calendar className="size-3.5" />
+              <span>1. Assigned</span>
+            </div>
+            <span className="text-[11px] font-normal opacity-80">
+              {job.jobStartDate || "Scheduled"}
+            </span>
           </div>
 
+          {/* Stage 2: Travel */}
           <div
             className={cn(
-              "p-2.5 rounded-lg border text-center space-y-0.5",
-              currentStage === "travel"
-                ? "bg-blue-600 text-white border-blue-600 font-bold shadow-xs"
+              "p-2.5 rounded-lg border transition-all flex flex-col items-center gap-1",
+              isTraveling
+                ? "bg-blue-500/10 border-blue-500/40 text-blue-600 dark:text-blue-400 font-bold shadow-2xs"
                 : travelStartTime
                 ? "bg-muted/30 border-border text-foreground"
-                : "bg-muted/10 border-border/40 text-muted-foreground"
+                : "bg-muted/10 border-border/40 text-muted-foreground/60"
             )}
           >
-            <span className="block text-xs uppercase tracking-wider">2. Travel</span>
-            <span className="text-xs opacity-90">{travelStartTime ? `Departed ${travelStartTime}` : "Pending"}</span>
-          </div>
-
-          <div
-            className={cn(
-              "p-2.5 rounded-lg border text-center space-y-0.5",
-              currentStage === "working" || currentStage === "on_hold"
-                ? "bg-blue-600 text-white border-blue-600 font-bold shadow-xs"
-                : labourStartTime
-                ? "bg-muted/30 border-border text-foreground"
-                : "bg-muted/10 border-border/40 text-muted-foreground"
-            )}
-          >
-            <span className="block text-xs uppercase tracking-wider">3. On Site</span>
-            <span className="text-xs opacity-90">
-              {currentStage === "on_hold" ? "Paused (On Hold)" : labourStartTime ? `Active ${labourStartTime}` : "Pending"}
+            <div className="flex items-center gap-1.5">
+              <Navigation className="size-3.5" />
+              <span>2. In Travel</span>
+            </div>
+            <span className="text-[11px] font-normal opacity-80">
+              {travelStartTime ? `Started ${travelStartTime}` : "Pending Departure"}
             </span>
           </div>
 
+          {/* Stage 3: On Site / Working */}
           <div
             className={cn(
-              "p-2.5 rounded-lg border text-center space-y-0.5",
-              currentStage === "completed"
-                ? "bg-emerald-600 text-white border-emerald-600 font-bold shadow-xs"
-                : "bg-muted/10 border-border/40 text-muted-foreground"
+              "p-2.5 rounded-lg border transition-all flex flex-col items-center gap-1",
+              isWorking || isOnHold
+                ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-bold shadow-2xs"
+                : labourStartTime
+                ? "bg-muted/30 border-border text-foreground"
+                : "bg-muted/10 border-border/40 text-muted-foreground/60"
             )}
           >
-            <span className="block text-xs uppercase tracking-wider">4. Complete</span>
-            <span className="text-xs opacity-75">{currentStage === "completed" ? "Submitted" : "Pending"}</span>
+            <div className="flex items-center gap-1.5">
+              <Wrench className="size-3.5" />
+              <span>3. On Site / Working</span>
+            </div>
+            <span className="text-[11px] font-normal opacity-80">
+              {isOnHold ? `On Hold (${holdReason})` : labourStartTime ? `Arrived ${labourStartTime}` : "Requires Arrival"}
+            </span>
+          </div>
+
+          {/* Stage 4: Completed */}
+          <div
+            className={cn(
+              "p-2.5 rounded-lg border transition-all flex flex-col items-center gap-1",
+              isCompleted
+                ? "bg-primary text-primary-foreground font-bold shadow-2xs"
+                : "bg-muted/10 border-border/40 text-muted-foreground/60"
+            )}
+          >
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-3.5" />
+              <span>4. Debrief Signed</span>
+            </div>
+            <span className="text-[11px] font-normal opacity-80">
+              {isCompleted ? "Closed & Sign-off" : "Pending Completion"}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* ================= 2. PRIMARY FOCUS: CURRENT STAGE & NEXT ACTION ================= */}
-      <div className="rounded-xl border border-border bg-card p-5 shadow-2xs space-y-4">
-        {/* Stage A: Assigned */}
-        {currentStage === "assigned" && (
-          <div className="space-y-4">
+      {/* Stage 1 Active: Departure & Travel Dispatch Banner */}
+      {isAssigned && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
-              <span className="text-xs font-bold text-primary uppercase tracking-wider block">
-                Current Stage: Job Assigned
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                <Navigation className="size-3" /> Step 1: Ready for Departure
               </span>
-              <h3 className="text-sm font-bold text-foreground">
-                Ready to travel to customer site
+              <h3 className="text-base font-bold text-foreground">
+                You have been dispatched to {job.location || "Facility"}
               </h3>
-            </div>
-
-            <div className="p-3 rounded-lg bg-muted/30 border border-border/60 text-xs space-y-1">
-              <span className="font-bold text-muted-foreground block">Reported Issue:</span>
-              <p className="text-foreground leading-relaxed">
-                {job.reportedIssue || "Diagnostic service inspection required."}
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
+                Address: <span className="font-semibold text-foreground">{job.address || "Main Site"}</span>.
+                When you are ready to depart, click <strong>Start Travel</strong> to record your departure timestamp.
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-border/40">
-              <span className="text-xs text-muted-foreground">
-                Next Action: Start travel to auto-record departure time.
-              </span>
-              <Button
-                size="sm"
-                onClick={handleStartTravel}
-                className="h-9 px-5 text-xs font-bold gap-1.5 cursor-pointer bg-primary text-primary-foreground shadow-xs"
-              >
-                <Navigation className="size-3.5" />
-                <span>Start Travel</span>
-              </Button>
-            </div>
+            <Button
+              size="lg"
+              onClick={handleStartTravel}
+              className="h-10 px-5 text-[13px] font-bold gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shrink-0"
+            >
+              <Navigation className="size-4" />
+              <span>Start Travel 🚗</span>
+            </Button>
           </div>
-        )}
 
-        {/* Stage B: Travel In Progress */}
-        {currentStage === "travel" && (
-          <div className="space-y-4">
+          {/* Reported Problem Overview */}
+          <div className="p-3 rounded-lg bg-background/80 border border-border/60 text-xs space-y-1">
+            <span className="text-muted-foreground font-semibold flex items-center gap-1.5">
+              <FileText className="size-3.5 text-primary" /> Reported Issue & Fault Symptoms:
+            </span>
+            <p className="text-foreground leading-relaxed pl-5">
+              {job.reportedIssue || "Diagnostic service inspection required on equipment."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Stage 2 Active: En Route Banner */}
+      {isTraveling && (
+        <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
-              <span className="text-xs font-bold text-blue-600 uppercase tracking-wider block">
-                Current Stage: Travel In Progress
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                <Navigation className="size-3 animate-pulse" /> Step 2: En Route (Started {travelStartTime})
               </span>
-              <h3 className="text-sm font-bold text-foreground">
-                En route to {job.location || "Facility"} (Departed at {travelStartTime})
+              <h3 className="text-base font-bold text-foreground">
+                Traveling to {job.location || "Hospital Site"}
               </h3>
-            </div>
-
-            <div className="p-3 rounded-lg bg-muted/30 border border-border/60 text-xs space-y-1">
-              <span className="font-bold text-muted-foreground block">Destination & Contact:</span>
-              <p className="text-foreground">
-                {job.address || job.location || "Hospital Site"} · Contact: {job.contactName || "Site Officer"}
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
+                Destination: <span className="font-semibold text-foreground">{job.address || "Hospital Address"}</span>.
+                Once you arrive on site at the facility, click <strong>Arrived On Site</strong> to unlock full service logging.
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-border/40">
-              <span className="text-xs text-muted-foreground">
-                Next Action: Mark arrival on site to begin labour timer.
-              </span>
-              <Button
-                size="sm"
-                onClick={handleArrivedOnSite}
-                className="h-9 px-5 text-xs font-bold gap-1.5 cursor-pointer bg-primary text-primary-foreground shadow-xs"
-              >
-                <MapPin className="size-3.5" />
-                <span>Arrived On Site / Start Work</span>
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Stage C: Working On Site */}
-        {currentStage === "working" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider block">
-                  Current Stage: Working On Site
-                </span>
-                <h3 className="text-sm font-bold text-foreground">
-                  Labour Active (Started at {labourStartTime})
-                </h3>
-              </div>
-              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                LIVE
-              </span>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Record Work Performed & Findings
-              </Label>
-              <Textarea
-                rows={3}
-                value={workDone}
-                onChange={(e) => setWorkDone(e.target.value)}
-                placeholder="Describe diagnostics performed, repairs executed, and test verification..."
-                className="text-xs leading-relaxed"
-              />
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/40">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setHoldDialogOpen(true)}
-                className="h-9 text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 gap-1.5 cursor-pointer"
+                className="h-10 px-3.5 text-xs font-semibold gap-1.5 border-border hover:bg-accent cursor-pointer"
               >
-                <PauseCircle className="size-3.5" />
-                <span>Put On Hold (e.g. Awaiting Part)</span>
+                <PauseCircle className="size-3.5 text-amber-500" />
+                <span>Delay / Hold</span>
               </Button>
 
+              <Button
+                size="lg"
+                onClick={handleArrivedOnSite}
+                className="h-10 px-5 text-[13px] font-bold gap-2 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
+              >
+                <MapPin className="size-4" />
+                <span>Arrived On Site 📍</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stage Locked Info Notice for Step 1 & 2 */}
+      {isLocked && (
+        <div className="rounded-xl border border-dashed border-border p-4 bg-muted/20 flex items-center gap-3 text-xs text-muted-foreground">
+          <Lock className="size-4 text-muted-foreground shrink-0" />
+          <span>
+            <strong>Workspace Locked:</strong> Logging parts, expenses, and attachments requires on-site arrival. Once you click <strong>Arrived On Site</strong>, the complete active workspace will be unlocked.
+          </span>
+        </div>
+      )}
+
+      {/* On Hold Alert Banner */}
+      {isOnHold && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <PauseCircle className="size-5 text-amber-500 shrink-0" />
+            <div className="space-y-0.5">
+              <h4 className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                Job Placed On Hold: {holdReason}
+              </h4>
+              <p className="text-xs text-muted-foreground">
+                Work execution is paused. Click Resume Work once parts or facility access are ready.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            size="sm"
+            onClick={handleResumeWork}
+            className="h-9 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shrink-0"
+          >
+            <Play className="size-3.5" />
+            <span>Resume Work</span>
+          </Button>
+        </div>
+      )}
+
+      {/* Stage 3 & Completed: Full Active Workspace & Action Logging */}
+      {(!isLocked || isCompleted) && (
+        <div className="space-y-5">
+          {/* Action Bar & Quick Action Triggers */}
+          {!isCompleted && !isOnHold && (
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl border border-border/80 bg-card shadow-2xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setAddPartOpen(true)}
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                >
+                  <Plus className="size-3.5 text-primary" />
+                  <span>Log Part Used</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setAddExpenseOpen(true)}
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                >
+                  <Plus className="size-3.5 text-primary" />
+                  <span>Log Expense</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setAddToolOpen(true)}
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                >
+                  <Plus className="size-3.5 text-primary" />
+                  <span>Link Tool</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setAddDocOpen(true)}
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 border-border/80 hover:bg-accent cursor-pointer"
+                >
+                  <Plus className="size-3.5 text-primary" />
+                  <span>Attach Document</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setHoldDialogOpen(true)}
+                  className="h-9 px-3 text-xs font-semibold gap-1.5 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 cursor-pointer"
+                >
+                  <PauseCircle className="size-3.5" />
+                  <span>Hold</span>
+                </Button>
+              </div>
+
+              {/* Primary Final CTA */}
               <Button
                 size="sm"
                 onClick={() => setCompleteDialogOpen(true)}
-                className="h-9 px-5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 cursor-pointer shadow-xs"
+                className="h-9 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm"
               >
                 <CheckCircle2 className="size-3.5" />
-                <span>Finish Work & Submit Job</span>
+                <span>Finish Work & Submit Debrief 📝</span>
               </Button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Stage D: On Hold */}
-        {currentStage === "on_hold" && (
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-amber-600 uppercase tracking-wider block">
-                Current Stage: Job On Hold
-              </span>
-              <h3 className="text-sm font-bold text-foreground">
-                Work paused due to: <strong>{holdReason}</strong>
-              </h3>
-            </div>
-
-            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
-              When the required spare part, site access, or client authorization arrives, tap <strong>Resume Work</strong> to reactivate the labour session.
-            </div>
-
-            <div className="flex items-center justify-end pt-2 border-t border-border/40">
-              <Button
-                size="sm"
-                onClick={handleResumeWork}
-                className="h-9 px-5 text-xs font-bold gap-1.5 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
-              >
-                <Play className="size-3.5" />
-                <span>Resume Work</span>
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Stage E: Completed */}
-        {currentStage === "completed" && (
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider block">
-                Job Completed
-              </span>
-              <h3 className="text-sm font-bold text-foreground">
-                Service closed and submitted successfully
-              </h3>
-            </div>
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-900 dark:text-emerald-200">
-              All labour events, parts, expenses, and attached documents have been filed to the permanent register.
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ================= 3. SUPPORTING ACTIONS (ONE-TAP MICRO-ACTIONS) ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
-        <div className="flex items-center justify-between pb-1 border-b border-border/40">
-          <span className="text-xs font-bold text-foreground uppercase tracking-wider">
-            Record Job Items
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Log events as they occur
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAddPartOpen(true)}
-            className="h-9 text-xs font-semibold gap-1.5 cursor-pointer justify-start"
-          >
-            <Boxes className="size-3.5 text-primary" />
-            <span>+ Add Part ({partsUsed.length})</span>
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAddExpenseOpen(true)}
-            className="h-9 text-xs font-semibold gap-1.5 cursor-pointer justify-start"
-          >
-            <Receipt className="size-3.5 text-primary" />
-            <span>+ Log Expense ({expenses.length})</span>
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAddDocOpen(true)}
-            className="h-9 text-xs font-semibold gap-1.5 cursor-pointer justify-start"
-          >
-            <FileCheck className="size-3.5 text-primary" />
-            <span>+ Attach Doc ({documents.length})</span>
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAddToolOpen(true)}
-            className="h-9 text-xs font-semibold gap-1.5 cursor-pointer justify-start"
-          >
-            <Wrench className="size-3.5 text-primary" />
-            <span>+ Link Tool ({toolsUsed.length})</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* ================= 4. JOB ACTIVITY & EVENT TIMELINE ================= */}
-      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-border/50">
-          <div className="flex items-center gap-2">
-            <Clock className="size-4 text-primary" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-              Job Activity Timeline ({timelineEvents.length} Events)
-            </h3>
-          </div>
-          <span className="text-xs text-muted-foreground font-mono">
-            Auto-calculated log
-          </span>
-        </div>
-
-        {timelineEvents.length === 0 ? (
-          <p className="text-xs text-muted-foreground italic py-3 text-center">
-            No events logged yet. Tap "Start Travel" to record your departure.
-          </p>
-        ) : (
-          <div className="divide-y divide-border/40 text-xs">
-            {timelineEvents.map((ev) => (
-              <div key={ev.id} className="py-2.5 flex items-start justify-between gap-3">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    {ev.time && (
-                      <span className="font-mono font-bold text-xs text-primary px-1.5 py-0.5 rounded bg-primary/10">
-                        {ev.time}
-                      </span>
-                    )}
-                    <span className="font-bold text-foreground">{ev.title}</span>
-                  </div>
-                  {ev.subtitle && (
-                    <p className="text-muted-foreground text-xs pl-0.5">{ev.subtitle}</p>
+          {/* Work Summary & Execution Notes */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* Left 2 Cols: Work Performed & Live Log Tables */}
+            <div className="lg:col-span-2 space-y-5">
+              {/* Work Findings Input / Summary */}
+              <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <FileText className="size-4 text-primary" />
+                    <span>Work Done & Diagnostic Findings</span>
+                  </h3>
+                  {isCompleted && (
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      ✓ Debrief Signed
+                    </span>
                   )}
                 </div>
 
-                {/* Remove button for supporting item rows */}
-                {ev.type === "part" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemovePart(ev.id)}
-                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                  >
-                    <Trash2 className="size-3" />
-                  </Button>
-                )}
-                {ev.type === "expense" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveExpense(ev.id)}
-                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                  >
-                    <Trash2 className="size-3" />
-                  </Button>
-                )}
-                {ev.type === "doc" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveDocument(ev.id)}
-                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                  >
-                    <Trash2 className="size-3" />
-                  </Button>
-                )}
-                {ev.type === "tool" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveTool(ev.id)}
-                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
-                  >
-                    <Trash2 className="size-3" />
-                  </Button>
+                {isCompleted ? (
+                  <div className="p-3 rounded-lg bg-muted/20 border border-border/60 text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+                    {workDone || "No work description recorded."}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Textarea
+                      rows={4}
+                      value={workDone}
+                      onChange={(e) => setWorkDone(e.target.value)}
+                      placeholder="Describe the corrective or preventive maintenance actions performed, faulty components inspected, test results, and final operating condition..."
+                      className="text-xs resize-none"
+                    />
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>Include observations, tests conducted, and verified calibrations.</span>
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        onClick={async () => {
+                          await debriefService.update(jobId, { labour: { ...job.labour, workDone, startDate: job.jobStartDate || formatDateNow(), endDate: "—", equipmentStatus, jobStatus } });
+                          toast.success("Work notes saved.");
+                        }}
+                        className="h-6 text-[11px] text-primary"
+                      >
+                        <Save className="size-3 mr-1" /> Quick Save
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
-            ))}
+
+              {/* Logged Parts Section */}
+              <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <Boxes className="size-4 text-primary" />
+                    <span>Parts & Components Used ({partsUsed.length})</span>
+                  </h3>
+                  <span className="font-mono text-xs font-bold text-primary">
+                    Subtotal: {formatCurrency(totalPartsCost)}
+                  </span>
+                </div>
+
+                {partsUsed.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border/80 p-5 text-center text-xs text-muted-foreground">
+                    No replacement parts logged yet. Click &quot;Log Part Used&quot; to record spare parts.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left">
+                      <thead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 bg-muted/20">
+                        <tr>
+                          <th className="py-2 px-3">Part #</th>
+                          <th className="py-2 px-3">Description</th>
+                          <th className="py-2 px-3 text-center">Qty</th>
+                          <th className="py-2 px-3 text-right">Unit Cost</th>
+                          <th className="py-2 px-3 text-right">Total</th>
+                          {!isCompleted && <th className="py-2 px-2 text-center w-8"></th>}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/40">
+                        {partsUsed.map((p) => (
+                          <tr key={p.id} className="hover:bg-muted/10">
+                            <td className="py-2.5 px-3 font-mono font-bold text-primary">{p.partNumber}</td>
+                            <td className="py-2.5 px-3 font-medium text-foreground">{p.description}</td>
+                            <td className="py-2.5 px-3 text-center font-bold">{p.quantityUsed}</td>
+                            <td className="py-2.5 px-3 text-right font-mono text-muted-foreground">{formatCurrency(p.unitCost)}</td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(p.totalCost)}</td>
+                            {!isCompleted && (
+                              <td className="py-2.5 px-2 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemovePart(p.id)}
+                                  className="text-muted-foreground hover:text-destructive cursor-pointer p-1"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Logged Expenses Section */}
+              <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <Receipt className="size-4 text-primary" />
+                    <span>Travel & Job Expenses ({expenses.length})</span>
+                  </h3>
+                  <span className="font-mono text-xs font-bold text-primary">
+                    Subtotal: {formatCurrency(totalExpensesCost)}
+                  </span>
+                </div>
+
+                {expenses.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border/80 p-5 text-center text-xs text-muted-foreground">
+                    No travel or field expenses logged. Click &quot;Log Expense&quot; to add receipts.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left">
+                      <thead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 bg-muted/20">
+                        <tr>
+                          <th className="py-2 px-3">Type</th>
+                          <th className="py-2 px-3">Details / Note</th>
+                          <th className="py-2 px-3">Receipt</th>
+                          <th className="py-2 px-3 text-right">Amount</th>
+                          {!isCompleted && <th className="py-2 px-2 text-center w-8"></th>}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/40">
+                        {expenses.map((e) => (
+                          <tr key={e.id} className="hover:bg-muted/10">
+                            <td className="py-2.5 px-3 font-semibold text-foreground">{e.typeOfExpense}</td>
+                            <td className="py-2.5 px-3 text-muted-foreground max-w-[200px] truncate">{e.note}</td>
+                            <td className="py-2.5 px-3">
+                              {e.receiptAvailable ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                                  <FileCheck className="size-3" /> Attached
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-muted-foreground">No receipt</span>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(e.amount || 0)}</td>
+                            {!isCompleted && (
+                              <td className="py-2.5 px-2 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveExpense(e.id)}
+                                  className="text-muted-foreground hover:text-destructive cursor-pointer p-1"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right 1 Col: Tools, Attachments & Sign-off Info */}
+            <div className="space-y-5">
+              {/* Verified Tools Section */}
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-2xs">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-foreground">
+                    <ShieldCheck className="size-3.5 text-primary" /> Tools Used ({toolsUsed.length})
+                  </span>
+                </h3>
+
+                {toolsUsed.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No calibration analyzers linked.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {toolsUsed.map((t) => (
+                      <div key={t.id} className="p-2.5 rounded-lg border border-border/60 bg-muted/20 text-xs space-y-1">
+                        <div className="flex items-center justify-between font-bold text-foreground">
+                          <span className="font-mono text-primary">{t.toolId}</span>
+                          {!isCompleted && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTool(t.id)}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="size-3" />
+                            </button>
+                          )}
+                        </div>
+                        <p className="font-medium text-foreground">{t.description}</p>
+                        <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+                          <span>SN: {t.serialNumber}</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Cal Due: {t.calibrationDueDate}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Attached Documents */}
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-2xs">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-foreground">
+                    <FileCheck className="size-3.5 text-primary" /> Attached Docs ({documents.length})
+                  </span>
+                </h3>
+
+                {documents.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No service reports or checklists attached.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {documents.map((d) => (
+                      <div key={d.id} className="p-2.5 rounded-lg border border-border/60 bg-muted/20 text-xs space-y-1">
+                        <div className="flex items-center justify-between font-bold text-foreground">
+                          <span>{d.documentType}</span>
+                          {!isCompleted && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDocument(d.id)}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2 className="size-3" />
+                            </button>
+                          )}
+                        </div>
+                        <p className="font-mono text-[11px] text-primary">{d.fileName}</p>
+                        <p className="text-muted-foreground text-[11px]">{d.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Completed Sign-off Card (When completed) */}
+              {isCompleted && (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-2.5 text-xs">
+                  <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-400">
+                    <CheckCircle2 className="size-4" />
+                    <span>Official Debrief Sign-Off</span>
+                  </div>
+                  <div className="space-y-1 text-muted-foreground">
+                    <div>Client Rep: <span className="font-semibold text-foreground">{job.clientSignoffName || "—"}</span></div>
+                    <div>Designation: <span className="font-semibold text-foreground">{job.clientSignoffDesignation || "—"}</span></div>
+                    <div>Date Signed: <span className="font-mono text-foreground">{job.clientSignoffDate || job.endDate || "—"}</span></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Collapsible Technical Specs Drawer */}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-3">
+        <button
+          type="button"
+          onClick={() => setShowFullSpecs(!showFullSpecs)}
+          className="w-full flex items-center justify-between text-xs font-bold text-foreground hover:text-primary transition-colors cursor-pointer"
+        >
+          <span className="flex items-center gap-2">
+            <Info className="size-3.5 text-primary" />
+            <span>Complete Equipment & Dispatch Specifications (26 Fields)</span>
+          </span>
+          {showFullSpecs ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+        </button>
+
+        {showFullSpecs && (
+          <div className="pt-3 border-t border-border/60 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-xs">
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Asset Number:</span><div className="font-mono font-bold text-foreground">{job.assetNumber}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Modality:</span><div className="font-semibold text-foreground">{job.modality}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">OEM:</span><div className="font-semibold text-foreground">{job.oem}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Model:</span><div className="font-semibold text-foreground">{job.model}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Serial Number:</span><div className="font-mono text-foreground">{job.serialNumber}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Year of Mfr:</span><div className="font-mono text-foreground">{job.yearOfManufacture}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Warranty Start:</span><div className="font-mono text-foreground">{job.warrantyStartDate || "—"}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Warranty End:</span><div className="font-mono text-foreground">{job.warrantyEndDate || "—"}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contract Type:</span><div className="font-semibold text-foreground">{job.contractType || "—"}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contract End:</span><div className="font-mono text-foreground">{job.contractEndDate || "—"}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contact Person:</span><div className="font-semibold text-foreground">{job.contactName || "—"}</div></div>
+            <div className="space-y-0.5"><span className="text-muted-foreground font-medium">Contact Email:</span><div className="font-mono text-foreground truncate">{job.contactEmail || "—"}</div></div>
           </div>
         )}
       </div>
 
-      {/* ================= MODAL: ADD PART ================= */}
+      {/* MODAL 1: Log Part Used */}
       <Dialog open={addPartOpen} onOpenChange={setAddPartOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-sm font-bold text-foreground">
-              Record Part Used
-            </DialogTitle>
+            <DialogTitle className="text-base font-bold">Log Spare Part Used</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Record replacement parts or consumables installed on {job.model}.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2 text-xs">
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Part Number</Label>
+
+          <div className="space-y-3.5 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Part Number *</Label>
               <Input
-                placeholder="e.g. PRT-PWR-882"
+                placeholder="e.g. PRT-GE-CT-881"
                 value={partNumber}
                 onChange={(e) => setPartNumber(e.target.value)}
-                className="h-8 text-xs font-mono"
+                className="text-xs font-mono"
               />
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Description</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Part Description *</Label>
               <Input
-                placeholder="e.g. High Voltage Power Module"
+                placeholder="e.g. Slip Ring Carbon Brush Kit"
                 value={partDescription}
                 onChange={(e) => setPartDescription(e.target.value)}
-                className="h-8 text-xs"
+                className="text-xs"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Unit Cost (NGN)</Label>
-                <Input
-                  type="number"
-                  value={partUnitCost}
-                  onChange={(e) => setPartUnitCost(e.target.value)}
-                  className="h-8 text-xs font-mono"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Quantity</Label>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Quantity Used</Label>
                 <Input
                   type="number"
                   min="1"
                   value={partQtyUsed}
                   onChange={(e) => setPartQtyUsed(e.target.value)}
-                  className="h-8 text-xs font-mono"
+                  className="text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Unit Cost ($)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={partUnitCost}
+                  onChange={(e) => setPartUnitCost(e.target.value)}
+                  className="text-xs font-mono"
                 />
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAddPart}
-              className="h-8 text-xs font-bold"
-            >
-              Add Part to Log
-            </Button>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAddPartOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleAddPart} className="bg-primary text-primary-foreground">Add Part</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ================= MODAL: LOG EXPENSE ================= */}
+      {/* MODAL 2: Log Expense */}
       <Dialog open={addExpenseOpen} onOpenChange={setAddExpenseOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-sm font-bold text-foreground">
-              Log Service Expense
-            </DialogTitle>
+            <DialogTitle className="text-base font-bold">Log Travel & Field Expense</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Add travel fares, lodging, or subsistence incurred during this job.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2 text-xs">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Date</Label>
-                <Input
-                  type="date"
-                  value={expenseDate}
-                  onChange={(e) => setExpenseDate(e.target.value)}
-                  className="h-8 text-xs font-mono"
-                />
-              </div>
 
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Type</Label>
-                <Select
-                  value={expenseType}
-                  onValueChange={(val) => setExpenseType(val as ExpenseType)}
-                >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Expense Type" />
+          <div className="space-y-3.5 py-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Expense Type</Label>
+                <Select value={expenseType} onValueChange={(v) => setExpenseType(v as ExpenseType)}>
+                  <SelectTrigger className="text-xs">
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {EXPENSE_TYPES.map((t) => (
-                      <SelectItem key={t} value={t} className="text-xs">
-                        {t}
-                      </SelectItem>
+                      <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Amount (NGN)</Label>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Amount ($) *</Label>
                 <Input
                   type="number"
+                  min="0"
+                  step="0.01"
                   value={expenseAmount}
                   onChange={(e) => setExpenseAmount(e.target.value)}
-                  className="h-8 text-xs font-mono"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Finance Code</Label>
-                <Input
-                  value={expenseCode}
-                  onChange={(e) => setExpenseCode(e.target.value)}
-                  className="h-8 text-xs font-mono"
+                  className="text-xs font-mono"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Receipt File / Ref</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Receipt File Name / Ref</Label>
               <Input
-                placeholder="e.g. taxi_receipt.pdf"
+                placeholder="e.g. uber_receipt_airport.pdf"
                 value={expenseReceiptFileName}
                 onChange={(e) => setExpenseReceiptFileName(e.target.value)}
-                className="h-8 text-xs"
+                className="text-xs"
               />
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Note</Label>
-              <Input
-                placeholder="e.g. Transport to facility"
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Expense Note / Purpose</Label>
+              <Textarea
+                rows={2}
+                placeholder="Describe transportation or expense context..."
                 value={expenseNote}
                 onChange={(e) => setExpenseNote(e.target.value)}
-                className="h-8 text-xs"
+                className="text-xs resize-none"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAddExpense}
-              className="h-8 text-xs font-bold"
-            >
-              Save Expense
-            </Button>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAddExpenseOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleAddExpense} className="bg-primary text-primary-foreground">Save Expense</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ================= MODAL: ATTACH DOCUMENT ================= */}
+      {/* MODAL 3: Link Tool */}
+      <Dialog open={addToolOpen} onOpenChange={setAddToolOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold">Link Verified Test Tool</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Select calibrated biomedical testing equipment from the tools registry.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="space-y-2">
+              {TOOL_REGISTRY.map((tool) => {
+                const isLinked = toolsUsed.some((t) => t.toolId === tool.toolId);
+                return (
+                  <div
+                    key={tool.toolId}
+                    className="p-3 rounded-lg border border-border/70 hover:border-primary/50 bg-card flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-primary">{tool.toolId}</span>
+                        <span className="font-mono text-muted-foreground">({tool.serialNumber})</span>
+                      </div>
+                      <p className="font-medium text-foreground">{tool.description}</p>
+                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400">Cal Due: {tool.calibrationDueDate}</p>
+                    </div>
+
+                    <Button
+                      size="xs"
+                      disabled={isLinked}
+                      onClick={() => handleAddTool(tool)}
+                      className={cn("h-7 px-2.5 text-xs font-semibold", isLinked ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground")}
+                    >
+                      {isLinked ? "Linked" : "+ Link"}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setAddToolOpen(false)}>Done</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL 4: Attach Document */}
       <Dialog open={addDocOpen} onOpenChange={setAddDocOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-sm font-bold text-foreground">
-              Attach Service Document
-            </DialogTitle>
+            <DialogTitle className="text-base font-bold">Attach Service Document</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Upload checklists, delivery notes, or test logs.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2 text-xs">
-            <div className="space-y-1">
+
+          <div className="space-y-3.5 py-2">
+            <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Document Type</Label>
-              <Select
-                value={docType}
-                onValueChange={(val) => setDocType(val as DebriefDocumentType)}
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Document Type" />
+              <Select value={docType} onValueChange={(v) => setDocType(v as DebriefDocumentType)}>
+                <SelectTrigger className="text-xs">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {DOCUMENT_TYPES.map((d) => (
-                    <SelectItem key={d} value={d} className="text-xs">
-                      {d}
-                    </SelectItem>
+                    <SelectItem key={d} value={d} className="text-xs">{d}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">File Name</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">File Name *</Label>
               <Input
-                placeholder="e.g. Signed_Service_Report.pdf"
+                placeholder="e.g. ct_calibration_checklist.pdf"
                 value={docFileName}
                 onChange={(e) => setDocFileName(e.target.value)}
-                className="h-8 text-xs"
+                className="text-xs font-mono"
               />
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Comment</Label>
-              <Input
-                placeholder="e.g. Signed by biomedical head"
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Comments / Description</Label>
+              <Textarea
+                rows={2}
+                placeholder="Notes about this document..."
                 value={docComment}
                 onChange={(e) => setDocComment(e.target.value)}
-                className="h-8 text-xs"
+                className="text-xs resize-none"
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAddDocument}
-              className="h-8 text-xs font-bold"
-            >
-              Attach to Job
-            </Button>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAddDocOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleAddDocument} className="bg-primary text-primary-foreground">Attach</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ================= MODAL: LINK TOOL ================= */}
-      <Dialog open={addToolOpen} onOpenChange={setAddToolOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-sm font-bold text-foreground">
-              Link Calibrated Tool
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 py-2 text-xs">
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Search Tool Registry</Label>
-              <Input
-                placeholder="Type tool name or ID (e.g. Fluke, Safety Analyzer)..."
-                value={toolSearchQuery}
-                onChange={(e) => setToolSearchQuery(e.target.value)}
-                className="h-8 text-xs"
-              />
-            </div>
-
-            <div className="space-y-1.5 max-h-48 overflow-y-auto">
-              {TOOL_REGISTRY.filter(
-                (t) =>
-                  !toolSearchQuery.trim() ||
-                  t.toolId.toLowerCase().includes(toolSearchQuery.toLowerCase()) ||
-                  t.description.toLowerCase().includes(toolSearchQuery.toLowerCase()) ||
-                  t.oem.toLowerCase().includes(toolSearchQuery.toLowerCase())
-              ).map((tool) => (
-                <div
-                  key={tool.toolId}
-                  className="flex items-center justify-between p-2 rounded-md border border-border bg-muted/20 text-xs hover:bg-accent cursor-pointer"
-                  onClick={() => handleAddTool(tool)}
-                >
-                  <div>
-                    <span className="font-mono font-bold text-primary mr-2">{tool.toolId}</span>
-                    <span className="font-medium text-foreground">{tool.description}</span>
-                    <span className="text-muted-foreground block text-xs">
-                      Cal Due: {tool.calibrationDueDate}
-                    </span>
-                  </div>
-                  <Button size="sm" variant="ghost" className="h-7 text-xs font-bold text-primary">
-                    Select
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* ================= MODAL: PUT ON HOLD ================= */}
+      {/* MODAL 5: Put on Hold Dialog */}
       <Dialog open={holdDialogOpen} onOpenChange={setHoldDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-sm font-bold text-amber-600 flex items-center gap-2">
-              <AlertTriangle className="size-4" />
-              Put Job On Hold
+            <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <PauseCircle className="size-4 text-amber-500" />
+              <span>Place Job On Hold</span>
             </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Select the operational reason why work on {job.jobNumber} cannot proceed immediately.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2 text-xs">
-            <p className="text-muted-foreground">
-              Select the primary hold reason preventing further work on this job:
-            </p>
-            <Select value={holdReason} onValueChange={setHoldReason}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select Reason" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Awaiting Part" className="text-xs">Awaiting Part</SelectItem>
-                <SelectItem value="Awaiting Access to Site" className="text-xs">Awaiting Access to Site</SelectItem>
-                <SelectItem value="Awaiting Specialist Tool" className="text-xs">Awaiting Specialist Tool</SelectItem>
-                <SelectItem value="Client Decision Pending" className="text-xs">Client Decision Pending</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setHoldDialogOpen(false)}
-              className="h-8 text-xs"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleConfirmHold}
-              className="h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white"
-            >
-              Confirm Hold
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
-      {/* ================= MODAL: CONFIRM FINISH & SUBMIT ================= */}
-      <Dialog open={completeDialogOpen} onOpenChange={setCompleteDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-sm font-bold text-emerald-600 flex items-center gap-2">
-              <CheckCircle2 className="size-4" />
-              Final Service Sign-Off & Close Job
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3.5 py-2 text-xs">
-            <div className="space-y-1">
-              <Label className="text-xs font-bold uppercase tracking-wider">
-                Work Done / Corrective Actions Performed *
-              </Label>
-              <Textarea
-                rows={3}
-                value={workDone}
-                onChange={(e) => setWorkDone(e.target.value)}
-                placeholder="Detail the technical fix, adjustments, and test protocols executed..."
-                className="text-xs leading-relaxed"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Root Cause *</Label>
-                <Select value={rootCause} onValueChange={setRootCause}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Root Cause" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROOT_CAUSES.map((rc) => (
-                      <SelectItem key={rc} value={rc} className="text-xs">
-                        {rc}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-xs font-semibold">Resolution *</Label>
-                <Select value={resolution} onValueChange={setResolution}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Resolution" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {RESOLUTIONS.map((res) => (
-                      <SelectItem key={res} value={res} className="text-xs">
-                        {res}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold">Final Equipment Status *</Label>
-              <Select
-                value={equipmentStatus}
-                onValueChange={(val) => setEquipmentStatus(val as EquipmentStatus)}
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Equipment Status" />
+          <div className="space-y-3 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Hold Reason *</Label>
+              <Select value={holdReason} onValueChange={setHoldReason}>
+                <SelectTrigger className="text-xs">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="UP" className="text-xs">UP (Fully Operational)</SelectItem>
-                  <SelectItem value="Partially UP" className="text-xs">Partially UP</SelectItem>
-                  <SelectItem value="Down" className="text-xs">Down (Non-functional)</SelectItem>
+                  <SelectItem value="Awaiting Part" className="text-xs">Awaiting Part / Store Dispatch</SelectItem>
+                  <SelectItem value="Site Access Denied" className="text-xs">Site Access Denied / Facility Locked</SelectItem>
+                  <SelectItem value="Equipment In Clinical Use" className="text-xs">Equipment In Clinical Emergency Use</SelectItem>
+                  <SelectItem value="Facility Power Outage" className="text-xs">Facility Power Outage / Generator Fault</SelectItem>
+                  <SelectItem value="Customer Authorization Pending" className="text-xs">Customer Authorization Pending</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setCompleteDialogOpen(false)}
-              className="h-8 text-xs"
-            >
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setHoldDialogOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleConfirmHold} className="bg-amber-600 text-white hover:bg-amber-700">Confirm Hold</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL 6: Debrief Final Summary & Sign-off Review Modal */}
+      <Dialog open={completeDialogOpen} onOpenChange={setCompleteDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <CheckCircle2 className="size-5 text-emerald-500" />
+              <span>Debrief Summary & Official Sign-Off</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Review all logged actions, itemized expenses, and client acknowledgement before closing {job.jobNumber}.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* 1. Final Equipment Condition & Diagnostics */}
+            <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-3 text-xs">
+              <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                1. Final Equipment Condition & Diagnostics
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Final Status *</Label>
+                  <Select value={equipmentStatus} onValueChange={(v) => setEquipmentStatus(v as EquipmentStatus)}>
+                    <SelectTrigger className="text-xs font-bold">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="UP" className="text-xs font-bold text-emerald-600">UP (Operational)</SelectItem>
+                      <SelectItem value="Partially UP" className="text-xs font-bold text-amber-600">Partially UP</SelectItem>
+                      <SelectItem value="Down" className="text-xs font-bold text-rose-600">Down (Failed)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Root Cause *</Label>
+                  <Select value={rootCause} onValueChange={(v) => setRootCause(v as RootCause)}>
+                    <SelectTrigger className="text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROOT_CAUSES.map((c) => (
+                        <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Resolution *</Label>
+                  <Select value={resolution} onValueChange={(v) => setResolution(v as Resolution)}>
+                    <SelectTrigger className="text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RESOLUTIONS.map((r) => (
+                        <SelectItem key={r} value={r} className="text-xs">{r}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Itemized Financial & Action Table */}
+            <div className="p-3.5 rounded-xl border border-border bg-card space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                  2. Itemized Cost & Operations Summary
+                </h4>
+                <span className="font-mono text-sm font-bold text-primary">
+                  Total: {formatCurrency(totalJobCost)}
+                </span>
+              </div>
+
+              {/* Mini Itemized Breakdown Table */}
+              <div className="border border-border/60 rounded-lg overflow-hidden">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/30 text-[11px] font-bold uppercase text-muted-foreground border-b border-border/60">
+                    <tr>
+                      <th className="py-2 px-3 text-left">Category</th>
+                      <th className="py-2 px-3 text-left">Details</th>
+                      <th className="py-2 px-3 text-right">Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/40">
+                    <tr>
+                      <td className="py-2 px-3 font-semibold text-foreground">Spare Parts ({partsUsed.length})</td>
+                      <td className="py-2 px-3 text-muted-foreground">{partsUsed.map(p => `${p.partNumber} (x${p.quantityUsed})`).join(", ") || "None"}</td>
+                      <td className="py-2 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(totalPartsCost)}</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold text-foreground">Field Expenses ({expenses.length})</td>
+                      <td className="py-2 px-3 text-muted-foreground">{expenses.map(e => `${e.typeOfExpense}`).join(", ") || "None"}</td>
+                      <td className="py-2 px-3 text-right font-mono font-bold text-foreground">{formatCurrency(totalExpensesCost)}</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold text-foreground">Tools Validated</td>
+                      <td className="py-2 px-3 text-muted-foreground" colSpan={2}>{toolsUsed.map(t => t.toolId).join(", ") || "Standard Toolset"}</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-3 font-semibold text-foreground">Travel & Labour</td>
+                      <td className="py-2 px-3 text-muted-foreground" colSpan={2}>
+                        Depart: {travelStartTime || "—"} • Arrived: {travelEndTime || "—"} • Finish: {formatTimeNow()}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 3. Dual Sign-Off & Customer Acknowledgement */}
+            <div className="p-3.5 rounded-xl border border-primary/30 bg-primary/5 space-y-3 text-xs">
+              <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <UserCheck className="size-3.5 text-primary" />
+                <span>3. Dual Debrief Sign-Off & Client Acknowledgement</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Lead Engineer (You)</Label>
+                  <Input
+                    disabled
+                    value={user ? `${user.firstName} ${user.lastName}` : "Lead Engineer"}
+                    className="text-xs bg-muted/40 font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-semibold">Client / Hospital Contact Person *</Label>
+                  <Input
+                    placeholder="e.g. Dr. Alabi Kunle"
+                    value={clientSignoffName}
+                    onChange={(e) => setClientSignoffName(e.target.value)}
+                    className="text-xs font-medium"
+                  />
+                </div>
+
+                <div className="space-y-1 sm:col-span-2">
+                  <Label className="text-xs font-semibold">Client Representative Designation / Title</Label>
+                  <Input
+                    placeholder="e.g. Chief Medical Director / Head Bio-Medical Engineer"
+                    value={clientSignoffDesignation}
+                    onChange={(e) => setClientSignoffDesignation(e.target.value)}
+                    className="text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-primary/20 flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="confirm_sign"
+                  checked={signoffConfirmed}
+                  onChange={(e) => setSignoffConfirmed(e.target.checked)}
+                  className="mt-0.5 rounded border-border text-primary cursor-pointer size-3.5"
+                />
+                <label htmlFor="confirm_sign" className="text-[11px] text-muted-foreground leading-snug cursor-pointer">
+                  I certify that the service described above has been completed to biomedical safety standards, and verified with the hospital client representative.
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setCompleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button
-              type="button"
               size="sm"
-              onClick={() => handleSaveAll("Completed")}
-              disabled={!workDone.trim() || saving}
-              className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs px-4"
+              disabled={!signoffConfirmed || saving}
+              onClick={handleFinalSubmitDebrief}
+              className="bg-emerald-600 text-white hover:bg-emerald-700 font-bold gap-1.5 cursor-pointer shadow-sm"
             >
-              Confirm & Submit Job
+              <CheckCircle2 className="size-4" />
+              <span>{saving ? "Submitting..." : "Confirm & Submit Debrief"}</span>
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -20,6 +20,7 @@ export type Resolution =
   | string;
 
 export type JobStatus = "In Progress" | "On Hold" | "Completed" | "Open" | "Pending Review";
+export type JobStage = "assigned" | "traveling" | "working" | "on_hold" | "completed";
 
 export interface DebriefLabourRecord {
   startDate: string;
@@ -29,12 +30,20 @@ export interface DebriefLabourRecord {
   travelEndTime?: string;
   labourStartTime?: string;
   labourEndTime?: string;
+  travelDurationHours?: number;
+  labourDurationHours?: number;
   workDone: string;
   equipmentStatus: EquipmentStatus;
   jobStatus: JobStatus;
+  stage?: JobStage;
   holdReason?: string; // e.g. "Awaiting Part"
   rootCause?: RootCause;
   resolution?: Resolution;
+  // Sign-off metadata
+  clientSignoffName?: string;
+  clientSignoffDesignation?: string;
+  clientSignoffDate?: string;
+  engineerSignoffDate?: string;
 }
 
 export interface DebriefPartUsed {
@@ -132,7 +141,19 @@ export interface DebriefJob {
   rootCause?: RootCause;
   resolution?: Resolution;
   jobStatus: JobStatus;
+  stage?: JobStage;
   holdReason?: string;
+
+  // Financial Rollup
+  totalPartsCost?: number;
+  totalExpensesCost?: number;
+  totalJobCost?: number;
+
+  // Sign-off Acknowledgement
+  clientSignoffName?: string;
+  clientSignoffDesignation?: string;
+  clientSignoffDate?: string;
+  engineerSignoffDate?: string;
 
   // 6 Job Workspace sections
   labour?: DebriefLabourRecord;

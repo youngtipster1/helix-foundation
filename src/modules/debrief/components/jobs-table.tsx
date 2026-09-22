@@ -245,6 +245,26 @@ export function JobsTable({
         priority: true,
       },
       {
+        key: "totalJobCost",
+        header: "TOTAL SPEND",
+        value: (row) => {
+          const total = row.totalJobCost || ((row.totalPartsCost || 0) + (row.totalExpensesCost || 0));
+          return `$${total.toFixed(2)}`;
+        },
+        cell: (row) => {
+          const total = row.totalJobCost || ((row.totalPartsCost || 0) + (row.totalExpensesCost || 0));
+          return (
+            <span className="font-mono text-xs font-bold text-foreground">
+              ${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          );
+        },
+        className: "min-w-[130px] text-right",
+        headerClassName: "min-w-[130px] text-right",
+        filterable: true,
+        priority: true,
+      },
+      {
         key: "jobPriority",
         header: "JOB PRIORITY",
         value: (row) => row.jobPriority,

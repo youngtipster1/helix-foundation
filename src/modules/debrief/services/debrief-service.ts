@@ -1,9 +1,51 @@
 import { MOCK_DEBRIEF_JOBS } from "../mocks/debrief-data";
-import type { DebriefJob, CreateJobInput, DebriefLabourRecord, DebriefPartUsed, DebriefExpense, DebriefDocument, DebriefToolUsed } from "../types";
+import type {
+  DebriefJob,
+  CreateJobInput,
+  DebriefLabourRecord,
+  DebriefPartUsed,
+  DebriefExpense,
+  DebriefDocument,
+  DebriefToolUsed,
+  JobStage,
+} from "../types";
 import type { User } from "@/features/auth/types";
 import { isModuleAdmin } from "@/features/auth/permissions";
 
 const STORAGE_KEY = "hemp.debrief.jobs";
+
+export function computeJobCosts(job: Partial<DebriefJob>): {
+  totalPartsCost: number;
+  totalExpensesCost: number;
+  totalJobCost: number;
+} {
+  const totalPartsCost = (job.partsUsed || []).reduce((sum, p) => {
+    const itemTotal = typeof p.totalCost === "number" ? p.totalCost : (p.unitCost || 0) * (p.quantityUsed || 1);
+    return sum + itemTotal;
+  }, 0);
+
+  const totalExpensesCost = (job.expenses || []).reduce((sum, e) => {
+    return sum + (Number(e.amount) || 0);
+  }, 0);
+
+  const totalJobCost = totalPartsCost + totalExpensesCost;
+
+  return { totalPartsCost, totalExpensesCost, totalJobCost };
+}
+
+export function determineJobStage(job: Partial<DebriefJob>): JobStage {
+  if (job.jobStatus === "Completed") return "completed";
+  if (job.jobStatus === "On Hold") return "on_hold";
+  if (job.stage) return job.stage;
+
+  if (job.labour?.labourStartTime || job.partsUsed?.length || job.expenses?.length) {
+    return "working";
+  }
+  if (job.labour?.travelStartTime) {
+    return "traveling";
+  }
+  return "assigned";
+}
 
 class DebriefService {
   private jobs: DebriefJob[] = [];
@@ -82,13 +124,11 @@ class DebriefService {
 
   /**
    * Returns active jobs for current engineer's "My Work" queue.
-   * Only includes jobs that are In Progress or On Hold (not Completed).
+   * Includes In Progress, On Hold, and Open (Scheduled).
    */
   async getMyWork(user?: User | null): Promise<DebriefJob[]> {
     const assignedJobs = await this.list(user);
-    return assignedJobs.filter(
-      (job) => job.jobStatus === "In Progress" || job.jobStatus === "On Hold" || job.jobStatus === "Open"
-    );
+    return assignedJobs;
   }
 
   async getById(id: string): Promise<DebriefJob | null> {
@@ -151,7 +191,15 @@ class DebriefService {
       endDate: input.endDate || "—",
       rootCause: "—",
       resolution: "—",
-      jobStatus: "In Progress",
+      jobStatus: "Open",
+      stage: "assigned",
+      totalPartsCost: 0,
+      totalExpensesCost: 0,
+      totalJobCost: 0,
+      partsUsed: [],
+      expenses: [],
+      toolsUsed: [],
+      documents: [],
       createdAt: now,
       updatedAt: now,
     };
@@ -166,11 +214,25 @@ class DebriefService {
     const index = this.jobs.findIndex((j) => j.id === id || j.jobNumber === id);
     if (index === -1) return null;
 
-    this.jobs[index] = {
-      ...this.jobs[index],
+    const currentJob = this.jobs[index];
+    const mergedJob: DebriefJob = {
+      ...currentJob,
       ...updates,
       updatedAt: new Date().toISOString(),
     };
+
+    // Auto-calculate financial costs
+    const costs = computeJobCosts(mergedJob);
+    mergedJob.totalPartsCost = costs.totalPartsCost;
+    mergedJob.totalExpensesCost = costs.totalExpensesCost;
+    mergedJob.totalJobCost = costs.totalJobCost;
+
+    // Auto-determine stage if not explicitly set
+    if (!updates.stage) {
+      mergedJob.stage = determineJobStage(mergedJob);
+    }
+
+    this.jobs[index] = mergedJob;
     this.save();
     return { ...this.jobs[index] };
   }
