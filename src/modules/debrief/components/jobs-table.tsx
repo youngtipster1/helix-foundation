@@ -3,7 +3,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { Button } from "@/components/ui/button";
 import type { DebriefJob } from "../types";
-import { Eye, Plus, Wrench, ShieldAlert } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 
 interface JobsTableProps {
   jobs: DebriefJob[];
@@ -25,174 +25,178 @@ export function JobsTable({
       {
         key: "sn",
         header: "SN",
-        accessor: (_row, idx) => String(idx + 1),
-        align: "center",
-        render: (_value, _row, idx) => (
-          <span className="font-mono text-xs font-semibold text-muted-foreground">
-            {idx + 1}
-          </span>
-        ),
+        value: (row) => {
+          const idx = jobs.findIndex((j) => j.id === row.id);
+          return idx !== -1 ? String(idx + 1) : "—";
+        },
+        cell: (row) => {
+          const idx = jobs.findIndex((j) => j.id === row.id);
+          return (
+            <span className="font-mono text-xs font-semibold text-muted-foreground">
+              {idx !== -1 ? idx + 1 : "—"}
+            </span>
+          );
+        },
+        filterable: false,
+        reorderable: true,
       },
       {
         key: "jobNumber",
         header: "JOB NUMBER",
-        accessor: (row) => row.jobNumber,
-        sortable: true,
-        filterable: true,
-        filterType: "text",
-        render: (value, row) => (
+        value: (row) => row.jobNumber,
+        cell: (row) => (
           <button
             type="button"
             onClick={() => onOpenJob?.(row)}
             className="font-mono text-xs font-bold text-primary hover:underline hover:text-primary/80 transition-colors text-left cursor-pointer"
           >
-            {value}
+            {row.jobNumber}
           </button>
         ),
+        filterable: true,
+        priority: true,
       },
       {
         key: "assetNumber",
         header: "ASSET NUMBER",
-        accessor: (row) => row.assetNumber,
-        sortable: true,
-        filterable: true,
-        filterType: "text",
-        render: (value) => (
+        value: (row) => row.assetNumber,
+        cell: (row) => (
           <span className="font-mono text-xs font-bold text-foreground">
-            {value}
+            {row.assetNumber}
           </span>
         ),
+        filterable: true,
+        priority: true,
       },
       {
         key: "modality",
         header: "MODALITY",
-        accessor: (row) => row.modality,
-        sortable: true,
+        value: (row) => row.modality,
+        cell: (row) => <span className="text-xs text-foreground">{row.modality}</span>,
         filterable: true,
-        filterType: "select",
-        render: (value) => <span className="text-xs text-foreground">{value}</span>,
       },
       {
         key: "oem",
         header: "OEM",
-        accessor: (row) => row.oem,
-        sortable: true,
+        value: (row) => row.oem,
+        cell: (row) => <span className="text-xs font-medium text-foreground">{row.oem}</span>,
         filterable: true,
-        filterType: "select",
-        render: (value) => <span className="text-xs font-medium text-foreground">{value}</span>,
       },
       {
         key: "model",
         header: "MODEL",
-        accessor: (row) => row.model,
-        sortable: true,
+        value: (row) => row.model,
+        cell: (row) => <span className="text-xs font-semibold text-foreground">{row.model}</span>,
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-semibold text-foreground">{value}</span>,
       },
       {
         key: "serialNumber",
         header: "SERIAL NUMBER",
-        accessor: (row) => row.serialNumber,
-        sortable: true,
-        filterable: true,
-        filterType: "text",
-        render: (value) => (
-          <span className="font-mono text-xs text-muted-foreground">{value}</span>
+        value: (row) => row.serialNumber,
+        cell: (row) => (
+          <span className="font-mono text-xs text-muted-foreground">{row.serialNumber}</span>
         ),
+        filterable: true,
       },
       {
         key: "warrantyEndDate",
         header: "WARRANTY END DATE",
-        accessor: (row) => row.warrantyEndDate || "—",
-        sortable: true,
+        value: (row) => row.warrantyEndDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.warrantyEndDate || "—"}
+          </span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-muted-foreground">{value}</span>,
       },
       {
         key: "warrantyStartDate",
         header: "WARRANTY START DATE",
-        accessor: (row) => row.warrantyStartDate || "—",
-        sortable: true,
+        value: (row) => row.warrantyStartDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.warrantyStartDate || "—"}
+          </span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-muted-foreground">{value}</span>,
       },
       {
         key: "contractStartDate",
         header: "CONTRACT START DATE",
-        accessor: (row) => row.contractStartDate || "—",
-        sortable: true,
+        value: (row) => row.contractStartDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.contractStartDate || "—"}
+          </span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-muted-foreground">{value}</span>,
       },
       {
         key: "contractEndDate",
         header: "CONTRACT END DATE",
-        accessor: (row) => row.contractEndDate || "—",
-        sortable: true,
+        value: (row) => row.contractEndDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.contractEndDate || "—"}
+          </span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-muted-foreground">{value}</span>,
       },
       {
         key: "yearOfManufacture",
         header: "YEAR OF MANUFACTURE",
-        accessor: (row) => row.yearOfManufacture,
-        sortable: true,
+        value: (row) => row.yearOfManufacture,
+        cell: (row) => (
+          <span className="text-xs text-center block text-foreground">
+            {row.yearOfManufacture}
+          </span>
+        ),
         filterable: true,
-        filterType: "select",
-        render: (value) => <span className="text-xs text-center block text-foreground">{value}</span>,
       },
       {
         key: "jobType",
         header: "JOB TYPE",
-        accessor: (row) => row.jobType,
-        sortable: true,
-        filterable: true,
-        filterType: "select",
-        render: (value) => (
+        value: (row) => row.jobType,
+        cell: (row) => (
           <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-muted text-foreground border border-border/60">
-            {value}
+            {row.jobType}
           </span>
         ),
+        filterable: true,
+        priority: true,
       },
       {
         key: "jobOpenDate",
         header: "JOB OPEN DATE",
-        accessor: (row) => row.jobOpenDate,
-        sortable: true,
+        value: (row) => row.jobOpenDate,
+        cell: (row) => (
+          <span className="text-xs font-mono text-foreground">{row.jobOpenDate}</span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-foreground">{value}</span>,
       },
       {
         key: "jobStartDate",
         header: "JOB START DATE",
-        accessor: (row) => row.jobStartDate,
-        sortable: true,
+        value: (row) => row.jobStartDate,
+        cell: (row) => (
+          <span className="text-xs font-mono text-foreground">{row.jobStartDate}</span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-foreground">{value}</span>,
       },
       {
         key: "equipmentStatus",
         header: "EQUIPMENT STATUS",
-        accessor: (row) => row.equipmentStatus,
-        sortable: true,
-        filterable: true,
-        filterType: "select",
-        render: (value) => {
-          if (value === "UP") {
+        value: (row) => row.equipmentStatus,
+        cell: (row) => {
+          const val = row.equipmentStatus;
+          if (val === "UP") {
             return (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 UP
               </span>
             );
           }
-          if (value === "Partially UP") {
+          if (val === "Partially UP") {
             return (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 Partially UP
@@ -205,23 +209,23 @@ export function JobsTable({
             </span>
           );
         },
+        filterable: true,
+        priority: true,
       },
       {
         key: "jobPriority",
         header: "JOB PRIORITY",
-        accessor: (row) => row.jobPriority,
-        sortable: true,
-        filterable: true,
-        filterType: "select",
-        render: (value) => {
-          if (value === "High") {
+        value: (row) => row.jobPriority,
+        cell: (row) => {
+          const val = row.jobPriority;
+          if (val === "High") {
             return (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
                 High
               </span>
             );
           }
-          if (value === "Mid") {
+          if (val === "Mid") {
             return (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 Mid
@@ -234,63 +238,70 @@ export function JobsTable({
             </span>
           );
         },
+        filterable: true,
+        priority: true,
       },
       {
         key: "assignTo",
         header: "ASSIGN TO",
-        accessor: (row) => row.assignedToName,
-        sortable: true,
+        value: (row) => row.assignedToName,
+        cell: (row) => (
+          <span className="text-xs font-bold text-foreground">{row.assignedToName}</span>
+        ),
         filterable: true,
-        filterType: "select",
-        render: (value) => <span className="text-xs font-bold text-foreground">{value}</span>,
+        priority: true,
       },
       {
         key: "assistedBy",
         header: "ASSISTED BY",
-        accessor: (row) => row.assistedBy || "—",
-        sortable: true,
+        value: (row) => row.assistedBy || "—",
+        cell: (row) => (
+          <span className="text-xs text-muted-foreground">{row.assistedBy || "—"}</span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs text-muted-foreground">{value}</span>,
       },
       {
         key: "startDate",
         header: "START DATE",
-        accessor: (row) => row.startDate || "—",
-        sortable: true,
+        value: (row) => row.startDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.startDate || "—"}
+          </span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-muted-foreground">{value}</span>,
       },
       {
         key: "endDate",
         header: "END DATE",
-        accessor: (row) => row.endDate || "—",
-        sortable: true,
+        value: (row) => row.endDate || "—",
+        cell: (row) => (
+          <span className="text-xs font-mono text-muted-foreground">
+            {row.endDate || "—"}
+          </span>
+        ),
         filterable: true,
-        filterType: "text",
-        render: (value) => <span className="text-xs font-mono text-muted-foreground">{value}</span>,
       },
       {
         key: "rootCause",
         header: "ROOT CAUSE",
-        accessor: (row) => row.rootCause || "—",
-        sortable: true,
+        value: (row) => row.rootCause || "—",
+        cell: (row) => (
+          <span className="text-xs text-foreground font-medium">{row.rootCause || "—"}</span>
+        ),
         filterable: true,
-        filterType: "select",
-        render: (value) => <span className="text-xs text-foreground font-medium">{value}</span>,
       },
       {
         key: "resolution",
         header: "RESOLUTION",
-        accessor: (row) => row.resolution || "—",
-        sortable: true,
+        value: (row) => row.resolution || "—",
+        cell: (row) => (
+          <span className="text-xs text-foreground font-medium">{row.resolution || "—"}</span>
+        ),
         filterable: true,
-        filterType: "select",
-        render: (value) => <span className="text-xs text-foreground font-medium">{value}</span>,
       },
     ],
-    [onOpenJob]
+    [jobs, onOpenJob]
   );
 
   return (
