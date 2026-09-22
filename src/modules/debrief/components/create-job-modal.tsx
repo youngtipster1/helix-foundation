@@ -407,19 +407,80 @@ export function CreateJobModal({
               )}
             </div>
 
-            {/* Selected Asset Spec Display */}
+            {/* Selected Asset Complete Spec Display */}
             {selectedAsset && (
-              <div className="rounded-md border border-border bg-muted/20 p-3 text-xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono font-bold text-primary">{selectedAsset.equipmentNumber}</span>
-                  <span className="font-medium text-foreground">{selectedAsset.model} ({selectedAsset.oem})</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">Status: {equipmentStatus}</span>
+              <div className="rounded-md border border-border bg-muted/20 p-3.5 text-xs space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-border/50">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-sm text-primary">{assetNumber}</span>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="font-semibold text-foreground">{model}</span>
+                    <span className="text-muted-foreground">({oem})</span>
+                  </div>
+                  <span
+                    className={cn(
+                      "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold",
+                      equipmentStatus === "UP"
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                        : equipmentStatus === "Partially UP"
+                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                    )}
+                  >
+                    Status: {equipmentStatus}
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1 border-t border-border/50 text-muted-foreground">
-                  <div>Serial: <span className="font-mono font-medium text-foreground">{serialNumber}</span></div>
-                  <div>Modality: <span className="font-medium text-foreground">{modality}</span></div>
-                  <div>Location: <span className="font-medium text-foreground">{location}</span></div>
-                </div>
+
+                <dl className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 text-xs">
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Modality</dt>
+                    <dd className="font-semibold text-foreground mt-0.5">{modality || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">OEM</dt>
+                    <dd className="font-semibold text-foreground mt-0.5">{oem || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Model</dt>
+                    <dd className="font-semibold text-foreground mt-0.5">{model || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Serial Number</dt>
+                    <dd className="font-mono font-semibold text-foreground mt-0.5">{serialNumber || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Location</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{location || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Address</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{address || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Year of Mfg</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{yearOfManufacture || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Equipment Status</dt>
+                    <dd className="font-semibold text-foreground mt-0.5">{equipmentStatus || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Warranty Start Date</dt>
+                    <dd className="font-mono text-foreground mt-0.5">{warrantyStartDate || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Warranty End Date</dt>
+                    <dd className="font-mono text-foreground mt-0.5">{warrantyEndDate || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Contract Type</dt>
+                    <dd className="font-medium text-foreground mt-0.5">{contractType || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground font-medium">Contract End Date</dt>
+                    <dd className="font-mono text-foreground mt-0.5">{contractEndDate || "—"}</dd>
+                  </div>
+                </dl>
               </div>
             )}
           </div>
