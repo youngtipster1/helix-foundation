@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppDebriefRouteImport } from './routes/app.debrief'
 import { Route as AppFinancialRouteImport } from './routes/app.financial'
 import { Route as AppPartsRouteImport } from './routes/app.parts'
 import { Route as AppQualityRouteImport } from './routes/app.quality'
@@ -23,6 +24,7 @@ import { Route as AppAssetsContractsRouteImport } from './routes/app.assets.cont
 import { Route as AppAssetsContractsDashboardRouteImport } from './routes/app.assets.contracts-dashboard'
 import { Route as AppAssetsDashboardRouteImport } from './routes/app.assets.dashboard'
 import { Route as AppAssetsListRouteImport } from './routes/app.assets.list'
+import { Route as AppDebriefIndexRouteImport } from './routes/app.debrief.index'
 import { Route as AppFinancialIndexRouteImport } from './routes/app.financial.index'
 import { Route as AppFinancialDashboardRouteImport } from './routes/app.financial.dashboard'
 import { Route as AppFinancialOrdersRouteImport } from './routes/app.financial.orders'
@@ -87,6 +89,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDebriefRoute = AppDebriefRouteImport.update({
+  id: '/debrief',
+  path: '/debrief',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFinancialRoute = AppFinancialRouteImport.update({
   id: '/financial',
   path: '/financial',
@@ -137,6 +144,11 @@ const AppAssetsListRoute = AppAssetsListRouteImport.update({
   id: '/assets/list',
   path: '/assets/list',
   getParentRoute: () => AppRoute,
+} as any)
+const AppDebriefIndexRoute = AppDebriefIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppDebriefRoute,
 } as any)
 const AppFinancialIndexRoute = AppFinancialIndexRouteImport.update({
   id: '/',
@@ -363,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/app/debrief': typeof AppDebriefRouteWithChildren
   '/app/financial': typeof AppFinancialRouteWithChildren
   '/app/parts': typeof AppPartsRouteWithChildren
   '/app/quality': typeof AppQualityRouteWithChildren
@@ -408,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
   '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
   '/app/assets/': typeof AppAssetsIndexRoute
+  '/app/debrief/': typeof AppDebriefIndexRoute
   '/app/financial/': typeof AppFinancialIndexRoute
   '/app/parts/': typeof AppPartsIndexRoute
   '/app/quality/': typeof AppQualityIndexRoute
@@ -461,6 +475,7 @@ export interface FileRoutesByTo {
   '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
   '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
   '/app/assets': typeof AppAssetsIndexRoute
+  '/app/debrief': typeof AppDebriefIndexRoute
   '/app/financial': typeof AppFinancialIndexRoute
   '/app/parts': typeof AppPartsIndexRoute
   '/app/quality': typeof AppQualityIndexRoute
@@ -476,6 +491,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/app/debrief': typeof AppDebriefRouteWithChildren
   '/app/financial': typeof AppFinancialRouteWithChildren
   '/app/parts': typeof AppPartsRouteWithChildren
   '/app/quality': typeof AppQualityRouteWithChildren
@@ -521,6 +537,7 @@ export interface FileRoutesById {
   '/app/tools/my-expenses': typeof AppToolsMyExpensesRoute
   '/app/tools/my-jobs': typeof AppToolsMyJobsRoute
   '/app/assets/': typeof AppAssetsIndexRoute
+  '/app/debrief/': typeof AppDebriefIndexRoute
   '/app/financial/': typeof AppFinancialIndexRoute
   '/app/parts/': typeof AppPartsIndexRoute
   '/app/quality/': typeof AppQualityIndexRoute
@@ -537,6 +554,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/app/debrief'
     | '/app/financial'
     | '/app/parts'
     | '/app/quality'
@@ -582,6 +600,7 @@ export interface FileRouteTypes {
     | '/app/tools/my-expenses'
     | '/app/tools/my-jobs'
     | '/app/assets/'
+    | '/app/debrief/'
     | '/app/financial/'
     | '/app/parts/'
     | '/app/quality/'
@@ -635,6 +654,7 @@ export interface FileRouteTypes {
     | '/app/tools/my-expenses'
     | '/app/tools/my-jobs'
     | '/app/assets'
+    | '/app/debrief'
     | '/app/financial'
     | '/app/parts'
     | '/app/quality'
@@ -649,6 +669,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/app/debrief'
     | '/app/financial'
     | '/app/parts'
     | '/app/quality'
@@ -694,6 +715,7 @@ export interface FileRouteTypes {
     | '/app/tools/my-expenses'
     | '/app/tools/my-jobs'
     | '/app/assets/'
+    | '/app/debrief/'
     | '/app/financial/'
     | '/app/parts/'
     | '/app/quality/'
@@ -739,6 +761,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/debrief': {
+      id: '/app/debrief'
+      path: '/debrief'
+      fullPath: '/app/debrief'
+      preLoaderRoute: typeof AppDebriefRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/financial': {
@@ -810,6 +839,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/assets/list'
       preLoaderRoute: typeof AppAssetsListRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/app/debrief/': {
+      id: '/app/debrief/'
+      path: '/'
+      fullPath: '/app/debrief/'
+      preLoaderRoute: typeof AppDebriefIndexRouteImport
+      parentRoute: typeof AppDebriefRoute
     }
     '/app/financial/': {
       id: '/app/financial/'
@@ -1115,6 +1151,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppDebriefRouteChildren {
+  AppDebriefIndexRoute: typeof AppDebriefIndexRoute
+}
+
+const AppDebriefRouteChildren: AppDebriefRouteChildren = {
+  AppDebriefIndexRoute: AppDebriefIndexRoute,
+}
+
+const AppDebriefRouteWithChildren = AppDebriefRoute._addFileChildren(
+  AppDebriefRouteChildren,
+)
+
 interface AppFinancialRouteChildren {
   AppFinancialDashboardRoute: typeof AppFinancialDashboardRoute
   AppFinancialOrdersRoute: typeof AppFinancialOrdersRoute
@@ -1252,6 +1300,7 @@ const AppToolsRouteWithChildren = AppToolsRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppDebriefRoute: typeof AppDebriefRouteWithChildren
   AppFinancialRoute: typeof AppFinancialRouteWithChildren
   AppPartsRoute: typeof AppPartsRouteWithChildren
   AppQualityRoute: typeof AppQualityRouteWithChildren
@@ -1266,6 +1315,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppDebriefRoute: AppDebriefRouteWithChildren,
   AppFinancialRoute: AppFinancialRouteWithChildren,
   AppPartsRoute: AppPartsRouteWithChildren,
   AppQualityRoute: AppQualityRouteWithChildren,

@@ -17,6 +17,7 @@ import {
   Settings2,
   Landmark,
   Stethoscope,
+  Activity,
 } from "lucide-react";
 
 import { BrandLockup } from "@/components/hemp/brand";
