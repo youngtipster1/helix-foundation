@@ -82,4 +82,22 @@ export const MOCK_PERSONNEL: Personnel[] = [
     email: "tunde.bakare@hemp.local",
     status: "active",
   },
+  {
+    id: "per_012",
+    firstName: "Tariq",
+    lastName: "Mansoor",
+    jobTitle: "Lead Debrief & Safety Coordinator",
+    department: "Clinical Engineering & Governance",
+    email: "tariq.mansoor@hemp.local",
+    status: "active",
+  },
+  {
+    id: "per_013",
+    firstName: "Zainab",
+    lastName: "Sani",
+    jobTitle: "Field Service Debrief Specialist",
+    department: "Biomedical Engineering",
+    email: "zainab.sani@hemp.local",
+    status: "active",
+  },
 ];

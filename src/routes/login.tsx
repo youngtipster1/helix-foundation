@@ -89,6 +89,22 @@ const DEMO_USERS = [
     description: "Clinical engineer: Policy document training, SOP compliance monitoring, and task execution.",
   },
   {
+    role: "Debrief Admin",
+    user: "Tariq Mansoor",
+    username: "debriefadmin",
+    pass: "hemp1234",
+    module: "Debrief",
+    description: "Debrief Management: Oversee post-service incident debriefs, root-cause investigations, CAPA tracking, and shift handover sign-offs.",
+  },
+  {
+    role: "Debrief User",
+    user: "Zainab Sani",
+    username: "debriefuser",
+    pass: "hemp1234",
+    module: "Debrief",
+    description: "Biomedical Specialist: Create service & breakdown debrief logs, log failure root cause observations, and submit handovers.",
+  },
+  {
     role: "Financial Admin",
     user: "Ngozi Adeleke",
     username: "financeadmin",
