@@ -24,6 +24,8 @@ import {
   ArrowLeftRight,
   Landmark,
   Stethoscope,
+  CalendarRange,
+  Activity,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -124,8 +126,8 @@ export function MobileBottomNav() {
     {
       id: "debrief",
       label: "Debrief",
-      to: "/app/debrief",
-      icon: MessageSquareCode,
+      to: "/app/debrief/dashboard",
+      icon: Activity,
       hasAccess: canAccessDebrief,
       isCurrent: isDebrief,
     },
@@ -204,7 +206,9 @@ export function MobileBottomNav() {
     ];
   } else if (isDebrief) {
     tabs = [
+      { label: "Dashboard", to: "/app/debrief/dashboard", icon: LayoutDashboard },
       { label: "Jobs", to: "/app/debrief", icon: ClipboardCheck, exact: true },
+      { label: "Schedule", to: "/app/debrief/schedule", icon: CalendarRange },
       { label: "My Work", to: "/app/debrief/my-work", icon: Wrench, exact: true },
     ];
   } else if (isSettings) {
@@ -295,6 +299,8 @@ export function MobileBottomNav() {
                 ? "Financial Navigation"
                 : isParts
                 ? "Parts Navigation"
+                : isDebrief
+                ? "Debrief Navigation"
                 : "Workspace Navigation"}
             </DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
@@ -304,6 +310,44 @@ export function MobileBottomNav() {
 
           <div className="overflow-y-auto space-y-4 pr-1">
             {/* Contextual More Items */}
+            {isDebrief && (
+              <div className="space-y-1">
+                <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Debrief Menus
+                </p>
+                <DrawerLink
+                  to="/app/debrief/dashboard"
+                  icon={LayoutDashboard}
+                  label="Debrief Dashboard"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/debrief"
+                  icon={ClipboardCheck}
+                  label="Jobs Register"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/debrief/schedule"
+                  icon={CalendarRange}
+                  label="Schedule Calendar"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/debrief/workforce"
+                  icon={Users}
+                  label="Workforce Management"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/debrief/my-work"
+                  icon={Wrench}
+                  label="My Work Queue"
+                  onNavigate={handleNavigate}
+                />
+              </div>
+            )}
+
             {isTools && (
               <div className="space-y-1">
                 <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
