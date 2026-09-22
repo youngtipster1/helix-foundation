@@ -39,6 +39,8 @@ interface CreateJobModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onJobCreated?: (job: DebriefJob) => void;
+  onJobUpdated?: (job: DebriefJob) => void;
+  jobToEdit?: DebriefJob | null;
 }
 
 const JOB_TYPES = [
@@ -58,6 +60,8 @@ export function CreateJobModal({
   open,
   onOpenChange,
   onJobCreated,
+  onJobUpdated,
+  jobToEdit,
 }: CreateJobModalProps) {
   const [personnelList, setPersonnelList] = useState<Personnel[]>([]);
   const [allAssets, setAllAssets] = useState<Asset[]>([]);
@@ -96,33 +100,11 @@ export function CreateJobModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  const isEditing = Boolean(jobToEdit);
+
   useEffect(() => {
     if (open) {
       setErrors({});
-      setSelectedAsset(null);
-      setAssetNumber("");
-      setModality("");
-      setOem("");
-      setLocation("");
-      setAddress("");
-      setWarrantyStartDate("");
-      setWarrantyEndDate("");
-      setModel("");
-      setSerialNumber("");
-      setYearOfManufacture("");
-      setEquipmentStatus("UP");
-      setContractType("");
-      setContractEndDate("");
-      setAssignedToId("");
-      setAssistantEngineerId("");
-      setContactName("");
-      setContactEmail("");
-      setReportedIssue("");
-
-      const todayStr = new Date().toISOString().split("T")[0];
-      setJobOpenDate(todayStr);
-      setAssignedDate(todayStr);
-      setEndDate("");
 
       try {
         const assets = typeof assetService.getAssets === "function" ? assetService.getAssets() : [];
@@ -137,8 +119,82 @@ export function CreateJobModal({
           setPersonnelList(personnel.filter((p) => p.status === "active"));
         })
         .catch((err) => console.error("Error loading personnel", err));
+
+      if (jobToEdit) {
+        setAssetNumber(jobToEdit.assetNumber || "");
+        setModality(jobToEdit.modality || "");
+        setOem(jobToEdit.oem || "");
+        setLocation(jobToEdit.location || "");
+        setAddress(jobToEdit.address || "");
+        setWarrantyStartDate(jobToEdit.warrantyStartDate || "");
+        setWarrantyEndDate(jobToEdit.warrantyEndDate || "");
+        setModel(jobToEdit.model || "");
+        setSerialNumber(jobToEdit.serialNumber || "");
+        setYearOfManufacture(jobToEdit.yearOfManufacture || "");
+        setEquipmentStatus(jobToEdit.equipmentStatus || "UP");
+        setContractType(jobToEdit.contractType || "COMPREHENSIVE");
+        setContractEndDate(jobToEdit.contractEndDate || "");
+        setJobType(jobToEdit.jobType || "Corrective Maintenance");
+        setJobOpenDate(jobToEdit.jobOpenDate || "");
+        setAssignedDate(jobToEdit.jobStartDate || jobToEdit.startDate || "");
+        setEndDate(jobToEdit.endDate && jobToEdit.endDate !== "—" ? jobToEdit.endDate : "");
+        setJobPriority(jobToEdit.jobPriority || "Mid");
+        setJobEquipmentStatus(jobToEdit.equipmentStatus || "Down");
+        setAssignedToId(jobToEdit.assignedToId || "");
+        setAssistantEngineerId(jobToEdit.assistedByIds?.[0] || "");
+        setContactName(jobToEdit.contactName || "");
+        setContactEmail(jobToEdit.contactEmail || "");
+        setReportedIssue(jobToEdit.reportedIssue || "");
+
+        // Synthesize or match selected asset
+        setSelectedAsset({
+          id: `asset_${jobToEdit.assetNumber}`,
+          equipmentNumber: jobToEdit.assetNumber,
+          model: jobToEdit.model,
+          oem: jobToEdit.oem,
+          modality: jobToEdit.modality,
+          serialNumber: jobToEdit.serialNumber,
+          location: jobToEdit.location,
+          address: jobToEdit.address,
+          warrantyStartDate: jobToEdit.warrantyStartDate,
+          warrantyEndDate: jobToEdit.warrantyEndDate,
+          equipmentStatus: jobToEdit.equipmentStatus === "Partially UP" ? "Partially Up" : jobToEdit.equipmentStatus === "Down" ? "Down" : "Up",
+          contractType: jobToEdit.contractType,
+          contractEndDate: jobToEdit.contractEndDate,
+          customerContact: jobToEdit.contactName,
+          email: jobToEdit.contactEmail,
+        } as Asset);
+      } else {
+        setSelectedAsset(null);
+        setAssetNumber("");
+        setModality("");
+        setOem("");
+        setLocation("");
+        setAddress("");
+        setWarrantyStartDate("");
+        setWarrantyEndDate("");
+        setModel("");
+        setSerialNumber("");
+        setYearOfManufacture("");
+        setEquipmentStatus("UP");
+        setContractType("");
+        setContractEndDate("");
+        setJobType("Corrective Maintenance");
+        setJobPriority("High");
+        setJobEquipmentStatus("Down");
+        setAssignedToId("");
+        setAssistantEngineerId("");
+        setContactName("");
+        setContactEmail("");
+        setReportedIssue("");
+
+        const todayStr = new Date().toISOString().split("T")[0];
+        setJobOpenDate(todayStr);
+        setAssignedDate(todayStr);
+        setEndDate("");
+      }
     }
-  }, [open]);
+  }, [open, jobToEdit]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -223,7 +279,7 @@ export function CreateJobModal({
   const validateForm = () => {
     const errs: Record<string, string> = {};
 
-    if (!assetNumber.trim() || !selectedAsset) {
+    if (!assetNumber.trim() || (!selectedAsset && !jobToEdit)) {
       errs.assetNumber = "Please select equipment from the asset registry.";
     }
 
@@ -241,7 +297,7 @@ export function CreateJobModal({
     return Object.keys(errs).length === 0;
   };
 
-  const handleCreateJob = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) {
       toast.error("Please fill in the required fields.");
@@ -257,50 +313,91 @@ export function CreateJobModal({
 
       const primaryName = primaryEngineer
         ? `${primaryEngineer.firstName} ${primaryEngineer.lastName}`
-        : "Unassigned";
+        : jobToEdit?.assignedToName || "Unassigned";
 
       const assistantNames = assistantEngineer
         ? [`${assistantEngineer.firstName} ${assistantEngineer.lastName}`]
         : [];
 
-      const payload: CreateJobInput = {
-        assetNumber,
-        modality: modality || "General",
-        oem: oem || "General",
-        location: location || "Facility",
-        address: address || "Hospital",
-        warrantyStartDate: warrantyStartDate || "—",
-        warrantyEndDate: warrantyEndDate || "—",
-        model: model || "Medical Equipment",
-        serialNumber: serialNumber || "SN-UNKNOWN",
-        yearOfManufacture: yearOfManufacture || "2023",
-        equipmentStatus,
-        contractType: contractType || "COMPREHENSIVE",
-        contractEndDate: contractEndDate || "—",
-        jobType,
-        jobOpenDate: jobOpenDate || new Date().toISOString().split("T")[0],
-        complaintDate: jobOpenDate || new Date().toISOString().split("T")[0],
-        complaintTime: "09:00",
-        contactName: contactName || "Hospital Contact",
-        contactEmail: contactEmail || "contact@hospital.gov.ng",
-        assignedToId,
-        assignedToName: primaryName,
-        assistedByIds: assistantEngineer ? [assistantEngineer.id] : [],
-        assistedByNames: assistantNames,
-        jobEquipmentStatus,
-        jobPriority,
-        jobStartDate: assignedDate,
-        endDate: endDate || "—",
-        reportedIssue,
-      };
+      if (isEditing && jobToEdit) {
+        const updates: Partial<DebriefJob> = {
+          assetNumber,
+          modality: modality || "General",
+          oem: oem || "General",
+          location: location || "Facility",
+          address: address || "Hospital",
+          warrantyStartDate: warrantyStartDate || "—",
+          warrantyEndDate: warrantyEndDate || "—",
+          model: model || "Medical Equipment",
+          serialNumber: serialNumber || "SN-UNKNOWN",
+          yearOfManufacture: yearOfManufacture || "2023",
+          equipmentStatus,
+          contractType: contractType || "COMPREHENSIVE",
+          contractEndDate: contractEndDate || "—",
+          jobType,
+          jobOpenDate: jobOpenDate || jobToEdit.jobOpenDate,
+          contactName: contactName || "Hospital Contact",
+          contactEmail: contactEmail || "contact@hospital.gov.ng",
+          assignedToId,
+          assignedToName: primaryName,
+          assistedByIds: assistantEngineer ? [assistantEngineer.id] : [],
+          assistedByNames: assistantNames,
+          assistedBy: assistantNames.length > 0 ? assistantNames.join(", ") : "—",
+          jobPriority,
+          jobStartDate: assignedDate,
+          startDate: assignedDate,
+          endDate: endDate || "—",
+          reportedIssue,
+        };
 
-      const createdJob = await debriefService.create(payload);
-      toast.success(`Job ${createdJob.jobNumber} created!`);
-      onJobCreated?.(createdJob);
-      onOpenChange(false);
+        const updatedJob = await debriefService.update(jobToEdit.id, updates);
+        if (updatedJob) {
+          toast.success(`Job ${updatedJob.jobNumber} updated!`);
+          onJobUpdated?.(updatedJob);
+          onOpenChange(false);
+        } else {
+          toast.error("Failed to update job.");
+        }
+      } else {
+        const payload: CreateJobInput = {
+          assetNumber,
+          modality: modality || "General",
+          oem: oem || "General",
+          location: location || "Facility",
+          address: address || "Hospital",
+          warrantyStartDate: warrantyStartDate || "—",
+          warrantyEndDate: warrantyEndDate || "—",
+          model: model || "Medical Equipment",
+          serialNumber: serialNumber || "SN-UNKNOWN",
+          yearOfManufacture: yearOfManufacture || "2023",
+          equipmentStatus,
+          contractType: contractType || "COMPREHENSIVE",
+          contractEndDate: contractEndDate || "—",
+          jobType,
+          jobOpenDate: jobOpenDate || new Date().toISOString().split("T")[0],
+          complaintDate: jobOpenDate || new Date().toISOString().split("T")[0],
+          complaintTime: "09:00",
+          contactName: contactName || "Hospital Contact",
+          contactEmail: contactEmail || "contact@hospital.gov.ng",
+          assignedToId,
+          assignedToName: primaryName,
+          assistedByIds: assistantEngineer ? [assistantEngineer.id] : [],
+          assistedByNames: assistantNames,
+          jobEquipmentStatus,
+          jobPriority,
+          jobStartDate: assignedDate,
+          endDate: endDate || "—",
+          reportedIssue,
+        };
+
+        const createdJob = await debriefService.create(payload);
+        toast.success(`Job ${createdJob.jobNumber} created!`);
+        onJobCreated?.(createdJob);
+        onOpenChange(false);
+      }
     } catch (err) {
-      console.error("Failed to create job", err);
-      toast.error("An error occurred while creating the job.");
+      console.error("Failed to save job", err);
+      toast.error("An error occurred while saving the job.");
     } finally {
       setSubmitting(false);
     }
@@ -312,15 +409,17 @@ export function CreateJobModal({
         {/* Header */}
         <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border bg-card">
           <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
-            Create Service Job
+            {isEditing && jobToEdit ? `Edit Service Job — ${jobToEdit.jobNumber}` : "Create Service Job"}
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-            Select equipment to auto-populate specifications, then set service assignment.
+            {isEditing
+              ? "Update service job details, assignment, and equipment information."
+              : "Select equipment to auto-populate specifications, then set service assignment."}
           </DialogDescription>
         </DialogHeader>
 
         {/* Form Body */}
-        <form onSubmit={handleCreateJob} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           {/* Card 1: Equipment Identification */}
           <div className="rounded-lg border border-border bg-card p-4 space-y-3 shadow-2xs">
             <div className="flex items-center justify-between pb-2 border-b border-border/60">
@@ -684,7 +783,15 @@ export function CreateJobModal({
               className="text-xs h-9 font-bold bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 cursor-pointer shadow-sm px-5"
             >
               <CheckCircle2 className="size-4" />
-              <span>{submitting ? "Creating Job..." : "Create Job"}</span>
+              <span>
+                {submitting
+                  ? isEditing
+                    ? "Saving Changes..."
+                    : "Creating Job..."
+                  : isEditing
+                  ? "Save Changes"
+                  : "Create Job"}
+              </span>
             </Button>
           </div>
         </form>

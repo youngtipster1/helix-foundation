@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
-import { Button } from "@/components/ui/button";
+import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import type { DebriefJob } from "../types";
-import { Eye } from "lucide-react";
+import { Eye, Edit, Calendar, UserCheck } from "lucide-react";
 
 interface JobsTableProps {
   jobs: DebriefJob[];
@@ -11,6 +11,9 @@ interface JobsTableProps {
   isAdmin?: boolean;
   onCreateJob?: () => void;
   onOpenJob?: (job: DebriefJob) => void;
+  onEditJob?: (job: DebriefJob) => void;
+  onRescheduleJob?: (job: DebriefJob) => void;
+  onReassignJob?: (job: DebriefJob) => void;
 }
 
 function formatNaira(amount: number): string {
@@ -23,6 +26,9 @@ export function JobsTable({
   isAdmin = false,
   onCreateJob,
   onOpenJob,
+  onEditJob,
+  onRescheduleJob,
+  onReassignJob,
 }: JobsTableProps) {
   const columns: DataTableColumn<DebriefJob>[] = useMemo(
     () => [
@@ -352,15 +358,37 @@ export function JobsTable({
         mobileStrategy="scroll"
         enableColumnReordering={true}
         rowActions={(job) => (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onOpenJob?.(job)}
-            className="h-8 px-2.5 text-xs text-primary hover:text-primary hover:bg-primary/10 gap-1.5 cursor-pointer font-semibold"
-          >
-            <Eye className="size-3.5" />
-            <span>Open</span>
-          </Button>
+          <RowActionsMenu
+            actions={[
+              {
+                label: "View Job",
+                icon: Eye,
+                onClick: () => onOpenJob?.(job),
+                separatorAfter: isAdmin,
+              },
+              isAdmin
+                ? {
+                    label: "Edit Job",
+                    icon: Edit,
+                    onClick: () => onEditJob?.(job),
+                  }
+                : null,
+              isAdmin
+                ? {
+                    label: "Reschedule",
+                    icon: Calendar,
+                    onClick: () => onRescheduleJob?.(job),
+                  }
+                : null,
+              isAdmin
+                ? {
+                    label: "Reassign",
+                    icon: UserCheck,
+                    onClick: () => onReassignJob?.(job),
+                  }
+                : null,
+            ]}
+          />
         )}
       />
     </div>
