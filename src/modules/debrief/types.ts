@@ -91,5 +91,6 @@ export interface CreateJobInput {
   jobEquipmentStatus?: EquipmentStatus;
   jobPriority: JobPriority;
   jobStartDate: string;
+  endDate?: string;
   reportedIssue: string;
 }

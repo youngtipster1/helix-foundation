@@ -152,12 +152,12 @@ export function JobDetailsModal({
                   <dd className="text-foreground">{job.assistedBy || "—"}</dd>
                 </div>
                 <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Planned Start Date</dt>
-                  <dd className="text-foreground">{job.jobStartDate}</dd>
+                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Assigned / Start Date</dt>
+                  <dd className="font-semibold text-primary">{job.jobStartDate || job.startDate || "—"}</dd>
                 </div>
                 <div>
-                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Actual Work Dates</dt>
-                  <dd className="text-foreground">{job.startDate || "—"} to {job.endDate || "—"}</dd>
+                  <dt className="text-[10px] font-mono uppercase text-muted-foreground">Completion / End Date</dt>
+                  <dd className="font-mono text-foreground">{job.endDate || "—"}</dd>
                 </div>
                 <div>
                   <dt className="text-[10px] font-mono uppercase text-muted-foreground">Root Cause</dt>

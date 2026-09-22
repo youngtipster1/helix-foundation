@@ -137,7 +137,7 @@ class DebriefService {
       address: input.address,
       reportedIssue: input.reportedIssue,
       startDate: input.jobStartDate,
-      endDate: "—",
+      endDate: input.endDate || "—",
       rootCause: "—",
       resolution: "—",
       jobStatus: "Open",

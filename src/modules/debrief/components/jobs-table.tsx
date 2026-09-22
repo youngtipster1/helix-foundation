@@ -320,18 +320,6 @@ export function JobsTable({
         }
         mobileStrategy="card"
         enableColumnReordering={true}
-        toolbarActions={
-          isAdmin && onCreateJob ? (
-            <Button
-              onClick={onCreateJob}
-              size="sm"
-              className="h-9 px-3 text-xs font-bold gap-1.5 shadow-xs cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Plus className="size-3.5" />
-              <span>Create Job</span>
-            </Button>
-          ) : undefined
-        }
         rowActions={(job) => (
           <Button
             variant="ghost"

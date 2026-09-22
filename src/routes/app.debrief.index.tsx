@@ -75,37 +75,22 @@ function DebriefJobsPage() {
         }
         icon={ClipboardList}
       >
-        <div className="flex items-center gap-2">
+        {isAdmin && (
           <Button
-            variant="outline"
             size="sm"
-            onClick={loadJobs}
-            disabled={loading}
-            className="h-9 px-3 text-xs gap-1.5 cursor-pointer"
-            title="Refresh jobs"
+            onClick={() => setCreateModalOpen(true)}
+            className="h-9 px-3.5 text-xs font-bold gap-1.5 shadow-sm cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <Plus className="size-4" />
+            <span>Create Job</span>
           </Button>
-
-          {isAdmin && (
-            <Button
-              size="sm"
-              onClick={() => setCreateModalOpen(true)}
-              className="h-9 px-3.5 text-xs font-bold gap-1.5 shadow-sm cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Plus className="size-4" />
-              <span>Create Job</span>
-            </Button>
-          )}
-        </div>
+        )}
       </PageHeader>
 
       <JobsTable
         jobs={jobs}
         loading={loading}
         isAdmin={isAdmin}
-        onCreateJob={isAdmin ? () => setCreateModalOpen(true) : undefined}
         onOpenJob={handleOpenJob}
       />
 
