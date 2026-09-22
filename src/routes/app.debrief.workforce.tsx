@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { workforceService } from "@/modules/debrief/services/workforce-service";
 import type { Personnel } from "@/modules/settings/types";
 import { WorkforceRosterTable } from "@/modules/debrief/components/workforce/workforce-roster-table";
 import { ManageAvailabilityModal } from "@/modules/debrief/components/workforce/manage-availability-modal";
-import { CalendarLegendCard } from "@/modules/debrief/components/workforce/calendar-legend-card";
 import {
   Users,
   Calendar,
@@ -18,11 +17,8 @@ import {
   Clock,
   GraduationCap,
   CalendarOff,
-  ClipboardList,
-  CalendarRange,
-  Wrench,
+  Layers,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/debrief/workforce")({
@@ -70,7 +66,6 @@ function formatMonthDay(d: Date): string {
 
 function DebriefWorkforcePage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [engineers, setEngineers] = useState<Personnel[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -192,52 +187,11 @@ function DebriefWorkforcePage() {
         icon={Users}
       />
 
-      {/* Top Module Subnavigation Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/app/debrief" })}
-          className="px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-        >
-          <ClipboardList className="size-3.5" />
-          <span>Jobs</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/app/debrief/schedule" })}
-          className="px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-        >
-          <CalendarRange className="size-3.5" />
-          <span>Schedule Calendar</span>
-        </button>
-
-        <button
-          type="button"
-          className="px-4 py-2 rounded-lg text-[13px] font-bold transition-all cursor-pointer border flex items-center gap-2 bg-primary text-primary-foreground border-primary shadow-xs"
-        >
-          <Users className="size-3.5" />
-          <span>Workforce</span>
-          <span className="px-1.5 py-0.5 rounded-full text-xs font-bold leading-none bg-primary-foreground/20 text-primary-foreground">
-            {engineers.length}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/app/debrief/my-work" })}
-          className="px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2 bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-        >
-          <Wrench className="size-3.5" />
-          <span>My Work</span>
-        </button>
-      </div>
-
-      {/* Centered Date Navigator Bar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-3.5 rounded-2xl border border-border bg-card shadow-2xs">
+      {/* Top Header Controls with Centered Date Navigator Bar */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4 rounded-2xl border border-border bg-card shadow-2xs">
         {/* Left Side: Week Context Label */}
         <div className="flex items-center gap-2">
-          <div className="px-3 py-1.5 rounded-xl bg-muted/40 text-xs font-semibold text-foreground">
+          <div className="px-3.5 py-2 rounded-xl bg-muted/40 text-xs font-semibold text-foreground">
             <span>Workforce Capacity Engine</span>
           </div>
         </div>
@@ -282,58 +236,99 @@ function DebriefWorkforcePage() {
 
         {/* Right Side: Total Available Hours Badge */}
         <div className="flex items-center justify-end gap-2">
-          <div className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold">
+          <div className="px-3.5 py-2 rounded-xl bg-primary/10 text-primary text-xs font-bold">
             <span>{weekMetrics.totalAvailableHours.toFixed(0)}h Total Available this Week</span>
           </div>
         </div>
       </div>
 
-      {/* Telemetry KPI Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-2xs space-y-1">
+      {/* Standard Telemetry KPI Metrics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold">Active Roster</span>
-            <Users className="size-4 text-primary" />
+            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Active Roster</span>
+            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+              <Users className="size-4" />
+            </div>
           </div>
-          <div className="font-mono font-bold text-xl text-foreground">
+          <div className="font-mono font-bold text-2xl text-foreground">
             {engineers.length} Engineers
           </div>
-          <p className="text-[11px] text-muted-foreground">Clinical &amp; workshop specialists</p>
+          <p className="text-xs text-muted-foreground">Clinical &amp; workshop specialists</p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-2xs space-y-1">
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold">Calculated Available Time</span>
-            <Clock className="size-4 text-emerald-500" />
+            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Available Capacity</span>
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+              <Clock className="size-4" />
+            </div>
           </div>
-          <div className="font-mono font-bold text-xl text-foreground">
+          <div className="font-mono font-bold text-2xl text-foreground">
             {weekMetrics.totalAvailableHours.toFixed(0)} Hours
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             of {weekMetrics.totalStandardHours.toFixed(0)}h standard potential
           </p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-2xs space-y-1">
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold">In Training (This Week)</span>
-            <GraduationCap className="size-4 text-amber-500" />
+            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">In Training</span>
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
+              <GraduationCap className="size-4" />
+            </div>
           </div>
-          <div className="font-mono font-bold text-xl text-foreground">
+          <div className="font-mono font-bold text-2xl text-foreground">
             {weekMetrics.trainingCount} Scheduled
           </div>
-          <p className="text-[11px] text-muted-foreground">QA &amp; OEM certification seminars</p>
+          <p className="text-xs text-muted-foreground">QA &amp; OEM certification seminars</p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-border bg-card shadow-2xs space-y-1">
+        <div className="p-5 rounded-2xl border border-border bg-card shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-muted-foreground text-xs">
-            <span className="font-semibold">Leave &amp; Off Periods</span>
-            <CalendarOff className="size-4 text-rose-500" />
+            <span className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Leave &amp; Off Periods</span>
+            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-500">
+              <CalendarOff className="size-4" />
+            </div>
           </div>
-          <div className="font-mono font-bold text-xl text-foreground">
+          <div className="font-mono font-bold text-2xl text-foreground">
             {weekMetrics.leaveCount} Periods
           </div>
-          <p className="text-[11px] text-muted-foreground">Annual leave &amp; roster rest days</p>
+          <p className="text-xs text-muted-foreground">Approved leave &amp; roster rest days</p>
+        </div>
+      </div>
+
+      {/* Horizontal Bar Legend with Dots */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border shadow-2xs text-xs">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <span className="font-bold text-muted-foreground flex items-center gap-1.5 text-xs uppercase tracking-wider">
+            <Layers className="size-3.5 text-primary" />
+            Availability States:
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="size-2.5 rounded-full bg-emerald-500" />
+            <span className="text-foreground font-semibold text-xs">Working (Available)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="size-2.5 rounded-full bg-amber-500" />
+            <span className="text-foreground font-semibold text-xs">Training (Blocked)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="size-2.5 rounded-full bg-sky-500" />
+            <span className="text-foreground font-semibold text-xs">Annual Leave</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="size-2.5 rounded-full bg-rose-500" />
+            <span className="text-foreground font-semibold text-xs">Sick Leave / Off</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="size-2.5 rounded-full bg-purple-500" />
+            <span className="text-foreground font-semibold text-xs">Other Unavailable</span>
+          </div>
+        </div>
+        <div className="text-xs text-muted-foreground font-medium hidden md:flex items-center gap-1">
+          <span>* Mon–Fri active shifts (Sat &amp; Sun system-locked)</span>
         </div>
       </div>
 
@@ -343,7 +338,7 @@ function DebriefWorkforcePage() {
           <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
             <span>Engineer Working Schedules &amp; Weekly Capacity</span>
           </h3>
-          <span className="text-[11px] text-muted-foreground font-mono hidden sm:inline-block">
+          <span className="text-xs text-muted-foreground font-mono hidden sm:inline-block">
             Calculated for Week {weekNumber} ({startDateLabel} – {endDateLabel})
           </span>
         </div>
@@ -361,9 +356,6 @@ function DebriefWorkforcePage() {
         )}
       </div>
 
-      {/* Calendar Legend Configuration Section (Owned by Workforce) */}
-      <CalendarLegendCard onLegendUpdated={handleScheduleUpdated} />
-
       {/* Manage Availability & Working Schedule Modal */}
       <ManageAvailabilityModal
         engineer={selectedEngineer}
@@ -375,3 +367,4 @@ function DebriefWorkforcePage() {
     </div>
   );
 }
+

@@ -1,14 +1,7 @@
 import type { Personnel } from "@/modules/settings/types";
 import { workforceService } from "../../services/workforce-service";
 import { Button } from "@/components/ui/button";
-import {
-  Clock,
-  Calendar,
-  SlidersHorizontal,
-  GraduationCap,
-  CalendarOff,
-  CheckCircle2,
-} from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface WorkforceRosterTableProps {
@@ -27,17 +20,17 @@ export function WorkforceRosterTable({
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-xs min-w-[950px]">
           <thead>
-            <tr className="border-b border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+            <tr className="border-b border-border bg-muted/30 text-xs font-bold text-muted-foreground uppercase tracking-wider">
               <th className="py-3 px-4 text-left w-60 border-r border-border/50">
                 Biomedical Engineer
               </th>
-              <th className="py-3 px-3 text-left w-44 border-r border-border/50">
+              <th className="py-3 px-3 text-left w-48 border-r border-border/50">
                 Standard Shift
               </th>
               <th className="py-3 px-3 text-center border-r border-border/50">
                 Weekly Availability Breakdown (Mon – Sun)
               </th>
-              <th className="py-3 px-3 text-center w-36 border-r border-border/50">
+              <th className="py-3 px-3 text-center w-40 border-r border-border/50">
                 Calculated Available Time
               </th>
               <th className="py-3 px-4 text-right w-32">
@@ -78,10 +71,10 @@ export function WorkforceRosterTable({
                         <h4 className="font-bold text-foreground text-xs leading-tight truncate">
                           {engineer.firstName} {engineer.lastName}
                         </h4>
-                        <span className="text-[11px] text-muted-foreground truncate block">
+                        <span className="text-xs text-muted-foreground truncate block">
                           {engineer.jobTitle}
                         </span>
-                        <span className="text-[10px] text-muted-foreground/70 truncate block">
+                        <span className="text-xs text-muted-foreground/80 truncate block">
                           {engineer.department}
                         </span>
                       </div>
@@ -94,10 +87,10 @@ export function WorkforceRosterTable({
                       <div className="font-mono font-bold text-xs text-foreground">
                         {config.startTime} – {config.endTime}
                       </div>
-                      <div className="text-[11px] text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         {dailyHours.toFixed(1)}h / day · Mon–Fri
                       </div>
-                      <div className="text-[10px] text-muted-foreground/80 font-mono">
+                      <div className="text-xs text-muted-foreground/80 font-mono">
                         Weekends: Restricted Off
                       </div>
                     </div>
@@ -105,15 +98,15 @@ export function WorkforceRosterTable({
 
                   {/* Daily Availability Chips */}
                   <td className="py-3 px-3 border-r border-border/50 align-middle">
-                    <div className="grid grid-cols-7 gap-1 max-w-md mx-auto">
+                    <div className="grid grid-cols-7 gap-1.5 max-w-lg mx-auto">
                       {weeklyCalc.daysBreakdown.map((item) => (
                         <div
                           key={item.date}
                           title={`${item.dayName}: ${item.title}`}
                           className={cn(
-                            "p-1.5 rounded-lg text-center border-0 space-y-0.5 shadow-2xs",
+                            "p-2 rounded-xl text-center border-0 space-y-0.5 shadow-2xs",
                             item.isWeekend
-                              ? "bg-muted/30 text-muted-foreground/50"
+                              ? "bg-muted/30 text-muted-foreground/60"
                               : item.status === "working"
                               ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-950 dark:text-emerald-200"
                               : item.status === "training"
@@ -121,8 +114,8 @@ export function WorkforceRosterTable({
                               : "bg-rose-100 dark:bg-rose-950/60 text-rose-950 dark:text-rose-200 font-bold"
                           )}
                         >
-                          <div className="text-[9px] font-bold uppercase">{item.dayName}</div>
-                          <div className="font-mono text-[10px]">
+                          <div className="text-xs font-bold uppercase">{item.dayName}</div>
+                          <div className="font-mono text-xs font-semibold">
                             {item.isWeekend ? "Off" : `${item.availableHours.toFixed(0)}h`}
                           </div>
                         </div>
@@ -136,16 +129,16 @@ export function WorkforceRosterTable({
                       <span className="font-mono font-bold text-sm text-foreground">
                         {weeklyCalc.availableWorkingHours.toFixed(1)}h
                       </span>
-                      <span className="text-[11px] text-muted-foreground block font-mono">
+                      <span className="text-xs text-muted-foreground block font-mono">
                         of {weeklyCalc.standardWeeklyHours.toFixed(1)}h standard
                       </span>
-                      <div className="w-20 mx-auto h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="w-24 mx-auto h-2 bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full bg-primary rounded-full transition-all"
                           style={{ width: `${capacityPercent}%` }}
                         />
                       </div>
-                      <span className="text-[10px] text-muted-foreground font-mono">
+                      <span className="text-xs text-muted-foreground font-mono">
                         {capacityPercent}% Capacity
                       </span>
                     </div>
@@ -157,9 +150,9 @@ export function WorkforceRosterTable({
                       variant="outline"
                       size="sm"
                       onClick={() => onManageEngineer(engineer)}
-                      className="h-8 px-2.5 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs hover:bg-muted"
+                      className="h-8 px-3 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs hover:bg-muted"
                     >
-                      <SlidersHorizontal className="size-3 text-primary" />
+                      <SlidersHorizontal className="size-3.5 text-primary" />
                       <span>Manage</span>
                     </Button>
                   </td>
@@ -172,3 +165,4 @@ export function WorkforceRosterTable({
     </div>
   );
 }
+
