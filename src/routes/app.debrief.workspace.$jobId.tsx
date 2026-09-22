@@ -1,7 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { debriefService, computeJobCosts } from "@/modules/debrief/services/debrief-service";
-import { MOCK_PARTS } from "@/modules/parts/services/parts-service";
+import { partsService } from "@/modules/parts/services/parts-service";
+import type { Part } from "@/modules/parts/types";
+import { toolsService } from "@/modules/tools/services/tools-service";
+import type { Tool } from "@/modules/tools/types";
 import type {
   DebriefJob,
   EquipmentStatus,
@@ -122,13 +125,6 @@ const DOCUMENT_TYPES: DebriefDocumentType[] = [
   "Others",
 ];
 
-const TOOL_REGISTRY = [
-  { toolId: "TL-CAL-001", serialNumber: "SN-FLUKE-9901", description: "Fluke ESA620 Electrical Safety Analyzer", oem: "Fluke Biomedical", calibrationDate: "2026-01-10", calibrationDueDate: "2027-01-10" },
-  { toolId: "TL-CAL-002", serialNumber: "SN-RIGEL-4421", description: "Rigel 288+ Defibrillator Analyzer", oem: "Rigel Medical", calibrationDate: "2025-11-15", calibrationDueDate: "2026-11-15" },
-  { toolId: "TL-CAL-003", serialNumber: "SN-BC-8812", description: "BC Biomedical Ultrasound Power Meter", oem: "BC Biomedical", calibrationDate: "2026-02-01", calibrationDueDate: "2027-02-01" },
-  { toolId: "TL-CAL-004", serialNumber: "SN-FLUKE-7720", description: "Fluke ProSim 8 Vital Signs Simulator", oem: "Fluke Biomedical", calibrationDate: "2025-12-05", calibrationDueDate: "2026-12-05" },
-];
-
 function formatTimeNow(): string {
   const now = new Date();
   const hours = String(now.getHours()).padStart(2, "0");
@@ -186,6 +182,10 @@ function DebriefJobWorkspacePage() {
   const [holdDialogOpen, setHoldDialogOpen] = useState(false);
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
 
+  // Live Parts Inventory & Tools Registry from modules
+  const [inventoryParts, setInventoryParts] = useState<Part[]>([]);
+  const [toolsRegistry, setToolsRegistry] = useState<Tool[]>([]);
+
   // Form states for Part modal with Live Inventory Search & Lock
   const [partSearchQuery, setPartSearchQuery] = useState("");
   const [partNumber, setPartNumber] = useState("");
@@ -206,7 +206,6 @@ function DebriefJobWorkspacePage() {
   const [toolOem, setToolOem] = useState("");
   const [toolCalibrationDate, setToolCalibrationDate] = useState("");
   const [toolCalibrationDueDate, setToolCalibrationDueDate] = useState("");
-  const [toolDateOfUse, setToolDateOfUse] = useState(formatDateNow());
   const [isToolLocked, setIsToolLocked] = useState(false);
 
   // Form states for Expense modal
@@ -221,6 +220,22 @@ function DebriefJobWorkspacePage() {
   const [docType, setDocType] = useState<DebriefDocumentType>("Equipment checklist");
   const [docFileName, setDocFileName] = useState("");
   const [docComment, setDocComment] = useState("");
+
+  useEffect(() => {
+    async function loadResources() {
+      try {
+        const [partsList, toolsList] = await Promise.all([
+          partsService.getParts(),
+          toolsService.list(),
+        ]);
+        setInventoryParts(partsList || []);
+        setToolsRegistry(toolsList || []);
+      } catch (err) {
+        console.error("Failed to load inventory parts and tools", err);
+      }
+    }
+    loadResources();
+  }, []);
 
   useEffect(() => {
     async function loadJob() {
@@ -273,26 +288,30 @@ function DebriefJobWorkspacePage() {
     loadJob();
   }, [jobId]);
 
-  // Inventory Search Suggestions (Clean & Compact to avoid modal expansion)
+  // Inventory Search Suggestions from Parts Module
   const filteredInventoryParts = useMemo(() => {
     if (!partSearchQuery.trim()) return [];
     const q = partSearchQuery.toLowerCase().trim();
-    return MOCK_PARTS.filter(
-      (p) =>
-        p.partNumber.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.model.toLowerCase().includes(q) ||
-        p.oem.toLowerCase().includes(q)
-    ).slice(0, 4);
-  }, [partSearchQuery]);
+    return inventoryParts
+      .filter(
+        (p) =>
+          p.partNumber.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          (p.model && p.model.toLowerCase().includes(q)) ||
+          (p.oem && p.oem.toLowerCase().includes(q)) ||
+          (p.brand && p.brand.toLowerCase().includes(q))
+      )
+      .slice(0, 5);
+  }, [partSearchQuery, inventoryParts]);
 
-  const handleSelectInventoryPart = (inventoryPart: typeof MOCK_PARTS[0]) => {
-    setPartNumber(inventoryPart.partNumber);
-    setPartDescription(inventoryPart.description);
-    setPartModality(inventoryPart.modality);
-    setPartOem(inventoryPart.oem);
-    setPartModel(inventoryPart.model);
-    setPartUnitCost(String(inventoryPart.unitPrice * 1000)); // Scaled to actual part unit cost in Naira
+  const handleSelectInventoryPart = (inv: Part) => {
+    setPartNumber(inv.partNumber);
+    setPartDescription(inv.description);
+    setPartModality(inv.modality || "");
+    setPartOem(inv.oem || inv.brand || "");
+    setPartModel(inv.model || "");
+    setPartUnitCost(String(inv.unitPrice || inv.listPrice || 0));
+    setPartSerialNumber(inv.oemVendorPartNumber || "");
     setIsPartLocked(true);
     setPartSearchQuery("");
   };
@@ -310,26 +329,29 @@ function DebriefJobWorkspacePage() {
     setPartSearchQuery("");
   };
 
-  // Tool Registry Search Suggestions (Clean & Compact)
+  // Tool Registry Search Suggestions from Tools Module
   const filteredToolsRegistry = useMemo(() => {
     if (!toolSearchQuery.trim()) return [];
     const q = toolSearchQuery.toLowerCase().trim();
-    return TOOL_REGISTRY.filter(
-      (t) =>
-        t.toolId.toLowerCase().includes(q) ||
-        t.description.toLowerCase().includes(q) ||
-        t.serialNumber.toLowerCase().includes(q) ||
-        t.oem.toLowerCase().includes(q)
-    ).slice(0, 4);
-  }, [toolSearchQuery]);
+    return toolsRegistry
+      .filter(
+        (t) =>
+          t.id.toLowerCase().includes(q) ||
+          (t.category && t.category.toLowerCase().includes(q)) ||
+          (t.model && t.model.toLowerCase().includes(q)) ||
+          (t.serialNumber && t.serialNumber.toLowerCase().includes(q)) ||
+          (t.oem && t.oem.toLowerCase().includes(q))
+      )
+      .slice(0, 5);
+  }, [toolSearchQuery, toolsRegistry]);
 
-  const handleSelectRegistryTool = (t: typeof TOOL_REGISTRY[0]) => {
-    setToolId(t.toolId);
-    setToolSerialNumber(t.serialNumber);
-    setToolDescription(t.description);
-    setToolOem(t.oem);
-    setToolCalibrationDate(t.calibrationDate);
-    setToolCalibrationDueDate(t.calibrationDueDate);
+  const handleSelectRegistryTool = (t: Tool) => {
+    setToolId(t.id);
+    setToolSerialNumber(t.serialNumber || "");
+    setToolDescription(`${t.category || ""} ${t.model ? `• ${t.model}` : ""}`.trim() || t.id);
+    setToolOem(t.oem || "");
+    setToolCalibrationDate(t.lastCalibrationDate || formatDateNow());
+    setToolCalibrationDueDate(t.nextCalibrationDate || "2027-01-01");
     setIsToolLocked(true);
     setToolSearchQuery("");
   };
@@ -570,7 +592,7 @@ function DebriefJobWorkspacePage() {
       serialNumber: toolSerialNumber.trim() || `SN-${Date.now().toString().slice(-6)}`,
       description: toolDescription.trim(),
       oem: toolOem.trim() || "Calibrated Tooling",
-      dateOfUse: toolDateOfUse || formatDateNow(),
+      dateOfUse: job?.jobStartDate || formatDateNow(),
       calibrationDate: toolCalibrationDate || formatDateNow(),
       calibrationDueDate: toolCalibrationDueDate || "2027-01-01",
     };
@@ -1346,26 +1368,7 @@ function DebriefJobWorkspacePage() {
         </div>
       )}
 
-      {/* Bottom Full Specifications Trigger Button */}
-      <div className="rounded-xl border border-border bg-card p-4 shadow-2xs flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <Info className="size-4 text-primary" />
-          <div>
-            <h4 className="text-xs font-bold text-foreground">Equipment &amp; Job Specifications</h4>
-            <p className="text-[11px] text-muted-foreground">Review full 26-field contract and biomedical equipment details.</p>
-          </div>
-        </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setSpecsModalOpen(true)}
-          className="h-8.5 px-3.5 text-xs font-bold gap-1.5 border-border hover:bg-accent text-foreground cursor-pointer"
-        >
-          <SlidersHorizontal className="size-3.5" />
-          <span>View Full Specifications</span>
-        </Button>
-      </div>
 
       {/* MODAL: Full Equipment & Job Specifications Modal */}
       <Dialog open={specsModalOpen} onOpenChange={setSpecsModalOpen}>
@@ -1439,7 +1442,7 @@ function DebriefJobWorkspacePage() {
 
       {/* MODAL 1: Log Part Used with Compact Auto-Suggest & Field Lock */}
       <Dialog open={addPartOpen} onOpenChange={setAddPartOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-bold">Log Spare Part Used</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
@@ -1468,30 +1471,34 @@ function DebriefJobWorkspacePage() {
               </div>
 
               <Input
-                placeholder="Search part #, description or model..."
+                placeholder="Search part #, description, model or OEM..."
                 value={partSearchQuery}
                 onChange={(e) => setPartSearchQuery(e.target.value)}
                 className="text-xs bg-background h-8.5"
               />
 
               {filteredInventoryParts.length > 0 && (
-                <div className="mt-1.5 max-h-44 overflow-y-auto border border-border rounded-lg bg-background divide-y divide-border/60 shadow-lg">
+                <div className="mt-1.5 max-h-48 overflow-y-auto border border-border rounded-lg bg-background divide-y divide-border/60 shadow-lg">
                   {filteredInventoryParts.map((inv) => (
                     <button
                       key={inv.id}
                       type="button"
                       onClick={() => handleSelectInventoryPart(inv)}
-                      className="w-full text-left px-3 py-2 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-2 cursor-pointer"
+                      className="w-full text-left px-3 py-2 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-3 cursor-pointer"
                     >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-primary truncate">{inv.partNumber}</span>
-                          <span className="text-[11px] text-muted-foreground truncate">• {inv.model}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-primary shrink-0">{inv.partNumber}</span>
+                          <span className="text-[11px] text-muted-foreground truncate font-medium">
+                            {inv.oem || inv.brand} {inv.model ? `• ${inv.model}` : ""}
+                          </span>
                         </div>
-                        <p className="text-foreground text-[11px] truncate">{inv.description}</p>
+                        <p className="text-foreground text-[11px] truncate max-w-[360px] sm:max-w-[480px]">
+                          {inv.description}
+                        </p>
                       </div>
-                      <span className="font-mono font-bold text-foreground text-xs shrink-0">
-                        {formatNaira(inv.unitPrice * 1000)}
+                      <span className="font-mono font-bold text-foreground text-xs shrink-0 text-right">
+                        {formatNaira(inv.unitPrice || inv.listPrice || 0)}
                       </span>
                     </button>
                   ))}
@@ -1692,11 +1699,11 @@ function DebriefJobWorkspacePage() {
 
       {/* MODAL 3: Link Tool with Compact Auto-Suggest & Field Lock */}
       <Dialog open={addToolOpen} onOpenChange={setAddToolOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-bold">Link Verified Test Tool</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Search tool registry to auto-populate and verify calibration dates.
+              Search tool module registry to auto-populate and link calibrated equipment.
             </DialogDescription>
           </DialogHeader>
 
@@ -1721,30 +1728,33 @@ function DebriefJobWorkspacePage() {
               </div>
 
               <Input
-                placeholder="Search by tool ID, description or OEM..."
+                placeholder="Search tool ID, description, category or OEM..."
                 value={toolSearchQuery}
                 onChange={(e) => setToolSearchQuery(e.target.value)}
                 className="text-xs bg-background h-8.5"
               />
 
               {filteredToolsRegistry.length > 0 && (
-                <div className="mt-1.5 max-h-44 overflow-y-auto border border-border rounded-lg bg-background divide-y divide-border/60 shadow-lg">
+                <div className="mt-1.5 max-h-48 overflow-y-auto border border-border rounded-lg bg-background divide-y divide-border/60 shadow-lg">
                   {filteredToolsRegistry.map((t) => (
                     <button
-                      key={t.toolId}
+                      key={t.id}
                       type="button"
                       onClick={() => handleSelectRegistryTool(t)}
-                      className="w-full text-left px-3 py-2 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-2 cursor-pointer"
+                      className="w-full text-left px-3 py-2 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-3 cursor-pointer"
                     >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-primary truncate">{t.toolId}</span>
-                          <span className="text-[11px] text-muted-foreground font-mono truncate">({t.serialNumber})</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-primary shrink-0">{t.id}</span>
+                          <span className="text-[11px] text-muted-foreground truncate font-mono">({t.serialNumber})</span>
+                          <span className="text-[11px] text-muted-foreground truncate">• {t.oem}</span>
                         </div>
-                        <p className="text-foreground text-[11px] truncate">{t.description}</p>
+                        <p className="text-foreground text-[11px] truncate max-w-[360px] sm:max-w-[480px]">
+                          {t.category} {t.model ? `• ${t.model}` : ""}
+                        </p>
                       </div>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[11px] shrink-0">
-                        Cal: {t.calibrationDueDate}
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[11px] shrink-0 text-right">
+                        Due: {t.nextCalibrationDate || "—"}
                       </span>
                     </button>
                   ))}
@@ -1752,7 +1762,7 @@ function DebriefJobWorkspacePage() {
               )}
             </div>
 
-            {/* Input Fields: Tool ID, Serial number, Description, Tool OEM, Date of use */}
+            {/* Input Fields: Tool ID, Serial number, Description, Tool OEM */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
@@ -1761,7 +1771,7 @@ function DebriefJobWorkspacePage() {
                 </div>
                 <Input
                   readOnly={isToolLocked}
-                  placeholder="e.g. TL-CAL-001"
+                  placeholder="e.g. TL-00001"
                   value={toolId}
                   onChange={(e) => setToolId(e.target.value)}
                   className={cn("text-xs font-mono", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
@@ -1783,21 +1793,21 @@ function DebriefJobWorkspacePage() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">Description *</Label>
-                {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
-              </div>
-              <Input
-                readOnly={isToolLocked}
-                placeholder="e.g. Electrical Safety Analyzer"
-                value={toolDescription}
-                onChange={(e) => setToolDescription(e.target.value)}
-                className={cn("text-xs", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
-              />
-            </div>
-
             <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Description *</Label>
+                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
+                <Input
+                  readOnly={isToolLocked}
+                  placeholder="e.g. Electrical Safety Analyzer"
+                  value={toolDescription}
+                  onChange={(e) => setToolDescription(e.target.value)}
+                  className={cn("text-xs", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
+                />
+              </div>
+
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-semibold">Tool OEM</Label>
@@ -1809,46 +1819,6 @@ function DebriefJobWorkspacePage() {
                   value={toolOem}
                   onChange={(e) => setToolOem(e.target.value)}
                   className={cn("text-xs", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Date of Use</Label>
-                <Input
-                  type="date"
-                  value={toolDateOfUse}
-                  onChange={(e) => setToolDateOfUse(e.target.value)}
-                  className="text-xs font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs font-semibold">Calibration Date</Label>
-                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
-                </div>
-                <Input
-                  readOnly={isToolLocked}
-                  placeholder="2026-01-10"
-                  value={toolCalibrationDate}
-                  onChange={(e) => setToolCalibrationDate(e.target.value)}
-                  className={cn("text-xs font-mono", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs font-semibold">Calibration Due Date</Label>
-                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
-                </div>
-                <Input
-                  readOnly={isToolLocked}
-                  placeholder="2027-01-10"
-                  value={toolCalibrationDueDate}
-                  onChange={(e) => setToolCalibrationDueDate(e.target.value)}
-                  className={cn("text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400", isToolLocked && "bg-muted/50 cursor-not-allowed")}
                 />
               </div>
             </div>
