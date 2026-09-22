@@ -350,57 +350,88 @@ function QualityTrainingPage() {
 
       {/* Role-tailored KPI Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="surface-panel p-4">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            {isAdmin ? "Total Dispatched" : "My Assigned Trainings"}
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {totalCount}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {isAdmin ? "Total Dispatched" : "My Assigned"}
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <GraduationCap className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {totalCount}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              100% Tracked
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
             {isAdmin ? "All team assignments" : "Assigned to your workbench"}
           </p>
         </div>
 
-        <div className="surface-panel p-4">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              {isAdmin ? "Completed Trainings" : "My Completed"}
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {isAdmin ? "Completed" : "My Completed"}
             </span>
-            <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <CheckCircle2 className="size-4" />
+            </div>
           </div>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {completedCount}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Acknowledged & compliant</p>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {completedCount}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Compliant
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Acknowledged & compliant</p>
         </div>
 
-        <div className="surface-panel p-4">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              {isAdmin ? "Pending Acknowledgements" : "Action Required"}
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {isAdmin ? "Pending" : "Action Required"}
             </span>
-            <Clock className="size-3.5 text-rose-600 dark:text-rose-400" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <Clock className="size-4" />
+            </div>
           </div>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {pendingCount}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {pendingCount}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              In Queue
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
             {isAdmin ? "Awaiting technician review" : "Pending your signature"}
           </p>
         </div>
 
-        <div className="surface-panel p-4">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              {isAdmin ? "Team Compliance" : "My Compliance Rate"}
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {isAdmin ? "Team Compliance" : "Compliance Rate"}
             </span>
-            <Award className="size-3.5 text-primary" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <Award className="size-4" />
+            </div>
           </div>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {complianceRate}%
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {complianceRate}%
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Target &ge; 90%
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
             {isAdmin ? "Overall team rate" : "Your personal compliance"}
           </p>
         </div>

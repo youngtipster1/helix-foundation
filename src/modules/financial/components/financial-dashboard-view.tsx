@@ -52,76 +52,96 @@ export function FinancialDashboardView({
   return (
     <div className="space-y-6">
       {/* 4 Primary KPI Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. Total Order Value */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Total Order Value
             </span>
-            <div className="size-7 rounded-md bg-primary/10 flex items-center justify-center text-primary">
-              <DollarSign className="size-3.5" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <DollarSign className="size-4" />
             </div>
           </div>
-          <div className="text-xl md:text-2xl font-mono font-bold text-foreground">
-            ₦{metrics.totalOrderValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              ₦{metrics.totalOrderValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              100% Valuation
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
+          <p className="text-xs text-muted-foreground mt-1">
             Active approved & ongoing procurement valuation
           </p>
         </div>
 
         {/* 2. OTIF (On-Time, In-Full) */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               OTIF Rate
             </span>
-            <div className="size-7 rounded-md bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 className="size-3.5" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <CheckCircle2 className="size-4" />
             </div>
           </div>
-          <div className="text-xl md:text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
-            {metrics.otifRate}%
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              {metrics.otifRate}%
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              On-Time & In-Full
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
+          <p className="text-xs text-muted-foreground mt-1">
             Orders fully fulfilled on or before target delivery date
           </p>
         </div>
 
         {/* 3. Order Cycle Time */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Order Cycle Time
             </span>
-            <div className="size-7 rounded-md bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-              <Clock className="size-3.5" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <Clock className="size-4" />
             </div>
           </div>
-          <div className="text-xl md:text-2xl font-mono font-bold text-foreground">
-            {metrics.orderCycleTimeDays}{" "}
-            <span className="text-xs font-sans font-medium text-muted-foreground">days</span>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              {metrics.orderCycleTimeDays}{" "}
+              <span className="text-xs font-sans font-medium text-muted-foreground">days</span>
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Avg Turnaround
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
+          <p className="text-xs text-muted-foreground mt-1">
             Average duration from request creation to complete fulfillment
           </p>
         </div>
 
         {/* 4. Order Accuracy Rate */}
-        <div className="rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs space-y-1.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Order Accuracy Rate
             </span>
-            <div className="size-7 rounded-md bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-              <Percent className="size-3.5" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <Percent className="size-4" />
             </div>
           </div>
-          <div className="text-xl md:text-2xl font-mono font-bold text-indigo-600 dark:text-indigo-400">
-            {metrics.orderAccuracyRate}%
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              {metrics.orderAccuracyRate}%
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Quality Verified
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-normal">
+          <p className="text-xs text-muted-foreground mt-1">
             Accurate orders divided by total fulfilled orders
           </p>
         </div>

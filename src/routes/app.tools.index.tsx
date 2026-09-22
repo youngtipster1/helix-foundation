@@ -324,66 +324,106 @@ function ToolsListPage() {
       />
 
       {/* Summary KPI Cards (Neutral Clean Aesthetic) */}
+      {/* Summary KPI Cards (Unified Design System) */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div
           onClick={() => setActiveFilter("all")}
-          className="surface-panel p-4 cursor-pointer"
+          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
         >
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            Total Equipment
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {toolsList.length}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Tracked fleet</p>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Total Equipment
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <Wrench className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {toolsList.length}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              100% Tracked
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Registered biomedical diagnostic tools
+          </p>
         </div>
 
         <div
           onClick={() => setActiveFilter("valid")}
-          className="surface-panel p-4 cursor-pointer"
+          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Calibrated & Valid
             </span>
-            <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <CheckCircle2 className="size-4" />
+            </div>
           </div>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {validCount}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Compliant certificates</p>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {validCount}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Valid Active
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Valid calibration certificates active
+          </p>
         </div>
 
         <div
           onClick={() => setActiveFilter("due_soon")}
-          className="surface-panel p-4 cursor-pointer"
+          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Due Soon (&le;30 Days)
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Due Within 30 Days
             </span>
-            <AlertTriangle className="size-3.5 text-amber-600 dark:text-amber-400" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <AlertTriangle className="size-4" />
+            </div>
           </div>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {dueSoonCount}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Action required</p>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {dueSoonCount}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Action Required
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Calibration slots scheduled with vendors
+          </p>
         </div>
 
         <div
           onClick={() => setActiveFilter("expired")}
-          className="surface-panel p-4 cursor-pointer"
+          className="surface-panel p-5 flex flex-col justify-between cursor-pointer"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Out of Calibration
             </span>
-            <ShieldAlert className="size-3.5 text-rose-600 dark:text-rose-400" />
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <ShieldAlert className="size-4" />
+            </div>
           </div>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {expiredCount}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Quarantined / Restricted</p>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {expiredCount}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Restricted
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Quarantined & blocked from operational use
+          </p>
         </div>
       </div>
 

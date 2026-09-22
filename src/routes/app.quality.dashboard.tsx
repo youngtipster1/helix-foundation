@@ -92,67 +92,79 @@ function QualityDashboardPage() {
       {/* Compact summary area */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
         {/* Metric 1 */}
-        <div className="surface-panel p-5 flex flex-col h-full justify-between hover:shadow-md transition-shadow">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Policy Documents
             </span>
-            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <FileText className="size-4" />
             </div>
           </div>
-          <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.policyDocuments}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Active & Approved</span>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">{metrics.policyDocuments}</span>
+            <span className="text-xs text-muted-foreground font-mono">100% Active</span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Active & approved policy documentation
+          </p>
         </div>
 
         {/* Metric 2 */}
-        <div className="surface-panel p-5 flex flex-col h-full justify-between hover:shadow-md transition-shadow">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Equipment Checklists
             </span>
-            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <ClipboardCheck className="size-4" />
             </div>
           </div>
-          <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.equipmentChecklists}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Active & Approved</span>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">{metrics.equipmentChecklists}</span>
+            <span className="text-xs text-muted-foreground font-mono">Verified</span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Standardized operational inspection checklists
+          </p>
         </div>
 
         {/* Metric 3 */}
-        <div className="surface-panel p-5 flex flex-col h-full justify-between hover:shadow-md transition-shadow">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Pending Reviews
             </span>
-            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <Clock className="size-4" />
             </div>
           </div>
-          <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.pendingReviews}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Awaiting peer evaluation</span>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">{metrics.pendingReviews}</span>
+            <span className="text-xs text-muted-foreground font-mono">In Queue</span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Awaiting peer evaluation & QA review
+          </p>
         </div>
 
         {/* Metric 4 */}
-        <div className="surface-panel p-5 flex flex-col h-full justify-between hover:shadow-md transition-shadow">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Pending Approvals
             </span>
-            <div className="rounded-lg bg-muted/60 p-2 text-foreground">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <ShieldCheck className="size-4" />
             </div>
           </div>
-          <div className="mt-2 flex flex-col gap-0.5 mt-auto">
-            <span className="text-2xl font-bold tracking-tight text-foreground">{metrics.pendingApprovals}</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Awaiting sign-off</span>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">{metrics.pendingApprovals}</span>
+            <span className="text-xs text-muted-foreground font-mono">Sign-Off</span>
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Awaiting administrative authorization
+          </p>
         </div>
       </div>
 

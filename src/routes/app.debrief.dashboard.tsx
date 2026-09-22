@@ -106,16 +106,16 @@ function DebriefDashboardPage() {
           <div
             onClick={() => setActiveKPI("ftfr")}
             className={cn(
-              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
               activeKPI === "ftfr"
                 ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "border-border hover:border-border/80 hover:bg-muted/10"
+                : "hover:border-border/80 hover:bg-muted/10"
             )}
           >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
+            <div className="flex items-center justify-between">
               <span
                 className={cn(
-                  "font-bold uppercase tracking-wider text-xs",
+                  "text-xs font-semibold uppercase tracking-wider",
                   activeKPI === "ftfr" ? "text-primary" : "text-muted-foreground"
                 )}
               >
@@ -123,20 +123,25 @@ function DebriefDashboardPage() {
               </span>
               <div
                 className={cn(
-                  "p-2 rounded-xl",
+                  "size-8 rounded-lg grid place-items-center",
                   activeKPI === "ftfr"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "bg-primary/10 text-primary"
                 )}
               >
                 <CheckCircle2 className="size-4" />
               </div>
             </div>
-            <div className="font-mono font-bold text-2xl text-foreground">
-              {kpiData.summary.avgFTFR}%
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="font-mono font-bold text-2xl text-foreground">
+                {kpiData.summary.avgFTFR}%
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                &ge; 85% Target
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              First-Time Fix Rate (Target: &ge; 85%)
+            <p className="text-xs text-muted-foreground mt-1">
+              First-Time Fix Rate benchmark
             </p>
           </div>
 
@@ -144,16 +149,16 @@ function DebriefDashboardPage() {
           <div
             onClick={() => setActiveKPI("mttr")}
             className={cn(
-              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
               activeKPI === "mttr"
                 ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "border-border hover:border-border/80 hover:bg-muted/10"
+                : "hover:border-border/80 hover:bg-muted/10"
             )}
           >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
+            <div className="flex items-center justify-between">
               <span
                 className={cn(
-                  "font-bold uppercase tracking-wider text-xs",
+                  "text-xs font-semibold uppercase tracking-wider",
                   activeKPI === "mttr" ? "text-primary" : "text-muted-foreground"
                 )}
               >
@@ -161,20 +166,25 @@ function DebriefDashboardPage() {
               </span>
               <div
                 className={cn(
-                  "p-2 rounded-xl",
+                  "size-8 rounded-lg grid place-items-center",
                   activeKPI === "mttr"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    : "bg-primary/10 text-primary"
                 )}
               >
                 <Clock className="size-4" />
               </div>
             </div>
-            <div className="font-mono font-bold text-2xl text-foreground">
-              {kpiData.summary.avgMTTR}h
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="font-mono font-bold text-2xl text-foreground">
+                {kpiData.summary.avgMTTR}h
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                &le; 3.5h Target
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Mean Time to Repair (Goal: &le; 3.5h)
+            <p className="text-xs text-muted-foreground mt-1">
+              Mean Time to Repair resolution
             </p>
           </div>
 
@@ -182,16 +192,16 @@ function DebriefDashboardPage() {
           <div
             onClick={() => setActiveKPI("utilization")}
             className={cn(
-              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
               activeKPI === "utilization"
                 ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "border-border hover:border-border/80 hover:bg-muted/10"
+                : "hover:border-border/80 hover:bg-muted/10"
             )}
           >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
+            <div className="flex items-center justify-between">
               <span
                 className={cn(
-                  "font-bold uppercase tracking-wider text-xs",
+                  "text-xs font-semibold uppercase tracking-wider",
                   activeKPI === "utilization" ? "text-primary" : "text-muted-foreground"
                 )}
               >
@@ -199,7 +209,7 @@ function DebriefDashboardPage() {
               </span>
               <div
                 className={cn(
-                  "p-2 rounded-xl",
+                  "size-8 rounded-lg grid place-items-center",
                   activeKPI === "utilization"
                     ? "bg-primary text-primary-foreground"
                     : "bg-primary/10 text-primary"
@@ -208,11 +218,16 @@ function DebriefDashboardPage() {
                 <Activity className="size-4" />
               </div>
             </div>
-            <div className="font-mono font-bold text-2xl text-foreground">
-              {kpiData.summary.avgUtilization}%
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="font-mono font-bold text-2xl text-foreground">
+                {kpiData.summary.avgUtilization}%
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                &ge; 75% Target
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Working Days Share (Target: &ge; 75%)
+            <p className="text-xs text-muted-foreground mt-1">
+              Working Days Active Share
             </p>
           </div>
 
@@ -220,16 +235,16 @@ function DebriefDashboardPage() {
           <div
             onClick={() => setActiveKPI("travel")}
             className={cn(
-              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
               activeKPI === "travel"
                 ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "border-border hover:border-border/80 hover:bg-muted/10"
+                : "hover:border-border/80 hover:bg-muted/10"
             )}
           >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
+            <div className="flex items-center justify-between">
               <span
                 className={cn(
-                  "font-bold uppercase tracking-wider text-xs",
+                  "text-xs font-semibold uppercase tracking-wider",
                   activeKPI === "travel" ? "text-primary" : "text-muted-foreground"
                 )}
               >
@@ -237,20 +252,25 @@ function DebriefDashboardPage() {
               </span>
               <div
                 className={cn(
-                  "p-2 rounded-xl",
+                  "size-8 rounded-lg grid place-items-center",
                   activeKPI === "travel"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                    : "bg-primary/10 text-primary"
                 )}
               >
                 <Navigation className="size-4" />
               </div>
             </div>
-            <div className="font-mono font-bold text-2xl text-foreground">
-              {kpiData.summary.avgTravelTimeHours}h
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="font-mono font-bold text-2xl text-foreground">
+                {kpiData.summary.avgTravelTimeHours}h
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                Transit Velocity
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Average Travel Time per Service Call
+            <p className="text-xs text-muted-foreground mt-1">
+              Average Travel per Service Call
             </p>
           </div>
 
@@ -258,37 +278,42 @@ function DebriefDashboardPage() {
           <div
             onClick={() => setActiveKPI("volume")}
             className={cn(
-              "p-5 rounded-2xl border bg-card shadow-2xs space-y-2 cursor-pointer transition-all text-left",
+              "surface-panel p-5 flex flex-col justify-between cursor-pointer transition-all text-left",
               activeKPI === "volume"
                 ? "border-primary ring-2 ring-primary/30 shadow-xs bg-primary/5"
-                : "border-border hover:border-border/80 hover:bg-muted/10"
+                : "hover:border-border/80 hover:bg-muted/10"
             )}
           >
-            <div className="flex items-center justify-between text-muted-foreground text-xs">
+            <div className="flex items-center justify-between">
               <span
                 className={cn(
-                  "font-bold uppercase tracking-wider text-xs",
+                  "text-xs font-semibold uppercase tracking-wider",
                   activeKPI === "volume" ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                5. Jobs Completed
+                5. Total Jobs Done
               </span>
               <div
                 className={cn(
-                  "p-2 rounded-xl",
+                  "size-8 rounded-lg grid place-items-center",
                   activeKPI === "volume"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                    : "bg-primary/10 text-primary"
                 )}
               >
-                <CheckSquare className="size-4" />
+                <TrendingUp className="size-4" />
               </div>
             </div>
-            <div className="font-mono font-bold text-2xl text-foreground">
-              {kpiData.summary.totalJobsCompleted}
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="font-mono font-bold text-2xl text-foreground">
+                {kpiData.summary.totalVolumeDone}
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                100% Closed
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Avg {kpiData.summary.avgJobsCompleted} jobs per technician
+            <p className="text-xs text-muted-foreground mt-1">
+              Total debriefs executed & verified
             </p>
           </div>
         </div>

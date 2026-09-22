@@ -47,75 +47,98 @@ export function PartsDashboardView({ metrics }: PartsDashboardViewProps) {
   return (
     <div className="space-y-6">
       {/* 4 KPI Summary Cards matching Page 3 of the specification */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      {/* Row 1: 4 Top KPI Cards (Page 3 of spec) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. Total Inventory Value */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Total Inventory Value
             </span>
-            <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <DollarSign className="size-4" />
             </div>
           </div>
-          <div className="text-2xl font-mono font-black text-foreground">
-            ₦{metrics.totalInventoryValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              ₦{metrics.totalInventoryValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              100% Tracked
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Current replacement valuation across all depots
           </p>
         </div>
 
         {/* 2. Total Inventory Quantity */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Total Inventory Quantity
             </span>
-            <div className="size-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <Boxes className="size-4" />
             </div>
           </div>
-          <div className="text-2xl font-mono font-black text-foreground">
-            {metrics.totalInventoryQuantity.toLocaleString()} <span className="text-sm font-sans font-medium text-muted-foreground">units</span>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              {metrics.totalInventoryQuantity.toLocaleString()}{" "}
+              <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              In-Stock Fleet
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Total active spare parts stock recorded in system
           </p>
         </div>
 
         {/* 3. Shrinkage Value */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Shrinkage Value
             </span>
-            <div className="size-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <TrendingDown className="size-4" />
             </div>
           </div>
-          <div className="text-2xl font-mono font-black text-destructive">
-            ₦{metrics.shrinkageValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              ₦{metrics.shrinkageValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Audit Variance
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Cumulative financial variance identified in physical audits
           </p>
         </div>
 
         {/* 4. Shrinkage Quantity */}
-        <div className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-2">
+        <div className="surface-panel p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Shrinkage Quantity
             </span>
-            <div className="size-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <AlertOctagon className="size-4" />
             </div>
           </div>
-          <div className="text-2xl font-mono font-black text-amber-500">
-            {metrics.shrinkageQuantity.toLocaleString()} <span className="text-sm font-sans font-medium text-muted-foreground">units</span>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-mono font-bold text-foreground">
+              {metrics.shrinkageQuantity.toLocaleString()}{" "}
+              <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Discrepancies
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             Missing inventory units from stock reconciliation cycles
           </p>
         </div>

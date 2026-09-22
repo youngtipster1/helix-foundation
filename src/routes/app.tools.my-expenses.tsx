@@ -221,38 +221,70 @@ function MyExpensesPage() {
 
       {/* Summary KPI Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="surface-panel p-4">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            Pending Claims
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {pendingList.length}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Pending Claims
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <Clock className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {pendingList.length}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Awaiting Review
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
             Totaling {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(pendingTotal)}
           </p>
         </div>
 
-        <div className="surface-panel p-4">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            Approved Claims
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {approvedList.length}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Approved Claims
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <CheckCircle2 className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {approvedList.length}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Ready for Payout
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
             Totaling {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(approvedTotal)}
           </p>
         </div>
 
-        <div className="surface-panel p-4">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            Rejected Claims
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {rejectedList.length}
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Check job workspace for notes</p>
+        <div className="surface-panel p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Rejected Claims
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <XCircle className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {rejectedList.length}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Requires Update
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Check job workspace for rejection notes
+          </p>
         </div>
       </div>
 

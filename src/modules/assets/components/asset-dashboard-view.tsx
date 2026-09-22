@@ -30,60 +30,75 @@ export function AssetDashboardView({ metrics }: AssetDashboardViewProps) {
     <div className="space-y-4">
       {/* Top Row: Left KPI Cards (Total Equipment, Total Value, Total OEMs) + Center Warranty Donut + Right Equipment Status Donut */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
-        {/* Left Column: 3 Metric Cards Stacked (Black text, no colored values) */}
-        <div className="lg:col-span-4 flex flex-col justify-between gap-3">
+        {/* Left Column: 3 Metric Cards Stacked */}
+        <div className="lg:col-span-4 flex flex-col justify-between gap-3.5">
           {/* 1. Total Equipment */}
-          <div className="flex-1 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+          <div className="flex-1 surface-panel p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Total Equipment
               </span>
-              <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-                <Stethoscope className="size-3.5" />
+              <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+                <Stethoscope className="size-4" />
               </div>
             </div>
-            <div className="my-1 text-2xl font-mono font-bold text-foreground">
-              {metrics.totalEquipment}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-2xl font-mono font-bold text-foreground">
+                {metrics.totalEquipment}{" "}
+                <span className="text-xs font-sans font-medium text-muted-foreground">units</span>
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                100% Tracked
+              </span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-normal">
+            <p className="text-xs text-muted-foreground mt-1">
               Registered biomedical inventory devices
             </p>
           </div>
 
           {/* 2. Total Value of Equipment */}
-          <div className="flex-1 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+          <div className="flex-1 surface-panel p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Total Value of Equipment
               </span>
-              <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-                <Banknote className="size-3.5" />
+              <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+                <Banknote className="size-4" />
               </div>
             </div>
-            <div className="my-1 text-2xl font-mono font-bold text-foreground">
-              ₦{metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-2xl font-mono font-bold text-foreground">
+                ₦{metrics.totalValue.toLocaleString("en-US", { minimumFractionDigits: 0 })}
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                Asset Valuation
+              </span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-normal">
+            <p className="text-xs text-muted-foreground mt-1">
               Active service & maintenance valuation
             </p>
           </div>
 
           {/* 3. Total Number of OEMs */}
-          <div className="flex-1 rounded-xl border border-border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+          <div className="flex-1 surface-panel p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Total Number of OEMs
               </span>
-              <div className="size-7 rounded-md bg-muted/60 flex items-center justify-center text-foreground">
-                <Building2 className="size-3.5" />
+              <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+                <Building2 className="size-4" />
               </div>
             </div>
-            <div className="my-1 text-2xl font-mono font-bold text-foreground">
-              {metrics.totalOems}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">brands</span>
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-2xl font-mono font-bold text-foreground">
+                {metrics.totalOems}{" "}
+                <span className="text-xs font-sans font-medium text-muted-foreground">brands</span>
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">
+                Manufacturers
+              </span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-normal">
+            <p className="text-xs text-muted-foreground mt-1">
               Equipment manufacturers under management
             </p>
           </div>

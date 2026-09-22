@@ -194,7 +194,7 @@ function ToolsDashboardPage() {
               100% Tracked
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Registered biomedical diagnostic tools
           </p>
         </div>
@@ -208,7 +208,7 @@ function ToolsDashboardPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Calibrated & Valid
             </span>
-            <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 grid place-items-center">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <ShieldCheck className="size-4" />
             </div>
           </div>
@@ -220,7 +220,7 @@ function ToolsDashboardPage() {
               {complianceRate}% Compliance
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Valid calibration certificates active
           </p>
         </div>
@@ -234,7 +234,7 @@ function ToolsDashboardPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Due Within 30 Days
             </span>
-            <div className="size-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 grid place-items-center">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <AlertTriangle className="size-4" />
             </div>
           </div>
@@ -246,7 +246,7 @@ function ToolsDashboardPage() {
               Action Required
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Calibration slots scheduled with vendors
           </p>
         </div>
@@ -260,7 +260,7 @@ function ToolsDashboardPage() {
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Out of Calibration
             </span>
-            <div className="size-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 grid place-items-center">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
               <XCircle className="size-4" />
             </div>
           </div>
@@ -272,7 +272,7 @@ function ToolsDashboardPage() {
               Restricted
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Quarantined & blocked from operational use
           </p>
         </div>

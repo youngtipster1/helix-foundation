@@ -261,36 +261,69 @@ function ExpenseApprovalsPage() {
 
       {/* Summary KPI Highlights */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="surface-panel p-4">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            Awaiting Approval
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {pendingList.length} claims
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+        <div className="surface-panel p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Awaiting Approval
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <Clock className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {pendingList.length}{" "}
+              <span className="text-xs font-sans font-medium text-muted-foreground">claims</span>
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Action Required
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
             Totaling {new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(pendingAmountTotal)}
           </p>
         </div>
 
-        <div className="surface-panel p-4">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            Approved Claims
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {approvedList.length} claims
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Processed for reimbursement</p>
+        <div className="surface-panel p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Approved Claims
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <CheckCircle2 className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {approvedList.length}{" "}
+              <span className="text-xs font-sans font-medium text-muted-foreground">claims</span>
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Verified
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Processed for finance reimbursement</p>
         </div>
 
-        <div className="surface-panel p-4">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-            Rejected Claims
-          </span>
-          <span className="text-2xl font-bold font-mono text-foreground mt-1 block">
-            {rejectedList.length} claims
-          </span>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Returned with notes</p>
+        <div className="surface-panel p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Rejected Claims
+            </span>
+            <div className="size-8 rounded-lg bg-primary/10 text-primary grid place-items-center">
+              <XCircle className="size-4" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {rejectedList.length}{" "}
+              <span className="text-xs font-sans font-medium text-muted-foreground">claims</span>
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              Declined
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Returned to engineer with audit notes</p>
         </div>
       </div>
 
