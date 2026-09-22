@@ -60,7 +60,7 @@ function DashboardPage() {
         setStats({
           totalPersonnel: personnel.length,
           activeUsers: users.filter(u => u.active).length,
-          activeModules: 3, // Quality Settings, Tools Settings, Personnel
+          activeModules: 4, // Quality, Tools, Personnel, Debrief
           itemsAttention: inactiveAccounts,
         });
         setRecentLogs(auditLogs.slice(0, 4));
@@ -125,11 +125,11 @@ function DashboardPage() {
     {
       key: "debrief",
       title: "Debrief",
-      description: "Post-maintenance reporting and field debrief analysis.",
-      status: "coming-soon",
-      statusLabel: "Coming Soon",
+      description: "Service dispatch, field debriefs, and job tracking.",
+      status: "available",
+      statusLabel: "Available",
       icon: MessageSquareCode,
-      href: "/app/settings/debrief",
+      href: "/app/debrief",
     },
   ];
 
