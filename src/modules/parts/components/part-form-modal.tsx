@@ -252,6 +252,34 @@ export function PartFormModal({
     return Object.keys(newErrors).length === 0;
   };
 
+  // Pure validation checker for button disabled state without triggering setErrors during render
+  const isStepValid = (step: number): boolean => {
+    if (step === 0) {
+      return Boolean(
+        formData.partNumber?.trim() &&
+        formData.oemVendorPartNumber?.trim() &&
+        formData.category &&
+        formData.oem &&
+        formData.modality &&
+        formData.model?.trim() &&
+        (formData.quantityInStock ?? -1) >= 0
+      );
+    }
+    if (step === 1) {
+      return Boolean(
+        formData.supplierId &&
+        (formData.listPrice ?? 0) > 0
+      );
+    }
+    if (step === 2) {
+      return Boolean(
+        formData.location?.trim() &&
+        formData.binCode?.trim()
+      );
+    }
+    return true;
+  };
+
   const handleNext = () => {
     if (validateStep(currentStep)) {
       setCurrentStep((prev) => Math.min(STEPS.length - 1, prev + 1));
@@ -334,8 +362,8 @@ export function PartFormModal({
       onNext={handleNext}
       onSubmit={handleSubmit}
       isSubmitting={saving}
-      canProceed={validateStep(currentStep)}
-      canSubmit={validateStep(0) && validateStep(1) && validateStep(2)}
+      canProceed={isStepValid(currentStep)}
+      canSubmit={isStepValid(0) && isStepValid(1) && isStepValid(2)}
       submitLabel={partToEdit ? "Save Changes" : "Create Part"}
       submitIcon={CheckCircle2}
     >
