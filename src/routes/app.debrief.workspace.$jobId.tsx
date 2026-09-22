@@ -62,6 +62,7 @@ import {
   ChevronUp,
   ShieldCheck,
   Lock,
+  Unlock,
   UserCheck,
   Calendar,
   Building2,
@@ -185,7 +186,7 @@ function DebriefJobWorkspacePage() {
   const [holdDialogOpen, setHoldDialogOpen] = useState(false);
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
 
-  // Form states for Part modal with Live Inventory Search
+  // Form states for Part modal with Live Inventory Search & Lock
   const [partSearchQuery, setPartSearchQuery] = useState("");
   const [partNumber, setPartNumber] = useState("");
   const [partSerialNumber, setPartSerialNumber] = useState("");
@@ -195,7 +196,20 @@ function DebriefJobWorkspacePage() {
   const [partModel, setPartModel] = useState("");
   const [partUnitCost, setPartUnitCost] = useState("150000");
   const [partQtyUsed, setPartQtyUsed] = useState("1");
+  const [isPartLocked, setIsPartLocked] = useState(false);
 
+  // Form states for Tool modal with Live Registry Search & Lock
+  const [toolSearchQuery, setToolSearchQuery] = useState("");
+  const [toolId, setToolId] = useState("");
+  const [toolSerialNumber, setToolSerialNumber] = useState("");
+  const [toolDescription, setToolDescription] = useState("");
+  const [toolOem, setToolOem] = useState("");
+  const [toolCalibrationDate, setToolCalibrationDate] = useState("");
+  const [toolCalibrationDueDate, setToolCalibrationDueDate] = useState("");
+  const [toolDateOfUse, setToolDateOfUse] = useState(formatDateNow());
+  const [isToolLocked, setIsToolLocked] = useState(false);
+
+  // Form states for Expense modal
   const [expenseDate, setExpenseDate] = useState(formatDateNow());
   const [expenseType, setExpenseType] = useState<ExpenseType>("Transport (taxi)");
   const [expenseAmount, setExpenseAmount] = useState("45000");
@@ -203,11 +217,10 @@ function DebriefJobWorkspacePage() {
   const [expenseReceiptFileName, setExpenseReceiptFileName] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
 
+  // Form states for Document modal
   const [docType, setDocType] = useState<DebriefDocumentType>("Equipment checklist");
   const [docFileName, setDocFileName] = useState("");
   const [docComment, setDocComment] = useState("");
-
-  const [toolDateOfUse, setToolDateOfUse] = useState(formatDateNow());
 
   useEffect(() => {
     async function loadJob() {
@@ -260,7 +273,7 @@ function DebriefJobWorkspacePage() {
     loadJob();
   }, [jobId]);
 
-  // Inventory Search Suggestions
+  // Inventory Search Suggestions (Clean & Compact to avoid modal expansion)
   const filteredInventoryParts = useMemo(() => {
     if (!partSearchQuery.trim()) return [];
     const q = partSearchQuery.toLowerCase().trim();
@@ -270,7 +283,7 @@ function DebriefJobWorkspacePage() {
         p.description.toLowerCase().includes(q) ||
         p.model.toLowerCase().includes(q) ||
         p.oem.toLowerCase().includes(q)
-    ).slice(0, 5);
+    ).slice(0, 4);
   }, [partSearchQuery]);
 
   const handleSelectInventoryPart = (inventoryPart: typeof MOCK_PARTS[0]) => {
@@ -279,8 +292,57 @@ function DebriefJobWorkspacePage() {
     setPartModality(inventoryPart.modality);
     setPartOem(inventoryPart.oem);
     setPartModel(inventoryPart.model);
-    setPartUnitCost(String(inventoryPart.unitPrice * 1000)); // Scale to realistic Naira amount
+    setPartUnitCost(String(inventoryPart.unitPrice * 1000)); // Scaled to actual part unit cost in Naira
+    setIsPartLocked(true);
     setPartSearchQuery("");
+  };
+
+  const handleResetPartFields = () => {
+    setPartNumber("");
+    setPartSerialNumber("");
+    setPartDescription("");
+    setPartModality("");
+    setPartOem("");
+    setPartModel("");
+    setPartUnitCost("150000");
+    setPartQtyUsed("1");
+    setIsPartLocked(false);
+    setPartSearchQuery("");
+  };
+
+  // Tool Registry Search Suggestions (Clean & Compact)
+  const filteredToolsRegistry = useMemo(() => {
+    if (!toolSearchQuery.trim()) return [];
+    const q = toolSearchQuery.toLowerCase().trim();
+    return TOOL_REGISTRY.filter(
+      (t) =>
+        t.toolId.toLowerCase().includes(q) ||
+        t.description.toLowerCase().includes(q) ||
+        t.serialNumber.toLowerCase().includes(q) ||
+        t.oem.toLowerCase().includes(q)
+    ).slice(0, 4);
+  }, [toolSearchQuery]);
+
+  const handleSelectRegistryTool = (t: typeof TOOL_REGISTRY[0]) => {
+    setToolId(t.toolId);
+    setToolSerialNumber(t.serialNumber);
+    setToolDescription(t.description);
+    setToolOem(t.oem);
+    setToolCalibrationDate(t.calibrationDate);
+    setToolCalibrationDueDate(t.calibrationDueDate);
+    setIsToolLocked(true);
+    setToolSearchQuery("");
+  };
+
+  const handleResetToolFields = () => {
+    setToolId("");
+    setToolSerialNumber("");
+    setToolDescription("");
+    setToolOem("");
+    setToolCalibrationDate("");
+    setToolCalibrationDueDate("");
+    setIsToolLocked(false);
+    setToolSearchQuery("");
   };
 
   // Real-time Cost Rollup calculations
@@ -412,13 +474,7 @@ function DebriefJobWorkspacePage() {
 
     const updated = [...partsUsed, newPart];
     setPartsUsed(updated);
-    setPartNumber("");
-    setPartSerialNumber("");
-    setPartDescription("");
-    setPartModality("");
-    setPartOem("");
-    setPartModel("");
-    setPartQtyUsed("1");
+    handleResetPartFields();
     setAddPartOpen(false);
     await debriefService.update(jobId, { partsUsed: updated });
     toast.success(`Part ${newPart.partNumber} recorded (${formatNaira(newPart.totalCost)}).`);
@@ -497,28 +553,34 @@ function DebriefJobWorkspacePage() {
     toast.info("Document removed.");
   };
 
-  const handleAddTool = async (tool: typeof TOOL_REGISTRY[0]) => {
-    if (toolsUsed.some((t) => t.toolId === tool.toolId)) {
-      toast.info("Tool is already linked to this job.");
+  const handleAddToolSubmit = async () => {
+    if (!toolId.trim() || !toolDescription.trim()) {
+      toast.error("Please select or enter a Tool ID and Description.");
+      return;
+    }
+
+    if (toolsUsed.some((t) => t.toolId === toolId.trim())) {
+      toast.info("This tool is already linked to this job.");
       return;
     }
 
     const newTool: DebriefToolUsed = {
       id: `tool_${Date.now()}`,
-      toolId: tool.toolId,
-      serialNumber: tool.serialNumber,
-      description: tool.description,
-      oem: tool.oem,
+      toolId: toolId.trim(),
+      serialNumber: toolSerialNumber.trim() || `SN-${Date.now().toString().slice(-6)}`,
+      description: toolDescription.trim(),
+      oem: toolOem.trim() || "Calibrated Tooling",
       dateOfUse: toolDateOfUse || formatDateNow(),
-      calibrationDate: tool.calibrationDate,
-      calibrationDueDate: tool.calibrationDueDate,
+      calibrationDate: toolCalibrationDate || formatDateNow(),
+      calibrationDueDate: toolCalibrationDueDate || "2027-01-01",
     };
 
     const updated = [...toolsUsed, newTool];
     setToolsUsed(updated);
+    handleResetToolFields();
     setAddToolOpen(false);
     await debriefService.update(jobId, { toolsUsed: updated });
-    toast.success(`Tool ${tool.toolId} linked.`);
+    toast.success(`Tool ${newTool.toolId} linked.`);
   };
 
   const handleRemoveTool = async (id: string) => {
@@ -1044,7 +1106,7 @@ function DebriefJobWorkspacePage() {
                 )}
               </div>
 
-              {/* Logged Parts Section with Updated Requested Table Columns */}
+              {/* Logged Parts Section with exact Requested Headers */}
               <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -1094,6 +1156,64 @@ function DebriefJobWorkspacePage() {
                                 <button
                                   type="button"
                                   onClick={() => handleRemovePart(p.id)}
+                                  className="text-muted-foreground hover:text-destructive cursor-pointer p-1"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Logged Tools Section with exact Requested Headers */}
+              <div className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-primary" />
+                    <span>Calibrated Tools &amp; Testing Analyzers ({toolsUsed.length})</span>
+                  </h3>
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    Verified Calibration
+                  </span>
+                </div>
+
+                {toolsUsed.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border/80 p-5 text-center text-xs text-muted-foreground">
+                    No calibration tools linked yet. Click &quot;Link Tool&quot; to verify and attach test equipment.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left">
+                      <thead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 bg-muted/20">
+                        <tr>
+                          <th className="py-2.5 px-3">Tool ID</th>
+                          <th className="py-2.5 px-3">Serial no</th>
+                          <th className="py-2.5 px-3">Description</th>
+                          <th className="py-2.5 px-3">Date use</th>
+                          <th className="py-2.5 px-3">Calibration date</th>
+                          <th className="py-2.5 px-3">Calibration due date</th>
+                          {!isCompleted && <th className="py-2.5 px-2 text-center w-8"></th>}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/40">
+                        {toolsUsed.map((t) => (
+                          <tr key={t.id} className="hover:bg-muted/10">
+                            <td className="py-2.5 px-3 font-mono font-bold text-primary whitespace-nowrap">{t.toolId}</td>
+                            <td className="py-2.5 px-3 font-mono text-muted-foreground whitespace-nowrap">{t.serialNumber}</td>
+                            <td className="py-2.5 px-3 font-medium text-foreground max-w-[200px] truncate">{t.description}</td>
+                            <td className="py-2.5 px-3 font-mono text-foreground whitespace-nowrap">{t.dateOfUse || formatDateNow()}</td>
+                            <td className="py-2.5 px-3 font-mono text-muted-foreground whitespace-nowrap">{t.calibrationDate}</td>
+                            <td className="py-2.5 px-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap">{t.calibrationDueDate}</td>
+                            {!isCompleted && (
+                              <td className="py-2.5 px-2 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveTool(t.id)}
                                   className="text-muted-foreground hover:text-destructive cursor-pointer p-1"
                                 >
                                   <Trash2 className="size-3.5" />
@@ -1171,45 +1291,8 @@ function DebriefJobWorkspacePage() {
               </div>
             </div>
 
-            {/* Right 1 Col: Tools, Attachments & Sign-off Info */}
+            {/* Right 1 Col: Attachments & Sign-off Info */}
             <div className="space-y-5">
-              {/* Verified Tools Section */}
-              <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-2xs">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-foreground">
-                    <ShieldCheck className="size-3.5 text-primary" /> Tools Used ({toolsUsed.length})
-                  </span>
-                </h3>
-
-                {toolsUsed.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No calibration analyzers linked.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {toolsUsed.map((t) => (
-                      <div key={t.id} className="p-2.5 rounded-lg border border-border/60 bg-muted/20 text-xs space-y-1">
-                        <div className="flex items-center justify-between font-bold text-foreground">
-                          <span className="font-mono text-primary">{t.toolId}</span>
-                          {!isCompleted && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTool(t.id)}
-                              className="text-muted-foreground hover:text-destructive"
-                            >
-                              <Trash2 className="size-3" />
-                            </button>
-                          )}
-                        </div>
-                        <p className="font-medium text-foreground">{t.description}</p>
-                        <div className="text-[11px] text-muted-foreground flex items-center justify-between">
-                          <span>SN: {t.serialNumber}</span>
-                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Cal Due: {t.calibrationDueDate}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* Attached Documents */}
               <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-2xs">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
@@ -1354,7 +1437,7 @@ function DebriefJobWorkspacePage() {
         </DialogContent>
       </Dialog>
 
-      {/* MODAL 1: Log Part Used with Live Inventory Search */}
+      {/* MODAL 1: Log Part Used with Compact Auto-Suggest & Field Lock */}
       <Dialog open={addPartOpen} onOpenChange={setAddPartOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -1365,39 +1448,51 @@ function DebriefJobWorkspacePage() {
           </DialogHeader>
 
           <div className="space-y-3.5 py-2">
-            {/* Inventory Live Search Bar */}
+            {/* Inventory Live Search Bar (Compact dropdown without modal expansion) */}
             <div className="space-y-1.5 p-3 rounded-lg border border-primary/30 bg-primary/5">
-              <Label className="text-xs font-bold text-primary flex items-center gap-1.5">
-                <Search className="size-3.5" />
-                <span>Search Parts Inventory</span>
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold text-primary flex items-center gap-1.5">
+                  <Search className="size-3.5" />
+                  <span>Search Parts Inventory</span>
+                </Label>
+                {isPartLocked && (
+                  <button
+                    type="button"
+                    onClick={handleResetPartFields}
+                    className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Unlock className="size-3" />
+                    <span>Clear &amp; Unlock</span>
+                  </button>
+                )}
+              </div>
+
               <Input
-                placeholder="Search by part #, description, model or OEM..."
+                placeholder="Search part #, description or model..."
                 value={partSearchQuery}
                 onChange={(e) => setPartSearchQuery(e.target.value)}
-                className="text-xs bg-background"
+                className="text-xs bg-background h-8.5"
               />
 
               {filteredInventoryParts.length > 0 && (
-                <div className="mt-2 border border-border rounded-lg bg-background divide-y divide-border/60 shadow-md">
+                <div className="mt-1.5 max-h-44 overflow-y-auto border border-border rounded-lg bg-background divide-y divide-border/60 shadow-lg">
                   {filteredInventoryParts.map((inv) => (
                     <button
                       key={inv.id}
                       type="button"
                       onClick={() => handleSelectInventoryPart(inv)}
-                      className="w-full text-left p-2.5 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-2 cursor-pointer"
+                      className="w-full text-left px-3 py-2 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-2 cursor-pointer"
                     >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-primary">{inv.partNumber}</span>
-                          <span className="text-muted-foreground font-medium">• {inv.model} ({inv.oem})</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-primary truncate">{inv.partNumber}</span>
+                          <span className="text-[11px] text-muted-foreground truncate">• {inv.model}</span>
                         </div>
-                        <p className="text-foreground truncate max-w-sm">{inv.description}</p>
+                        <p className="text-foreground text-[11px] truncate">{inv.description}</p>
                       </div>
-                      <div className="text-right shrink-0">
-                        <span className="font-mono font-bold text-foreground">{formatNaira(inv.unitPrice * 1000)}</span>
-                        <div className="text-[10px] text-emerald-600 font-semibold">{inv.quantityInStock} in stock</div>
-                      </div>
+                      <span className="font-mono font-bold text-foreground text-xs shrink-0">
+                        {formatNaira(inv.unitPrice * 1000)}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -1407,12 +1502,16 @@ function DebriefJobWorkspacePage() {
             {/* Input Fields: Part number, Serial number, Description, Modality, OEM, Model, Cost, Qty */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Part number *</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Part number *</Label>
+                  {isPartLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
                 <Input
+                  readOnly={isPartLocked}
                   placeholder="e.g. PRT-GE-CT-881"
                   value={partNumber}
                   onChange={(e) => setPartNumber(e.target.value)}
-                  className="text-xs font-mono"
+                  className={cn("text-xs font-mono", isPartLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
                 />
               </div>
 
@@ -1428,12 +1527,16 @@ function DebriefJobWorkspacePage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Description *</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Description *</Label>
+                {isPartLocked && <Lock className="size-3 text-muted-foreground" />}
+              </div>
               <Input
+                readOnly={isPartLocked}
                 placeholder="e.g. Slip Ring Carbon Brush Kit"
                 value={partDescription}
                 onChange={(e) => setPartDescription(e.target.value)}
-                className="text-xs"
+                className={cn("text-xs", isPartLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
               />
             </div>
 
@@ -1441,44 +1544,51 @@ function DebriefJobWorkspacePage() {
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Modality</Label>
                 <Input
+                  readOnly={isPartLocked}
                   placeholder="e.g. CT"
                   value={partModality}
                   onChange={(e) => setPartModality(e.target.value)}
-                  className="text-xs"
+                  className={cn("text-xs", isPartLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">OEM</Label>
                 <Input
+                  readOnly={isPartLocked}
                   placeholder="e.g. GE Healthcare"
                   value={partOem}
                   onChange={(e) => setPartOem(e.target.value)}
-                  className="text-xs"
+                  className={cn("text-xs", isPartLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Model</Label>
                 <Input
+                  readOnly={isPartLocked}
                   placeholder="e.g. Optima CT660"
                   value={partModel}
                   onChange={(e) => setPartModel(e.target.value)}
-                  className="text-xs"
+                  className={cn("text-xs", isPartLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Cost (₦) *</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Cost (₦ Unit Price) *</Label>
+                  {isPartLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
                 <Input
                   type="number"
                   min="0"
                   step="100"
+                  readOnly={isPartLocked}
                   value={partUnitCost}
                   onChange={(e) => setPartUnitCost(e.target.value)}
-                  className="text-xs font-mono"
+                  className={cn("text-xs font-mono", isPartLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
                 />
               </div>
 
@@ -1489,14 +1599,16 @@ function DebriefJobWorkspacePage() {
                   min="1"
                   value={partQtyUsed}
                   onChange={(e) => setPartQtyUsed(e.target.value)}
-                  className="text-xs"
+                  className="text-xs font-bold"
                 />
               </div>
             </div>
 
-            {/* Total Cost preview */}
+            {/* Total Cost preview (Cost × Quantity Used) */}
             <div className="p-2.5 rounded-lg bg-muted/40 border border-border flex items-center justify-between text-xs">
-              <span className="text-muted-foreground font-medium">Calculated Total Cost:</span>
+              <span className="text-muted-foreground font-medium">
+                Total Part Spend ({partQtyUsed || 1} × {formatNaira(parseFloat(partUnitCost) || 0)}):
+              </span>
               <span className="font-mono font-bold text-sm text-foreground">
                 {formatNaira((parseFloat(partUnitCost) || 0) * (parseInt(partQtyUsed) || 1))}
               </span>
@@ -1578,50 +1690,173 @@ function DebriefJobWorkspacePage() {
         </DialogContent>
       </Dialog>
 
-      {/* MODAL 3: Link Tool */}
+      {/* MODAL 3: Link Tool with Compact Auto-Suggest & Field Lock */}
       <Dialog open={addToolOpen} onOpenChange={setAddToolOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-bold">Link Verified Test Tool</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Select calibrated biomedical testing equipment from the tools registry.
+              Search tool registry to auto-populate and verify calibration dates.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-2">
-            <div className="space-y-2">
-              {TOOL_REGISTRY.map((tool) => {
-                const isLinked = toolsUsed.some((t) => t.toolId === tool.toolId);
-                return (
-                  <div
-                    key={tool.toolId}
-                    className="p-3 rounded-lg border border-border/70 hover:border-primary/50 bg-card flex items-center justify-between gap-3 text-xs"
+          <div className="space-y-3.5 py-2">
+            {/* Tool Registry Auto-Suggest Search Bar */}
+            <div className="space-y-1.5 p-3 rounded-lg border border-primary/30 bg-primary/5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold text-primary flex items-center gap-1.5">
+                  <Search className="size-3.5" />
+                  <span>Search Tools Registry</span>
+                </Label>
+                {isToolLocked && (
+                  <button
+                    type="button"
+                    onClick={handleResetToolFields}
+                    className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-primary">{tool.toolId}</span>
-                        <span className="font-mono text-muted-foreground">({tool.serialNumber})</span>
-                      </div>
-                      <p className="font-medium text-foreground">{tool.description}</p>
-                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400">Cal Due: {tool.calibrationDueDate}</p>
-                    </div>
+                    <Unlock className="size-3" />
+                    <span>Clear &amp; Unlock</span>
+                  </button>
+                )}
+              </div>
 
-                    <Button
-                      size="xs"
-                      disabled={isLinked}
-                      onClick={() => handleAddTool(tool)}
-                      className={cn("h-7 px-2.5 text-xs font-semibold", isLinked ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground")}
+              <Input
+                placeholder="Search by tool ID, description or OEM..."
+                value={toolSearchQuery}
+                onChange={(e) => setToolSearchQuery(e.target.value)}
+                className="text-xs bg-background h-8.5"
+              />
+
+              {filteredToolsRegistry.length > 0 && (
+                <div className="mt-1.5 max-h-44 overflow-y-auto border border-border rounded-lg bg-background divide-y divide-border/60 shadow-lg">
+                  {filteredToolsRegistry.map((t) => (
+                    <button
+                      key={t.toolId}
+                      type="button"
+                      onClick={() => handleSelectRegistryTool(t)}
+                      className="w-full text-left px-3 py-2 hover:bg-muted/40 transition-colors text-xs flex items-center justify-between gap-2 cursor-pointer"
                     >
-                      {isLinked ? "Linked" : "+ Link"}
-                    </Button>
-                  </div>
-                );
-              })}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-primary truncate">{t.toolId}</span>
+                          <span className="text-[11px] text-muted-foreground font-mono truncate">({t.serialNumber})</span>
+                        </div>
+                        <p className="text-foreground text-[11px] truncate">{t.description}</p>
+                      </div>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[11px] shrink-0">
+                        Cal: {t.calibrationDueDate}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Input Fields: Tool ID, Serial number, Description, Tool OEM, Date of use */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Tool ID *</Label>
+                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
+                <Input
+                  readOnly={isToolLocked}
+                  placeholder="e.g. TL-CAL-001"
+                  value={toolId}
+                  onChange={(e) => setToolId(e.target.value)}
+                  className={cn("text-xs font-mono", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Serial number *</Label>
+                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
+                <Input
+                  readOnly={isToolLocked}
+                  placeholder="e.g. SN-FLUKE-9901"
+                  value={toolSerialNumber}
+                  onChange={(e) => setToolSerialNumber(e.target.value)}
+                  className={cn("text-xs font-mono", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Description *</Label>
+                {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
+              </div>
+              <Input
+                readOnly={isToolLocked}
+                placeholder="e.g. Electrical Safety Analyzer"
+                value={toolDescription}
+                onChange={(e) => setToolDescription(e.target.value)}
+                className={cn("text-xs", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Tool OEM</Label>
+                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
+                <Input
+                  readOnly={isToolLocked}
+                  placeholder="e.g. Fluke Biomedical"
+                  value={toolOem}
+                  onChange={(e) => setToolOem(e.target.value)}
+                  className={cn("text-xs", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Date of Use</Label>
+                <Input
+                  type="date"
+                  value={toolDateOfUse}
+                  onChange={(e) => setToolDateOfUse(e.target.value)}
+                  className="text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Calibration Date</Label>
+                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
+                <Input
+                  readOnly={isToolLocked}
+                  placeholder="2026-01-10"
+                  value={toolCalibrationDate}
+                  onChange={(e) => setToolCalibrationDate(e.target.value)}
+                  className={cn("text-xs font-mono", isToolLocked && "bg-muted/50 text-foreground cursor-not-allowed")}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold">Calibration Due Date</Label>
+                  {isToolLocked && <Lock className="size-3 text-muted-foreground" />}
+                </div>
+                <Input
+                  readOnly={isToolLocked}
+                  placeholder="2027-01-10"
+                  value={toolCalibrationDueDate}
+                  onChange={(e) => setToolCalibrationDueDate(e.target.value)}
+                  className={cn("text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400", isToolLocked && "bg-muted/50 cursor-not-allowed")}
+                />
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" size="sm" onClick={() => setAddToolOpen(false)}>Done</Button>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAddToolOpen(false)}>Cancel</Button>
+            <Button size="sm" onClick={handleAddToolSubmit} className="bg-primary text-primary-foreground">Link Tool</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1817,7 +2052,7 @@ function DebriefJobWorkspacePage() {
                     </tr>
                     <tr>
                       <td className="py-2 px-3 font-semibold text-foreground">Tools Validated</td>
-                      <td className="py-2 px-3 text-muted-foreground" colSpan={2}>{toolsUsed.map(t => t.toolId).join(", ") || "Standard Toolset"}</td>
+                      <td className="py-2 px-3 text-muted-foreground" colSpan={2}>{toolsUsed.map(t => `${t.toolId} (${t.serialNumber})`).join(", ") || "Standard Toolset"}</td>
                     </tr>
                     <tr>
                       <td className="py-2 px-3 font-semibold text-foreground">Travel &amp; Labour</td>
