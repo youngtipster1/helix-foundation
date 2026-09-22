@@ -13,7 +13,10 @@ import {
   CheckCircle2,
   Building2,
   Clock,
-  Sparkles,
+  MapPin,
+  User,
+  Activity,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -149,7 +152,7 @@ function DebriefMyWorkPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4.5">
           {filteredJobs.map((job) => {
             const isOnHold = job.jobStatus === "On Hold";
             const isOpen = job.jobStatus === "Open";
@@ -159,90 +162,118 @@ function DebriefMyWorkPage() {
                 key={job.id}
                 className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs flex flex-col justify-between space-y-4 transition-colors hover:border-primary/50"
               >
-                {/* Header: Job Number & Status Badge */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono font-bold text-sm text-primary">
-                      {job.jobNumber}
-                    </span>
+                <div className="space-y-3.5">
+                  {/* Header: Job Number & Badges */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-border/50">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-sm text-primary">
+                        {job.jobNumber}
+                      </span>
+                      <span
+                        className={cn(
+                          "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
+                          isOnHold
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                            : isOpen
+                            ? "bg-muted text-muted-foreground border-border"
+                            : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                        )}
+                      >
+                        {isOnHold
+                          ? `On Hold · ${job.holdReason || "Awaiting Part"}`
+                          : isOpen
+                          ? "Open"
+                          : "In Progress"}
+                      </span>
+                    </div>
+
                     <span
                       className={cn(
                         "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
-                        isOnHold
+                        job.equipmentStatus === "UP"
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                          : job.equipmentStatus === "Partially UP"
                           ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                          : isOpen
-                          ? "bg-muted text-muted-foreground border-border"
-                          : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                          : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
                       )}
                     >
-                      {isOnHold
-                        ? `On Hold · ${job.holdReason || "Awaiting Part"}`
-                        : isOpen
-                        ? "Open"
-                        : "In Progress"}
+                      Equip: {job.equipmentStatus}
                     </span>
                   </div>
 
-                  {/* Equipment & Modality */}
-                  <div>
-                    <h4 className="font-bold text-foreground text-sm leading-snug">
-                      {job.model}
-                    </h4>
-                    <span className="text-xs text-muted-foreground">
-                      {job.modality} · {job.oem}
-                    </span>
-                  </div>
-
-                  {/* Asset & Location */}
-                  <div className="pt-2 border-t border-border/50 space-y-1 text-xs">
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>Asset:</span>
-                      <span className="font-mono font-semibold text-foreground">
+                  {/* Section 1: Asset Information */}
+                  <div className="space-y-1">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h4 className="font-bold text-foreground text-sm leading-snug">
+                        {job.model}
+                      </h4>
+                      <span className="font-mono font-semibold text-xs text-primary shrink-0">
                         {job.assetNumber}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>Location:</span>
-                      <span className="font-medium text-foreground truncate max-w-[180px]">
-                        {job.location || "Main Ward"}
-                      </span>
+                    <div className="text-xs text-muted-foreground">
+                      {job.modality} · {job.oem} {job.serialNumber ? `(SN: ${job.serialNumber})` : ""}
                     </div>
-                    <div className="flex items-center justify-between text-muted-foreground">
-                      <span>Priority:</span>
+                  </div>
+
+                  {/* Section 2: Job Dispatch Details */}
+                  <div className="p-2.5 rounded-lg bg-muted/30 border border-border/60 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Job Type:</span>
+                      <span className="font-semibold text-foreground">{job.jobType}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Priority:</span>
                       <span
                         className={cn(
                           "font-bold",
                           job.jobPriority === "High"
                             ? "text-rose-600"
-                            : "text-amber-600"
+                            : job.jobPriority === "Mid"
+                            ? "text-amber-600"
+                            : "text-blue-600"
                         )}
                       >
                         {job.jobPriority} Priority
                       </span>
                     </div>
-                  </div>
 
-                  {/* Status Note */}
-                  <div className="pt-2">
-                    {isOnHold ? (
-                      <div className="p-2 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs flex items-center gap-1.5 text-amber-900 dark:text-amber-200">
-                        <AlertTriangle className="size-3.5 text-amber-600 shrink-0" />
-                        <span className="truncate">
-                          Reason: {job.holdReason || "Awaiting Part"}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="p-2 rounded-md bg-muted/30 border border-border/60 text-xs text-muted-foreground flex items-center gap-1.5">
-                        <Clock className="size-3.5 text-primary shrink-0" />
-                        <span className="truncate">
-                          {job.labour?.labourStartTime
-                            ? `Labour active (Started ${job.labour.labourStartTime})`
-                            : job.labour?.travelStartTime
-                            ? `Dispatched (Travel ${job.labour.travelStartTime})`
-                            : "Ready for service dispatch"}
-                        </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Start Date:</span>
+                      <span className="font-mono text-foreground">{job.jobStartDate || job.startDate || "—"}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground font-medium">Assigned To:</span>
+                      <span className="font-medium text-foreground">{job.assignedToName}</span>
+                    </div>
+
+                    {job.assistedBy && job.assistedBy !== "—" && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground font-medium">Assistant:</span>
+                        <span className="text-foreground">{job.assistedBy}</span>
                       </div>
                     )}
+
+                    <div className="flex items-start justify-between gap-2 pt-1 border-t border-border/40">
+                      <span className="text-muted-foreground font-medium flex items-center gap-1 shrink-0">
+                        <MapPin className="size-3 text-muted-foreground" /> Location:
+                      </span>
+                      <span className="text-foreground text-right truncate">
+                        {job.location || job.address || "Main Hospital Site"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Section 3: Reported Issue */}
+                  <div className="space-y-1 text-xs">
+                    <span className="font-bold text-foreground text-xs flex items-center gap-1 text-muted-foreground">
+                      <FileText className="size-3" /> Reported Issue:
+                    </span>
+                    <p className="p-2.5 rounded-md bg-background border border-border/70 text-foreground leading-relaxed text-xs line-clamp-3">
+                      {job.reportedIssue || "Diagnostic service and maintenance inspection required."}
+                    </p>
                   </div>
                 </div>
 
@@ -251,7 +282,7 @@ function DebriefMyWorkPage() {
                   <Button
                     size="sm"
                     onClick={() => handleOpenWorkspace(job)}
-                    className="w-full h-8.5 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
+                    className="w-full h-9 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs"
                   >
                     <span>
                       {isOnHold ? "Resume Job" : isOpen ? "Start Job" : "Continue Work"}
