@@ -668,7 +668,7 @@ export function DataTable<T extends { id: string }>({
         </>
       )}
 
-      {!loading && filtered.length > pageSize && (
+      {!loading && filtered.length > 0 && (
         <TablePagination
           page={currentPage}
           pageCount={pageCount}
