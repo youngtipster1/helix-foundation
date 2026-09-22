@@ -18,10 +18,10 @@ export function BrandMark({ className }: { className?: string }) {
 
 export function BrandLockup({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex min-w-0 items-center gap-2.5">
+    <div className="flex shrink-0 select-none items-center gap-2.5">
       <BrandMark />
       {!compact && (
-        <span className="min-w-0">
+        <span className="shrink-0">
           <span className="block text-sm font-semibold tracking-[0.14em] text-foreground">
             HEMP
           </span>

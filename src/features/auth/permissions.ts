@@ -31,6 +31,10 @@ export function getModulePermission(
       const assetsPerm = user.permissions.assets ?? (user.permissions as any).asset;
       return assetsPerm ?? null;
     }
+    if (moduleKey === "debrief") {
+      const debriefPerm = (user.permissions as any).debrief;
+      return debriefPerm ?? "admin";
+    }
     if (moduleKey === "settings") {
       const settingsPerm = (user.permissions as any).settings;
       return settingsPerm ?? null;
@@ -69,6 +73,11 @@ export function getModulePermission(
   if (moduleKey === "assets" || moduleKey === "asset") {
     if (roleLower.includes("asset admin") || roleLower.includes("assets admin")) return "admin";
     if (roleLower.includes("asset user") || roleLower.includes("assets user")) return "user";
+  }
+
+  if (moduleKey === "debrief") {
+    if (roleLower.includes("debrief admin")) return "admin";
+    return "admin";
   }
 
   return null;

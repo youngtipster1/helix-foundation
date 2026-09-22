@@ -118,6 +118,7 @@ export function Topbar({ user }: { user: User }) {
   const isParts = pathname.startsWith("/app/parts");
   const isFinancial = pathname.startsWith("/app/financial");
   const isAssets = pathname.startsWith("/app/assets");
+  const isDebrief = pathname.startsWith("/app/debrief");
 
   const isToolsAdmin = isModuleAdmin(user, "tools");
   const isQualityAdmin = isModuleAdmin(user, "quality");
@@ -164,6 +165,14 @@ export function Topbar({ user }: { user: User }) {
       hasAccess: hasModuleAccess(user, "quality"),
     },
     {
+      id: "debrief",
+      label: "Debrief",
+      to: "/app/debrief",
+      icon: Activity,
+      isActive: isDebrief,
+      hasAccess: hasModuleAccess(user, "debrief"),
+    },
+    {
       id: "settings",
       label: "System Settings",
       to: "/app/settings/dashboard",
@@ -173,19 +182,84 @@ export function Topbar({ user }: { user: User }) {
     },
   ].filter((m) => m.hasAccess);
 
+  // Split modules between visible pills and overflow dropdown
+  // Displays up to 4 modules on desktop, ensuring the active module is always visible
+  const MAX_VISIBLE = 4;
+  let visibleModules = [...authorizedModules];
+  let overflowModules: typeof authorizedModules = [];
+
+  if (authorizedModules.length > MAX_VISIBLE) {
+    const activeIndex = authorizedModules.findIndex((m) => m.isActive);
+    if (activeIndex >= MAX_VISIBLE) {
+      const activeMod = authorizedModules[activeIndex];
+      const remaining = authorizedModules.filter((_, idx) => idx !== activeIndex);
+      visibleModules = [activeMod, ...remaining.slice(0, MAX_VISIBLE - 1)];
+      overflowModules = remaining.slice(MAX_VISIBLE - 1);
+    } else {
+      visibleModules = authorizedModules.slice(0, MAX_VISIBLE);
+      overflowModules = authorizedModules.slice(MAX_VISIBLE);
+    }
+  }
+
+  const isOverflowActive = overflowModules.some((m) => m.isActive);
+  const currentModule = authorizedModules.find((m) => m.isActive);
+  const CurrentModuleIcon = currentModule?.icon || LayoutGrid;
+
   return (
     <header className="sticky top-0 z-30 w-full bg-background/95 backdrop-blur-md border-b border-border shadow-xs">
       {/* Tier 1: Global Navigation & Utilities */}
       <div className="flex h-14 items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6">
-        {/* Left: Brand + Active Accessible Modules (Hidden on Mobile/Tablet) */}
-        <div className="flex items-center gap-3 min-w-0">
-          <BrandLockup />
+        {/* Left: Brand + Responsive Accessible Modules */}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Link
+            to="/app"
+            className="shrink-0 flex items-center hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+            title="Return to Workspace Hub"
+          >
+            <BrandLockup />
+          </Link>
 
-          <div className="h-4 w-px bg-border/80 mx-1 shrink-0 hidden lg:block" />
+          {/* Mobile / Tablet Quick Module Switcher Pill (< md) */}
+          <div className="flex md:hidden items-center ml-0.5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold bg-muted/80 text-foreground hover:bg-accent border border-border/80 max-w-[135px] xs:max-w-[170px] truncate transition-colors cursor-pointer">
+                  <CurrentModuleIcon className="size-3.5 shrink-0 text-primary" />
+                  <span className="truncate">{currentModule ? currentModule.label : "Modules"}</span>
+                  <ChevronDown className="size-3 shrink-0 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+                  Switch Module
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {authorizedModules.map((mod) => {
+                  const Icon = mod.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={mod.id}
+                      onSelect={() => navigate({ to: mod.to })}
+                      className={cn(
+                        "flex items-center gap-2 text-xs font-medium cursor-pointer",
+                        mod.isActive && "bg-primary/10 text-primary font-bold"
+                      )}
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      <span className="flex-1">{mod.label}</span>
+                      {mod.isActive && <span className="size-1.5 rounded-full bg-primary" />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-          {/* Side-by-side Module Navigation Bar (Desktop Only) */}
-          <nav className="hidden lg:flex items-center gap-1.5 flex-nowrap">
-            {authorizedModules.map((mod) => {
+          <div className="h-4 w-px bg-border/80 mx-1 shrink-0 hidden md:block" />
+
+          {/* Desktop & Laptop Nav with Smart Overflow (>= md) */}
+          <nav className="hidden md:flex items-center gap-1.5 flex-nowrap min-w-0">
+            {visibleModules.map((mod) => {
               const Icon = mod.icon;
               return (
                 <Link
@@ -207,6 +281,47 @@ export function Topbar({ user }: { user: User }) {
                 </Link>
               );
             })}
+
+            {overflowModules.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-all whitespace-nowrap border shrink-0 cursor-pointer",
+                      isOverflowActive
+                        ? "bg-primary/10 text-primary border-primary/40 font-bold shadow-2xs"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/60 border-border/40 hover:border-border"
+                    )}
+                  >
+                    <span>More</span>
+                    <ChevronDown className="size-3 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-52">
+                  <DropdownMenuLabel className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+                    More Modules
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {overflowModules.map((mod) => {
+                    const Icon = mod.icon;
+                    return (
+                      <DropdownMenuItem
+                        key={mod.id}
+                        onSelect={() => navigate({ to: mod.to })}
+                        className={cn(
+                          "flex items-center gap-2 text-xs font-medium cursor-pointer",
+                          mod.isActive && "bg-primary/10 text-primary font-bold"
+                        )}
+                      >
+                        <Icon className="size-4 shrink-0" />
+                        <span className="flex-1">{mod.label}</span>
+                        {mod.isActive && <span className="size-1.5 rounded-full bg-primary" />}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </nav>
         </div>
 
