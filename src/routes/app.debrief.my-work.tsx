@@ -1,21 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/auth-context";
 import { debriefService } from "@/modules/debrief/services/debrief-service";
-import { JobWorkspaceModal } from "@/modules/debrief/components/job-workspace-modal";
 import type { DebriefJob } from "@/modules/debrief/types";
 import {
   Wrench,
-  Clock,
   AlertTriangle,
   Play,
   ArrowRight,
   CheckCircle2,
-  Calendar,
   Building2,
-  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,10 +30,9 @@ export const Route = createFileRoute("/app/debrief/my-work")({
 
 function DebriefMyWorkPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<DebriefJob[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedJob, setSelectedJob] = useState<DebriefJob | null>(null);
-  const [workspaceOpen, setWorkspaceOpen] = useState(false);
   const [filterState, setFilterState] = useState<"all" | "in_progress" | "on_hold">("all");
 
   const loadMyWork = useCallback(async () => {
@@ -76,18 +71,11 @@ function DebriefMyWorkPage() {
     [jobs]
   );
 
-  const handleContinueJob = (job: DebriefJob) => {
-    setSelectedJob(job);
-    setWorkspaceOpen(true);
-  };
-
-  const handleJobUpdated = (updatedJob: DebriefJob) => {
-    // If job was completed, remove it from active My Work queue
-    if (updatedJob.jobStatus === "Completed") {
-      setJobs((prev) => prev.filter((j) => j.id !== updatedJob.id));
-    } else {
-      setJobs((prev) => prev.map((j) => (j.id === updatedJob.id ? updatedJob : j)));
-    }
+  const handleOpenWorkspace = (job: DebriefJob) => {
+    navigate({
+      to: "/app/debrief/workspace/$jobId",
+      params: { jobId: job.id },
+    });
   };
 
   return (
@@ -162,15 +150,11 @@ function DebriefMyWorkPage() {
         <div className="space-y-3.5">
           {filteredJobs.map((job) => {
             const isOnHold = job.jobStatus === "On Hold";
-            const isDown = job.equipmentStatus === "Down";
 
             return (
               <div
                 key={job.id}
-                className={cn(
-                  "rounded-xl border bg-card p-4 sm:p-5 shadow-2xs space-y-3 transition-all hover:border-primary/50",
-                  isOnHold ? "border-amber-500/30 bg-amber-500/[0.02]" : "border-border"
-                )}
+                className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3 transition-colors hover:border-primary/50"
               >
                 {/* Header Line */}
                 <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-border/60">
@@ -196,7 +180,7 @@ function DebriefMyWorkPage() {
                             : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
                         )}
                       >
-                        {isOnHold ? `On Hold: ${job.holdReason || "Awaiting Part"}` : "In Progress"}
+                        {isOnHold ? `On Hold · ${job.holdReason || "Awaiting Part"}` : "In Progress"}
                       </span>
 
                       <span
@@ -229,10 +213,10 @@ function DebriefMyWorkPage() {
 
                   <Button
                     size="sm"
-                    onClick={() => handleContinueJob(job)}
+                    onClick={() => handleOpenWorkspace(job)}
                     className="h-8 px-4 text-xs font-bold gap-1.5 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs shrink-0"
                   >
-                    <span>Continue Job</span>
+                    <span>{isOnHold ? "Resume Work" : "Continue Job"}</span>
                     <ArrowRight className="size-3.5" />
                   </Button>
                 </div>
@@ -274,14 +258,6 @@ function DebriefMyWorkPage() {
           })}
         </div>
       )}
-
-      {/* Individual Job Workspace Modal (6 Tabs) */}
-      <JobWorkspaceModal
-        job={selectedJob}
-        open={workspaceOpen}
-        onOpenChange={setWorkspaceOpen}
-        onJobUpdated={handleJobUpdated}
-      />
     </div>
   );
 }

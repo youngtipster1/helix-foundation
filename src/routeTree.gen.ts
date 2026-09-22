@@ -65,6 +65,7 @@ import { Route as AppToolsDocumentsRouteImport } from './routes/app.tools.docume
 import { Route as AppToolsExpenseApprovalsRouteImport } from './routes/app.tools.expense-approvals'
 import { Route as AppToolsMyExpensesRouteImport } from './routes/app.tools.my-expenses'
 import { Route as AppToolsMyJobsRouteImport } from './routes/app.tools.my-jobs'
+import { Route as AppDebriefWorkspaceJobIdRouteImport } from './routes/app.debrief.workspace.$jobId'
 import { Route as AppToolsJobsIndexRouteImport } from './routes/app.tools.jobs.index'
 import { Route as AppToolsJobsJobIdRouteImport } from './routes/app.tools.jobs.$jobId'
 import { Route as AppToolsJobsCreateRouteImport } from './routes/app.tools.jobs.create'
@@ -356,6 +357,12 @@ const AppToolsMyJobsRoute = AppToolsMyJobsRouteImport.update({
   path: '/my-jobs',
   getParentRoute: () => AppToolsRoute,
 } as any)
+const AppDebriefWorkspaceJobIdRoute =
+  AppDebriefWorkspaceJobIdRouteImport.update({
+    id: '/workspace/$jobId',
+    path: '/workspace/$jobId',
+    getParentRoute: () => AppDebriefRoute,
+  } as any)
 const AppToolsJobsIndexRoute = AppToolsJobsIndexRouteImport.update({
   id: '/jobs/',
   path: '/jobs/',
@@ -434,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
   '/app/tools/': typeof AppToolsIndexRoute
+  '/app/debrief/workspace/$jobId': typeof AppDebriefWorkspaceJobIdRoute
   '/app/tools/jobs/$jobId': typeof AppToolsJobsJobIdRoute
   '/app/tools/jobs/create': typeof AppToolsJobsCreateRoute
   '/app/tools/jobs/open': typeof AppToolsJobsOpenRoute
@@ -489,6 +497,7 @@ export interface FileRoutesByTo {
   '/app/quality': typeof AppQualityIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
   '/app/tools': typeof AppToolsIndexRoute
+  '/app/debrief/workspace/$jobId': typeof AppDebriefWorkspaceJobIdRoute
   '/app/tools/jobs/$jobId': typeof AppToolsJobsJobIdRoute
   '/app/tools/jobs/create': typeof AppToolsJobsCreateRoute
   '/app/tools/jobs/open': typeof AppToolsJobsOpenRoute
@@ -552,6 +561,7 @@ export interface FileRoutesById {
   '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
   '/app/tools/': typeof AppToolsIndexRoute
+  '/app/debrief/workspace/$jobId': typeof AppDebriefWorkspaceJobIdRoute
   '/app/tools/jobs/$jobId': typeof AppToolsJobsJobIdRoute
   '/app/tools/jobs/create': typeof AppToolsJobsCreateRoute
   '/app/tools/jobs/open': typeof AppToolsJobsOpenRoute
@@ -616,6 +626,7 @@ export interface FileRouteTypes {
     | '/app/quality/'
     | '/app/settings/'
     | '/app/tools/'
+    | '/app/debrief/workspace/$jobId'
     | '/app/tools/jobs/$jobId'
     | '/app/tools/jobs/create'
     | '/app/tools/jobs/open'
@@ -671,6 +682,7 @@ export interface FileRouteTypes {
     | '/app/quality'
     | '/app/settings'
     | '/app/tools'
+    | '/app/debrief/workspace/$jobId'
     | '/app/tools/jobs/$jobId'
     | '/app/tools/jobs/create'
     | '/app/tools/jobs/open'
@@ -733,6 +745,7 @@ export interface FileRouteTypes {
     | '/app/quality/'
     | '/app/settings/'
     | '/app/tools/'
+    | '/app/debrief/workspace/$jobId'
     | '/app/tools/jobs/$jobId'
     | '/app/tools/jobs/create'
     | '/app/tools/jobs/open'
@@ -1139,6 +1152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppToolsMyJobsRouteImport
       parentRoute: typeof AppToolsRoute
     }
+    '/app/debrief/workspace/$jobId': {
+      id: '/app/debrief/workspace/$jobId'
+      path: '/workspace/$jobId'
+      fullPath: '/app/debrief/workspace/$jobId'
+      preLoaderRoute: typeof AppDebriefWorkspaceJobIdRouteImport
+      parentRoute: typeof AppDebriefRoute
+    }
     '/app/tools/jobs/': {
       id: '/app/tools/jobs/'
       path: '/jobs'
@@ -1173,11 +1193,13 @@ declare module '@tanstack/react-router' {
 interface AppDebriefRouteChildren {
   AppDebriefMyWorkRoute: typeof AppDebriefMyWorkRoute
   AppDebriefIndexRoute: typeof AppDebriefIndexRoute
+  AppDebriefWorkspaceJobIdRoute: typeof AppDebriefWorkspaceJobIdRoute
 }
 
 const AppDebriefRouteChildren: AppDebriefRouteChildren = {
   AppDebriefMyWorkRoute: AppDebriefMyWorkRoute,
   AppDebriefIndexRoute: AppDebriefIndexRoute,
+  AppDebriefWorkspaceJobIdRoute: AppDebriefWorkspaceJobIdRoute,
 }
 
 const AppDebriefRouteWithChildren = AppDebriefRoute._addFileChildren(

@@ -24,10 +24,11 @@ export type JobStatus = "In Progress" | "On Hold" | "Completed" | "Open" | "Pend
 export interface DebriefLabourRecord {
   startDate: string;
   endDate: string;
-  travelStartTime: string;
-  travelEndTime: string;
-  labourStartTime: string;
-  labourEndTime: string;
+  // Action-stamped times (ISO strings set by button press, not manual entry)
+  travelStartTime?: string;
+  travelEndTime?: string;
+  labourStartTime?: string;
+  labourEndTime?: string;
   workDone: string;
   equipmentStatus: EquipmentStatus;
   jobStatus: JobStatus;
