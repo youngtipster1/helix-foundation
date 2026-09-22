@@ -17,7 +17,7 @@ import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { StatCard } from "@/components/ui/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { useAuth } from "@/features/auth/auth-context";
@@ -362,25 +362,37 @@ function ToolsListPage() {
 
       {/* Filter Tabs & Add Tool Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as any)} className="w-full sm:w-auto">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full sm:w-auto h-9 p-1 bg-muted/50 border border-border">
-            <TabsTrigger value="all" className="text-xs">
-              All ({toolsList.length})
-            </TabsTrigger>
-            <TabsTrigger value="attention" className="text-xs">
-              Needs Attention ({attentionCount})
-            </TabsTrigger>
-            <TabsTrigger value="valid" className="text-xs">
-              Valid ({validCount})
-            </TabsTrigger>
-            <TabsTrigger value="due_soon" className="text-xs">
-              Due Soon ({dueSoonCount})
-            </TabsTrigger>
-            <TabsTrigger value="expired" className="text-xs">
-              Expired ({expiredCount})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <AppTabs
+          value={activeFilter}
+          onChange={(v) => setActiveFilter(v as any)}
+          tabs={[
+            {
+              id: "all",
+              label: "All",
+              count: toolsList.length,
+            },
+            {
+              id: "attention",
+              label: "Needs Attention",
+              count: attentionCount,
+            },
+            {
+              id: "valid",
+              label: "Valid",
+              count: validCount,
+            },
+            {
+              id: "due_soon",
+              label: "Due Soon",
+              count: dueSoonCount,
+            },
+            {
+              id: "expired",
+              label: "Expired",
+              count: expiredCount,
+            },
+          ]}
+        />
 
         {isToolsAdmin && (
           <Button size="sm" className="h-9 text-xs" onClick={handleAddClick}>

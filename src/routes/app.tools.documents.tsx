@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { PageHeader } from "@/components/layout/page-header";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { DocumentUploadModal } from "@/modules/tools/components/document-upload-modal";
 import { DocumentViewerModal } from "@/modules/tools/components/document-viewer-modal";
@@ -228,22 +228,29 @@ function DocumentsVaultPage() {
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full sm:w-auto">
-          <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full sm:w-auto h-9 p-1 bg-muted/50 border border-border">
-            <TabsTrigger value="all" className="text-xs">
-              All ({documents.length})
-            </TabsTrigger>
-            <TabsTrigger value="calibration" className="text-xs">
-              Calibration Certificates
-            </TabsTrigger>
-            <TabsTrigger value="decommission" className="text-xs">
-              Decommissioning
-            </TabsTrigger>
-            <TabsTrigger value="report" className="text-xs">
-              Service Reports
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <AppTabs
+          value={activeFilter}
+          onChange={setActiveFilter}
+          tabs={[
+            {
+              id: "all",
+              label: "All",
+              count: documents.length,
+            },
+            {
+              id: "calibration",
+              label: "Calibration Certificates",
+            },
+            {
+              id: "decommission",
+              label: "Decommissioning",
+            },
+            {
+              id: "report",
+              label: "Service Reports",
+            },
+          ]}
+        />
 
         <Button
           size="sm"

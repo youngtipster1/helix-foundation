@@ -498,19 +498,19 @@ export const AssetModal: React.FC<AssetModalProps> = ({
         >
           {/* TabsList for View/Edit Modes */}
           {mode !== "create" && (
-            <div className="px-4 pt-2.5 bg-card border-b border-border">
-              <TabsList className="grid grid-cols-4 w-full sm:w-auto sm:inline-flex h-8 bg-muted p-0.5">
-                <TabsTrigger value="general" className="text-xs gap-1 py-1">
-                  <Stethoscope className="size-3" /> General
+            <div className="px-4 py-2.5 bg-card border-b border-border">
+              <TabsList className="w-full sm:w-auto">
+                <TabsTrigger value="general">
+                  <Stethoscope className="size-3.5 mr-1" /> General
                 </TabsTrigger>
-                <TabsTrigger value="data" className="text-xs gap-1 py-1">
-                  <Network className="size-3" /> Data & IT
+                <TabsTrigger value="data">
+                  <Network className="size-3.5 mr-1" /> Data & IT
                 </TabsTrigger>
-                <TabsTrigger value="service" className="text-xs gap-1 py-1">
-                  <Wrench className="size-3" /> Equipment Service
+                <TabsTrigger value="service">
+                  <Wrench className="size-3.5 mr-1" /> Equipment Service
                 </TabsTrigger>
-                <TabsTrigger value="financial" className="text-xs gap-1 py-1">
-                  <DollarSign className="size-3" /> Financial
+                <TabsTrigger value="financial">
+                  <DollarSign className="size-3.5 mr-1" /> Financial
                 </TabsTrigger>
               </TabsList>
             </div>

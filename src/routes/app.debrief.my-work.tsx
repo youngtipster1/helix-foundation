@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { Button } from "@/components/ui/button";
 import { TablePagination } from "@/components/data-table/table-pagination";
 import { useAuth } from "@/features/auth/auth-context";
@@ -206,73 +207,30 @@ function DebriefMyWorkPage() {
       {/* Filter Tabs & Grid/List View Mode Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-3">
         {/* 3 Primary Tabs */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => handleTabChange("active")}
-            className={cn(
-              "px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2",
-              activeTab === "active"
-                ? "bg-primary text-primary-foreground border-primary shadow-xs font-bold"
-                : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-            )}
-          >
-            <Play className="size-3.5" />
-            <span>Active &amp; In Progress</span>
-            <span
-              className={cn(
-                "px-1.5 py-0.5 rounded-full text-xs font-bold leading-none",
-                activeTab === "active" ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
-              )}
-            >
-              {activeJobs.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTabChange("scheduled")}
-            className={cn(
-              "px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2",
-              activeTab === "scheduled"
-                ? "bg-primary text-primary-foreground border-primary shadow-xs font-bold"
-                : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-            )}
-          >
-            <Calendar className="size-3.5" />
-            <span>Scheduled</span>
-            <span
-              className={cn(
-                "px-1.5 py-0.5 rounded-full text-xs font-bold leading-none",
-                activeTab === "scheduled" ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
-              )}
-            >
-              {scheduledJobs.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleTabChange("completed")}
-            className={cn(
-              "px-4 py-2 rounded-lg text-[13px] font-semibold transition-all cursor-pointer border flex items-center gap-2",
-              activeTab === "completed"
-                ? "bg-primary text-primary-foreground border-primary shadow-xs font-bold"
-                : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-accent border-transparent"
-            )}
-          >
-            <CheckCircle2 className="size-3.5" />
-            <span>Completed</span>
-            <span
-              className={cn(
-                "px-1.5 py-0.5 rounded-full text-xs font-bold leading-none",
-                activeTab === "completed" ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
-              )}
-            >
-              {completedJobs.length}
-            </span>
-          </button>
-        </div>
+        <AppTabs
+          value={activeTab}
+          onChange={(tab) => handleTabChange(tab as any)}
+          tabs={[
+            {
+              id: "active",
+              label: "Active & In Progress",
+              icon: Play,
+              count: activeJobs.length,
+            },
+            {
+              id: "scheduled",
+              label: "Scheduled",
+              icon: Calendar,
+              count: scheduledJobs.length,
+            },
+            {
+              id: "completed",
+              label: "Completed",
+              icon: CheckCircle2,
+              count: completedJobs.length,
+            },
+          ]}
+        />
 
         {/* View Mode Toggle (Grid vs List) */}
         <div className="flex items-center gap-1 self-end sm:self-auto bg-muted/40 p-1 rounded-lg border border-border/60">

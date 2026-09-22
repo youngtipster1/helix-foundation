@@ -5,7 +5,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { toolsJobService } from "@/modules/tools/services/tools-job-service";
 import { useAuth } from "@/features/auth/auth-context";
@@ -179,19 +179,27 @@ function MyJobsPage() {
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as any)} className="w-full sm:w-auto">
-          <TabsList className="grid grid-cols-3 w-full sm:w-auto h-9 p-1 bg-muted/50 border border-border">
-            <TabsTrigger value="open" className="text-xs text-amber-600 dark:text-amber-400">
-              Active / Open ({openCount})
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="text-xs">
-              Completed ({completedCount})
-            </TabsTrigger>
-            <TabsTrigger value="all" className="text-xs">
-              All Assigned ({allMyJobs.length})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <AppTabs
+          value={activeFilter}
+          onChange={(v) => setActiveFilter(v as any)}
+          tabs={[
+            {
+              id: "open",
+              label: "Active / Open",
+              count: openCount,
+            },
+            {
+              id: "completed",
+              label: "Completed",
+              count: completedCount,
+            },
+            {
+              id: "all",
+              label: "All Assigned",
+              count: allMyJobs.length,
+            },
+          ]}
+        />
       </div>
 
       <DataTable

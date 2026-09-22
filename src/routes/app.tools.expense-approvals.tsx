@@ -7,7 +7,7 @@ import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { StatCard } from "@/components/ui/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { ExpenseApprovalDialog } from "@/modules/tools/components/expense-approval-dialog";
 import { DocumentViewerModal } from "@/modules/tools/components/document-viewer-modal";
@@ -293,22 +293,32 @@ function ExpenseApprovalsPage() {
 
       {/* Tabs Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as any)} className="w-full sm:w-auto">
-          <TabsList className="grid grid-cols-4 w-full sm:w-auto h-9 p-1 bg-muted/50 border border-border">
-            <TabsTrigger value="pending" className="text-xs text-amber-600 dark:text-amber-400">
-              Pending ({pendingList.length})
-            </TabsTrigger>
-            <TabsTrigger value="approved" className="text-xs">
-              Approved ({approvedList.length})
-            </TabsTrigger>
-            <TabsTrigger value="rejected" className="text-xs text-rose-600 dark:text-rose-400">
-              Rejected ({rejectedList.length})
-            </TabsTrigger>
-            <TabsTrigger value="all" className="text-xs">
-              All ({expenses.length})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <AppTabs
+          value={activeFilter}
+          onChange={(v) => setActiveFilter(v as any)}
+          tabs={[
+            {
+              id: "pending",
+              label: "Pending",
+              count: pendingList.length,
+            },
+            {
+              id: "approved",
+              label: "Approved",
+              count: approvedList.length,
+            },
+            {
+              id: "rejected",
+              label: "Rejected",
+              count: rejectedList.length,
+            },
+            {
+              id: "all",
+              label: "All",
+              count: expenses.length,
+            },
+          ]}
+        />
       </div>
 
       {/* Expenses Table */}

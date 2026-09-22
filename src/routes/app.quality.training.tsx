@@ -20,7 +20,7 @@ import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/ui/stat-card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
@@ -382,23 +382,27 @@ function QualityTrainingPage() {
 
       {/* Filter Tabs & Toolbar Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Tabs
+        <AppTabs
           value={activeFilter}
-          onValueChange={(v) => setActiveFilter(v as any)}
-          className="w-full sm:w-auto"
-        >
-          <TabsList className="bg-muted/60 p-1">
-            <TabsTrigger value="all" className="text-xs px-4">
-              All ({totalCount})
-            </TabsTrigger>
-            <TabsTrigger value="pending" className="text-xs px-4">
-              Pending ({pendingCount})
-            </TabsTrigger>
-            <TabsTrigger value="completed" className="text-xs px-4">
-              Completed ({completedCount})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+          onChange={(v) => setActiveFilter(v as any)}
+          tabs={[
+            {
+              id: "all",
+              label: "All",
+              count: totalCount,
+            },
+            {
+              id: "pending",
+              label: "Pending",
+              count: pendingCount,
+            },
+            {
+              id: "completed",
+              label: "Completed",
+              count: completedCount,
+            },
+          ]}
+        />
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button

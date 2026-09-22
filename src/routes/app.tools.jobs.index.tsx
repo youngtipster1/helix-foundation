@@ -7,7 +7,7 @@ import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { useAuth } from "@/features/auth/auth-context";
 import { isModuleAdmin } from "@/features/auth/permissions";
 import { toolsJobService } from "@/modules/tools/services/tools-job-service";
@@ -254,16 +254,22 @@ function ToolsJobsPage() {
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as any)} className="w-full sm:w-auto">
-          <TabsList className="bg-muted/60 p-1">
-            <TabsTrigger value="all" className="text-xs px-4">
-              All Jobs ({jobsList.length})
-            </TabsTrigger>
-            <TabsTrigger value="closed" className="text-xs px-4">
-              Closed Jobs ({closedCount})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <AppTabs
+          value={activeFilter}
+          onChange={(v) => setActiveFilter(v as any)}
+          tabs={[
+            {
+              id: "all",
+              label: "All Jobs",
+              count: jobsList.length,
+            },
+            {
+              id: "closed",
+              label: "Closed Jobs",
+              count: closedCount,
+            },
+          ]}
+        />
 
         {isToolsAdmin && (
           <Button

@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { AuditItem, AuditRun } from "../types";
 import { partsService } from "../services/parts-service";
@@ -163,23 +162,24 @@ export function PartsAuditTable({
     <div className="space-y-4">
       {/* Navigation Sub-Tabs */}
       <div className="flex items-center justify-between gap-4">
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-auto">
-          <TabsList className="h-9 p-1 bg-muted/50 border border-border">
-            <TabsTrigger value="sheet" className="text-xs gap-1.5">
-              <ClipboardCheck className="size-3.5" />
-              <span>Count Matrix (18 Cols)</span>
-            </TabsTrigger>
-            <TabsTrigger value="history" className="text-xs gap-1.5">
-              <History className="size-3.5" />
-              <span>Audit Runs & Sign-Off</span>
-              {pendingRunsCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
-                  {pendingRunsCount}
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <AppTabs
+          value={activeTab}
+          onChange={(v) => setActiveTab(v as any)}
+          tabs={[
+            {
+              id: "sheet",
+              label: "Count Matrix (18 Cols)",
+              icon: ClipboardCheck,
+            },
+            {
+              id: "history",
+              label: "Audit Runs & Sign-Off",
+              icon: History,
+              count: pendingRunsCount > 0 ? pendingRunsCount : undefined,
+              badgeClassName: "bg-amber-500 text-white",
+            },
+          ]}
+        />
       </div>
 
       {activeTab === "sheet" && (

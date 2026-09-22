@@ -21,6 +21,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AppTabs } from "@/components/ui/app-tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -460,50 +461,29 @@ export const ContractModal: React.FC<ContractModalProps> = ({
             </div>
           </div>
 
-          {/* RESPONSIVE SEGMENTED TABS (Strictly matching Slides 20, 22, 24) */}
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto p-1 bg-muted/80 rounded-lg border border-border/80 shrink-0">
-            <button
-              type="button"
-              onClick={() => setActiveTab("details")}
-              className={cn(
-                "flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap",
-                activeTab === "details"
-                  ? "bg-background text-foreground shadow-xs font-bold ring-1 ring-border/50"
-                  : "text-muted-foreground hover:text-foreground hover:bg-background/40"
-              )}
-            >
-              <FileText className="size-3.5 text-primary" />
-              <span>Contract Details</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("payments")}
-              className={cn(
-                "flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap",
-                activeTab === "payments"
-                  ? "bg-background text-foreground shadow-xs font-bold ring-1 ring-border/50"
-                  : "text-muted-foreground hover:text-foreground hover:bg-background/40"
-              )}
-            >
-              <CreditCard className="size-3.5 text-primary" />
-              <span>Payment Terms</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("equipment")}
-              className={cn(
-                "flex-1 md:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer shrink-0 whitespace-nowrap",
-                activeTab === "equipment"
-                  ? "bg-background text-foreground shadow-xs font-bold ring-1 ring-border/50"
-                  : "text-muted-foreground hover:text-foreground hover:bg-background/40"
-              )}
-            >
-              <Wrench className="size-3.5 text-primary" />
-              <span>Equipment List</span>
-            </button>
-          </div>
+          {/* RESPONSIVE SEGMENTED TABS */}
+          <AppTabs
+            size="sm"
+            value={activeTab}
+            onChange={(tab) => setActiveTab(tab as any)}
+            tabs={[
+              {
+                id: "details",
+                label: "Contract Details",
+                icon: FileText,
+              },
+              {
+                id: "payments",
+                label: "Payment Terms",
+                icon: CreditCard,
+              },
+              {
+                id: "equipment",
+                label: "Equipment List",
+                icon: Wrench,
+              },
+            ]}
+          />
         </div>
 
         {/* SCROLLABLE MODAL BODY - ONLY THIS REGION SCROLLS */}
