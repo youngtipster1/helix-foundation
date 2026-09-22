@@ -45,6 +45,7 @@ import {
   PARTS_MAIN_NAV,
   FINANCIAL_NAV,
   ASSETS_NAV,
+  DEBRIEF_NAV,
   type NavItem,
 } from "@/app/config/navigation";
 import { cn } from "@/lib/utils";
@@ -485,7 +486,15 @@ export function Topbar({ user }: { user: User }) {
           </>
         )}
 
-        {!isTools && !isQuality && !isParts && !isFinancial && !isAssets && (
+        {isDebrief && (
+          <>
+            {DEBRIEF_NAV.map((item) => (
+              <HeaderNavLink key={item.to} item={item} exact />
+            ))}
+          </>
+        )}
+
+        {!isTools && !isQuality && !isParts && !isFinancial && !isAssets && !isDebrief && (
           <>
             {SETTINGS_WORKSPACE_NAV.map((item) => (
               <HeaderNavLink key={item.to} item={item} />

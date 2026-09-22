@@ -44,8 +44,8 @@ export const MODULES: ModuleDefinition[] = [
     label: "Debrief",
     to: "/app/debrief",
     icon: Activity,
-    status: "coming-soon",
-    summary: "Debrief workflows planned for a future phase.",
+    status: "available",
+    summary: "Service job register, equipment assignments, and post-service debriefs.",
   },
   {
     key: "parts-inventory",

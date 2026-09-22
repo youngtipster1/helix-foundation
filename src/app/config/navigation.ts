@@ -116,5 +116,9 @@ export const ASSETS_NAV: NavItem[] = [
   { label: "Service contract", to: "/app/assets/contracts-dashboard", icon: FileCheck },
   { label: "Service list", to: "/app/assets/contracts", icon: FileText },
 ];
-
-
+/* =========================================================================
+   DEBRIEF MODULE — MAIN NAVIGATION (USER & ADMIN)
+========================================================================= */
+export const DEBRIEF_NAV: NavItem[] = [
+  { label: "Jobs", to: "/app/debrief", icon: ClipboardCheck },
+];
