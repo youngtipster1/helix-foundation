@@ -24,12 +24,12 @@ export function PageHeader({
         <div>
           <div className="flex items-center gap-3">
             {Icon && <Icon className="size-6 text-primary" />}
-            <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+            <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
               {title}
             </h1>
           </div>
           {subtitle && (
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
+            <p className="mt-0.5 max-w-2xl text-xs text-muted-foreground">{subtitle}</p>
           )}
         </div>
         {children && (
