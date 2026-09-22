@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { TablePagination } from "@/components/data-table/table-pagination";
 import { useAuth } from "@/features/auth/auth-context";
 import { debriefService } from "@/modules/debrief/services/debrief-service";
 import type { DebriefJob } from "@/modules/debrief/types";
@@ -12,16 +13,11 @@ import {
   ArrowRight,
   CheckCircle2,
   Calendar,
-  Clock,
-  MapPin,
   FileText,
   Navigation,
   LayoutGrid,
   List,
   Lock,
-  Eye,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -620,52 +616,30 @@ function DebriefMyWorkPage() {
               </tbody>
             </table>
           </div>
+          {displayedJobs.length > 0 && (
+            <TablePagination
+              page={currentPage}
+              pageCount={totalPages}
+              total={displayedJobs.length}
+              from={displayedJobs.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+              to={Math.min(currentPage * pageSize, displayedJobs.length)}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       )}
 
-      {/* Pagination Bar */}
-      {!loading && displayedJobs.length > 0 && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 text-xs text-muted-foreground border-t border-border/80">
-          <div>
-            Showing <span className="font-semibold text-foreground">{(currentPage - 1) * pageSize + 1}</span> to{" "}
-            <span className="font-semibold text-foreground">
-              {Math.min(currentPage * pageSize, displayedJobs.length)}
-            </span>{" "}
-            of <span className="font-semibold text-foreground">{displayedJobs.length}</span> jobs
-            <span className="ml-2 font-mono text-[11px]">
-              ({viewMode === "grid" ? "6 per page" : "25 per page"})
-            </span>
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center gap-1.5 self-center sm:self-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="h-8 px-2.5 text-xs font-semibold gap-1 cursor-pointer"
-              >
-                <ChevronLeft className="size-3.5" />
-                <span>Previous</span>
-              </Button>
-
-              <div className="flex items-center gap-1 px-2 font-mono font-bold text-foreground text-xs">
-                Page {currentPage} of {totalPages}
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="h-8 px-2.5 text-xs font-semibold gap-1 cursor-pointer"
-              >
-                <span>Next</span>
-                <ChevronRight className="size-3.5" />
-              </Button>
-            </div>
-          )}
+      {/* Grid View Pagination */}
+      {!loading && viewMode === "grid" && displayedJobs.length > 0 && (
+        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xs [&>div]:border-t-0">
+          <TablePagination
+            page={currentPage}
+            pageCount={totalPages}
+            total={displayedJobs.length}
+            from={displayedJobs.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+            to={Math.min(currentPage * pageSize, displayedJobs.length)}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>
