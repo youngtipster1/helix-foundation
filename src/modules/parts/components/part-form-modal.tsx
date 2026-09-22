@@ -132,26 +132,27 @@ export function PartFormModal({
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     partsService.getSuppliers().then((sups) => {
-      setSuppliers(sups);
-      if (!partToEdit && sups.length > 0 && !formData.supplierId) {
-        setFormData((prev) => ({
-          ...prev,
-          supplierId: sups[0].id,
-          supplierName: sups[0].name,
-        }));
-        setSelectedSupplier(sups[0]);
+      if (mounted) {
+        setSuppliers(sups);
       }
     });
-  }, [partToEdit]);
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
+    if (!open) return;
+
     if (partToEdit) {
       setFormData(partToEdit);
       partsService.getSupplierById(partToEdit.supplierId).then((sup) => {
         if (sup) setSelectedSupplier(sup);
       });
     } else {
+      const defaultSupplier = suppliers[0];
       setFormData({
         partNumber: `PRT-${Date.now().toString().slice(-4)}`,
         oemVendorPartNumber: "",
@@ -170,8 +171,8 @@ export function PartFormModal({
         shelfLifeMonths: 24,
         doesNotExpire: false,
         contactPhone: "",
-        supplierId: suppliers[0]?.id || "",
-        supplierName: suppliers[0]?.name || "",
+        supplierId: defaultSupplier?.id || "",
+        supplierName: defaultSupplier?.name || "",
         quantityInPack: 1,
         leadTimeWeeks: 2,
         listPrice: 1000,
@@ -189,10 +190,26 @@ export function PartFormModal({
         pictureUrl: "",
         documents: [],
       });
-      if (suppliers[0]) setSelectedSupplier(suppliers[0]);
+      if (defaultSupplier) setSelectedSupplier(defaultSupplier);
     }
     setCurrentStep(0);
     setErrors({});
+  }, [open, partToEdit]);
+
+  useEffect(() => {
+    if (open && !partToEdit && suppliers.length > 0) {
+      setFormData((prev) => {
+        if (!prev.supplierId) {
+          return {
+            ...prev,
+            supplierId: suppliers[0].id,
+            supplierName: suppliers[0].name,
+          };
+        }
+        return prev;
+      });
+      setSelectedSupplier((prev) => prev || suppliers[0]);
+    }
   }, [open, partToEdit, suppliers]);
 
   // Handle supplier change

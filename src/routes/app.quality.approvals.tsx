@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable, RowActionsMenu } from "@/components/data-table";
 import type { DataTableColumn } from "@/components/data-table/types";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { qualityService } from "@/modules/quality/services/quality-service";
+import { isModuleAdmin } from "@/features/auth/permissions";
 import { PageHeader } from "@/components/layout/page-header";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
