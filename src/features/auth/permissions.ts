@@ -33,7 +33,7 @@ export function getModulePermission(
     }
     if (moduleKey === "debrief") {
       const debriefPerm = (user.permissions as any).debrief;
-      return debriefPerm ?? "admin";
+      return debriefPerm ?? null;
     }
     if (moduleKey === "settings") {
       const settingsPerm = (user.permissions as any).settings;
@@ -92,7 +92,8 @@ export function getModulePermission(
 
   if (moduleKey === "debrief") {
     if (roleLower.includes("debrief admin")) return "admin";
-    return "admin";
+    if (roleLower.includes("debrief user") || roleLower.includes("debrief")) return "user";
+    return null;
   }
 
   return null;

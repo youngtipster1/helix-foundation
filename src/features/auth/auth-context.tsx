@@ -52,5 +52,8 @@ export function useAuth() {
 }
 
 export function initials(user: User) {
-  return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+  const cleanFirst = (user.firstName || "").replace(/^(dr\.|dr|mr\.|mr|mrs\.|mrs|ms\.|ms|engr\.|engr|prof\.|prof)\s+/i, "");
+  const f = cleanFirst.charAt(0) || user.firstName?.charAt(0) || "U";
+  const l = user.lastName?.charAt(0) || "";
+  return `${f}${l}`.toUpperCase();
 }

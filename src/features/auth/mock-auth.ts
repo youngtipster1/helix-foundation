@@ -35,9 +35,15 @@ export const mockAuthService: AuthService = {
       return { ok: false, error: "Invalid credentials or inactive account." };
     }
 
-    const nameParts = account.personnelName.split(" ");
-    const firstName = nameParts[0] || "User";
-    const lastName = nameParts.slice(1).join(" ") || "";
+    const nameParts = account.personnelName.trim().split(/\s+/);
+    let firstName = nameParts[0] || "User";
+    let lastName = nameParts.slice(1).join(" ") || "";
+
+    const titles = ["dr.", "dr", "mr.", "mr", "mrs.", "mrs", "ms.", "ms", "engr.", "engr", "prof.", "prof"];
+    if (nameParts.length >= 3 && titles.includes(nameParts[0].toLowerCase())) {
+      firstName = `${nameParts[0]} ${nameParts[1]}`;
+      lastName = nameParts.slice(2).join(" ");
+    }
 
     const loggedInUser: User = {
       id: account.id,

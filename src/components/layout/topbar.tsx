@@ -376,12 +376,19 @@ export function Topbar({ user }: { user: User }) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 rounded-md p-1 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer">
-                <span className="grid size-7.5 shrink-0 place-items-center rounded-full border border-border bg-muted text-[11px] font-semibold tracking-wide text-foreground">
+              <button className="flex items-center gap-2 rounded-lg py-1 px-2 text-sm font-medium text-foreground transition-colors hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none cursor-pointer border border-border/70 bg-muted/30">
+                <span className="grid size-7.5 shrink-0 place-items-center rounded-full border border-primary/30 bg-primary/10 text-[11px] font-bold tracking-wide text-primary">
                   {initials(user)}
                 </span>
-                <span className="hidden sm:inline font-medium text-xs">{user.firstName}</span>
-                <ChevronDown className="size-3 text-muted-foreground" />
+                <div className="hidden sm:flex flex-col text-left leading-tight pr-1 min-w-0">
+                  <span className="text-xs font-bold text-foreground truncate max-w-[140px]">
+                    {user.firstName} {user.lastName}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[140px]">
+                    {user.role}
+                  </span>
+                </div>
+                <ChevronDown className="size-3.5 text-muted-foreground shrink-0 ml-0.5" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -509,9 +516,48 @@ export function Topbar({ user }: { user: User }) {
 
         {isManagement && (
           <>
-            {MANAGEMENT_NAV.map((item) => (
+            {MANAGEMENT_NAV.slice(0, 5).map((item) => (
               <HeaderNavLink key={item.to} item={item} />
             ))}
+
+            {/* 6th item: More Dashboards Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "group relative inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[13px] font-semibold text-muted-foreground transition-all hover:bg-accent/60 hover:text-foreground cursor-pointer whitespace-nowrap shrink-0",
+                    MANAGEMENT_NAV.slice(5).some((s) => pathname.startsWith(s.to)) &&
+                      "bg-primary/10 text-primary font-bold border border-primary/20",
+                  )}
+                >
+                  <Layers className="size-3.5" />
+                  <span>
+                    {MANAGEMENT_NAV.slice(5).find((s) => pathname.startsWith(s.to))?.label || "More"}
+                  </span>
+                  <ChevronDown className="size-3 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                {MANAGEMENT_NAV.slice(5).map((moreItem) => {
+                  const isActive = pathname.startsWith(moreItem.to);
+                  const Icon = moreItem.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={moreItem.to}
+                      onSelect={() => navigate({ to: moreItem.to })}
+                      className={cn(
+                        "flex items-center gap-2 text-xs font-medium cursor-pointer py-2",
+                        isActive && "bg-primary/10 text-primary font-bold"
+                      )}
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      <span className="flex-1">{moreItem.label}</span>
+                      {isActive && <span className="size-1.5 rounded-full bg-primary" />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </>
         )}
 
