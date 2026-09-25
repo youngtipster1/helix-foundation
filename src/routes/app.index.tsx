@@ -19,6 +19,7 @@ import {
   Sun,
   Moon,
   Clock,
+  LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
