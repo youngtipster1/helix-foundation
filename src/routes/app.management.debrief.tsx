@@ -78,7 +78,6 @@ function ManagementDebriefPage() {
   return (
     <div className="w-full space-y-6 pb-12">
       <PageHeader
-        eyebrow="Executive Management • Field Throughput"
         title="Debrief & Field Operations"
         subtitle="Comparative performance benchmarks, engineer utilization, First-Time Fix Rates (FTFR), and Mean Time to Repair (MTTR)."
         icon={Activity}

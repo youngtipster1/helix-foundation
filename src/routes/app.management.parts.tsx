@@ -49,7 +49,6 @@ function ManagementPartsPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        eyebrow="Executive Management • Supply Chain"
         title="Parts & Inventory Health"
         subtitle="Overview of spare parts valuation, inventory quantity, shelf-life expiry buckets, and critical stockout alerts."
         icon={Boxes}

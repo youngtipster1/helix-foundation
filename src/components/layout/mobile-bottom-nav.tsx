@@ -599,12 +599,6 @@ export function MobileBottomNav() {
                   onNavigate={handleNavigate}
                 />
                 <DrawerLink
-                  to="/app/management/calendar"
-                  icon={CalendarRange}
-                  label="Service Calendar"
-                  onNavigate={handleNavigate}
-                />
-                <DrawerLink
                   to="/app/management/debrief"
                   icon={Activity}
                   label="Debrief & Operations"
@@ -638,6 +632,12 @@ export function MobileBottomNav() {
                   to="/app/management/contracts"
                   icon={FileCheck}
                   label="Service Contracts"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/calendar"
+                  icon={CalendarRange}
+                  label="Service Calendar"
                   onNavigate={handleNavigate}
                 />
               </div>

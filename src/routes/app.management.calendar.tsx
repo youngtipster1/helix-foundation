@@ -378,7 +378,6 @@ function ManagementCalendarPage() {
   return (
     <div className="w-full space-y-5 pb-12">
       <PageHeader
-        eyebrow="Executive Management • Field Service Schedule"
         title="Service Calendar"
         subtitle="Weekly biomedical engineer dispatch calendar, hospital service assignments, workforce availability, and capacity utilization (Read Only)."
         icon={CalendarRange}

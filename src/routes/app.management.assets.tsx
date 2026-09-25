@@ -49,7 +49,6 @@ function ManagementAssetsPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        eyebrow="Executive Management • Fleet Health"
         title="Assets & Devices Overview"
         subtitle="Clinical engineering asset lifecycle overview, operational uptime rates, and manufacturer distribution."
         icon={Stethoscope}

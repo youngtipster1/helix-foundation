@@ -57,7 +57,6 @@ function ManagementFinancialPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        eyebrow="Executive Management • Procurement Analytics"
         title="Financial & Procurement Overview"
         subtitle="Procurement key performance indicators, fulfillment velocity, and multi-supplier financial analytics."
         icon={Landmark}

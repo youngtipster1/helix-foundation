@@ -49,7 +49,6 @@ function ManagementContractsPage() {
   return (
     <div className="space-y-4">
       <PageHeader
-        eyebrow="Executive Management • Contract Exposure"
         title="Service Contracts & Warranties"
         subtitle="Financial analytics for service agreements, verified settlements, and outstanding payable balances."
         icon={FileCheck}

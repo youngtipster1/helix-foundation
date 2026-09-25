@@ -66,7 +66,6 @@ function ManagementQualityPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Executive Management • Clinical Governance"
         title="Quality & Governance Overview"
         subtitle="Clinical compliance guidelines, SOP policy documents, standardized inspection checklists, and pending authorizations."
         icon={ShieldCheck}

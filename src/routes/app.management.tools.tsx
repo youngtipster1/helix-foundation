@@ -113,7 +113,6 @@ function ManagementToolsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Executive Management • Metrology & Diagnostics"
         title="Tools & Metrology Overview"
         subtitle="Test tool calibration compliance index, active job throughput, and diagnostic fleet status."
         icon={Wrench}
