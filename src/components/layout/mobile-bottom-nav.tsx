@@ -67,6 +67,7 @@ export function MobileBottomNav() {
   const canAccessQuality = hasModuleAccess(user, "quality");
   const canAccessSettings = hasModuleAccess(user, "settings");
   const canAccessDebrief = hasModuleAccess(user, "debrief");
+  const canAccessManagement = hasModuleAccess(user, "management");
 
   const isToolsAdmin = isModuleAdmin(user, "tools");
   const isQualityAdmin = isModuleAdmin(user, "quality");
@@ -80,9 +81,18 @@ export function MobileBottomNav() {
   const isAssets = pathname.startsWith("/app/assets");
   const isSettings = pathname.startsWith("/app/settings");
   const isDebrief = pathname.startsWith("/app/debrief");
+  const isManagement = pathname.startsWith("/app/management");
 
   // Authorized modules for dynamic switcher
   const authorizedModules = [
+    {
+      id: "management",
+      label: "Management",
+      to: "/app/management/assets",
+      icon: LayoutGrid,
+      hasAccess: canAccessManagement,
+      isCurrent: isManagement,
+    },
     {
       id: "assets",
       label: "Assets & Devices",
@@ -211,6 +221,13 @@ export function MobileBottomNav() {
       { label: "Schedule", to: "/app/debrief/schedule", icon: CalendarRange },
       { label: "My Work", to: "/app/debrief/my-work", icon: Wrench, exact: true },
     ];
+  } else if (isManagement) {
+    tabs = [
+      { label: "Assets", to: "/app/management/assets", icon: Stethoscope },
+      { label: "Debrief", to: "/app/management/debrief", icon: Activity },
+      { label: "Financial", to: "/app/management/financial", icon: Landmark },
+      { label: "Parts", to: "/app/management/parts", icon: Boxes },
+    ];
   } else if (isSettings) {
     tabs = [
       { label: "Dashboard", to: "/app/settings/dashboard", icon: LayoutDashboard },
@@ -310,6 +327,56 @@ export function MobileBottomNav() {
 
           <div className="overflow-y-auto space-y-4 pr-1">
             {/* Contextual More Items */}
+            {isManagement && (
+              <div className="space-y-1">
+                <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Management Dashboards
+                </p>
+                <DrawerLink
+                  to="/app/management/assets"
+                  icon={Stethoscope}
+                  label="Assets & Fleet"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/debrief"
+                  icon={Activity}
+                  label="Debrief & Ops"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/financial"
+                  icon={Landmark}
+                  label="Financial & Spend"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/parts"
+                  icon={Boxes}
+                  label="Parts Inventory"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/tools"
+                  icon={Wrench}
+                  label="Tools & Metrology"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/quality"
+                  icon={ShieldCheck}
+                  label="Quality & Governance"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/contracts"
+                  icon={FileCheck}
+                  label="Service Contracts"
+                  onNavigate={handleNavigate}
+                />
+              </div>
+            )}
+
             {isDebrief && (
               <div className="space-y-1">
                 <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">

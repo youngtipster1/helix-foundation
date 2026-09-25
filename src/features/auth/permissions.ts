@@ -39,12 +39,20 @@ export function getModulePermission(
       const settingsPerm = (user.permissions as any).settings;
       return settingsPerm ?? null;
     }
+    if (moduleKey === "management") {
+      const mgmtPerm = (user.permissions as any).management;
+      return mgmtPerm ?? "admin";
+    }
     const perm = user.permissions[moduleKey as keyof typeof user.permissions];
     return perm ?? null;
   }
 
   // Strict role-based fallbacks (only used if explicit permissions map is not present)
   const roleLower = (user.role || "").toLowerCase();
+
+  if (moduleKey === "management") {
+    return "admin";
+  }
 
   if (moduleKey === "quality") {
     if (roleLower.includes("quality admin")) return "admin";

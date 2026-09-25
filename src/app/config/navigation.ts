@@ -128,3 +128,16 @@ export const DEBRIEF_NAV: NavItem[] = [
   { label: "My Work", to: "/app/debrief/my-work", icon: Wrench },
 ];
 
+/* =========================================================================
+   MANAGEMENT MODULE — ARRANGED DASHBOARDS NAVIGATION
+========================================================================= */
+export const MANAGEMENT_NAV: NavItem[] = [
+  { label: "Assets & Fleet", to: "/app/management/assets", icon: Stethoscope },
+  { label: "Debrief & Ops", to: "/app/management/debrief", icon: Activity },
+  { label: "Financial", to: "/app/management/financial", icon: Landmark },
+  { label: "Parts Inventory", to: "/app/management/parts", icon: Boxes },
+  { label: "Tools & Metrology", to: "/app/management/tools", icon: Wrench },
+  { label: "Quality & Governance", to: "/app/management/quality", icon: ShieldCheck },
+  { label: "Service Contracts", to: "/app/management/contracts", icon: FileCheck },
+];
+

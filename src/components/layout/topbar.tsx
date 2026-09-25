@@ -47,6 +47,7 @@ import {
   FINANCIAL_NAV,
   ASSETS_NAV,
   DEBRIEF_NAV,
+  MANAGEMENT_NAV,
   type NavItem,
 } from "@/app/config/navigation";
 import { cn } from "@/lib/utils";
@@ -121,11 +122,20 @@ export function Topbar({ user }: { user: User }) {
   const isFinancial = pathname.startsWith("/app/financial");
   const isAssets = pathname.startsWith("/app/assets");
   const isDebrief = pathname.startsWith("/app/debrief");
+  const isManagement = pathname.startsWith("/app/management");
 
   const isToolsAdmin = isModuleAdmin(user, "tools");
   const isQualityAdmin = isModuleAdmin(user, "quality");
 
   const authorizedModules = [
+    {
+      id: "management",
+      label: "Management",
+      to: "/app/management/assets",
+      icon: LayoutGrid,
+      isActive: isManagement,
+      hasAccess: hasModuleAccess(user, "management"),
+    },
     {
       id: "assets",
       label: "Assets & Devices",
@@ -497,6 +507,14 @@ export function Topbar({ user }: { user: User }) {
           </>
         )}
 
+        {isManagement && (
+          <>
+            {MANAGEMENT_NAV.map((item) => (
+              <HeaderNavLink key={item.to} item={item} />
+            ))}
+          </>
+        )}
+
         {isDebrief && (
           <>
             {DEBRIEF_NAV.map((item) => (
@@ -505,7 +523,7 @@ export function Topbar({ user }: { user: User }) {
           </>
         )}
 
-        {!isTools && !isQuality && !isParts && !isFinancial && !isAssets && !isDebrief && (
+        {isSettings && (
           <>
             {SETTINGS_WORKSPACE_NAV.map((item) => (
               <HeaderNavLink key={item.to} item={item} />
