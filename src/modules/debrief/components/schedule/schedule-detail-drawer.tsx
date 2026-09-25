@@ -42,7 +42,8 @@ interface ScheduleDetailDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isAdmin: boolean;
-  onJobUpdated: (updatedJob: DebriefJob) => void;
+  readOnly?: boolean;
+  onJobUpdated?: (updatedJob: DebriefJob) => void;
   onRequestScheduleMove?: (job: DebriefJob, targetEngineerId: string, targetEngineerName: string, targetDate: string) => void;
 }
 
@@ -51,6 +52,7 @@ export function ScheduleDetailDrawer({
   open,
   onOpenChange,
   isAdmin,
+  readOnly = false,
   onJobUpdated,
   onRequestScheduleMove,
 }: ScheduleDetailDrawerProps) {
@@ -153,7 +155,7 @@ export function ScheduleDetailDrawer({
                 <Calendar className="size-3.5 text-primary" />
                 Schedule &amp; Assignment
               </span>
-              {isAdmin && !isEditing && (
+              {isAdmin && !readOnly && !isEditing && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -270,15 +272,17 @@ export function ScheduleDetailDrawer({
           >
             Close
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            onClick={handleGoToWorkspace}
-            className="text-xs font-bold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
-          >
-            <span>Open Job Workspace</span>
-            <ExternalLink className="size-3.5" />
-          </Button>
+          {!readOnly && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleGoToWorkspace}
+              className="text-xs font-bold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+            >
+              <span>Open Job Workspace</span>
+              <ExternalLink className="size-3.5" />
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

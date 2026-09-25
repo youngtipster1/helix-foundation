@@ -37,6 +37,7 @@ import { Route as AppFinancialPurchaseOrdersRouteImport } from './routes/app.fin
 import { Route as AppFinancialServiceContractsRouteImport } from './routes/app.financial.service-contracts'
 import { Route as AppManagementIndexRouteImport } from './routes/app.management.index'
 import { Route as AppManagementAssetsRouteImport } from './routes/app.management.assets'
+import { Route as AppManagementCalendarRouteImport } from './routes/app.management.calendar'
 import { Route as AppManagementContractsRouteImport } from './routes/app.management.contracts'
 import { Route as AppManagementDebriefRouteImport } from './routes/app.management.debrief'
 import { Route as AppManagementFinancialRouteImport } from './routes/app.management.financial'
@@ -224,6 +225,11 @@ const AppManagementIndexRoute = AppManagementIndexRouteImport.update({
 const AppManagementAssetsRoute = AppManagementAssetsRouteImport.update({
   id: '/assets',
   path: '/assets',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementCalendarRoute = AppManagementCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => AppManagementRoute,
 } as any)
 const AppManagementContractsRoute = AppManagementContractsRouteImport.update({
@@ -481,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
   '/app/financial/service-contracts': typeof AppFinancialServiceContractsRoute
   '/app/management/assets': typeof AppManagementAssetsRoute
+  '/app/management/calendar': typeof AppManagementCalendarRoute
   '/app/management/contracts': typeof AppManagementContractsRoute
   '/app/management/debrief': typeof AppManagementDebriefRoute
   '/app/management/financial': typeof AppManagementFinancialRoute
@@ -548,6 +555,7 @@ export interface FileRoutesByTo {
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
   '/app/financial/service-contracts': typeof AppFinancialServiceContractsRoute
   '/app/management/assets': typeof AppManagementAssetsRoute
+  '/app/management/calendar': typeof AppManagementCalendarRoute
   '/app/management/contracts': typeof AppManagementContractsRoute
   '/app/management/debrief': typeof AppManagementDebriefRoute
   '/app/management/financial': typeof AppManagementFinancialRoute
@@ -624,6 +632,7 @@ export interface FileRoutesById {
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
   '/app/financial/service-contracts': typeof AppFinancialServiceContractsRoute
   '/app/management/assets': typeof AppManagementAssetsRoute
+  '/app/management/calendar': typeof AppManagementCalendarRoute
   '/app/management/contracts': typeof AppManagementContractsRoute
   '/app/management/debrief': typeof AppManagementDebriefRoute
   '/app/management/financial': typeof AppManagementFinancialRoute
@@ -701,6 +710,7 @@ export interface FileRouteTypes {
     | '/app/financial/purchase-orders'
     | '/app/financial/service-contracts'
     | '/app/management/assets'
+    | '/app/management/calendar'
     | '/app/management/contracts'
     | '/app/management/debrief'
     | '/app/management/financial'
@@ -768,6 +778,7 @@ export interface FileRouteTypes {
     | '/app/financial/purchase-orders'
     | '/app/financial/service-contracts'
     | '/app/management/assets'
+    | '/app/management/calendar'
     | '/app/management/contracts'
     | '/app/management/debrief'
     | '/app/management/financial'
@@ -843,6 +854,7 @@ export interface FileRouteTypes {
     | '/app/financial/purchase-orders'
     | '/app/financial/service-contracts'
     | '/app/management/assets'
+    | '/app/management/calendar'
     | '/app/management/contracts'
     | '/app/management/debrief'
     | '/app/management/financial'
@@ -1096,6 +1108,13 @@ declare module '@tanstack/react-router' {
       path: '/assets'
       fullPath: '/app/management/assets'
       preLoaderRoute: typeof AppManagementAssetsRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/calendar': {
+      id: '/app/management/calendar'
+      path: '/calendar'
+      fullPath: '/app/management/calendar'
+      preLoaderRoute: typeof AppManagementCalendarRouteImport
       parentRoute: typeof AppManagementRoute
     }
     '/app/management/contracts': {
@@ -1460,6 +1479,7 @@ const AppFinancialRouteWithChildren = AppFinancialRoute._addFileChildren(
 
 interface AppManagementRouteChildren {
   AppManagementAssetsRoute: typeof AppManagementAssetsRoute
+  AppManagementCalendarRoute: typeof AppManagementCalendarRoute
   AppManagementContractsRoute: typeof AppManagementContractsRoute
   AppManagementDebriefRoute: typeof AppManagementDebriefRoute
   AppManagementFinancialRoute: typeof AppManagementFinancialRoute
@@ -1471,6 +1491,7 @@ interface AppManagementRouteChildren {
 
 const AppManagementRouteChildren: AppManagementRouteChildren = {
   AppManagementAssetsRoute: AppManagementAssetsRoute,
+  AppManagementCalendarRoute: AppManagementCalendarRoute,
   AppManagementContractsRoute: AppManagementContractsRoute,
   AppManagementDebriefRoute: AppManagementDebriefRoute,
   AppManagementFinancialRoute: AppManagementFinancialRoute,

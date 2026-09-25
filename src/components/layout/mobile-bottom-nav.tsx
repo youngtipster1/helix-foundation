@@ -587,6 +587,62 @@ export function MobileBottomNav() {
               </div>
             )}
 
+            {isManagement && (
+              <div className="space-y-1">
+                <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Management Dashboards
+                </p>
+                <DrawerLink
+                  to="/app/management/assets"
+                  icon={Stethoscope}
+                  label="Assets & Fleet"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/calendar"
+                  icon={CalendarRange}
+                  label="Service Calendar"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/debrief"
+                  icon={Activity}
+                  label="Debrief & Operations"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/financial"
+                  icon={Landmark}
+                  label="Financial & Spend"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/parts"
+                  icon={Boxes}
+                  label="Parts & Inventory"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/tools"
+                  icon={Wrench}
+                  label="Tools & Metrology"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/quality"
+                  icon={ShieldCheck}
+                  label="Quality & Governance"
+                  onNavigate={handleNavigate}
+                />
+                <DrawerLink
+                  to="/app/management/contracts"
+                  icon={FileCheck}
+                  label="Service Contracts"
+                  onNavigate={handleNavigate}
+                />
+              </div>
+            )}
+
             {/* Dynamic Module Switcher / Hub */}
             {(showHubPortal || switchableModules.length > 0) && (
               <div className="space-y-1 border-t border-border/60 pt-3">

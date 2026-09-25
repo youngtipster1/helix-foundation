@@ -135,6 +135,7 @@ export const DEBRIEF_NAV: NavItem[] = [
 ========================================================================= */
 export const MANAGEMENT_NAV: NavItem[] = [
   { label: "Assets & Fleet", to: "/app/management/assets", icon: Stethoscope },
+  { label: "Service Calendar", to: "/app/management/calendar", icon: CalendarRange },
   { label: "Debrief & Ops", to: "/app/management/debrief", icon: Activity },
   { label: "Financial", to: "/app/management/financial", icon: Landmark },
   { label: "Parts Inventory", to: "/app/management/parts", icon: Boxes },

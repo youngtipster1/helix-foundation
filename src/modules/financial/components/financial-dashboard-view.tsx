@@ -38,6 +38,7 @@ export interface FinancialDashboardViewProps {
   pendingOrders: Order[];
   onCreateOrder?: () => void;
   onViewOrder?: (order: Order) => void;
+  readOnly?: boolean;
 }
 
 export function FinancialDashboardView({
@@ -46,6 +47,7 @@ export function FinancialDashboardView({
   pendingOrders,
   onCreateOrder,
   onViewOrder,
+  readOnly = false,
 }: FinancialDashboardViewProps) {
   // Toggle for Trend Graph: "otif" | "cycleTime" | "accuracy"
   const [activeTrend, setActiveTrend] = useState<"otif" | "cycleTime" | "accuracy">("otif");
@@ -240,33 +242,35 @@ export function FinancialDashboardView({
 
         {/* Quick Lifecycle Distribution & Actions (1 Column) */}
         <div className="space-y-4">
-          {/* Quick Action Card */}
-          <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-2.5">
-            <h3 className="text-sm md:text-base font-bold text-foreground">Procurement Actions</h3>
-            <p className="text-xs text-muted-foreground">
-              Initiate requisition orders with automatic pack calculations and multi-vendor splitting.
-            </p>
-            <div className="pt-1 flex flex-col gap-2">
-              <Button
-                onClick={onCreateOrder}
-                className="w-full gap-2 text-xs font-semibold cursor-pointer"
-                size="sm"
-              >
-                <Plus className="size-3.5" />
-                Create Order
-              </Button>
-              <Link to="/app/financial/orders">
+          {/* Quick Action Card (Hidden in readOnly / Management view) */}
+          {!readOnly && (
+            <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-2.5">
+              <h3 className="text-sm md:text-base font-bold text-foreground">Procurement Actions</h3>
+              <p className="text-xs text-muted-foreground">
+                Initiate requisition orders with automatic pack calculations and multi-vendor splitting.
+              </p>
+              <div className="pt-1 flex flex-col gap-2">
                 <Button
-                  variant="outline"
-                  className="w-full gap-2 text-xs font-medium cursor-pointer"
+                  onClick={onCreateOrder}
+                  className="w-full gap-2 text-xs font-semibold cursor-pointer"
                   size="sm"
                 >
-                  <Layers className="size-3.5" />
-                  View All Orders Directory
+                  <Plus className="size-3.5" />
+                  Create Order
                 </Button>
-              </Link>
+                <Link to="/app/financial/orders">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 text-xs font-medium cursor-pointer"
+                    size="sm"
+                  >
+                    <Layers className="size-3.5" />
+                    View All Orders Directory
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Lifecycle Status Counts */}
           <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-2.5 text-xs">
@@ -330,8 +334,11 @@ export function FinancialDashboardView({
               pendingOrders.slice(0, 4).map((o) => (
                 <div
                   key={o.id}
-                  onClick={() => onViewOrder?.(o)}
-                  className="p-2.5 rounded-lg border border-border/80 bg-muted/20 hover:bg-muted/50 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                  onClick={() => !readOnly && onViewOrder?.(o)}
+                  className={cn(
+                    "p-2.5 rounded-lg border border-border/80 bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs",
+                    !readOnly && "hover:bg-muted/50 transition-colors cursor-pointer"
+                  )}
                 >
                   <div className="space-y-0.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -363,21 +370,26 @@ export function FinancialDashboardView({
               <Receipt className="size-4 text-primary" />
               <h3 className="text-sm md:text-base font-bold text-foreground">Recent Procurement Activity</h3>
             </div>
-            <Link
-              to="/app/financial/orders"
-              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-            >
-              <span>View All</span>
-              <ArrowRight className="size-3" />
-            </Link>
+            {!readOnly && (
+              <Link
+                to="/app/financial/orders"
+                className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+              >
+                <span>View All</span>
+                <ArrowRight className="size-3" />
+              </Link>
+            )}
           </div>
 
           <div className="space-y-2">
             {recentOrders.slice(0, 4).map((o) => (
               <div
                 key={o.id}
-                onClick={() => onViewOrder?.(o)}
-                className="p-2.5 rounded-lg border border-border/80 bg-card hover:bg-muted/40 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                onClick={() => !readOnly && onViewOrder?.(o)}
+                className={cn(
+                  "p-2.5 rounded-lg border border-border/80 bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs",
+                  !readOnly && "hover:bg-muted/40 transition-colors cursor-pointer"
+                )}
               >
                 <div className="space-y-0.5 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

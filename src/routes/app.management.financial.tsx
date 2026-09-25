@@ -67,6 +67,7 @@ function ManagementFinancialPage() {
         metrics={metrics}
         recentOrders={recentOrders}
         pendingOrders={pendingOrders}
+        readOnly={true}
       />
     </div>
   );
