@@ -48,6 +48,8 @@ export const mockAuthService: AuthService = {
       permissions: account.permissions,
       role: account.isSuperAdmin
         ? "Super Admin"
+        : account.permissions.management === "admin"
+        ? "Management Admin"
         : account.permissions.assets === "admin"
         ? "Asset Admin"
         : account.permissions.assets === "user"

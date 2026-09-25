@@ -8,6 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loading } from "@/components/ui/loading";
 import { PasswordInput } from "@/components/ui/password-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/features/auth/auth-context";
 import { DEMO_CREDENTIALS } from "@/features/auth/mock-auth";
 
@@ -32,6 +40,14 @@ export const Route = createFileRoute("/login")({
 });
 
 const DEMO_USERS = [
+  {
+    role: "Management Admin",
+    user: "Dr. Evelyn Reed",
+    username: "mgmtadmin",
+    pass: "hemp1234",
+    module: "Management & Executive",
+    description: "Executive oversight: Consolidated operational dashboards across Assets, Financials, Debrief KPIs, Inventory Health, Tools, and Quality governance.",
+  },
   {
     role: "Parts Admin",
     user: "Emeka Nwosu",
@@ -216,19 +232,32 @@ function LoginPage() {
                 <span>Select Account / Persona</span>
                 <span className="text-[10px] text-primary font-mono uppercase tracking-wider">Demo Quick Select</span>
               </Label>
-              <select
-                id="demoUserSelect"
+              <Select
                 value={selectedDemoUser}
-                onChange={(e) => handleSelectDemoUser(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-medium text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                onValueChange={(val) => handleSelectDemoUser(val)}
               >
-                {DEMO_USERS.map((demo) => (
-                  <option key={demo.username} value={demo.username}>
-                    {demo.role}: {demo.user} (@{demo.username})
-                  </option>
-                ))}
-                <option value="custom">— Enter Custom Credentials —</option>
-              </select>
+                <SelectTrigger
+                  id="demoUserSelect"
+                  className="h-10 w-full border-primary/30 bg-primary/5 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary"
+                >
+                  <SelectValue placeholder="Select persona..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-72 border-border bg-popover">
+                  {DEMO_USERS.map((demo) => (
+                    <SelectItem key={demo.username} value={demo.username} className="text-xs cursor-pointer py-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-foreground">{demo.role}:</span>
+                        <span className="text-foreground">{demo.user}</span>
+                        <span className="text-muted-foreground text-[11px]">(@{demo.username})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                  <SelectSeparator />
+                  <SelectItem value="custom" className="text-xs text-muted-foreground italic cursor-pointer">
+                    — Enter Custom Credentials —
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {currentDemo && (

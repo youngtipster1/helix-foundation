@@ -41,7 +41,7 @@ export function getModulePermission(
     }
     if (moduleKey === "management") {
       const mgmtPerm = (user.permissions as any).management;
-      return mgmtPerm ?? "admin";
+      return mgmtPerm ?? null;
     }
     const perm = user.permissions[moduleKey as keyof typeof user.permissions];
     return perm ?? null;
@@ -51,7 +51,14 @@ export function getModulePermission(
   const roleLower = (user.role || "").toLowerCase();
 
   if (moduleKey === "management") {
-    return "admin";
+    if (
+      roleLower.includes("management admin") ||
+      roleLower.includes("mgmt admin") ||
+      roleLower.includes("executive")
+    ) {
+      return "admin";
+    }
+    return null;
   }
 
   if (moduleKey === "quality") {
