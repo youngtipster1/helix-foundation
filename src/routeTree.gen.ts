@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppDebriefRouteImport } from './routes/app.debrief'
 import { Route as AppFinancialRouteImport } from './routes/app.financial'
+import { Route as AppManagementRouteImport } from './routes/app.management'
 import { Route as AppPartsRouteImport } from './routes/app.parts'
 import { Route as AppQualityRouteImport } from './routes/app.quality'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
@@ -34,6 +35,14 @@ import { Route as AppFinancialDashboardRouteImport } from './routes/app.financia
 import { Route as AppFinancialOrdersRouteImport } from './routes/app.financial.orders'
 import { Route as AppFinancialPurchaseOrdersRouteImport } from './routes/app.financial.purchase-orders'
 import { Route as AppFinancialServiceContractsRouteImport } from './routes/app.financial.service-contracts'
+import { Route as AppManagementIndexRouteImport } from './routes/app.management.index'
+import { Route as AppManagementAssetsRouteImport } from './routes/app.management.assets'
+import { Route as AppManagementContractsRouteImport } from './routes/app.management.contracts'
+import { Route as AppManagementDebriefRouteImport } from './routes/app.management.debrief'
+import { Route as AppManagementFinancialRouteImport } from './routes/app.management.financial'
+import { Route as AppManagementPartsRouteImport } from './routes/app.management.parts'
+import { Route as AppManagementQualityRouteImport } from './routes/app.management.quality'
+import { Route as AppManagementToolsRouteImport } from './routes/app.management.tools'
 import { Route as AppPartsIndexRouteImport } from './routes/app.parts.index'
 import { Route as AppPartsAuditRouteImport } from './routes/app.parts.audit'
 import { Route as AppPartsDashboardRouteImport } from './routes/app.parts.dashboard'
@@ -102,6 +111,11 @@ const AppDebriefRoute = AppDebriefRouteImport.update({
 const AppFinancialRoute = AppFinancialRouteImport.update({
   id: '/financial',
   path: '/financial',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppManagementRoute = AppManagementRouteImport.update({
+  id: '/management',
+  path: '/management',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPartsRoute = AppPartsRouteImport.update({
@@ -202,6 +216,46 @@ const AppFinancialServiceContractsRoute =
     path: '/service-contracts',
     getParentRoute: () => AppFinancialRoute,
   } as any)
+const AppManagementIndexRoute = AppManagementIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementAssetsRoute = AppManagementAssetsRouteImport.update({
+  id: '/assets',
+  path: '/assets',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementContractsRoute = AppManagementContractsRouteImport.update({
+  id: '/contracts',
+  path: '/contracts',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementDebriefRoute = AppManagementDebriefRouteImport.update({
+  id: '/debrief',
+  path: '/debrief',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementFinancialRoute = AppManagementFinancialRouteImport.update({
+  id: '/financial',
+  path: '/financial',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementPartsRoute = AppManagementPartsRouteImport.update({
+  id: '/parts',
+  path: '/parts',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementQualityRoute = AppManagementQualityRouteImport.update({
+  id: '/quality',
+  path: '/quality',
+  getParentRoute: () => AppManagementRoute,
+} as any)
+const AppManagementToolsRoute = AppManagementToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => AppManagementRoute,
+} as any)
 const AppPartsIndexRoute = AppPartsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -408,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/debrief': typeof AppDebriefRouteWithChildren
   '/app/financial': typeof AppFinancialRouteWithChildren
+  '/app/management': typeof AppManagementRouteWithChildren
   '/app/parts': typeof AppPartsRouteWithChildren
   '/app/quality': typeof AppQualityRouteWithChildren
   '/app/settings': typeof AppSettingsRouteWithChildren
@@ -425,6 +480,13 @@ export interface FileRoutesByFullPath {
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
   '/app/financial/service-contracts': typeof AppFinancialServiceContractsRoute
+  '/app/management/assets': typeof AppManagementAssetsRoute
+  '/app/management/contracts': typeof AppManagementContractsRoute
+  '/app/management/debrief': typeof AppManagementDebriefRoute
+  '/app/management/financial': typeof AppManagementFinancialRoute
+  '/app/management/parts': typeof AppManagementPartsRoute
+  '/app/management/quality': typeof AppManagementQualityRoute
+  '/app/management/tools': typeof AppManagementToolsRoute
   '/app/parts/audit': typeof AppPartsAuditRoute
   '/app/parts/dashboard': typeof AppPartsDashboardRoute
   '/app/parts/list': typeof AppPartsListRoute
@@ -458,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/app/assets/': typeof AppAssetsIndexRoute
   '/app/debrief/': typeof AppDebriefIndexRoute
   '/app/financial/': typeof AppFinancialIndexRoute
+  '/app/management/': typeof AppManagementIndexRoute
   '/app/parts/': typeof AppPartsIndexRoute
   '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
@@ -484,6 +547,13 @@ export interface FileRoutesByTo {
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
   '/app/financial/service-contracts': typeof AppFinancialServiceContractsRoute
+  '/app/management/assets': typeof AppManagementAssetsRoute
+  '/app/management/contracts': typeof AppManagementContractsRoute
+  '/app/management/debrief': typeof AppManagementDebriefRoute
+  '/app/management/financial': typeof AppManagementFinancialRoute
+  '/app/management/parts': typeof AppManagementPartsRoute
+  '/app/management/quality': typeof AppManagementQualityRoute
+  '/app/management/tools': typeof AppManagementToolsRoute
   '/app/parts/audit': typeof AppPartsAuditRoute
   '/app/parts/dashboard': typeof AppPartsDashboardRoute
   '/app/parts/list': typeof AppPartsListRoute
@@ -517,6 +587,7 @@ export interface FileRoutesByTo {
   '/app/assets': typeof AppAssetsIndexRoute
   '/app/debrief': typeof AppDebriefIndexRoute
   '/app/financial': typeof AppFinancialIndexRoute
+  '/app/management': typeof AppManagementIndexRoute
   '/app/parts': typeof AppPartsIndexRoute
   '/app/quality': typeof AppQualityIndexRoute
   '/app/settings': typeof AppSettingsIndexRoute
@@ -534,6 +605,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/debrief': typeof AppDebriefRouteWithChildren
   '/app/financial': typeof AppFinancialRouteWithChildren
+  '/app/management': typeof AppManagementRouteWithChildren
   '/app/parts': typeof AppPartsRouteWithChildren
   '/app/quality': typeof AppQualityRouteWithChildren
   '/app/settings': typeof AppSettingsRouteWithChildren
@@ -551,6 +623,13 @@ export interface FileRoutesById {
   '/app/financial/orders': typeof AppFinancialOrdersRoute
   '/app/financial/purchase-orders': typeof AppFinancialPurchaseOrdersRoute
   '/app/financial/service-contracts': typeof AppFinancialServiceContractsRoute
+  '/app/management/assets': typeof AppManagementAssetsRoute
+  '/app/management/contracts': typeof AppManagementContractsRoute
+  '/app/management/debrief': typeof AppManagementDebriefRoute
+  '/app/management/financial': typeof AppManagementFinancialRoute
+  '/app/management/parts': typeof AppManagementPartsRoute
+  '/app/management/quality': typeof AppManagementQualityRoute
+  '/app/management/tools': typeof AppManagementToolsRoute
   '/app/parts/audit': typeof AppPartsAuditRoute
   '/app/parts/dashboard': typeof AppPartsDashboardRoute
   '/app/parts/list': typeof AppPartsListRoute
@@ -584,6 +663,7 @@ export interface FileRoutesById {
   '/app/assets/': typeof AppAssetsIndexRoute
   '/app/debrief/': typeof AppDebriefIndexRoute
   '/app/financial/': typeof AppFinancialIndexRoute
+  '/app/management/': typeof AppManagementIndexRoute
   '/app/parts/': typeof AppPartsIndexRoute
   '/app/quality/': typeof AppQualityIndexRoute
   '/app/settings/': typeof AppSettingsIndexRoute
@@ -602,6 +682,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/debrief'
     | '/app/financial'
+    | '/app/management'
     | '/app/parts'
     | '/app/quality'
     | '/app/settings'
@@ -619,6 +700,13 @@ export interface FileRouteTypes {
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
     | '/app/financial/service-contracts'
+    | '/app/management/assets'
+    | '/app/management/contracts'
+    | '/app/management/debrief'
+    | '/app/management/financial'
+    | '/app/management/parts'
+    | '/app/management/quality'
+    | '/app/management/tools'
     | '/app/parts/audit'
     | '/app/parts/dashboard'
     | '/app/parts/list'
@@ -652,6 +740,7 @@ export interface FileRouteTypes {
     | '/app/assets/'
     | '/app/debrief/'
     | '/app/financial/'
+    | '/app/management/'
     | '/app/parts/'
     | '/app/quality/'
     | '/app/settings/'
@@ -678,6 +767,13 @@ export interface FileRouteTypes {
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
     | '/app/financial/service-contracts'
+    | '/app/management/assets'
+    | '/app/management/contracts'
+    | '/app/management/debrief'
+    | '/app/management/financial'
+    | '/app/management/parts'
+    | '/app/management/quality'
+    | '/app/management/tools'
     | '/app/parts/audit'
     | '/app/parts/dashboard'
     | '/app/parts/list'
@@ -711,6 +807,7 @@ export interface FileRouteTypes {
     | '/app/assets'
     | '/app/debrief'
     | '/app/financial'
+    | '/app/management'
     | '/app/parts'
     | '/app/quality'
     | '/app/settings'
@@ -727,6 +824,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/debrief'
     | '/app/financial'
+    | '/app/management'
     | '/app/parts'
     | '/app/quality'
     | '/app/settings'
@@ -744,6 +842,13 @@ export interface FileRouteTypes {
     | '/app/financial/orders'
     | '/app/financial/purchase-orders'
     | '/app/financial/service-contracts'
+    | '/app/management/assets'
+    | '/app/management/contracts'
+    | '/app/management/debrief'
+    | '/app/management/financial'
+    | '/app/management/parts'
+    | '/app/management/quality'
+    | '/app/management/tools'
     | '/app/parts/audit'
     | '/app/parts/dashboard'
     | '/app/parts/list'
@@ -777,6 +882,7 @@ export interface FileRouteTypes {
     | '/app/assets/'
     | '/app/debrief/'
     | '/app/financial/'
+    | '/app/management/'
     | '/app/parts/'
     | '/app/quality/'
     | '/app/settings/'
@@ -836,6 +942,13 @@ declare module '@tanstack/react-router' {
       path: '/financial'
       fullPath: '/app/financial'
       preLoaderRoute: typeof AppFinancialRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/management': {
+      id: '/app/management'
+      path: '/management'
+      fullPath: '/app/management'
+      preLoaderRoute: typeof AppManagementRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/parts': {
@@ -970,6 +1083,62 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/financial/service-contracts'
       preLoaderRoute: typeof AppFinancialServiceContractsRouteImport
       parentRoute: typeof AppFinancialRoute
+    }
+    '/app/management/': {
+      id: '/app/management/'
+      path: '/'
+      fullPath: '/app/management/'
+      preLoaderRoute: typeof AppManagementIndexRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/assets': {
+      id: '/app/management/assets'
+      path: '/assets'
+      fullPath: '/app/management/assets'
+      preLoaderRoute: typeof AppManagementAssetsRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/contracts': {
+      id: '/app/management/contracts'
+      path: '/contracts'
+      fullPath: '/app/management/contracts'
+      preLoaderRoute: typeof AppManagementContractsRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/debrief': {
+      id: '/app/management/debrief'
+      path: '/debrief'
+      fullPath: '/app/management/debrief'
+      preLoaderRoute: typeof AppManagementDebriefRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/financial': {
+      id: '/app/management/financial'
+      path: '/financial'
+      fullPath: '/app/management/financial'
+      preLoaderRoute: typeof AppManagementFinancialRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/parts': {
+      id: '/app/management/parts'
+      path: '/parts'
+      fullPath: '/app/management/parts'
+      preLoaderRoute: typeof AppManagementPartsRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/quality': {
+      id: '/app/management/quality'
+      path: '/quality'
+      fullPath: '/app/management/quality'
+      preLoaderRoute: typeof AppManagementQualityRouteImport
+      parentRoute: typeof AppManagementRoute
+    }
+    '/app/management/tools': {
+      id: '/app/management/tools'
+      path: '/tools'
+      fullPath: '/app/management/tools'
+      preLoaderRoute: typeof AppManagementToolsRouteImport
+      parentRoute: typeof AppManagementRoute
     }
     '/app/parts/': {
       id: '/app/parts/'
@@ -1289,6 +1458,32 @@ const AppFinancialRouteWithChildren = AppFinancialRoute._addFileChildren(
   AppFinancialRouteChildren,
 )
 
+interface AppManagementRouteChildren {
+  AppManagementAssetsRoute: typeof AppManagementAssetsRoute
+  AppManagementContractsRoute: typeof AppManagementContractsRoute
+  AppManagementDebriefRoute: typeof AppManagementDebriefRoute
+  AppManagementFinancialRoute: typeof AppManagementFinancialRoute
+  AppManagementPartsRoute: typeof AppManagementPartsRoute
+  AppManagementQualityRoute: typeof AppManagementQualityRoute
+  AppManagementToolsRoute: typeof AppManagementToolsRoute
+  AppManagementIndexRoute: typeof AppManagementIndexRoute
+}
+
+const AppManagementRouteChildren: AppManagementRouteChildren = {
+  AppManagementAssetsRoute: AppManagementAssetsRoute,
+  AppManagementContractsRoute: AppManagementContractsRoute,
+  AppManagementDebriefRoute: AppManagementDebriefRoute,
+  AppManagementFinancialRoute: AppManagementFinancialRoute,
+  AppManagementPartsRoute: AppManagementPartsRoute,
+  AppManagementQualityRoute: AppManagementQualityRoute,
+  AppManagementToolsRoute: AppManagementToolsRoute,
+  AppManagementIndexRoute: AppManagementIndexRoute,
+}
+
+const AppManagementRouteWithChildren = AppManagementRoute._addFileChildren(
+  AppManagementRouteChildren,
+)
+
 interface AppPartsRouteChildren {
   AppPartsAuditRoute: typeof AppPartsAuditRoute
   AppPartsDashboardRoute: typeof AppPartsDashboardRoute
@@ -1408,6 +1603,7 @@ const AppToolsRouteWithChildren = AppToolsRoute._addFileChildren(
 interface AppRouteChildren {
   AppDebriefRoute: typeof AppDebriefRouteWithChildren
   AppFinancialRoute: typeof AppFinancialRouteWithChildren
+  AppManagementRoute: typeof AppManagementRouteWithChildren
   AppPartsRoute: typeof AppPartsRouteWithChildren
   AppQualityRoute: typeof AppQualityRouteWithChildren
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
@@ -1423,6 +1619,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppDebriefRoute: AppDebriefRouteWithChildren,
   AppFinancialRoute: AppFinancialRouteWithChildren,
+  AppManagementRoute: AppManagementRouteWithChildren,
   AppPartsRoute: AppPartsRouteWithChildren,
   AppQualityRoute: AppQualityRouteWithChildren,
   AppSettingsRoute: AppSettingsRouteWithChildren,

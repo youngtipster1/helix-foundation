@@ -19,6 +19,8 @@ import {
   ArrowLeftRight,
   Stethoscope,
   CalendarRange,
+  Activity,
+  Landmark,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
