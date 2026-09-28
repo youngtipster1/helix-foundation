@@ -138,7 +138,7 @@ function DebriefDashboardPage() {
           />
           <StatCard
             title="5. Total Jobs Done"
-            value={kpiData.summary.totalVolumeDone}
+            value={kpiData.summary.totalJobsCompleted}
             description="Total debriefs executed & verified"
             icon={TrendingUp}
             active={activeKPI === "volume"}
