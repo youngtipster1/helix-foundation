@@ -75,7 +75,7 @@ export function JobsTable({
         header: "JOB TYPE",
         value: (row) => row.jobType,
         cell: (row) => (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-foreground border border-border/60">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-muted text-foreground border-0">
             {row.jobType}
           </span>
         ),

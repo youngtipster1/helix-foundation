@@ -97,7 +97,7 @@ export function OrderDetailsModal({
                 </span>
                 <OrderStatusBadge status={order.status} />
                 {order.isArchived && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-500/15 px-2.5 py-0.5 rounded border-0">
                     <Archive className="size-3" /> Archived
                   </span>
                 )}

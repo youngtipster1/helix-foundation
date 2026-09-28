@@ -17,11 +17,13 @@ export function PageHeader({
     <header className="page-enter mb-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
+          <h1 className="text-xl sm:text-[22px] font-bold tracking-tight text-foreground">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-0.5 max-w-2xl text-xs text-muted-foreground">{subtitle}</p>
+            <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
+              {subtitle}
+            </p>
           )}
         </div>
         {children && (

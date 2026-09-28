@@ -366,7 +366,7 @@ export function JobDetailModal({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pr-8">
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary shrink-0">
                       {job.jobNumber}
                     </span>
                     <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
@@ -564,7 +564,7 @@ export function JobDetailModal({
                         Update technician progress, diagnostics, root causes, calibration dates, and completion status.
                       </p>
                     </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded font-semibold bg-primary/10 text-primary border border-primary/20 shrink-0">
+                    <span className="text-[10px] px-2.5 py-0.5 rounded font-semibold bg-primary/10 text-primary shrink-0">
                       Operational Fields
                     </span>
                   </div>

@@ -124,7 +124,7 @@ function DocumentsVaultPage() {
       header: "Type",
       value: (row) => row.documentType,
       cell: (row) => (
-        <span className="text-xs font-medium text-foreground bg-muted/60 px-2 py-0.5 rounded border border-border">
+        <span className="text-xs font-medium text-foreground bg-muted/60 px-2.5 py-0.5 rounded border-0">
           {row.documentType}
         </span>
       ),

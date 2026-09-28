@@ -58,7 +58,7 @@ export function DocumentViewerModal({
                 </div>
               </div>
               <div className="text-right">
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded border-0">
                   <ShieldCheck className="size-3" />
                   Verified & Signed
                 </span>

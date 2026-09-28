@@ -19,12 +19,12 @@ export function StatusBadge({ status, label, className, ...props }: StatusBadgeP
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-md px-2 py-0.5 font-semibold border uppercase tracking-wider text-[11px] md:text-xs",
-        isApproved && "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 dark:bg-emerald-500/10",
-        isUnderReview && "bg-sky-500/10 text-sky-600 border-sky-500/20 dark:text-sky-400 dark:bg-sky-500/10",
-        isPending && "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400 dark:bg-amber-500/10",
-        isRevision && "bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400 dark:bg-rose-500/10",
-        isDraftOrArchived && "bg-muted text-muted-foreground border-border",
+        "inline-flex items-center rounded-md px-2.5 py-0.5 font-semibold uppercase tracking-wider text-[11px] md:text-xs border-0",
+        isApproved && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 dark:bg-emerald-500/20",
+        isUnderReview && "bg-sky-500/15 text-sky-700 dark:text-sky-400 dark:bg-sky-500/20",
+        isPending && "bg-amber-500/15 text-amber-700 dark:text-amber-400 dark:bg-amber-500/20",
+        isRevision && "bg-rose-500/15 text-rose-700 dark:text-rose-400 dark:bg-rose-500/20",
+        isDraftOrArchived && "bg-muted text-muted-foreground",
         className
       )}
       {...props}

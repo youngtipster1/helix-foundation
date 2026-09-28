@@ -365,7 +365,7 @@ export function StockMovementsTable({
                     <td className="px-3.5 py-2.5">
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border",
+                          "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-semibold border-0",
                           config.bg,
                           config.text
                         )}
@@ -438,7 +438,7 @@ export function StockMovementsTable({
                   </div>
                   <span
                     className={cn(
-                      "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border shrink-0",
+                      "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold border-0 shrink-0",
                       config.bg,
                       config.text
                     )}

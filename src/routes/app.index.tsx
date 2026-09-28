@@ -361,11 +361,11 @@ function WelcomePortalPage() {
                         </div>
                         <div className="flex items-center gap-1.5">
                           {count > 0 && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400">
                               {count} Pending
                             </span>
                           )}
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded uppercase tracking-wider bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                             Available
                           </span>
                         </div>
@@ -404,7 +404,7 @@ function WelcomePortalPage() {
                       <div className="p-2.5 rounded-lg bg-muted text-muted-foreground border border-border">
                         <Icon className="size-5" />
                       </div>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wider bg-muted text-muted-foreground border border-border">
+                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded uppercase tracking-wider bg-muted text-muted-foreground">
                         {mod.status === "coming-soon" ? "Coming Soon" : "Restricted"}
                       </span>
                     </div>

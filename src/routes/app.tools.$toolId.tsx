@@ -169,10 +169,10 @@ function ToolDetailsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">
                 {tool.id}
               </span>
-              <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
+              <h1 className="text-xl sm:text-[22px] font-bold tracking-tight text-foreground">
                 {tool.model}
               </h1>
             </div>

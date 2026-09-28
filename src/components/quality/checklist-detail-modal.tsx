@@ -259,22 +259,22 @@ export function ChecklistDetailModal({
                       {/* Execution Badge */}
                       <div className="shrink-0 pl-6 sm:pl-0 pt-1 sm:pt-0">
                         {isPass && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                             <Check className="size-3" /> Pass
                           </span>
                         )}
                         {isFail && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/15 text-rose-700 dark:text-rose-400">
                             <X className="size-3" /> Fail
                           </span>
                         )}
                         {isNa && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-muted text-muted-foreground border">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-muted text-muted-foreground">
                             <Minus className="size-3" /> N/A
                           </span>
                         )}
                         {!item.status && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/15 text-amber-700 dark:text-amber-400">
                             Pending Execution
                           </span>
                         )}

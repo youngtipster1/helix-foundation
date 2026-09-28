@@ -459,20 +459,20 @@ function MyTasksPage() {
                       <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">
                         Execution Progress
                       </span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 font-mono">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border-0 font-mono">
                         Step {executingStepIndex + 1} of {execTotalCount}
                       </span>
                     </div>
 
                     {/* Live Breakdown Stats */}
                     <div className="flex items-center gap-1 text-[10px] font-bold">
-                      <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-0">
                         {execPassCount} Pass
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                      <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-400 border-0">
                         {execFailCount} Fail
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                      <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground border-0">
                         {execNaCount} N/A
                       </span>
                     </div>
@@ -892,20 +892,20 @@ function MyTasksPage() {
                         <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">
                           Checklist Steps
                         </span>
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 font-mono">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border-0 font-mono">
                           {!formShowSummary ? `Step ${formStepIndex + 1} of ${revTotalCount}` : `${revTotalCount} Steps`}
                         </span>
                       </div>
 
                       {/* Initial status counts */}
                       <div className="flex items-center gap-1 text-[10px] font-bold">
-                        <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-0">
                           {revPassCount} Pass
                         </span>
-                        <span className="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                        <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-400 border-0">
                           {revFailCount} Fail
                         </span>
-                        <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                        <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground border-0">
                           {revNaCount} N/A
                         </span>
                       </div>

@@ -362,10 +362,10 @@ function JobDetailsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">
                 {job.jobNumber}
               </span>
-              <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
+              <h1 className="text-xl sm:text-[22px] font-bold tracking-tight text-foreground">
                 {job.jobType}
               </h1>
               <StatusBadge status={job.jobStatus} />
@@ -551,7 +551,7 @@ function JobDetailsPage() {
                   Update technician progress, diagnostics, root causes, calibration dates, and completion status.
                 </p>
               </div>
-              <span className="text-[11px] px-2 py-0.5 rounded font-semibold bg-primary/10 text-primary border border-primary/20">
+              <span className="text-[11px] px-2.5 py-0.5 rounded font-semibold bg-primary/10 text-primary">
                 Operational Fields (Admin & User)
               </span>
             </div>

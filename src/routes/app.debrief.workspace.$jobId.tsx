@@ -737,12 +737,12 @@ function DebriefJobWorkspacePage() {
               <span className="font-mono text-sm font-bold text-primary">{job.jobNumber}</span>
               <span
                 className={cn(
-                  "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border shrink-0",
+                  "inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border-0 shrink-0",
                   job.equipmentStatus === "UP"
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                    ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                     : job.equipmentStatus === "Partially UP"
-                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                    : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                    ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                    : "bg-rose-500/15 text-rose-700 dark:text-rose-400"
                 )}
               >
                 Equip: {job.equipmentStatus}
@@ -876,7 +876,7 @@ function DebriefJobWorkspacePage() {
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 sm:p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-1">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border-0">
                 <Navigation className="size-3" /> Step 1: Ready for Departure
               </span>
               <h3 className="text-base font-bold text-foreground">

@@ -445,7 +445,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </Button>
                 )}
                 {isEditing && (
-                  <Badge variant="secondary" className="text-[10px] font-semibold py-0 px-1.5 text-primary border border-primary/30">
+                  <Badge variant="secondary" className="text-[10px] font-semibold py-0 px-1.5 text-primary border-0 bg-primary/10">
                     Editing
                   </Badge>
                 )}

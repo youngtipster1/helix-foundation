@@ -113,7 +113,7 @@ export function ScheduleConflictModal({
           <div className="p-3 rounded-lg bg-muted/30 border border-border space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="font-mono font-bold text-primary">{conflict.job.jobNumber}</span>
-              <span className={cn("px-2 py-0.5 rounded text-[11px] font-semibold border", jobTypeStyle.badgeClass)}>
+              <span className={cn("px-2.5 py-0.5 rounded text-[11px] font-semibold border-0", jobTypeStyle.badgeClass)}>
                 {conflict.job.jobType}
               </span>
             </div>

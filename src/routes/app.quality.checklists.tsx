@@ -439,20 +439,20 @@ function ChecklistFormModal({
                       <span className="text-[11px] font-bold uppercase tracking-wider text-foreground">
                         Checklist Steps
                       </span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 font-mono">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border-0 font-mono">
                         Step {formStepIndex + 1} of {totalItemsCount}
                       </span>
                     </div>
 
                     {/* Breakdown Badges */}
                     <div className="flex items-center gap-1 text-[10px] font-bold">
-                      <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-0">
                         {passCount} Pass
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                      <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-700 dark:text-rose-400 border-0">
                         {failCount} Fail
                       </span>
-                      <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                      <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground border-0">
                         {naCount} N/A
                       </span>
                     </div>

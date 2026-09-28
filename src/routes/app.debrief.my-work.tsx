@@ -315,7 +315,7 @@ function DebriefMyWorkPage() {
                       </span>
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold border",
+                          "inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold border-0",
                           stageInfo.className
                         )}
                       >
@@ -326,12 +326,12 @@ function DebriefMyWorkPage() {
 
                     <span
                       className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border",
+                        "inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border-0",
                         job.equipmentStatus === "UP"
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                           : job.equipmentStatus === "Partially UP"
-                          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                          : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                          : "bg-rose-500/15 text-rose-700 dark:text-rose-400"
                       )}
                     >
                       {job.equipmentStatus}
@@ -491,7 +491,7 @@ function DebriefMyWorkPage() {
                       <td className="py-3 px-4 whitespace-nowrap">
                         <span
                           className={cn(
-                            "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold border",
+                            "inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold border-0",
                             stageInfo.className
                           )}
                         >

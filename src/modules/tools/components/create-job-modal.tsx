@@ -286,7 +286,7 @@ export function CreateJobModal({
                         >
                           <div className="space-y-0.5 min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono font-bold text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
+                              <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-primary/10 text-primary shrink-0">
                                 {t.id}
                               </span>
                               <span className="text-foreground font-semibold">{t.model}</span>
