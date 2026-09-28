@@ -31,3 +31,9 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Invoices and documents
+*.pdf
+*.docx
+generate_invoice.py
+

@@ -271,28 +271,23 @@ export function Topbar({ user }: { user: User }) {
 
           {/* Desktop & Laptop Nav with Smart Overflow (>= md) */}
           <nav className="hidden md:flex items-center gap-1.5 flex-nowrap min-w-0">
-            {visibleModules.map((mod) => {
-              const Icon = mod.icon;
-              return (
-                <Link
-                  key={mod.id}
-                  to={mod.to}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all whitespace-nowrap border shrink-0",
-                    mod.isActive
-                      ? "bg-primary/10 text-primary border-primary/40 font-bold shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/60 border-border/40 hover:border-border"
-                  )}
-                >
-                  {mod.isActive ? (
-                    <span className="inline-block size-1.5 rounded-full bg-primary shrink-0" />
-                  ) : (
-                    <Icon className="size-3.5 shrink-0 text-muted-foreground" />
-                  )}
-                  <span>{mod.label}</span>
-                </Link>
-              );
-            })}
+            {visibleModules.map((mod) => (
+              <Link
+                key={mod.id}
+                to={mod.to}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold transition-all whitespace-nowrap border shrink-0",
+                  mod.isActive
+                    ? "bg-primary/10 text-primary border-primary/40 font-bold shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/60 border-border/40 hover:border-border"
+                )}
+              >
+                {mod.isActive && (
+                  <span className="inline-block size-1.5 rounded-full bg-primary shrink-0" />
+                )}
+                <span>{mod.label}</span>
+              </Link>
+            ))}
 
             {overflowModules.length > 0 && (
               <DropdownMenu>
