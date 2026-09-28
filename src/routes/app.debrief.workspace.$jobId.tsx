@@ -2246,7 +2246,7 @@ function DebriefJobWorkspacePage() {
                     {previewExpense.note || "Field service operational expenditure receipt"}
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] border border-emerald-500/20 mt-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-bold text-[11px] border-0 mt-1">
                   <CheckCircle2 className="size-3" />
                   <span>Valid Voucher Verified</span>
                 </div>

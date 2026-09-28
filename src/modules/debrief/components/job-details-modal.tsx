@@ -37,7 +37,7 @@ export function JobDetailsModal({
         <DialogHeader className="p-5 pb-4 border-b border-border bg-card/60">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+              <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary border-0">
                 <Wrench className="size-4" />
               </span>
               <div>
@@ -47,12 +47,12 @@ export function JobDetailsModal({
                   </DialogTitle>
                   <span
                     className={cn(
-                      "inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border",
+                      "inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border-0",
                       job.equipmentStatus === "UP"
-                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
                         : job.equipmentStatus === "Partially UP"
-                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                        ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                        : "bg-rose-500/15 text-rose-700 dark:text-rose-400"
                     )}
                   >
                     Status: {job.equipmentStatus}

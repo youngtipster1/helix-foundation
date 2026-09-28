@@ -10,6 +10,18 @@ import {
   Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  Cell,
+  ReferenceLine,
+  LabelList,
+} from "recharts";
 
 export type KPIType = "ftfr" | "mttr" | "utilization" | "travel" | "volume";
 
@@ -45,18 +57,6 @@ export function EngineerKPIBarCharts({
     return list;
   }, [records, activeKPI]);
 
-  const maxVolume = useMemo(() => {
-    return Math.max(...records.map((r) => r.jobsCompletedCount), 8);
-  }, [records]);
-
-  const maxMTTR = useMemo(() => {
-    return Math.max(...records.map((r) => r.mttr), 6);
-  }, [records]);
-
-  const maxTravelHours = useMemo(() => {
-    return Math.max(...records.map((r) => r.avgTravelTimeHours), 3);
-  }, [records]);
-
   const kpiInfo = useMemo(() => {
     switch (activeKPI) {
       case "ftfr":
@@ -68,6 +68,8 @@ export function EngineerKPIBarCharts({
           teamAvgLabel: `Team Avg: ${summary.avgFTFR}%`,
           icon: CheckCircle2,
           unit: "%",
+          targetValue: 85,
+          domain: [0, 100],
         };
       case "mttr":
         return {
@@ -78,6 +80,8 @@ export function EngineerKPIBarCharts({
           teamAvgLabel: `Team Avg: ${summary.avgMTTR}h`,
           icon: Clock,
           unit: "h",
+          targetValue: 3.5,
+          domain: [0, 6],
         };
       case "utilization":
         return {
@@ -88,6 +92,8 @@ export function EngineerKPIBarCharts({
           teamAvgLabel: `Team Avg: ${summary.avgUtilization}%`,
           icon: Activity,
           unit: "%",
+          targetValue: 75,
+          domain: [0, 100],
         };
       case "travel":
         return {
@@ -98,6 +104,8 @@ export function EngineerKPIBarCharts({
           teamAvgLabel: `Team Avg: ${summary.avgTravelTimeHours}h`,
           icon: Navigation,
           unit: "h",
+          targetValue: 1.5,
+          domain: [0, 4],
         };
       case "volume":
         return {
@@ -108,14 +116,58 @@ export function EngineerKPIBarCharts({
           teamAvgLabel: `Total: ${summary.totalJobsCompleted} Jobs (Avg ${summary.avgJobsCompleted}/tech)`,
           icon: CheckSquare,
           unit: " jobs",
+          targetValue: undefined,
+          domain: [0, Math.max(...records.map((r) => r.jobsCompletedCount), 10) + 2],
         };
     }
-  }, [activeKPI, summary]);
+  }, [activeKPI, summary, records]);
+
+  // Transform data for Vertical Bar Chart
+  const chartData = useMemo(() => {
+    return sortedRecords.map((eng) => {
+      let rawVal = 0;
+      let displayVal = "";
+      let color = "#0284C7";
+
+      if (activeKPI === "ftfr") {
+        rawVal = eng.ftfr;
+        displayVal = `${eng.ftfr}%`;
+        color = eng.ftfr >= 85 ? "#10B981" : "#F43F5E";
+      } else if (activeKPI === "mttr") {
+        rawVal = Number(eng.mttr.toFixed(1));
+        displayVal = `${rawVal}h`;
+        color = eng.mttr <= 3.5 ? "#10B981" : "#F59E0B";
+      } else if (activeKPI === "utilization") {
+        rawVal = eng.utilizationRate;
+        displayVal = `${eng.utilizationRate}%`;
+        color = eng.utilizationRate >= 75 ? "#10B981" : "#F59E0B";
+      } else if (activeKPI === "travel") {
+        rawVal = Number(eng.avgTravelTimeHours.toFixed(1));
+        displayVal = `${rawVal}h`;
+        color = eng.avgTravelTimeHours <= 1.5 ? "#0284C7" : "#F59E0B";
+      } else if (activeKPI === "volume") {
+        rawVal = eng.jobsCompletedCount;
+        displayVal = `${eng.jobsCompletedCount}`;
+        color = "#0284C7";
+      }
+
+      const nameParts = eng.engineerName.split(" ");
+      const shortName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[1][0]}.` : nameParts[0];
+
+      return {
+        ...eng,
+        shortName,
+        value: rawVal,
+        displayVal,
+        color,
+      };
+    });
+  }, [sortedRecords, activeKPI]);
 
   const ActiveIcon = kpiInfo.icon;
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-2xs overflow-hidden space-y-4 p-5">
+    <div className="rounded-2xl border border-border bg-card shadow-2xs overflow-hidden space-y-5 p-5">
       {/* Active KPI Context Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
         <div className="flex items-center gap-2.5">
@@ -126,7 +178,7 @@ export function EngineerKPIBarCharts({
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
               <span>{kpiInfo.title}</span>
               <span className="text-xs font-normal text-muted-foreground">
-                (Comparative Lean Bar Chart)
+                (Vertical Performance Chart)
               </span>
             </h3>
             <p className="text-xs text-muted-foreground">{kpiInfo.description}</p>
@@ -135,194 +187,171 @@ export function EngineerKPIBarCharts({
 
         {/* Benchmark Indicators */}
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          <div className="px-3 py-1 rounded-lg bg-muted/60 text-foreground font-semibold text-xs flex items-center gap-1.5">
+          <div className="px-3 py-1 rounded-lg bg-muted/60 text-foreground font-semibold text-xs flex items-center gap-1.5 border-0">
             <Target className="size-3.5 text-primary" />
             <span>{kpiInfo.targetLabel}</span>
           </div>
-          <div className="px-3 py-1 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center gap-1.5">
+          <div className="px-3 py-1 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center gap-1.5 border-0">
             <TrendingUp className="size-3.5" />
             <span>{kpiInfo.teamAvgLabel}</span>
           </div>
         </div>
       </div>
 
-      {/* Lean Bar Chart Row List */}
-      <div className="space-y-2.5 pt-1">
-        {sortedRecords.map((eng, idx) => {
-          const initials = eng.engineerName
-            .split(" ")
-            .map((n) => n[0])
-            .join("");
+      {/* Vertical Bar Chart Container */}
+      <div className="h-72 sm:h-80 w-full pt-3">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            margin={{ top: 25, right: 15, left: -10, bottom: 25 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
+            <XAxis
+              dataKey="shortName"
+              stroke="#888888"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              interval={0}
+              angle={-25}
+              textAnchor="end"
+              height={35}
+            />
+            <YAxis
+              stroke="#888888"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              domain={kpiInfo.domain as [number, number]}
+              tickFormatter={(val) =>
+                activeKPI === "ftfr" || activeKPI === "utilization"
+                  ? `${val}%`
+                  : activeKPI === "mttr" || activeKPI === "travel"
+                  ? `${val}h`
+                  : `${val}`
+              }
+            />
+            {kpiInfo.targetValue !== undefined && (
+              <ReferenceLine
+                y={kpiInfo.targetValue}
+                stroke="#64748B"
+                strokeDasharray="4 4"
+                strokeWidth={1.5}
+                label={{
+                  value: `Benchmark (${kpiInfo.targetValue}${kpiInfo.unit})`,
+                  position: "insideTopRight",
+                  fill: "#64748B",
+                  fontSize: 10,
+                  fontWeight: 600,
+                }}
+              />
+            )}
+            <RechartsTooltip
+              cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const item = payload[0].payload as typeof chartData[0];
+                  return (
+                    <div className="rounded-lg border border-border bg-popover px-3.5 py-2.5 text-xs shadow-lg space-y-1">
+                      <p className="font-bold text-foreground">{item.engineerName}</p>
+                      <p className="text-muted-foreground text-[11px]">{item.jobTitle}</p>
+                      <div className="pt-1 flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">{kpiInfo.title}:</span>
+                        <strong className="font-mono font-bold" style={{ color: item.color }}>
+                          {item.displayVal}
+                        </strong>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground font-mono">
+                        Completed Jobs: {item.jobsCompletedCount} · FTFR: {item.ftfr}% · MTTR: {item.mttr.toFixed(1)}h
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={44}>
+              <LabelList
+                dataKey="displayVal"
+                position="top"
+                content={(props: any) => {
+                  const { x, y, width, value } = props;
+                  if (!value) return null;
+                  return (
+                    <text
+                      x={x + width / 2}
+                      y={y - 8}
+                      fill="currentColor"
+                      textAnchor="middle"
+                      className="fill-foreground font-mono text-[10px] sm:text-[11px] font-bold"
+                    >
+                      {value}
+                    </text>
+                  );
+                }}
+              />
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
-          return (
-            <div
-              key={eng.engineerId}
-              className="p-3 rounded-xl border border-border/50 bg-muted/5 hover:bg-muted/15 transition-all space-y-1.5"
-            >
-              {/* Row Header: Engineer Info & Value Pill */}
-              <div className="flex items-center justify-between gap-2 text-xs">
+      {/* Engineer Breakdown Leaderboard Grid */}
+      <div className="border-t border-border/80 pt-4">
+        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+          Technician Metric Breakdown & Ranking
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+          {sortedRecords.map((eng, idx) => {
+            const initials = eng.engineerName
+              .split(" ")
+              .map((n) => n[0])
+              .join("");
+
+            let badgeColor = "bg-primary/10 text-primary";
+            let valText = `${eng.jobsCompletedCount} Jobs`;
+
+            if (activeKPI === "ftfr") {
+              badgeColor = eng.ftfr >= 85 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" : "bg-rose-500/15 text-rose-700 dark:text-rose-400";
+              valText = `${eng.ftfr}% FTFR`;
+            } else if (activeKPI === "mttr") {
+              badgeColor = eng.mttr <= 3.5 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" : "bg-amber-500/15 text-amber-700 dark:text-amber-400";
+              valText = `${eng.mttr.toFixed(1)}h MTTR`;
+            } else if (activeKPI === "utilization") {
+              badgeColor = eng.utilizationRate >= 75 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" : "bg-amber-500/15 text-amber-700 dark:text-amber-400";
+              valText = `${eng.utilizationRate}% Util`;
+            } else if (activeKPI === "travel") {
+              badgeColor = eng.avgTravelTimeHours <= 1.5 ? "bg-sky-500/15 text-sky-700 dark:text-sky-400" : "bg-amber-500/15 text-amber-700 dark:text-amber-400";
+              valText = `${eng.avgTravelTimeHours.toFixed(1)}h Travel`;
+            }
+
+            return (
+              <div
+                key={eng.engineerId}
+                className="p-2.5 rounded-xl border border-border/60 bg-card/60 flex items-center justify-between gap-2 text-xs"
+              >
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-mono text-xs font-bold text-muted-foreground w-5 shrink-0">
+                  <span className="font-mono text-[11px] font-bold text-muted-foreground w-4 shrink-0">
                     #{idx + 1}
                   </span>
-                  <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                  <div className="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px] shrink-0">
                     {initials}
                   </div>
-                  <span className="font-bold text-foreground text-xs truncate">
+                  <span className="font-semibold text-foreground text-xs truncate">
                     {eng.engineerName}
                   </span>
-                  <span className="text-xs text-muted-foreground truncate hidden md:inline">
-                    · {eng.jobTitle}
-                  </span>
                 </div>
-
-                {/* Lean Formatted Value Pill */}
-                <div className="font-mono text-xs font-bold shrink-0">
-                  {activeKPI === "ftfr" && (
-                    <span
-                      className={cn(
-                        "px-2 py-0.5 rounded-md",
-                        eng.ftfr >= 85
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                      )}
-                    >
-                      {eng.ftfr}% FTFR
-                    </span>
-                  )}
-                  {activeKPI === "mttr" && (
-                    <span
-                      className={cn(
-                        "px-2 py-0.5 rounded-md",
-                        eng.mttr <= 3.5
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                      )}
-                    >
-                      {eng.mttr.toFixed(1)}h MTTR
-                    </span>
-                  )}
-                  {activeKPI === "utilization" && (
-                    <span
-                      className={cn(
-                        "px-2 py-0.5 rounded-md",
-                        eng.utilizationRate >= 75
-                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                      )}
-                    >
-                      {eng.utilizationRate}% Utilization
-                    </span>
-                  )}
-                  {activeKPI === "travel" && (
-                    <span
-                      className={cn(
-                        "px-2 py-0.5 rounded-md",
-                        eng.avgTravelTimeHours <= 1.5
-                          ? "bg-sky-500/10 text-sky-600 dark:text-sky-400"
-                          : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                      )}
-                    >
-                      {eng.avgTravelTimeHours.toFixed(1)}h Travel
-                    </span>
-                  )}
-                  {activeKPI === "volume" && (
-                    <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary">
-                      {eng.jobsCompletedCount} Completed
-                    </span>
-                  )}
-                </div>
+                <span className={cn("px-2 py-0.5 rounded text-[11px] font-mono font-bold shrink-0 border-0", badgeColor)}>
+                  {valText}
+                </span>
               </div>
-
-              {/* Lean Bar Visual (Height: 8px, Sleek, Rounded-full) */}
-              {activeKPI === "ftfr" && (
-                <div className="w-full bg-muted/60 h-2 rounded-full overflow-hidden relative">
-                  {/* 85% Target Indicator line */}
-                  <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-foreground/40 z-10"
-                    style={{ left: "85%" }}
-                    title="Target: 85%"
-                  />
-                  <div
-                    className={cn(
-                      "h-full rounded-full transition-all duration-500",
-                      eng.ftfr >= 85 ? "bg-emerald-500" : "bg-rose-500"
-                    )}
-                    style={{ width: `${Math.min(eng.ftfr, 100)}%` }}
-                  />
-                </div>
-              )}
-
-              {activeKPI === "mttr" && (
-                <div className="w-full bg-muted/60 h-2 rounded-full overflow-hidden relative">
-                  {/* 3.5h Target Indicator line */}
-                  <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-foreground/40 z-10"
-                    style={{ left: `${(3.5 / maxMTTR) * 100}%` }}
-                    title="Target: 3.5h"
-                  />
-                  <div
-                    className={cn(
-                      "h-full rounded-full transition-all duration-500",
-                      eng.mttr <= 3.5 ? "bg-emerald-500" : "bg-amber-500"
-                    )}
-                    style={{ width: `${(eng.mttr / maxMTTR) * 100}%` }}
-                  />
-                </div>
-              )}
-
-              {activeKPI === "utilization" && (
-                <div className="w-full bg-muted/60 h-2 rounded-full overflow-hidden relative">
-                  {/* 75% Target Indicator line */}
-                  <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-foreground/40 z-10"
-                    style={{ left: "75%" }}
-                    title="Target: 75%"
-                  />
-                  <div
-                    className={cn(
-                      "h-full rounded-full transition-all duration-500",
-                      eng.utilizationRate >= 75 ? "bg-emerald-500" : "bg-amber-500"
-                    )}
-                    style={{ width: `${Math.min(eng.utilizationRate, 100)}%` }}
-                  />
-                </div>
-              )}
-
-              {activeKPI === "travel" && (
-                <div className="w-full bg-muted/60 h-2 rounded-full overflow-hidden relative">
-                  {/* 1.5h Target Indicator line */}
-                  <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-foreground/40 z-10"
-                    style={{ left: `${(1.5 / maxTravelHours) * 100}%` }}
-                    title="Goal: 1.5h"
-                  />
-                  <div
-                    className={cn(
-                      "h-full rounded-full transition-all duration-500",
-                      eng.avgTravelTimeHours <= 1.5 ? "bg-sky-500" : "bg-amber-500"
-                    )}
-                    style={{
-                      width: `${(eng.avgTravelTimeHours / maxTravelHours) * 100}%`,
-                    }}
-                  />
-                </div>
-              )}
-
-              {activeKPI === "volume" && (
-                <div className="w-full bg-muted/60 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-500"
-                    style={{
-                      width: `${(eng.jobsCompletedCount / maxVolume) * 100}%`,
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 }
+
