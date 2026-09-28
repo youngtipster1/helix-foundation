@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { AppTabs } from "@/components/ui/app-tabs";
 import { RowActionsMenu } from "@/components/data-table/row-actions-menu";
 import { AuditItem, AuditRun } from "../types";
@@ -627,12 +628,12 @@ export function PartsAuditTable({
                         </span>
                         <Badge
                           className={cn(
-                            "text-[10px] uppercase font-bold",
+                            "text-[10px] uppercase font-bold border-0",
                             isPending
-                              ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+                              ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
                               : isApproved
-                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
-                              : "bg-destructive/10 text-destructive border-destructive/30"
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                              : "bg-destructive/15 text-destructive dark:text-rose-400"
                           )}
                         >
                           {isPending ? "Pending Approval" : isApproved ? "Approved & Reconciled" : "Rejected"}
