@@ -530,7 +530,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Row 1: Equipment Number, Serial Number, OEM (v), Modality (v), Model (v) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">
                       Equipment Number <span className="text-destructive">*</span>
@@ -623,7 +623,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Row 2: Equipment Status (v), Installation date, Warranty Status (v), Warranty start Date, Warranty end date */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs pt-1">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Equipment Status</Label>
                     <Select
@@ -709,7 +709,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Row 3: Contract Status (v), Contract end date, Next PPM Date, PPM schedule, SW Version */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs pt-1">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Contract Status</Label>
                     <Select
@@ -797,8 +797,8 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                   </span>
                 </div>
 
-                {/* Row 1: Customer, Location (blue), Customer Contact (blue), Email (blue), Phone Number (blue) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                {/* Customer, Location (blue), Customer Contact (blue), Email (blue), Phone Number (blue), Region */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Customer</Label>
                     <Select
@@ -846,10 +846,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       {formData.phoneNumber || "—"}
                     </div>
                   </div>
-                </div>
 
-                {/* Row 2: Region */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs pt-1">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Region</Label>
                     <Input
@@ -892,7 +889,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Row 1: I.P Address, Mac address, AE Title, Port Number, Subnet mask */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">I.P Address</Label>
                     <Input
@@ -1090,7 +1087,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
             <TabsContent value="service" className="m-0 space-y-4 animate-in fade-in-50 duration-150">
               {/* Top Row Inputs (Slide 13: Next PPM Date, PPM schedule (Months)) */}
               <div className="rounded-xl border border-border bg-card p-4 shadow-2xs space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Next PPM Date</Label>
                     <Input
@@ -1210,7 +1207,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       <div className="space-y-1">
                         <Label className="text-[11px] font-semibold text-foreground">Job Type</Label>
                         <Select
@@ -1348,7 +1345,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Row 1: Ownership Type (v), Warranty Status (v), Warranty Start Date, Warranty end date */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Ownership Type</Label>
                     <Select
@@ -1421,7 +1418,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Row 2: Contract status (v), Contract Number, Contract start date (blue), Contract end date (blue), Contract value (blue), Contract type (blue) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 text-xs pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs pt-1">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Contract status</Label>
                     <Select
@@ -1497,7 +1494,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </div>
 
                 {/* Row 3: Contract Order Number, Contract PO Number */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 text-xs pt-1">
                   <div className="space-y-1">
                     <Label className="text-[11px] font-semibold text-foreground">Contract Order Number</Label>
                     <Input

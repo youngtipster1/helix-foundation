@@ -436,7 +436,7 @@ export function PartFormModal({
               </div>
 
               {/* Classification dropdowns: Category, OEM, Modality, Model */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-3 rounded-lg border border-border bg-muted/10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 p-3 rounded-lg border border-border bg-muted/10">
                 <div className="space-y-1.5">
                   <Label htmlFor="category" className="text-xs font-semibold">
                     Part Category <span className="text-destructive">*</span>
@@ -534,7 +534,7 @@ export function PartFormModal({
               </div>
 
               {/* Quantities & Shelf Life */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="quantityInStock" className="text-xs font-semibold">
                     {partToEdit ? "Current Stock (Ledger Tracked)" : "Initial Opening Stock"}{" "}
@@ -750,7 +750,7 @@ export function PartFormModal({
               </div>
 
               {/* Pricing, VAT, and Pack Sizing */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 pt-1">
                 <div className="space-y-1.5">
                   <Label htmlFor="quantityInPack" className="text-xs font-semibold">
                     Quantity in Pack
@@ -875,8 +875,8 @@ export function PartFormModal({
                   <span>Depot & Shelf Location Coordinates</span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                  <div className="space-y-1.5 sm:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
                     <Label htmlFor="location" className="text-xs font-semibold">
                       Depot Location <span className="text-destructive">*</span>
                     </Label>

@@ -591,7 +591,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                 </div>
 
                 {/* Row 2: Contract Type | Contract Number | Contract Start date | Contract end date */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-1">
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-foreground">Contract Type</Label>
                     <Select
@@ -804,7 +804,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-foreground">
                       Contract Invoice Number
@@ -1220,7 +1220,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-foreground">
                       Equipment Number
@@ -1273,7 +1273,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 items-end pt-1">
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-foreground">Contract value</Label>
                     <div className="relative">
