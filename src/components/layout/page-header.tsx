@@ -15,19 +15,11 @@ export function PageHeader({
 }) {
   return (
     <header className="page-enter mb-6">
-      {eyebrow && (
-        <p className="text-[11px] font-semibold tracking-[0.16em] text-muted-foreground uppercase mb-1">
-          {eyebrow}
-        </p>
-      )}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            {Icon && <Icon className="size-6 text-primary" />}
-            <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-              {title}
-            </h1>
-          </div>
+          <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
+            {title}
+          </h1>
           {subtitle && (
             <p className="mt-0.5 max-w-2xl text-xs text-muted-foreground">{subtitle}</p>
           )}
