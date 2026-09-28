@@ -498,19 +498,19 @@ export const AssetModal: React.FC<AssetModalProps> = ({
         >
           {/* TabsList for View/Edit Modes */}
           {mode !== "create" && (
-            <div className="px-4 py-2.5 bg-card border-b border-border">
-              <TabsList className="w-full sm:w-auto">
-                <TabsTrigger value="general">
-                  <Stethoscope className="size-3.5 mr-1" /> General
+            <div className="px-4 py-2 bg-muted/20 border-b border-border">
+              <TabsList className="w-full grid grid-cols-4 h-9 p-1 bg-muted/60">
+                <TabsTrigger value="general" className="text-xs font-semibold data-[state=active]:font-bold justify-center">
+                  <Stethoscope className="size-3.5 mr-1.5" /> General
                 </TabsTrigger>
-                <TabsTrigger value="data">
-                  <Network className="size-3.5 mr-1" /> Data & IT
+                <TabsTrigger value="data" className="text-xs font-semibold data-[state=active]:font-bold justify-center">
+                  <Network className="size-3.5 mr-1.5" /> Data & IT
                 </TabsTrigger>
-                <TabsTrigger value="service">
-                  <Wrench className="size-3.5 mr-1" /> Equipment Service
+                <TabsTrigger value="service" className="text-xs font-semibold data-[state=active]:font-bold justify-center">
+                  <Wrench className="size-3.5 mr-1.5" /> Equipment Service
                 </TabsTrigger>
-                <TabsTrigger value="financial">
-                  <DollarSign className="size-3.5 mr-1" /> Financial
+                <TabsTrigger value="financial" className="text-xs font-semibold data-[state=active]:font-bold justify-center">
+                  <DollarSign className="size-3.5 mr-1.5" /> Financial
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -971,9 +971,9 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                   </h3>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-4 items-start">
-                  {/* Table (Left / Middle) */}
-                  <div className="flex-1 w-full rounded-lg border border-border overflow-hidden bg-background">
+                <div className="flex flex-col gap-3.5">
+                  {/* Table (Full Width) */}
+                  <div className="w-full rounded-lg border border-border overflow-hidden bg-background">
                     <table className="w-full text-xs text-left border-collapse whitespace-nowrap">
                       <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider border-b border-border">
                         <tr>
@@ -986,10 +986,10 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       <tbody className="divide-y divide-border/60">
                         {(formData.networkDiagrams || []).length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="py-8 text-center text-muted-foreground">
+                            <td colSpan={4} className="py-6 text-center text-muted-foreground">
                               <p className="font-medium text-xs text-foreground">No network diagrams</p>
                               <p className="text-[11px] text-muted-foreground mt-0.5">
-                                Use the upload panel to attach network schematics or topology diagrams.
+                                Use the upload panel below to attach network schematics or topology diagrams.
                               </p>
                             </td>
                           </tr>
@@ -1021,13 +1021,9 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                     </table>
                   </div>
 
-                  {/* Upload side panel (Slide 11: Upload network diagram, Upload button, Save button) */}
-                  <div className="w-full lg:w-64 p-4 rounded-lg border border-border bg-muted/20 space-y-3 shrink-0 flex flex-col justify-between">
-                    <div className="space-y-2.5">
-                      <span className="text-xs font-bold text-foreground block">
-                        Upload network diagram
-                      </span>
-
+                  {/* Upload side panel (Vertical full width layout below table) */}
+                  <div className="w-full p-3.5 rounded-lg border border-border bg-muted/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                       <input
                         type="file"
                         ref={networkFileInputRef}
@@ -1037,7 +1033,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                           const file = e.target.files?.[0];
                           if (file) {
                             setPendingDiagramFile(file);
-                            toast.info(`Selected ${file.name}. Click "Save" to add to table.`);
+                            toast.info(`Selected ${file.name}. Click "Save Diagram" to add to table.`);
                             e.target.value = "";
                           }
                         }}
@@ -1048,33 +1044,29 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                         variant="outline"
                         disabled={isReadOnly}
                         onClick={() => networkFileInputRef.current?.click()}
-                        className="h-8 w-full text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border hover:bg-muted/80"
+                        className="h-8 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border hover:bg-muted/80 shrink-0"
                       >
                         <Upload className="size-3.5 text-primary" />
-                        <span className="truncate">{pendingDiagramFile ? pendingDiagramFile.name : "Upload"}</span>
+                        <span className="truncate max-w-[180px]">{pendingDiagramFile ? pendingDiagramFile.name : "Upload Network Diagram"}</span>
                       </Button>
 
-                      {pendingDiagramFile && (
-                        <div className="space-y-1">
-                          <Label className="text-[10px] text-muted-foreground font-semibold">Comment</Label>
-                          <Input
-                            placeholder="Diagram comment..."
-                            value={pendingDiagramComment}
-                            onChange={(e) => setPendingDiagramComment(e.target.value)}
-                            className="h-7 text-xs bg-background border-border"
-                          />
-                        </div>
-                      )}
+                      <Input
+                        placeholder="Optional diagram comment..."
+                        value={pendingDiagramComment}
+                        disabled={isReadOnly}
+                        onChange={(e) => setPendingDiagramComment(e.target.value)}
+                        className="h-8 text-xs bg-background border-border flex-1"
+                      />
                     </div>
 
                     <Button
                       type="button"
                       disabled={isReadOnly || !pendingDiagramFile}
                       onClick={handleSaveNetworkDiagram}
-                      className="h-8 w-full text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs disabled:opacity-50 mt-2"
+                      className="h-8 px-4 text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs disabled:opacity-50 shrink-0"
                     >
                       <Save className="size-3.5 mr-1" />
-                      <span>Save</span>
+                      <span>Save Diagram</span>
                     </Button>
                   </div>
                 </div>

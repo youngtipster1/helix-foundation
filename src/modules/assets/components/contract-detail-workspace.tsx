@@ -419,71 +419,77 @@ export const ContractModal: React.FC<ContractModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* FIXED MODAL HEADER WITH RESPONSIVE TABS (Slide 19, 20, 22, 24) */}
-        <div className="shrink-0 bg-card border-b border-border/80 px-4 sm:px-6 py-3 sm:py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 pr-11 sm:pr-12">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="size-8 sm:size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <FileText className="size-4 sm:size-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <DialogTitle className="text-sm sm:text-base font-bold font-mono text-foreground truncate">
-                  {contractNumber || "CREATE / EDIT CONTRACT"}
-                </DialogTitle>
-                <ContractStatusBadge status={contract?.contractStatus || "In Contract"} />
-                <Badge variant="outline" className="text-[10px] font-mono py-0 px-1.5 hidden sm:inline-flex">
-                  {contractType}
-                </Badge>
-                {isAdmin && !isEditing && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                    className="h-6 px-2 text-[11px] font-bold gap-1 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs ml-1"
-                  >
-                    <Pencil className="size-3" />
-                    <span>Edit</span>
-                  </Button>
-                )}
-                {isEditing && (
-                  <Badge variant="secondary" className="text-[10px] font-semibold py-0 px-1.5 text-primary border-0 bg-primary/10">
-                    Editing
-                  </Badge>
-                )}
+        <div className="shrink-0 bg-card border-b border-border/80 px-4 sm:px-5 py-3 sm:py-3.5 space-y-3">
+          <div className="flex items-center justify-between gap-3 pr-8 sm:pr-10">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className="size-8 sm:size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <FileText className="size-4 sm:size-5" />
               </div>
-              <p className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                <span>{isEditing ? "Editing Contract" : "Viewing Contract (Locked)"}</span>
-                <span>&bull;</span>
-                <Calendar className="size-3 text-muted-foreground shrink-0" />
-                <span className="truncate">
-                  {contractStartDate || "—"} to {contractEndDate || "—"}
-                </span>
-              </p>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  <DialogTitle className="text-sm sm:text-base font-bold font-mono text-foreground truncate">
+                    {contractNumber || "CREATE / EDIT CONTRACT"}
+                  </DialogTitle>
+                  <ContractStatusBadge status={contract?.contractStatus || "In Contract"} />
+                  <Badge variant="outline" className="text-[10px] font-mono py-0 px-1.5 hidden sm:inline-flex">
+                    {contractType}
+                  </Badge>
+                  {isAdmin && !isEditing && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                      className="h-6 px-2 text-[11px] font-bold gap-1 bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer shadow-xs ml-1"
+                    >
+                      <Pencil className="size-3" />
+                      <span>Edit</span>
+                    </Button>
+                  )}
+                  {isEditing && (
+                    <Badge variant="secondary" className="text-[10px] font-semibold py-0 px-1.5 text-primary border-0 bg-primary/10">
+                      Editing
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                  <span>{isEditing ? "Editing Contract" : "Viewing Contract (Locked)"}</span>
+                  <span>&bull;</span>
+                  <Calendar className="size-3 text-muted-foreground shrink-0" />
+                  <span className="truncate">
+                    {contractStartDate || "—"} to {contractEndDate || "—"}
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* RESPONSIVE SEGMENTED TABS */}
-          <AppTabs
-            size="sm"
-            value={activeTab}
-            onChange={(tab) => setActiveTab(tab as any)}
-            tabs={[
-              {
-                id: "details",
-                label: "Contract Details",
-                icon: FileText,
-              },
-              {
-                id: "payments",
-                label: "Payment Terms",
-                icon: CreditCard,
-              },
-              {
-                id: "equipment",
-                label: "Equipment List",
-                icon: Wrench,
-              },
-            ]}
-          />
+          {/* RESPONSIVE FULL-WIDTH EQUAL TABS PLACED UNDER CONTRACT NAME */}
+          <div className="w-full">
+            <AppTabs
+              className="w-full grid grid-cols-3 gap-1 p-1 bg-muted/40 rounded-lg border border-border/60"
+              tabClassName="justify-center w-full text-xs"
+              size="sm"
+              value={activeTab}
+              onChange={(tab) => setActiveTab(tab as any)}
+              tabs={[
+                {
+                  id: "details",
+                  label: "Contract Details",
+                  icon: FileText,
+                },
+                {
+                  id: "payments",
+                  label: "Payment Terms",
+                  icon: CreditCard,
+                },
+                {
+                  id: "equipment",
+                  label: "Equipment List",
+                  icon: Wrench,
+                },
+              ]}
+            />
+          </div>
         </div>
 
         {/* SCROLLABLE MODAL BODY - ONLY THIS REGION SCROLLS */}
@@ -665,8 +671,8 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-5">
-                  <div className="flex-1 rounded-lg border border-border overflow-hidden bg-background">
+                <div className="flex flex-col gap-3.5">
+                  <div className="w-full rounded-lg border border-border overflow-hidden bg-background">
                     <table className="w-full text-xs text-left border-collapse">
                       <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider border-b border-border">
                         <tr>
@@ -678,8 +684,8 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       <tbody className="divide-y divide-border/60">
                         {serviceContractsList.length === 0 ? (
                           <tr>
-                            <td colSpan={3} className="py-8 text-center text-xs text-muted-foreground">
-                              No service contract document uploaded yet. Click "Choose File to Upload" to attach a PDF.
+                            <td colSpan={3} className="py-6 text-center text-xs text-muted-foreground">
+                              No service contract document uploaded yet. Click "Choose File to Upload" below to attach a PDF.
                             </td>
                           </tr>
                         ) : (
@@ -722,7 +728,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                     </table>
                   </div>
 
-                  <div className="w-full lg:w-64 p-4 rounded-lg border border-border bg-muted/20 space-y-3 shrink-0 flex flex-col justify-between">
+                  <div className="w-full p-3.5 rounded-lg border border-border bg-muted/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <div>
                       <span className="text-xs font-bold text-foreground block">
                         Upload service contract
@@ -759,7 +765,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
                       variant="outline"
                       disabled={!isEditing}
                       onClick={() => contractFileInputRef.current?.click()}
-                      className="h-9 w-full text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-8 px-4 text-xs font-semibold gap-1.5 cursor-pointer shadow-2xs border-border hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                       <Upload className="size-3.5 text-primary" />
                       <span>Choose File to Upload</span>
