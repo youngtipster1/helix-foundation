@@ -10,6 +10,7 @@ import { isModuleAdmin } from "@/features/auth/permissions";
 import { PageHeader } from "@/components/layout/page-header";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ChecklistDetailModal } from "@/components/quality/checklist-detail-modal";
+import { qualityService } from "@/modules/quality/services/quality-service";
 
 export const Route = createFileRoute("/app/quality/approvals")({
   head: () => ({

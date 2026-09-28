@@ -46,7 +46,12 @@ export function PurchaseOrdersTable({
 }: PurchaseOrdersTableProps) {
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [columnFilters, setColumnFilters] = useState<Record<string, string[] | undefined>>({});
+  const [columnFilters, setColumnFilters] = useState<{
+    poNumber?: string[];
+    sourceOrderNumber?: string[];
+    supplierName?: string[];
+    status?: string[];
+  }>({});
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

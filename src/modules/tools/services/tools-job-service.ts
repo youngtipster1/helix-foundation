@@ -84,12 +84,19 @@ export const toolsJobService = {
     let updated: ToolJob | undefined;
     jobsStore = jobsStore.map((j) => {
       if (j.id !== id && j.jobNumber !== id) return j;
-      updated = {
+      const jobItem: ToolJob = {
         ...j,
-        ...input,
+        jobType: input.jobType ?? j.jobType,
+        contactName: input.contactName ?? j.contactName,
+        contactEmail: input.contactEmail ?? j.contactEmail,
+        contactPhone: input.contactPhone ?? j.contactPhone,
+        assignedToId: input.assignedToId ?? j.assignedToId,
+        assignedToName: input.assignedToName ?? j.assignedToName,
+        issue: input.issue ?? j.issue,
         updatedAt: today(),
       };
-      return updated;
+      updated = jobItem;
+      return jobItem;
     });
 
     if (!updated) throw new Error(`Job ${id} not found`);

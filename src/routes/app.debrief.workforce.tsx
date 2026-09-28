@@ -106,9 +106,11 @@ function DebriefWorkforcePage() {
   const weekDays = useMemo(() => getWeekDates(currentDate), [currentDate]);
   const weekNumber = useMemo(() => getWeekNumber(currentDate), [currentDate]);
 
-  const startDateLabel = formatMonthDay(weekDays[0]);
-  const endDateLabel = formatMonthDay(weekDays[6]);
-  const yearLabel = weekDays[0].getFullYear();
+  const firstDay = weekDays[0] ?? new Date();
+  const lastDay = weekDays[6] ?? new Date();
+  const startDateLabel = formatMonthDay(firstDay);
+  const endDateLabel = formatMonthDay(lastDay);
+  const yearLabel = firstDay.getFullYear();
 
   // Summary Telemetry Calculations for the viewed week
   const weekMetrics = useMemo(() => {
@@ -117,7 +119,7 @@ function DebriefWorkforcePage() {
     let trainingCount = 0;
     let leaveCount = 0;
 
-    const weekDateKeys = new Set(weekDays.slice(0, 5).map((d) => d.toISOString().split("T")[0]));
+    const weekDateKeys = new Set(weekDays.slice(0, 5).map((d) => d.toISOString().slice(0, 10)));
 
     engineers.forEach((eng) => {
       const calc = workforceService.calculateWeeklyAvailableTime(

@@ -202,8 +202,7 @@ function OpenJobsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Open Jobs"
-        description="Active maintenance, repair, and calibration work orders requiring completion"
-        icon={Zap}
+        subtitle="Active maintenance, repair, and calibration work orders requiring completion"
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -108,7 +108,7 @@ function WelcomePortalPage() {
   useEffect(() => {
     if (ready && !user) {
       navigate({ to: "/login", replace: true });
-      return;
+      return undefined;
     }
 
     if (user) {
@@ -123,6 +123,7 @@ function WelcomePortalPage() {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [ready, user, navigate]);
 
   if (!ready || !user) {

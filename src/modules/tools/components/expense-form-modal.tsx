@@ -29,7 +29,7 @@ export function ExpenseFormModal({ open, onOpenChange, jobId, onSubmit }: Expens
     async function loadTypes() {
       const types = await toolsSettingsService.getExpenseTypes();
       setExpenseTypes(types);
-      if (types.length > 0) setExpenseType(types[0]);
+      if (types.length > 0 && types[0]) setExpenseType(types[0]);
     }
     loadTypes();
   }, []);

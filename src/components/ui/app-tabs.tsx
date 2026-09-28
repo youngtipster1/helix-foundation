@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 export interface AppTabItem<T extends string = string> {
   id: T;
   label: string;
-  count?: number;
-  icon?: LucideIcon;
-  badgeClassName?: string;
-  disabled?: boolean;
+  count?: number | undefined;
+  icon?: LucideIcon | undefined;
+  badgeClassName?: string | undefined;
+  disabled?: boolean | undefined;
 }
 
 export interface AppTabsProps<T extends string = string> {

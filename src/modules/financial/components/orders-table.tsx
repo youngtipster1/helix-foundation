@@ -75,7 +75,16 @@ export function OrdersTable({
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [columnFilters, setColumnFilters] = useState<Record<string, string[] | undefined>>({});
+  const [columnFilters, setColumnFilters] = useState<{
+    orderNumber?: string[];
+    requestedByName?: string[];
+    dateRaised?: string[];
+    requisitionNumber?: string[];
+    supplier?: string[];
+    status?: string[];
+    category?: string[];
+    poNumber?: string[];
+  }>({});
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

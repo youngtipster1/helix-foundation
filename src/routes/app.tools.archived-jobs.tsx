@@ -189,8 +189,7 @@ function ArchivedJobsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Archived Jobs"
-        description="View and restore soft-deleted equipment maintenance, repair and calibration jobs"
-        icon={History}
+        subtitle="View and restore soft-deleted equipment maintenance, repair and calibration jobs"
       />
 
       <DataTable

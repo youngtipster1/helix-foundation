@@ -41,11 +41,11 @@ function ExpenseApprovalsPage() {
   const [viewingDoc, setViewingDoc] = useState<{
     title: string;
     fileName: string;
-    fileSize?: string;
-    documentType?: string;
-    uploadedBy?: string;
-    dateUploaded?: string;
-    comment?: string;
+    fileSize?: string | undefined;
+    documentType?: string | undefined;
+    uploadedBy?: string | undefined;
+    dateUploaded?: string | undefined;
+    comment?: string | undefined;
   } | null>(null);
 
   const fetchExpenses = async () => {
@@ -256,8 +256,7 @@ function ExpenseApprovalsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Expense Approvals"
-        description="Review and audit technician maintenance claims, replacement parts costs, and calibration fees"
-        icon={DollarSign}
+        subtitle="Review and audit technician maintenance claims, replacement parts costs, and calibration fees"
       />
 
       {/* Summary KPI Highlights */}

@@ -138,7 +138,7 @@ export function StockMovementsTable({
 
   const handleOpenModal = (presetType?: StockMovementType) => {
     if (presetType) setMovementType(presetType);
-    if (!selectedPartId && parts.length > 0) setSelectedPartId(parts[0].id);
+    if (!selectedPartId && parts.length > 0 && parts[0]) setSelectedPartId(parts[0].id);
     setQuantity(1);
     setReferenceNumber(presetType === "issued" ? "WO-" : presetType === "received" ? "PO-" : "");
     setNotes("");

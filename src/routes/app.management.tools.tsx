@@ -183,13 +183,13 @@ function ManagementToolsPage() {
                 </Pie>
                 <RechartsTooltip
                   content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
+                    if (active && payload && payload.length && payload[0]) {
                       const data = payload[0];
                       return (
                         <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
                           <p className="font-bold text-foreground">{data.name}</p>
                           <p className="text-muted-foreground font-mono">
-                            Count: <span className="font-bold text-foreground">{data.value}</span> ({Math.round(((data.value as number) / totalTools) * 100)}%)
+                            Count: <span className="font-bold text-foreground">{data.value}</span> ({Math.round(((Number(data.value) || 0) / totalTools) * 100)}%)
                           </p>
                         </div>
                       );
@@ -272,11 +272,11 @@ function ManagementToolsPage() {
                 <RechartsTooltip
                   cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
                   content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
+                    if (active && payload && payload.length && payload[0]) {
                       const data = payload[0];
                       return (
                         <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
-                          <p className="font-bold text-foreground">{data.payload.name}</p>
+                          <p className="font-bold text-foreground">{data.payload?.name || data.name}</p>
                           <p className="text-muted-foreground font-mono">
                             Total Jobs: <span className="font-bold text-foreground">{data.value}</span>
                           </p>

@@ -403,7 +403,7 @@ export function JobWorkspaceModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[94vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Workspace Top Header */}
         <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border bg-card">
           <div className="flex flex-wrap items-center justify-between gap-3">

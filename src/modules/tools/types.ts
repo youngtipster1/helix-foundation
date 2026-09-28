@@ -47,21 +47,21 @@ export interface Tool {
   dateOfPurchase: string;
   poNumber: string;
   cost: number; // in NGN (Naira)
-  comment?: string;
-  receiptFileName?: string;
-  receiptFileSize?: string;
-  receiptUrl?: string;
+  comment?: string | undefined;
+  receiptFileName?: string | undefined;
+  receiptFileSize?: string | undefined;
+  receiptUrl?: string | undefined;
 
   // Archive & Audit
   isArchived: boolean;
-  archivedDate?: string;
-  archivedBy?: string;
+  archivedDate?: string | undefined;
+  archivedBy?: string | undefined;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface ToolInput {
-  id?: string;
+  id?: string | undefined;
   serialNumber: string;
   category: string;
   oem: string;
@@ -71,7 +71,7 @@ export interface ToolInput {
   lastCalibrationDate: string;
   nextCalibrationDate: string;
   calibrationValidity: string;
-  calibrationStatus?: CalibrationStatus;
+  calibrationStatus?: CalibrationStatus | undefined;
   
   warrantyStatus: WarrantyStatus;
   warrantyStartDate: string;
@@ -86,9 +86,9 @@ export interface ToolInput {
   dateOfPurchase: string;
   poNumber: string;
   cost: number;
-  comment?: string;
-  receiptFileName?: string;
-  receiptFileSize?: string;
+  comment?: string | undefined;
+  receiptFileName?: string | undefined;
+  receiptFileSize?: string | undefined;
 }
 
 export interface ToolSnapshot {
@@ -122,16 +122,16 @@ export interface ToolJob {
 
   // Operational fields (Admin & User edit)
   jobStatus: JobStatus;
-  startDate?: string;
+  startDate?: string | undefined;
   toolStatus: ToolStatus;
-  rootCause?: RootCause;
-  nextCalibrationDate?: string; // Manually entered
-  closeDate?: string; // If set, jobStatus becomes "Completed"
+  rootCause?: RootCause | undefined;
+  nextCalibrationDate?: string | undefined; // Manually entered
+  closeDate?: string | undefined; // If set, jobStatus becomes "Completed"
 
   // Archive & Audit
   isArchived: boolean;
-  archivedDate?: string;
-  archivedBy?: string;
+  archivedDate?: string | undefined;
+  archivedBy?: string | undefined;
   createdAt: string;
   updatedAt: string;
 }
@@ -149,22 +149,22 @@ export interface CreateJobInput {
 }
 
 export interface UpdateJobAdminInput {
-  jobType?: JobType;
-  contactName?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  assignedToId?: string;
-  assignedToName?: string;
-  issue?: string;
+  jobType?: JobType | undefined;
+  contactName?: string | undefined;
+  contactEmail?: string | undefined;
+  contactPhone?: string | undefined;
+  assignedToId?: string | undefined;
+  assignedToName?: string | undefined;
+  issue?: string | undefined;
 }
 
 export interface UpdateJobOperationalInput {
   jobStatus: JobStatus;
-  startDate?: string;
+  startDate?: string | undefined;
   toolStatus: ToolStatus;
-  rootCause?: RootCause;
-  nextCalibrationDate?: string;
-  closeDate?: string;
+  rootCause?: RootCause | undefined;
+  nextCalibrationDate?: string | undefined;
+  closeDate?: string | undefined;
 }
 
 export interface ToolExpense {
@@ -173,17 +173,17 @@ export interface ToolExpense {
   date: string;
   expenseType: string; // e.g. "Replacement Sensor", "Calibration Kit", "Labor", "OEM Service"
   amount: number; // in NGN (Naira)
-  comment?: string;
-  receiptFileName?: string;
-  receiptFileSize?: string;
+  comment?: string | undefined;
+  receiptFileName?: string | undefined;
+  receiptFileSize?: string | undefined;
   approvalStatus: ExpenseApprovalStatus;
   submittedById: string;
   submittedByName: string;
   submittedAt: string;
-  reviewedById?: string;
-  reviewedByName?: string;
-  reviewedAt?: string;
-  rejectionReason?: string;
+  reviewedById?: string | undefined;
+  reviewedByName?: string | undefined;
+  reviewedAt?: string | undefined;
+  rejectionReason?: string | undefined;
 }
 
 export interface CreateExpenseInput {
@@ -191,9 +191,9 @@ export interface CreateExpenseInput {
   date: string;
   expenseType: string;
   amount: number;
-  comment?: string;
-  receiptFileName?: string;
-  receiptFileSize?: string;
+  comment?: string | undefined;
+  receiptFileName?: string | undefined;
+  receiptFileSize?: string | undefined;
 }
 
 export type DocumentType =
@@ -206,12 +206,12 @@ export type DocumentType =
 export interface ToolDocument {
   id: string;
   toolId: string;
-  jobId?: string;
+  jobId?: string | undefined;
   documentType: DocumentType;
   fileName: string;
   fileSize: string;
-  fileUrl?: string;
-  comment?: string;
+  fileUrl?: string | undefined;
+  comment?: string | undefined;
   uploadedById: string;
   uploadedByName: string;
   dateUploaded: string; // System-generated YYYY-MM-DD
@@ -219,9 +219,9 @@ export interface ToolDocument {
 
 export interface UploadDocumentInput {
   toolId: string;
-  jobId?: string;
+  jobId?: string | undefined;
   documentType: DocumentType;
   fileName: string;
   fileSize: string;
-  comment?: string;
+  comment?: string | undefined;
 }

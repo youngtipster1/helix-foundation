@@ -53,9 +53,9 @@ interface ChecklistFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   checklist: EquipmentChecklist | null; // null if creating
-  creationType?: "upload" | "structured";
+  creationType?: "upload" | "structured" | undefined;
   isAdmin: boolean;
-  currentUserName?: string;
+  currentUserName?: string | undefined;
   personnelList: Personnel[];
   statuses: ConfigRecord[];
   oems: ConfigRecord[];
@@ -346,7 +346,7 @@ function ChecklistFormModal({
                 <option value="">-- Unassigned (Available in Pool) --</option>
                 {personnelList.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.firstName} {p.lastName} ({p.designation})
+                    {p.firstName} {p.lastName} ({p.jobTitle})
                   </option>
                 ))}
               </select>
@@ -856,7 +856,11 @@ function EquipmentChecklistsPage() {
 
   const handleConfirmArchive = async () => {
     try {
-      await qualityService.archiveChecklist(confirmState.chkId);
+      await qualityService.setChecklistArchived(
+        confirmState.chkId,
+        true,
+        user ? `${user.firstName} ${user.lastName}` : "Admin"
+      );
       loadData();
     } catch (err) {
       console.error("Error archiving checklist", err);

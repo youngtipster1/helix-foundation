@@ -116,7 +116,7 @@ export function PartsAuditTable({
       const run = await partsService.saveAuditRun(
         auditDate,
         items,
-        { id: currentUserId, name: currentUserName },
+        { id: currentUserId || "usr_default", name: currentUserName || "Auditor" },
         auditNotes
       );
       setSavedSuccess(true);

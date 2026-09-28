@@ -191,8 +191,7 @@ function ArchivedToolsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Archived Tools"
-        description="View and restore soft-deleted equipment profiles and historical records"
-        icon={Archive}
+        subtitle="View and restore soft-deleted equipment profiles and historical records"
       />
 
       <DataTable

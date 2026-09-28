@@ -75,7 +75,7 @@ function getWeekDates(centerDate: Date): Date[] {
 }
 
 function formatDateKey(d: Date): string {
-  return d.toISOString().split("T")[0];
+  return d.toISOString().slice(0, 10);
 }
 
 function formatMonthDay(d: Date): string {
@@ -328,14 +328,16 @@ function DebriefSchedulePage() {
   const weekDays = useMemo(() => getWeekDates(currentDate), [currentDate]);
   const weekNumber = useMemo(() => getWeekNumber(currentDate), [currentDate]);
 
-  const startDateLabel = formatMonthDay(weekDays[0]);
-  const endDateLabel = formatMonthDay(weekDays[6]);
-  const yearLabel = weekDays[0].getFullYear();
+  const firstDay = weekDays[0] ?? new Date();
+  const lastDay = weekDays[6] ?? new Date();
+  const startDateLabel = formatMonthDay(firstDay);
+  const endDateLabel = formatMonthDay(lastDay);
+  const yearLabel = firstDay.getFullYear();
 
   // Generate dynamic jobs for the currently viewed week (so next 5 weeks or previous weeks are always populated!)
   const weekJobs = useMemo<DebriefJob[]>(() => {
     return RECURRING_JOB_TEMPLATES.map((tmpl, idx) => {
-      const targetDate = formatDateKey(weekDays[tmpl.dayOffset]);
+      const targetDate = formatDateKey(weekDays[tmpl.dayOffset] ?? new Date());
       const jobId = `deb_week_${weekNumber}_${idx + 1}`;
 
       const override = customJobOverrides[jobId];
@@ -387,7 +389,7 @@ function DebriefSchedulePage() {
   // Generate dynamic workforce availability for the currently viewed week
   const weekAvailabilities = useMemo<EngineerAvailability[]>(() => {
     return RECURRING_WORKFORCE_TEMPLATES.map((tmpl, idx) => {
-      const targetDate = formatDateKey(weekDays[tmpl.dayOffset]);
+      const targetDate = formatDateKey(weekDays[tmpl.dayOffset] ?? new Date());
       return {
         id: `avail_week_${weekNumber}_${idx + 1}`,
         personnelId: tmpl.personnelId,

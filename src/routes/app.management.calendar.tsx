@@ -60,7 +60,7 @@ function getWeekDates(centerDate: Date): Date[] {
 }
 
 function formatDateKey(d: Date): string {
-  return d.toISOString().split("T")[0];
+  return d.toISOString().slice(0, 10);
 }
 
 function formatMonthDay(d: Date): string {
@@ -299,7 +299,7 @@ function ManagementCalendarPage() {
 
   // Generate dynamic scheduled jobs for the current week
   const displayJobs = useMemo(() => {
-    const monday = weekDates[0];
+    const monday = weekDates[0] ?? new Date();
     return RECURRING_JOB_TEMPLATES.map((tmpl, idx) => {
       const targetDay = new Date(monday);
       targetDay.setDate(monday.getDate() + tmpl.dayOffset);
@@ -325,13 +325,13 @@ function ManagementCalendarPage() {
         reportedIssue: "Scheduled preventive maintenance & performance certification.",
         createdAt: "2026-09-01",
         updatedAt: "2026-09-01",
-      } as DebriefJob;
+      } as unknown as DebriefJob;
     });
   }, [weekDates]);
 
   // Generate dynamic availability for current week
   const displayAvailabilities = useMemo(() => {
-    const monday = weekDates[0];
+    const monday = weekDates[0] ?? new Date();
     return RECURRING_WORKFORCE_TEMPLATES.map((tmpl, idx) => {
       const targetDay = new Date(monday);
       targetDay.setDate(monday.getDate() + tmpl.dayOffset);
@@ -371,9 +371,11 @@ function ManagementCalendarPage() {
     setDrawerOpen(true);
   };
 
-  const startFormatted = formatMonthDay(weekDates[0]);
-  const endFormatted = formatMonthDay(weekDates[6]);
-  const yearString = weekDates[0].getFullYear();
+  const firstDate = weekDates[0] ?? new Date();
+  const lastDate = weekDates[6] ?? new Date();
+  const startFormatted = formatMonthDay(firstDate);
+  const endFormatted = formatMonthDay(lastDate);
+  const yearString = firstDate.getFullYear();
 
   return (
     <div className="w-full space-y-5 pb-12">

@@ -91,7 +91,7 @@ export function CreateJobModal({
           setPersonnelList(activePersonnel);
           setJobTypes(types);
 
-          if (activePersonnel.length > 0 && !assignedToId) {
+          if (activePersonnel.length > 0 && activePersonnel[0] && !assignedToId) {
             setAssignedToId(activePersonnel[0].id);
           }
         } catch (err) {

@@ -55,10 +55,10 @@ export function AssignTrainingModal({
   useEffect(() => {
     async function loadPolicies() {
       try {
-        const docs = await qualityService.listPolicyDocuments();
-        const activeDocs = docs.filter((d) => !d.isArchived);
+        const docs = await qualityService.listDocuments();
+        const activeDocs = docs.filter((d: PolicyDocument) => !d.isArchived);
         setPolicies(activeDocs);
-        if (activeDocs.length > 0) {
+        if (activeDocs.length > 0 && activeDocs[0]) {
           setSelectedPolicyId(activeDocs[0].id);
         }
       } catch (err) {
@@ -70,7 +70,7 @@ export function AssignTrainingModal({
       setSelectedUserIds(["usr_aara", "usr_tunde"]);
       const nextWeek = new Date();
       nextWeek.setDate(nextWeek.getDate() + 14);
-      setDueDate(nextWeek.toISOString().split("T")[0]);
+      setDueDate(nextWeek.toISOString().slice(0, 10));
       setNotes("");
     }
   }, [open]);

@@ -239,8 +239,6 @@ function DocumentFormModal({ open, onOpenChange, documentItem, personnelList, st
               </Button>
             </div>
           </div>
-
-          </div>
         </form>
 
         <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">

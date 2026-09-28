@@ -427,7 +427,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex flex-col w-[96vw] sm:w-[94vw] lg:max-w-5xl h-[90vh] max-h-[90vh] overflow-hidden p-0 gap-0 border border-border bg-card rounded-2xl shadow-2xl">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header - Compact System Design */}
         <DialogHeader
           className={cn(

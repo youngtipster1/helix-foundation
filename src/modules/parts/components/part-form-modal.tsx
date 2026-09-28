@@ -87,16 +87,16 @@ export function PartFormModal({
   const [currentStep, setCurrentStep] = useState(0);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [saving, setSaving] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
   // Form state
   const [formData, setFormData] = useState<Partial<Part>>({
     partNumber: "",
     oemVendorPartNumber: "",
     brand: "",
-    category: CATEGORIES[0],
-    oem: OEMS[0],
-    modality: MODALITIES[0],
+    category: CATEGORIES[0] || "Sensor",
+    oem: OEMS[0] || "GE Healthcare",
+    modality: MODALITIES[0] || "CT",
     model: "",
     description: "",
     note: "",
@@ -104,7 +104,7 @@ export function PartFormModal({
     minStockLevel: 1,
     maxStockLevel: 5,
     quantityOnOrder: 0,
-    dateOfPurchase: new Date().toISOString().split("T")[0],
+    dateOfPurchase: new Date().toISOString().slice(0, 10),
     shelfLifeMonths: 24,
     doesNotExpire: false,
     contactPhone: "",
@@ -116,7 +116,7 @@ export function PartFormModal({
     vatPercent: 20,
     grossPrice: 0,
     unitPrice: 0,
-    listPriceDate: new Date().toISOString().split("T")[0],
+    listPriceDate: new Date().toISOString().slice(0, 10),
     orderNote: "",
     location: "Main Depot",
     binCode: "BIN-01",
@@ -197,18 +197,19 @@ export function PartFormModal({
   }, [open, partToEdit]);
 
   useEffect(() => {
-    if (open && !partToEdit && suppliers.length > 0) {
+    if (open && !partToEdit && suppliers.length > 0 && suppliers[0]) {
+      const firstSupplier = suppliers[0];
       setFormData((prev) => {
         if (!prev.supplierId) {
           return {
             ...prev,
-            supplierId: suppliers[0].id,
-            supplierName: suppliers[0].name,
+            supplierId: firstSupplier.id,
+            supplierName: firstSupplier.name,
           };
         }
         return prev;
       });
-      setSelectedSupplier((prev) => prev || suppliers[0]);
+      setSelectedSupplier((prev) => prev || firstSupplier);
     }
   }, [open, partToEdit, suppliers]);
 
@@ -316,7 +317,7 @@ export function PartFormModal({
       if (!formData.doesNotExpire && formData.dateOfPurchase && formData.shelfLifeMonths) {
         const d = new Date(formData.dateOfPurchase);
         d.setMonth(d.getMonth() + Number(formData.shelfLifeMonths));
-        expiryDate = d.toISOString().split("T")[0];
+        expiryDate = d.toISOString().slice(0, 10);
       }
 
       const payload = {
@@ -346,7 +347,7 @@ export function PartFormModal({
       id: `doc_${Date.now()}`,
       name: `Certificate_of_Conformance_${Date.now().toString().slice(-4)}.pdf`,
       comment: "Manufacturer CoC Inspection Pass",
-      uploadDate: new Date().toISOString().split("T")[0],
+      uploadDate: new Date().toISOString().slice(0, 10),
       selected: true,
     };
     setFormData((prev) => ({
@@ -648,7 +649,7 @@ export function PartFormModal({
                 <div className="flex items-center space-x-2 h-9">
                   <Checkbox
                     id="doesNotExpire"
-                    checked={formData.doesNotExpire}
+                    checked={Boolean(formData.doesNotExpire)}
                     onCheckedChange={(checked) =>
                       setFormData({ ...formData, doesNotExpire: Boolean(checked) })
                     }

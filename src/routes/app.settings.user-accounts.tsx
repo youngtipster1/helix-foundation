@@ -630,8 +630,7 @@ function UserAccountsPage() {
     <div className="space-y-6">
       <PageHeader
         title="User Accounts"
-        description="Manage system user accounts, modules, and access roles."
-        icon={ShieldAlert}
+        subtitle="Manage system user accounts, modules, and access roles."
       />
       <DataTable
         columns={columns}

@@ -249,8 +249,7 @@ function ToolsJobsPage() {
     <div className="space-y-6">
       <PageHeader
         title="All Jobs"
-        description="Comprehensive master register of all maintenance, repair, warranty, and calibration jobs"
-        icon={ClipboardCheck}
+        subtitle="Comprehensive master register of all maintenance, repair, warranty, and calibration jobs"
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

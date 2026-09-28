@@ -40,11 +40,11 @@ function DocumentsVaultPage() {
   const [viewingDoc, setViewingDoc] = useState<{
     title: string;
     fileName: string;
-    fileSize?: string;
-    documentType?: string;
-    uploadedBy?: string;
-    dateUploaded?: string;
-    comment?: string;
+    fileSize?: string | undefined;
+    documentType?: string | undefined;
+    uploadedBy?: string | undefined;
+    dateUploaded?: string | undefined;
+    comment?: string | undefined;
   } | null>(null);
 
   const fetchDocuments = async () => {
@@ -223,8 +223,7 @@ function DocumentsVaultPage() {
     <div className="space-y-6">
       <PageHeader
         title="Compliance & Certification Vault"
-        description="Centralized repository of ISO calibration certificates, decommissioning forms, and vendor warranties"
-        icon={FileCheck}
+        subtitle="Centralized repository of ISO calibration certificates, decommissioning forms, and vendor warranties"
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

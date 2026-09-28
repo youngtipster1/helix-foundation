@@ -341,12 +341,11 @@ function QualityTrainingPage() {
     <div className="space-y-6">
       <PageHeader
         title={isAdmin ? "Training & Quality Compliance" : "My Training & Compliance"}
-        description={
+        subtitle={
           isAdmin
             ? "Assign policy documents, uploaded files, and SOPs to personnel and monitor team Quality Compliance"
             : "Review assigned policy documents, read operating procedures, and submit electronic compliance acknowledgments"
         }
-        icon={GraduationCap}
       />
 
       {/* Role-tailored KPI Highlights */}

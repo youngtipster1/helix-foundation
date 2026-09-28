@@ -369,8 +369,7 @@ function PersonnelSettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Personnel Directory"
-        description="Manage system personnel registry and user roles."
-        icon={Users}
+        subtitle="Manage system personnel registry and user roles."
       />
       <DataTable
         columns={columns}

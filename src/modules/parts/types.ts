@@ -5,16 +5,16 @@ export interface Supplier {
   address: string;
   contactPerson: string;
   email: string;
-  phone?: string;
+  phone?: string | undefined;
 }
 
 export interface PartDocument {
   id: string;
   name: string;
-  comment?: string;
+  comment?: string | undefined;
   uploadDate: string;
-  url?: string;
-  selected?: boolean;
+  url?: string | undefined;
+  selected?: boolean | undefined;
 }
 
 export type PartLifecycleStatus =
@@ -35,7 +35,7 @@ export interface Part {
   modality: string;
   model: string;
   description: string;
-  note?: string;
+  note?: string | undefined;
 
   // Stock & Inventory
   quantityInStock: number;
@@ -43,10 +43,10 @@ export interface Part {
   maxStockLevel: number;
   quantityOnOrder: number;
   dateOfPurchase: string;
-  shelfLifeMonths?: number;
+  shelfLifeMonths?: number | undefined;
   doesNotExpire: boolean;
-  expiryDate?: string | null;
-  contactPhone?: string;
+  expiryDate?: string | null | undefined;
+  contactPhone?: string | undefined;
 
   // Supplier & Order Details
   supplierId: string;
@@ -58,7 +58,7 @@ export interface Part {
   grossPrice: number;
   unitPrice: number; // Unit Cost
   listPriceDate: string;
-  orderNote?: string;
+  orderNote?: string | undefined;
 
   // Location Details
   location: string;
@@ -66,10 +66,10 @@ export interface Part {
   binNumber: string;
   column: string;
   row: string;
-  locationNote?: string;
+  locationNote?: string | undefined;
 
   // Visuals & Attachments
-  pictureUrl?: string;
+  pictureUrl?: string | undefined;
   documents: PartDocument[];
 
   // Meta
@@ -98,7 +98,7 @@ export interface StockMovement {
   referenceNumber: string; // e.g. PO-8819, WO-2026-042, AUD-0909
   performedBy: string;
   date: string;
-  notes?: string;
+  notes?: string | undefined;
 }
 
 export interface AuditItem {
@@ -133,9 +133,9 @@ export interface AuditRun {
   totalShrinkageQuantity: number;
   totalShrinkageValue: number;
   status: "pending_approval" | "approved" | "rejected";
-  approvedBy?: string;
-  approvalDate?: string;
-  notes?: string;
+  approvedBy?: string | undefined;
+  approvalDate?: string | undefined;
+  notes?: string | undefined;
 }
 
 export interface ModalityShare {

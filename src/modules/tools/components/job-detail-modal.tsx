@@ -55,8 +55,8 @@ export interface JobDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   jobNumber: string | null;
-  onJobUpdated?: () => void;
-  onJobArchived?: () => void;
+  onJobUpdated?: (() => void) | undefined;
+  onJobArchived?: (() => void) | undefined;
 }
 
 function calculateJobAge(openDate: string, closeDate?: string): string {
@@ -108,11 +108,11 @@ export function JobDetailModal({
   const [viewingDoc, setViewingDoc] = useState<{
     title: string;
     fileName: string;
-    fileSize?: string;
-    documentType?: string;
-    uploadedBy?: string;
-    dateUploaded?: string;
-    comment?: string;
+    fileSize?: string | undefined;
+    documentType?: string | undefined;
+    uploadedBy?: string | undefined;
+    dateUploaded?: string | undefined;
+    comment?: string | undefined;
   } | null>(null);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
 

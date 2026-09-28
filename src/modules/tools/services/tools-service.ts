@@ -79,13 +79,15 @@ export const toolsService = {
     toolsStore = toolsStore.map((tool) => {
       if (tool.id !== id) return tool;
       const nextCal = input.nextCalibrationDate ?? tool.nextCalibrationDate;
-      updated = {
+      const updatedTool: Tool = {
         ...tool,
         ...input,
+        id: tool.id,
         calibrationStatus: input.calibrationStatus || computeCalibrationStatus(nextCal),
         updatedAt: today(),
       };
-      return updated;
+      updated = updatedTool;
+      return updatedTool;
     });
 
     if (!updated) throw new Error(`Tool ${id} not found`);
@@ -124,14 +126,15 @@ export const toolsService = {
     let restored: Tool | undefined;
     toolsStore = toolsStore.map((t) => {
       if (t.id !== id) return t;
-      restored = {
+      const toolItem: Tool = {
         ...t,
         isArchived: false,
         archivedDate: undefined,
         archivedBy: undefined,
         updatedAt: today(),
       };
-      return restored;
+      restored = toolItem;
+      return toolItem;
     });
 
     if (!restored) throw new Error(`Tool ${id} not found`);

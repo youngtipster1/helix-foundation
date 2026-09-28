@@ -71,36 +71,36 @@ export type TrainingSourceType = "policy_document" | "uploaded_document" | "type
 
 export interface TrainingAssignment {
   id: string;
-  trainingType?: TrainingSourceType;
-  policyDocumentId?: string;
+  trainingType?: TrainingSourceType | undefined;
+  policyDocumentId?: string | undefined;
   policyDocumentTitle: string;
-  policyDocumentNumber?: string;
+  policyDocumentNumber?: string | undefined;
   documentVersion: string;
-  documentFileName?: string;
-  typedInstructions?: string;
+  documentFileName?: string | undefined;
+  typedInstructions?: string | undefined;
   assignedDate: string;
-  completionDate?: string;
+  completionDate?: string | undefined;
   trainingStatus: TrainingStatus;
   assignedToId: string;
   assignedToName: string;
   assignedById: string;
   assignedByName: string;
-  dueDate?: string;
-  acknowledgedAt?: string;
-  acknowledgementNotes?: string;
-  summaryOrScope?: string;
+  dueDate?: string | undefined;
+  acknowledgedAt?: string | undefined;
+  acknowledgementNotes?: string | undefined;
+  summaryOrScope?: string | undefined;
 }
 
 export interface AssignTrainingInput {
   trainingType: TrainingSourceType;
-  policyDocumentId?: string;
+  policyDocumentId?: string | undefined;
   title: string;
-  version?: string;
-  fileName?: string;
-  typedInstructions?: string;
+  version?: string | undefined;
+  fileName?: string | undefined;
+  typedInstructions?: string | undefined;
   userIds: string[];
-  dueDate?: string;
-  notes?: string;
+  dueDate?: string | undefined;
+  notes?: string | undefined;
 }
 
 export interface UserComplianceKPI {

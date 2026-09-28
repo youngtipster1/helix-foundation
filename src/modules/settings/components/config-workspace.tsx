@@ -204,8 +204,7 @@ export function ConfigWorkspace({ title, categories }: ConfigWorkspaceProps) {
     <div className="space-y-6">
       <PageHeader
         title={title}
-        description={`Manage categories and configuration values for ${title.toLowerCase()}.`}
-        icon={Settings}
+        subtitle={`Manage categories and configuration values for ${title.toLowerCase()}.`}
       />
       {/* Category selector / Tabs */}
       <div className="border-b border-border">

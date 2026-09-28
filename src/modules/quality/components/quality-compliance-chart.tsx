@@ -72,7 +72,7 @@ export function QualityComplianceChart({ data }: QualityComplianceChartProps) {
             <RechartsTooltip
               cursor={{ fill: "rgba(0, 0, 0, 0.04)" }}
               content={({ active, payload }) => {
-                if (active && payload && payload.length) {
+                if (active && payload && payload.length && payload[0]) {
                   const item = payload[0].payload as UserComplianceKPI;
                   return (
                     <div className="rounded-lg border border-border bg-popover px-3.5 py-2.5 text-xs shadow-lg space-y-1">

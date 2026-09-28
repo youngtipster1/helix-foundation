@@ -1,5 +1,5 @@
 import { INITIAL_POLICY_DOCUMENTS, INITIAL_CHECKLISTS, INITIAL_ACTIVITIES } from "../mocks/quality-data";
-import type { PolicyDocument, EquipmentChecklist, QualityActivity } from "../types";
+import type { PolicyDocument, EquipmentChecklist, QualityActivity, ChecklistItem } from "../types";
 import { respond, today } from "@/services/api/client";
 
 let documentsStore: PolicyDocument[] = [...INITIAL_POLICY_DOCUMENTS];

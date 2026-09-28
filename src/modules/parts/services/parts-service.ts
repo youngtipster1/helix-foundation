@@ -666,9 +666,11 @@ class PartsService {
     const idx = this.parts.findIndex((p) => p.id === id);
     if (idx === -1) throw new Error(`Part ${id} not found`);
 
-    const updated = {
-      ...this.parts[idx],
+    const currentPart = this.parts[idx]!;
+    const updated: Part = {
+      ...currentPart,
       ...updates,
+      id: currentPart.id,
       updatedAt: new Date().toISOString(),
     };
     this.parts[idx] = updated;
@@ -830,8 +832,8 @@ class PartsService {
     return {
       totalInventoryValue,
       totalInventoryQuantity,
-      shrinkageValue: latestShrinkage.shrinkageValue,
-      shrinkageQuantity: latestShrinkage.shrinkageQuantity,
+      shrinkageValue: latestShrinkage?.shrinkageValue ?? 0,
+      shrinkageQuantity: latestShrinkage?.shrinkageQuantity ?? 0,
       lowStockCount,
       modalityDistribution,
       expiryBuckets,

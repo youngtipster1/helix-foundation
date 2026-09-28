@@ -417,7 +417,7 @@ export const ContractModal: React.FC<ContractModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="flex flex-col w-[96vw] sm:w-[94vw] lg:max-w-5xl h-[90vh] max-h-[90vh] overflow-hidden p-0 gap-0 border border-border bg-card rounded-2xl shadow-2xl">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* FIXED MODAL HEADER WITH RESPONSIVE TABS (Slide 19, 20, 22, 24) */}
         <div className="shrink-0 bg-card border-b border-border/80 px-4 sm:px-6 py-3 sm:py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 pr-11 sm:pr-12">
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">

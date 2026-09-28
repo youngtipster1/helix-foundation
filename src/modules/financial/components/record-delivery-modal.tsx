@@ -105,7 +105,7 @@ export function RecordDeliveryModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/80 bg-muted/20 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">

@@ -320,8 +320,7 @@ function ToolsListPage() {
     <div className="space-y-6">
       <PageHeader
         title="Tools Registry"
-        description="Master equipment register, metrological calibration compliance, and device specifications"
-        icon={Wrench}
+        subtitle="Master equipment register, metrological calibration compliance, and device specifications"
       />
 
       {/* Summary KPI Cards (Unified Design System) */}

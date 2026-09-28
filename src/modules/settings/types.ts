@@ -59,7 +59,7 @@ export type UserAccount = {
   personnelName: string;
   email: string;
   username: string;
-  password?: string;
+  password?: string | undefined;
   isSuperAdmin: boolean;
   permissions: ModulePermissions;
   active: boolean;

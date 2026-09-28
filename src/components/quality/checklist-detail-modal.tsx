@@ -26,12 +26,12 @@ export interface ChecklistDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   data: any | null; // checklist or item with rawChecklist/rawDocument
-  approveLabel?: string; // e.g. "Approve" or "Sign Off & Approve"
-  onDirectApprove?: () => void;
-  onReject?: () => void;
-  onRevise?: () => void;
-  onExecute?: () => void;
-  onEdit?: () => void;
+  approveLabel?: string | undefined; // e.g. "Approve" or "Sign Off & Approve"
+  onDirectApprove?: (() => void) | undefined;
+  onReject?: (() => void) | undefined;
+  onRevise?: (() => void) | undefined;
+  onExecute?: (() => void) | undefined;
+  onEdit?: (() => void) | undefined;
 }
 
 export function ChecklistDetailModal({
@@ -80,8 +80,8 @@ export function ChecklistDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100%-1.5rem)] sm:w-full p-4 sm:p-6">
-        <DialogHeader className="border-b border-border pb-3 pr-6 text-left">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/60 shrink-0 text-left">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
             <div className="flex items-start gap-2 min-w-0 pr-2">
               <ClipboardCheck className="size-5 text-primary shrink-0 mt-0.5" />
@@ -102,7 +102,7 @@ export function ChecklistDetailModal({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {/* Equipment Scope Assignment Details */}
           {chk && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 bg-muted/40 rounded-lg border border-border text-xs">
@@ -300,38 +300,38 @@ export function ChecklistDetailModal({
           )}
         </div>
 
-        <DialogFooter className="gap-2 border-t border-border pt-3">
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex flex-wrap items-center justify-end gap-2">
           {onEdit && (
-            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={onEdit}>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs" onClick={onEdit}>
               <Edit2 className="size-3.5 mr-1" />
               Edit Checklist
             </Button>
           )}
           {onRevise && (
-            <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={onRevise}>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs" onClick={onRevise}>
               <Edit2 className="size-3.5 mr-1" />
               Revise Checklist
             </Button>
           )}
           {onExecute && (
-            <Button size="sm" className="w-full sm:w-auto bg-primary text-primary-foreground font-semibold" onClick={onExecute}>
+            <Button size="sm" className="w-full sm:w-auto text-xs bg-primary text-primary-foreground font-semibold" onClick={onExecute}>
               <PlayCircle className="size-3.5 mr-1" />
               Execute Checklist
             </Button>
           )}
           {onReject && (
-            <Button variant="outline" size="sm" className="w-full sm:w-auto text-destructive hover:bg-destructive/10" onClick={onReject}>
+            <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs text-destructive hover:bg-destructive/10" onClick={onReject}>
               <XCircle className="size-3.5 mr-1" />
               Reject Checklist
             </Button>
           )}
           {onDirectApprove && (
-            <Button size="sm" className="w-full sm:w-auto" onClick={onDirectApprove}>
+            <Button size="sm" className="w-full sm:w-auto text-xs" onClick={onDirectApprove}>
               <CheckCircle2 className="size-3.5 mr-1" />
               {approveLabel}
             </Button>
           )}
-          <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs" onClick={() => onOpenChange(false)}>
             Close
           </Button>
         </DialogFooter>

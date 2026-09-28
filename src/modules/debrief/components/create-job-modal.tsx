@@ -405,7 +405,7 @@ export function CreateJobModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Header */}
         <DialogHeader className="p-4 sm:p-5 pb-3 border-b border-border bg-card">
           <DialogTitle className="text-base sm:text-lg font-bold text-foreground">

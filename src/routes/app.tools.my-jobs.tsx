@@ -174,8 +174,7 @@ function MyJobsPage() {
     <div className="space-y-6">
       <PageHeader
         title="My Assigned Jobs"
-        description="Your active maintenance, calibration, and repair work orders"
-        icon={ClipboardCheck}
+        subtitle="Your active maintenance, calibration, and repair work orders"
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

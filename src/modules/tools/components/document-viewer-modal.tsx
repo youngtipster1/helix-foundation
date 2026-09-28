@@ -8,11 +8,11 @@ interface DocumentViewerModalProps {
   document: {
     title: string;
     fileName: string;
-    fileSize?: string;
-    documentType?: string;
-    uploadedBy?: string;
-    dateUploaded?: string;
-    comment?: string;
+    fileSize?: string | undefined;
+    documentType?: string | undefined;
+    uploadedBy?: string | undefined;
+    dateUploaded?: string | undefined;
+    comment?: string | undefined;
   } | null;
 }
 

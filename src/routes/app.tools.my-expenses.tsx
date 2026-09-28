@@ -40,11 +40,11 @@ function MyExpensesPage() {
   const [viewingDoc, setViewingDoc] = useState<{
     title: string;
     fileName: string;
-    fileSize?: string;
-    documentType?: string;
-    uploadedBy?: string;
-    dateUploaded?: string;
-    comment?: string;
+    fileSize?: string | undefined;
+    documentType?: string | undefined;
+    uploadedBy?: string | undefined;
+    dateUploaded?: string | undefined;
+    comment?: string | undefined;
   } | null>(null);
 
   const fetchMyExpenses = async () => {
@@ -216,8 +216,7 @@ function MyExpensesPage() {
     <div className="space-y-6">
       <PageHeader
         title="My Expense Claims"
-        description="Track your tool maintenance expenses, procurement claims, and supervisor approvals"
-        icon={Receipt}
+        subtitle="Track your tool maintenance expenses, procurement claims, and supervisor approvals"
       />
 
       {/* Summary KPI Highlights */}

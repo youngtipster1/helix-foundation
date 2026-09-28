@@ -71,6 +71,7 @@ function MyTasksPage() {
   const [adminSuggestedItems, setAdminSuggestedItems] = useState<ChecklistItem[]>([]);
   const [formStepIndex, setFormStepIndex] = useState(0);
   const [formShowSummary, setFormShowSummary] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const loadData = async () => {
     if (!user) return;
     setLoading(true);
@@ -450,7 +451,8 @@ function MyTasksPage() {
           </DialogHeader>
 
           {executingTask && (
-            <form onSubmit={handleSubmitExecution} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            <>
+              <form onSubmit={handleSubmitExecution} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               {/* Step Tracker Header & Progress Bar (Visible in Stepper mode) */}
               {!showExecSummary && (
                 <div className="space-y-2 p-2.5 sm:p-3 bg-muted/40 rounded-xl border border-border">
@@ -760,18 +762,19 @@ function MyTasksPage() {
                     />
                   </div>
                 </div>
-              </div>
+              )}
             </form>
 
-            <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setExecutingTask(null)} className="text-xs">
-                Cancel
-              </Button>
-              <Button type="button" size="sm" onClick={handleSubmitExecution} className="text-xs bg-primary text-primary-foreground font-semibold gap-1.5">
-                <CheckCircle2 className="size-3.5" />
-                <span>Submit Execution for Approval</span>
-              </Button>
-            </DialogFooter>
+              <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setExecutingTask(null)} className="text-xs">
+                  Cancel
+                </Button>
+                <Button type="button" size="sm" onClick={handleSubmitExecution} className="text-xs bg-primary text-primary-foreground font-semibold gap-1.5">
+                  <CheckCircle2 className="size-3.5" />
+                  <span>Submit Execution for Approval</span>
+                </Button>
+              </DialogFooter>
+            </>
           )}
         </DialogContent>
       </Dialog>
@@ -795,7 +798,8 @@ function MyTasksPage() {
           </DialogHeader>
 
           {editingTask && (
-            <form onSubmit={handleResubmitForApproval} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            <>
+              <form onSubmit={handleResubmitForApproval} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               {/* Admin rejection reason note */}
               {editingTask.rejectionNotes && (
                 <div className="p-3 rounded-lg border border-rose-500/30 bg-rose-500/10 space-y-1">
@@ -1193,7 +1197,8 @@ function MyTasksPage() {
                 {editingTask.status === "Needs Revision" ? "Resubmit for Approval" : "Save Changes"}
               </Button>
             </DialogFooter>
-          )}
+          </>
+        )}
         </DialogContent>
       </Dialog>
     </div>

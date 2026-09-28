@@ -76,7 +76,7 @@ function CreateToolsJobPage() {
       setPersonnelList(personnel.filter((p) => p.status === "active"));
       setJobTypes(types);
 
-      if (personnel.length > 0) {
+      if (personnel.length > 0 && personnel[0]) {
         setAssignedToId(personnel[0].id);
       }
     }
