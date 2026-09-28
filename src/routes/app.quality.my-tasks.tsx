@@ -433,8 +433,8 @@ function MyTasksPage() {
 
       {/* 2. DEDICATED VERTICAL EXECUTION MODAL (Read-Only Checkpoints + Vertical Pass/Fail/NA + Single Remarks Box) */}
       <Dialog open={!!executingTask} onOpenChange={(open) => !open && setExecutingTask(null)}>
-        <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto w-[calc(100%-1.5rem)] sm:w-full p-4 sm:p-6">
-          <DialogHeader className="border-b border-border pb-3 text-left">
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden w-[calc(100%-1.5rem)] sm:w-full">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 text-left shrink-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <DialogTitle className="flex items-center gap-2 text-foreground text-base sm:text-lg font-bold leading-snug">
                 <PlayCircle className="size-5 text-primary shrink-0" />
@@ -450,7 +450,7 @@ function MyTasksPage() {
           </DialogHeader>
 
           {executingTask && (
-            <form onSubmit={handleSubmitExecution} className="space-y-3 py-1">
+            <form onSubmit={handleSubmitExecution} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               {/* Step Tracker Header & Progress Bar (Visible in Stepper mode) */}
               {!showExecSummary && (
                 <div className="space-y-2 p-2.5 sm:p-3 bg-muted/40 rounded-xl border border-border">
@@ -760,26 +760,26 @@ function MyTasksPage() {
                     />
                   </div>
                 </div>
-              )}
-
-              <DialogFooter className="gap-2 pt-2.5 border-t border-border mt-2">
-                <Button type="button" variant="outline" className="w-full sm:w-auto text-xs h-9" onClick={() => setExecutingTask(null)}>
-                  Cancel
-                </Button>
-                <Button type="submit" className="w-full sm:w-auto text-xs h-9 bg-primary text-primary-foreground font-semibold">
-                  <CheckCircle2 className="size-3.5 mr-1" />
-                  Submit Execution for Approval
-                </Button>
-              </DialogFooter>
+              </div>
             </form>
+
+            <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setExecutingTask(null)} className="text-xs">
+                Cancel
+              </Button>
+              <Button type="button" size="sm" onClick={handleSubmitExecution} className="text-xs bg-primary text-primary-foreground font-semibold gap-1.5">
+                <CheckCircle2 className="size-3.5" />
+                <span>Submit Execution for Approval</span>
+              </Button>
+            </DialogFooter>
           )}
         </DialogContent>
       </Dialog>
 
       {/* 3. REVISION / AUTHORING MODAL (Full Checklist Editor & Admin Recommendations Adoption) */}
       <Dialog open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)}>
-        <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto w-[calc(100%-1.5rem)] sm:w-full p-4 sm:p-6">
-          <DialogHeader className="border-b border-border pb-3 text-left">
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden w-[calc(100%-1.5rem)] sm:w-full">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 text-left shrink-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <DialogTitle className="flex items-center gap-2 text-foreground text-base sm:text-lg font-bold leading-snug">
                 <Edit2 className="size-5 text-primary shrink-0" />
@@ -795,7 +795,7 @@ function MyTasksPage() {
           </DialogHeader>
 
           {editingTask && (
-            <form onSubmit={handleResubmitForApproval} className="space-y-3.5 py-1">
+            <form onSubmit={handleResubmitForApproval} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               {/* Admin rejection reason note */}
               {editingTask.rejectionNotes && (
                 <div className="p-3 rounded-lg border border-rose-500/30 bg-rose-500/10 space-y-1">
@@ -1183,16 +1183,16 @@ function MyTasksPage() {
                   )}
                 </div>
               )}
-
-              <DialogFooter className="gap-2 pt-3 border-t border-border mt-3">
-                <Button type="button" variant="outline" className="w-full sm:w-auto text-xs" onClick={() => setEditingTask(null)}>
-                  Cancel
-                </Button>
-                <Button type="submit" className="w-full sm:w-auto text-xs">
-                  {editingTask.status === "Needs Revision" ? "Resubmit for Approval" : "Save Changes"}
-                </Button>
-              </DialogFooter>
             </form>
+
+            <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setEditingTask(null)} className="text-xs">
+                Cancel
+              </Button>
+              <Button type="button" size="sm" onClick={handleResubmitForApproval} className="text-xs">
+                {editingTask.status === "Needs Revision" ? "Resubmit for Approval" : "Save Changes"}
+              </Button>
+            </DialogFooter>
           )}
         </DialogContent>
       </Dialog>

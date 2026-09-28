@@ -107,11 +107,16 @@ function DocumentFormModal({ open, onOpenChange, documentItem, personnelList, st
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full p-4 sm:p-6">
-        <DialogHeader>
-          <DialogTitle className="text-base sm:text-lg font-bold">{documentItem ? "Edit Policy Document" : "Add Policy Document"}</DialogTitle>
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden w-[calc(100%-1.5rem)] sm:w-full">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+          <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
+            {documentItem ? "Edit Policy Document" : "Add Policy Document"}
+          </DialogTitle>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Upload and configure clinical engineering standard operating procedures (SOP), safety directives, and policies.
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           
           <div className="space-y-1.5 md:col-span-2">
             <Label htmlFor="docDesc">Document Description</Label>
@@ -235,13 +240,17 @@ function DocumentFormModal({ open, onOpenChange, documentItem, personnelList, st
             </div>
           </div>
 
-          <DialogFooter className="gap-2 pt-3 border-t border-border md:col-span-2 mt-2">
-            <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" className="w-full sm:w-auto">{documentItem ? "Save Changes" : "Upload SOP"}</Button>
-          </DialogFooter>
+          </div>
         </form>
+
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
+            Cancel
+          </Button>
+          <Button type="button" size="sm" onClick={handleSubmit} className="text-xs">
+            {documentItem ? "Save Changes" : "Upload SOP"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

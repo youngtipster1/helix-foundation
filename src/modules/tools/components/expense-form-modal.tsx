@@ -77,34 +77,34 @@ export function ExpenseFormModal({ open, onOpenChange, jobId, onSubmit }: Expens
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6">
-        <DialogHeader>
-          <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-            <Receipt className="size-4 text-primary" />
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+          <DialogTitle className="text-base sm:text-lg font-bold flex items-center gap-2 text-foreground">
+            <Receipt className="size-4 text-primary shrink-0" />
             Add Job Expense
           </DialogTitle>
-          <p className="text-xs text-muted-foreground">
-            Record maintenance, spare parts, or calibration expenses for job <strong>{jobId}</strong>.
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Record maintenance, spare parts, or calibration expenses for job <strong className="font-mono text-foreground">{jobId}</strong>.
           </p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="expenseType" className="text-xs">Expense Type *</Label>
-            <select
-              id="expenseType"
-              value={expenseType}
-              onChange={(e) => setExpenseType(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
-              required
-            >
-              {expenseTypes.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="expenseType" className="text-xs">Expense Type *</Label>
+              <select
+                id="expenseType"
+                value={expenseType}
+                onChange={(e) => setExpenseType(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                required
+              >
+                {expenseTypes.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
 
-          <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="expenseAmount" className="text-xs">Amount (₦ NGN) *</Label>
               <Input
@@ -118,18 +118,18 @@ export function ExpenseFormModal({ open, onOpenChange, jobId, onSubmit }: Expens
                 min={1}
               />
             </div>
+          </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="expenseDate" className="text-xs">Expense Date *</Label>
-              <Input
-                id="expenseDate"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="h-9 text-xs"
-                required
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="expenseDate" className="text-xs">Expense Date *</Label>
+            <Input
+              id="expenseDate"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="h-9 text-xs"
+              required
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -139,15 +139,15 @@ export function ExpenseFormModal({ open, onOpenChange, jobId, onSubmit }: Expens
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Provide breakdown or vendor reference..."
-              className="text-xs min-h-[60px]"
+              className="text-xs min-h-[70px]"
             />
           </div>
 
           <div className="space-y-1.5">
             <Label className="text-xs">Receipt / Voucher Attachment</Label>
-            <div className="border border-dashed border-border rounded-lg p-3 flex flex-col items-center justify-center text-center gap-1.5 bg-muted/20">
-              <FileUp className="size-4 text-muted-foreground" />
-              <div className="text-[11px]">
+            <div className="border border-dashed border-border rounded-lg p-5 flex flex-col items-center justify-center text-center gap-1.5 bg-muted/20">
+              <FileUp className="size-5 text-muted-foreground" />
+              <div className="text-xs">
                 {receiptFileName ? (
                   <p className="font-semibold text-foreground">
                     {receiptFileName} <span className="text-muted-foreground font-normal">({receiptFileSize || "1.1 MB"})</span>
@@ -156,8 +156,8 @@ export function ExpenseFormModal({ open, onOpenChange, jobId, onSubmit }: Expens
                   <p className="text-muted-foreground">Upload receipt proof (PDF, JPG, PNG)</p>
                 )}
               </div>
-              <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center rounded-md border border-input bg-background px-2.5 py-0.5 text-[11px] font-medium hover:bg-accent transition-colors">
+              <label className="cursor-pointer mt-1">
+                <span className="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1 text-xs font-medium hover:bg-accent transition-colors shadow-xs">
                   Select Receipt
                 </span>
                 <input
@@ -169,16 +169,16 @@ export function ExpenseFormModal({ open, onOpenChange, jobId, onSubmit }: Expens
               </label>
             </div>
           </div>
-
-          <DialogFooter className="pt-2 flex items-center justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" disabled={submitting || !amount || Number(amount) <= 0} className="text-xs">
-              {submitting ? "Submitting..." : "Submit Expense"}
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
+            Cancel
+          </Button>
+          <Button type="button" size="sm" disabled={submitting || !amount || Number(amount) <= 0} onClick={handleSubmit} className="text-xs">
+            {submitting ? "Submitting..." : "Submit Expense"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

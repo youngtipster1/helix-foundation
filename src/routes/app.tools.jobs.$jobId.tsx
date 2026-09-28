@@ -982,47 +982,49 @@ function JobDetailsPage() {
 
       {/* Admin Edit Modal */}
       <Dialog open={isAdminEditOpen} onOpenChange={setIsAdminEditOpen}>
-        <DialogContent className="max-w-md p-6">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold text-foreground">
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+            <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
               Edit Administrative Job Information
             </DialogTitle>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Only Administrators can modify core dispatch parameters and engineer assignments.
             </p>
           </DialogHeader>
 
-          <form onSubmit={handleSaveAdminEdit} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="adminJobType" className="text-xs">Job Type *</Label>
-              <select
-                id="adminJobType"
-                value={adminJobType}
-                onChange={(e) => setAdminJobType(e.target.value as JobType)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
-                required
-              >
-                {jobTypes.map((jt) => (
-                  <option key={jt} value={jt}>{jt}</option>
-                ))}
-              </select>
-            </div>
+          <form onSubmit={handleSaveAdminEdit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="adminJobType" className="text-xs">Job Type *</Label>
+                <select
+                  id="adminJobType"
+                  value={adminJobType}
+                  onChange={(e) => setAdminJobType(e.target.value as JobType)}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                  required
+                >
+                  {jobTypes.map((jt) => (
+                    <option key={jt} value={jt}>{jt}</option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="adminAssignedTo" className="text-xs">Assigned Technician *</Label>
-              <select
-                id="adminAssignedTo"
-                value={adminAssignedToId}
-                onChange={(e) => setAdminAssignedToId(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
-                required
-              >
-                {personnelList.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.firstName} {p.lastName} — {p.jobTitle}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-1.5">
+                <Label htmlFor="adminAssignedTo" className="text-xs">Assigned Technician *</Label>
+                <select
+                  id="adminAssignedTo"
+                  value={adminAssignedToId}
+                  onChange={(e) => setAdminAssignedToId(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                  required
+                >
+                  {personnelList.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.firstName} {p.lastName} — {p.jobTitle}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -1035,7 +1037,7 @@ function JobDetailsPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="adminContactEmail" className="text-xs">Contact Email</Label>
                 <Input
@@ -1063,20 +1065,20 @@ function JobDetailsPage() {
                 id="adminIssue"
                 value={adminIssue}
                 onChange={(e) => setAdminIssue(e.target.value)}
-                className="text-xs min-h-[70px]"
+                className="text-xs min-h-[80px]"
                 required
               />
             </div>
-
-            <DialogFooter className="pt-2 border-t border-border flex items-center justify-end gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setIsAdminEditOpen(false)} className="text-xs">
-                Cancel
-              </Button>
-              <Button type="submit" size="sm" className="text-xs">
-                Save Admin Changes
-              </Button>
-            </DialogFooter>
           </form>
+
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setIsAdminEditOpen(false)} className="text-xs">
+              Cancel
+            </Button>
+            <Button type="button" size="sm" onClick={handleSaveAdminEdit} className="text-xs">
+              Save Admin Changes
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

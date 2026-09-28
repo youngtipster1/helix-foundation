@@ -78,18 +78,18 @@ export function DocumentUploadModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-6">
-        <DialogHeader>
-          <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-            <FileCheck className="size-4 text-primary" />
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+          <DialogTitle className="text-base sm:text-lg font-bold flex items-center gap-2 text-foreground">
+            <FileCheck className="size-4 text-primary shrink-0" />
             Upload Equipment Document
           </DialogTitle>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Attach compliance certificate, calibration report, or decommissioning statement.
           </p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="docType" className="text-xs">Document Type *</Label>
             <select
@@ -107,8 +107,8 @@ export function DocumentUploadModal({
 
           <div className="space-y-1.5">
             <Label className="text-xs">Select Document File (PDF / DOC / JPG)</Label>
-            <div className="border border-dashed border-border rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 bg-muted/20">
-              <FileUp className="size-5 text-muted-foreground" />
+            <div className="border border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center text-center gap-2 bg-muted/20">
+              <FileUp className="size-6 text-muted-foreground" />
               <div className="text-xs">
                 {fileName ? (
                   <p className="font-semibold text-foreground">
@@ -118,8 +118,8 @@ export function DocumentUploadModal({
                   <p className="text-muted-foreground">Click to browse or drag file here</p>
                 )}
               </div>
-              <label className="cursor-pointer">
-                <span className="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1 text-xs font-medium hover:bg-accent transition-colors">
+              <label className="cursor-pointer mt-1">
+                <span className="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors shadow-xs">
                   Browse Files
                 </span>
                 <input
@@ -139,19 +139,23 @@ export function DocumentUploadModal({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="e.g. NIST / ISO 17025 accreditation certificate reference..."
-              className="text-xs min-h-[60px]"
+              className="text-xs min-h-[80px]"
             />
           </div>
 
-          <DialogFooter className="pt-2 flex items-center justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" disabled={uploading} className="text-xs">
-              {uploading ? "Uploading..." : "Upload Document"}
-            </Button>
-          </DialogFooter>
+          <div className="hidden">
+            {/* hidden submit trigger */}
+          </div>
         </form>
+
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
+            Cancel
+          </Button>
+          <Button type="button" size="sm" disabled={uploading} onClick={handleSubmit} className="text-xs">
+            {uploading ? "Uploading..." : "Upload Document"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

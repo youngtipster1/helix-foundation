@@ -478,18 +478,18 @@ export function StockMovementsTable({
 
       {/* Record Stock Movement Dialog */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-base font-bold">
-              <ArrowLeftRight className="size-4 text-primary" />
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg font-bold text-foreground">
+              <ArrowLeftRight className="size-4 text-primary shrink-0" />
               <span>Record Stock Movement</span>
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-muted-foreground mt-0.5">
               Log an inventory receipt, part issuance to a work order, return, or manual adjustment.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSaveMovement} className="space-y-4 text-xs">
+          <form onSubmit={handleSaveMovement} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs">
             {/* Part Selector */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Select Spare Part *</Label>
@@ -624,27 +624,28 @@ export function StockMovementsTable({
                 className="text-xs min-h-[60px] resize-none"
               />
             </div>
-
-            <DialogFooter className="pt-2 border-t border-border">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsModalOpen(false)}
-                className="h-8 text-xs"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                disabled={submitting}
-                className="h-8 text-xs bg-primary text-primary-foreground font-bold"
-              >
-                {submitting ? "Saving..." : "Commit Transaction"}
-              </Button>
-            </DialogFooter>
           </form>
+
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsModalOpen(false)}
+              className="text-xs"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={submitting}
+              onClick={handleSaveMovement}
+              className="text-xs bg-primary text-primary-foreground font-bold"
+            >
+              {submitting ? "Saving..." : "Commit Transaction"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

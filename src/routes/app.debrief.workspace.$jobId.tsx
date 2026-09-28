@@ -1407,19 +1407,20 @@ function DebriefJobWorkspacePage() {
 
 
       {/* MODAL: Full Equipment & Job Specifications Modal */}
+      {/* MODAL: Full Equipment & Job Specifications Modal */}
       <Dialog open={specsModalOpen} onOpenChange={setSpecsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <Info className="size-5 text-primary" />
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+            <DialogTitle className="text-base sm:text-lg font-bold flex items-center gap-2 text-foreground">
+              <Info className="size-5 text-primary shrink-0" />
               <span>Full Equipment &amp; Job Specifications</span>
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
+            <DialogDescription className="text-xs text-muted-foreground mt-0.5">
               Complete dispatch, warranty, contract, and biomedical equipment parameters for {job.jobNumber}.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2 text-xs">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs">
             {/* 1. Equipment Identification */}
             <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-2.5">
               <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -1470,23 +1471,23 @@ function DebriefJobWorkspacePage() {
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" size="sm" onClick={() => setSpecsModalOpen(false)}>Close</Button>
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end">
+            <Button variant="outline" size="sm" onClick={() => setSpecsModalOpen(false)} className="text-xs">Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* MODAL 1: Log Part Used with Compact Auto-Suggest & Field Lock */}
       <Dialog open={addPartOpen} onOpenChange={setAddPartOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">Log Spare Part Used</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+            <DialogTitle className="text-base sm:text-lg font-bold text-foreground">Log Spare Part Used</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground mt-0.5">
               Search the central parts inventory or enter replacement details.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3.5 py-2">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {/* Inventory Live Search Bar (Compact dropdown without modal expansion) */}
             <div className="space-y-1.5 p-3 rounded-lg border border-primary/30 bg-primary/5">
               <div className="flex items-center justify-between">
@@ -1658,28 +1659,28 @@ function DebriefJobWorkspacePage() {
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" size="sm" onClick={() => setAddPartOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={handleAddPart} className="bg-primary text-primary-foreground">Add Part</Button>
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAddPartOpen(false)} className="text-xs">Cancel</Button>
+            <Button size="sm" onClick={handleAddPart} className="text-xs bg-primary text-primary-foreground">Add Part</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* MODAL 2: Log Expense */}
       <Dialog open={addExpenseOpen} onOpenChange={setAddExpenseOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <Receipt className="size-5 text-primary" />
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+            <DialogTitle className="text-base sm:text-lg font-bold flex items-center gap-2 text-foreground">
+              <Receipt className="size-5 text-primary shrink-0" />
               <span>Log Travel &amp; Field Expense</span>
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
+            <DialogDescription className="text-xs text-muted-foreground mt-0.5">
               Add travel fares, lodging, or field expenses incurred during this job.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold">Expense Type *</Label>
                 <Select value={expenseType} onValueChange={(v) => setExpenseType(v as ExpenseType)}>
@@ -1784,24 +1785,24 @@ function DebriefJobWorkspacePage() {
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" size="sm" onClick={() => setAddExpenseOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={handleAddExpense} className="bg-primary text-primary-foreground font-bold">Save Expense</Button>
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAddExpenseOpen(false)} className="text-xs">Cancel</Button>
+            <Button size="sm" onClick={handleAddExpense} className="text-xs bg-primary text-primary-foreground font-bold">Save Expense</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* MODAL 3: Link Tool with Compact Auto-Suggest & Field Lock */}
       <Dialog open={addToolOpen} onOpenChange={setAddToolOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">Link Verified Test Tool</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+            <DialogTitle className="text-base sm:text-lg font-bold text-foreground">Link Verified Test Tool</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground mt-0.5">
               Search tool module registry to auto-populate and link calibrated equipment.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3.5 py-2">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {/* Tool Registry Auto-Suggest Search Bar */}
             <div className="space-y-1.5 p-3 rounded-lg border border-primary/30 bg-primary/5">
               <div className="flex items-center justify-between">
@@ -1918,9 +1919,9 @@ function DebriefJobWorkspacePage() {
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" size="sm" onClick={() => setAddToolOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={handleAddToolSubmit} className="bg-primary text-primary-foreground">Link Tool</Button>
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAddToolOpen(false)} className="text-xs">Cancel</Button>
+            <Button size="sm" onClick={handleAddToolSubmit} className="text-xs bg-primary text-primary-foreground">Link Tool</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2019,18 +2020,18 @@ function DebriefJobWorkspacePage() {
 
       {/* MODAL 6: Debrief Final Summary & Sign-off Review Modal */}
       <Dialog open={completeDialogOpen} onOpenChange={setCompleteDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <CheckCircle2 className="size-5 text-emerald-500" />
+        <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+            <DialogTitle className="text-base sm:text-lg font-bold flex items-center gap-2 text-foreground">
+              <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
               <span>Debrief Summary &amp; Official Sign-Off</span>
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
+            <DialogDescription className="text-xs text-muted-foreground mt-0.5">
               Review all logged actions, itemized expenses, and client acknowledgement before closing {job.jobNumber}.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             {/* 1. Final Equipment Condition & Diagnostics */}
             <div className="p-3.5 rounded-xl border border-border bg-muted/20 space-y-3 text-xs">
               <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
@@ -2182,15 +2183,15 @@ function DebriefJobWorkspacePage() {
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button variant="outline" size="sm" onClick={() => setCompleteDialogOpen(false)}>
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setCompleteDialogOpen(false)} className="text-xs">
               Cancel
             </Button>
             <Button
               size="sm"
               disabled={!signoffConfirmed || saving}
               onClick={handleFinalSubmitDebrief}
-              className="bg-emerald-600 text-white hover:bg-emerald-700 font-bold gap-1.5 cursor-pointer shadow-sm"
+              className="bg-emerald-600 text-white hover:bg-emerald-700 font-bold gap-1.5 cursor-pointer shadow-sm text-xs"
             >
               <CheckCircle2 className="size-4" />
               <span>{saving ? "Submitting..." : "Confirm & Submit Debrief"}</span>

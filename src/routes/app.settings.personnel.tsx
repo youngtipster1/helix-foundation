@@ -74,90 +74,107 @@ function PersonnelFormModal({ open, onOpenChange, personnel, onSubmit }: Personn
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{personnel ? "Edit Personnel" : "Add Personnel"}</DialogTitle>
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+          <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
+            {personnel ? "Edit Personnel" : "Add Personnel"}
+          </DialogTitle>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Manage biomedical engineers, clinical technicians, and support staff records.
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName" className="text-xs">First Name *</Label>
               <Input
                 id="firstName"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="Jane"
+                className="h-9 text-xs"
                 required
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName" className="text-xs">Last Name *</Label>
               <Input
                 id="lastName"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Smith"
+                className="h-9 text-xs"
                 required
               />
             </div>
           </div>
 
-          <div className="space-y-1.5 md:col-span-2">
-            <Label htmlFor="email">Email</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-xs">Email Address *</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="jane.smith@hemp.local"
+              className="h-9 text-xs"
               required
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="jobTitle">Job Title</Label>
+              <Label htmlFor="jobTitle" className="text-xs">Job Title</Label>
               <Input
                 id="jobTitle"
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
                 placeholder="Biomedical Engineer"
+                className="h-9 text-xs"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="department">Department</Label>
+              <Label htmlFor="department" className="text-xs">Department</Label>
               <Input
                 id="department"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 placeholder="Clinical Engineering"
+                className="h-9 text-xs"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status" className="text-xs">Status</Label>
             <select
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as "active" | "archived")}
-              className="flex h-11 md:h-10 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
             >
               <option value="active">Active</option>
               <option value="archived">Archived</option>
             </select>
           </div>
-
-          <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={!firstName.trim() || !lastName.trim() || !email.trim()}>
-              Save
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            disabled={!firstName.trim() || !lastName.trim() || !email.trim()}
+            onClick={handleSubmit}
+            className="text-xs"
+          >
+            Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

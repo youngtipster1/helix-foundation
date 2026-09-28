@@ -45,9 +45,9 @@ export function PartDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden bg-card border-border">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden bg-card border-border">
         {/* Header */}
-        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-muted/20 shrink-0">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">

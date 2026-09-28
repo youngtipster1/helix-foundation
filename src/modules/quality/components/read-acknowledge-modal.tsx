@@ -101,22 +101,22 @@ HEMP Healthcare Engineering Management Portal • Confidential
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
           <div className="flex items-center gap-2 text-primary">
-            <ShieldCheck className="size-5 text-emerald-600 dark:text-emerald-400" />
-            <DialogTitle>
+            <ShieldCheck className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
               {isReadOnly ? "Policy Training Record" : "Acknowledge Policy Training"}
             </DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground mt-0.5">
             {isReadOnly
               ? "View policy details, completion record, and training history."
               : "Download and review the policy document, then sign off your electronic acknowledgment below."}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {/* Policy Document File Card */}
           <div className="p-4 rounded-xl border border-border bg-muted/20 space-y-3">
             <div className="flex items-start justify-between gap-3">
@@ -245,25 +245,25 @@ HEMP Healthcare Engineering Management Portal • Confidential
               </DialogFooter>
             </form>
           )}
-
-          {/* Admin Read-Only Footer */}
-          {isAdmin && !isCompleted && (
-            <DialogFooter className="pt-2">
-              <span className="text-xs text-muted-foreground mr-auto self-center">
-                Awaiting technician signature &bull; Assigned to {assignment.assignedToName}
-              </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onOpenChange(false)}
-                className="text-xs"
-              >
-                Close
-              </Button>
-            </DialogFooter>
-          )}
         </div>
+
+        {/* Admin Read-Only Footer */}
+        {isAdmin && !isCompleted && (
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-between w-full">
+            <span className="text-xs text-muted-foreground mr-auto self-center">
+              Awaiting technician signature &bull; Assigned to {assignment.assignedToName}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+              className="text-xs"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

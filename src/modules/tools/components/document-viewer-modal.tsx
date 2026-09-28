@@ -25,12 +25,12 @@ export function DocumentViewerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-6">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                <FileText className="size-4 text-primary" />
+              <DialogTitle className="text-base sm:text-lg font-bold flex items-center gap-2 text-foreground">
+                <FileText className="size-4 text-primary shrink-0" />
                 {document.fileName}
               </DialogTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -40,7 +40,7 @@ export function DocumentViewerModal({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 pt-2">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {/* Document Simulated Sheet */}
           <div className="border border-border rounded-lg bg-card p-6 shadow-sm space-y-6">
             <div className="flex items-center justify-between border-b border-border pb-4">
@@ -105,7 +105,7 @@ export function DocumentViewerModal({
           </div>
         </div>
 
-        <DialogFooter className="pt-2 border-t border-border flex items-center justify-between sm:justify-between">
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-between sm:justify-between w-full">
           <Button
             type="button"
             variant="outline"

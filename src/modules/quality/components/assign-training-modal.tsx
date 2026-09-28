@@ -120,18 +120,20 @@ export function AssignTrainingModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
           <div className="flex items-center gap-2 text-primary">
-            <GraduationCap className="size-5" />
-            <DialogTitle>Assign Policy Document Training</DialogTitle>
+            <GraduationCap className="size-5 shrink-0" />
+            <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
+              Assign Policy Document Training
+            </DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground mt-0.5">
             Select an approved policy document from the quality registry and dispatch training to technicians.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {/* Policy Document Select */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold">Policy Document *</Label>
@@ -242,27 +244,29 @@ export function AssignTrainingModal({
             </div>
           </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              className="text-xs"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={loading || selectedUserIds.length === 0}
-              className="text-xs gap-1.5"
-            >
-              <GraduationCap className="size-3.5" />
-              <span>Dispatch Policy Training</span>
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+            className="text-xs"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            disabled={loading || selectedUserIds.length === 0}
+            onClick={handleSubmit}
+            className="text-xs gap-1.5"
+          >
+            <GraduationCap className="size-3.5" />
+            <span>Dispatch Policy Training</span>
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

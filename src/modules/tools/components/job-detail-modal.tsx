@@ -354,7 +354,7 @@ export function JobDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] sm:w-[92vw] md:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 flex flex-col min-w-0">
+      <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden min-w-0">
         {loading || !job ? (
           <div className="py-16">
             <Loading label="Loading job details..." />
@@ -362,7 +362,7 @@ export function JobDetailModal({
         ) : (
           <>
             {/* Header */}
-            <DialogHeader className="border-b border-border pb-3.5 text-left w-full min-w-0">
+            <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 text-left w-full min-w-0 shrink-0">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pr-8">
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -419,8 +419,9 @@ export function JobDetailModal({
               </div>
             </DialogHeader>
 
-            {/* 4 Detail Tabs */}
-            <Tabs defaultValue="general" className="w-full min-w-0 space-y-4 pt-1">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+              {/* 4 Detail Tabs */}
+              <Tabs defaultValue="general" className="w-full min-w-0 space-y-4">
               <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full h-auto p-1 bg-muted/50 border border-border gap-1 min-w-0">
                 <TabsTrigger value="general" className="text-xs py-1.5 sm:py-2 px-1 gap-1 justify-center">
                   <ClipboardList className="size-3.5 shrink-0" />
@@ -1068,26 +1069,28 @@ export function JobDetailModal({
                 )}
               </TabsContent>
             </Tabs>
+          </div>
 
-            <DialogFooter className="border-t border-border pt-3 mt-2 flex items-center justify-end">
-              <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
-                Close
-              </Button>
-            </DialogFooter>
+          <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end">
+            <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="text-xs">
+              Close
+            </Button>
+          </DialogFooter>
 
-            {/* Admin Edit Modal */}
-            <Dialog open={isAdminEditOpen} onOpenChange={setIsAdminEditOpen}>
-              <DialogContent className="max-w-md p-5">
-                <DialogHeader>
-                  <DialogTitle className="text-base font-bold text-foreground">
-                    Edit Administrative Job Information
-                  </DialogTitle>
-                  <p className="text-xs text-muted-foreground">
-                    Only Administrators can modify core dispatch parameters and assignments.
-                  </p>
-                </DialogHeader>
+          {/* Admin Edit Modal */}
+          <Dialog open={isAdminEditOpen} onOpenChange={setIsAdminEditOpen}>
+            <DialogContent className="max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+              <DialogHeader className="p-4 sm:p-5 border-b border-border bg-card/50 shrink-0">
+                <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
+                  Edit Administrative Job Information
+                </DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Only Administrators can modify core dispatch parameters and assignments.
+                </p>
+              </DialogHeader>
 
-                <form onSubmit={handleSaveAdminEdit} className="space-y-3.5 pt-2">
+              <form onSubmit={handleSaveAdminEdit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="modalAdminJobType" className="text-xs">Job Type *</Label>
                     <select
@@ -1119,67 +1122,68 @@ export function JobDetailModal({
                       ))}
                     </select>
                   </div>
+                </div>
 
+                <div className="space-y-1.5">
+                  <Label htmlFor="modalAdminContactName" className="text-xs">Contact Person</Label>
+                  <Input
+                    id="modalAdminContactName"
+                    value={adminContactName}
+                    onChange={(e) => setAdminContactName(e.target.value)}
+                    className="h-9 text-xs"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="modalAdminContactName" className="text-xs">Contact Person</Label>
+                    <Label htmlFor="modalAdminContactEmail" className="text-xs">Contact Email</Label>
                     <Input
-                      id="modalAdminContactName"
-                      value={adminContactName}
-                      onChange={(e) => setAdminContactName(e.target.value)}
+                      id="modalAdminContactEmail"
+                      type="email"
+                      value={adminContactEmail}
+                      onChange={(e) => setAdminContactEmail(e.target.value)}
                       className="h-9 text-xs"
                     />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="modalAdminContactEmail" className="text-xs">Contact Email</Label>
-                      <Input
-                        id="modalAdminContactEmail"
-                        type="email"
-                        value={adminContactEmail}
-                        onChange={(e) => setAdminContactEmail(e.target.value)}
-                        className="h-9 text-xs"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="modalAdminContactPhone" className="text-xs">Contact Phone</Label>
-                      <Input
-                        id="modalAdminContactPhone"
-                        value={adminContactPhone}
-                        onChange={(e) => setAdminContactPhone(e.target.value)}
-                        className="h-9 text-xs"
-                      />
-                    </div>
-                  </div>
-
                   <div className="space-y-1.5">
-                    <Label htmlFor="modalAdminIssue" className="text-xs">Initial Issue / Scope *</Label>
-                    <Textarea
-                      id="modalAdminIssue"
-                      value={adminIssue}
-                      onChange={(e) => setAdminIssue(e.target.value)}
-                      className="text-xs min-h-[60px]"
-                      required
+                    <Label htmlFor="modalAdminContactPhone" className="text-xs">Contact Phone</Label>
+                    <Input
+                      id="modalAdminContactPhone"
+                      value={adminContactPhone}
+                      onChange={(e) => setAdminContactPhone(e.target.value)}
+                      className="h-9 text-xs"
                     />
                   </div>
+                </div>
 
-                  <DialogFooter className="pt-2 border-t border-border flex items-center justify-end gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsAdminEditOpen(false)}
-                      className="text-xs"
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" size="sm" className="text-xs">
-                      Save Admin Changes
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+                <div className="space-y-1.5">
+                  <Label htmlFor="modalAdminIssue" className="text-xs">Initial Issue / Scope *</Label>
+                  <Textarea
+                    id="modalAdminIssue"
+                    value={adminIssue}
+                    onChange={(e) => setAdminIssue(e.target.value)}
+                    className="text-xs min-h-[80px]"
+                    required
+                  />
+                </div>
+              </form>
+
+              <DialogFooter className="p-3.5 sm:p-4 border-t border-border bg-card/60 shrink-0 flex items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAdminEditOpen(false)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button type="button" size="sm" onClick={handleSaveAdminEdit} className="text-xs">
+                  Save Admin Changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
             {/* Add Expense Modal */}
             <ExpenseFormModal
